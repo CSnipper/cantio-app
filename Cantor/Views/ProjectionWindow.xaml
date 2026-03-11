@@ -1,0 +1,44 @@
+<Window x:Class="Cantor.Views.ProjectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:Cantor.Helpers"
+        Title="Cantor — Projekcja"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{Binding BackgroundBrush}"
+        AllowsTransparency="False">
+    <Window.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid" Background="{Binding BackgroundBrush}" ClipToBounds="True">
+
+        <!-- Tło graficzne -->
+        <Image Source="{Binding BackgroundImagePath}"
+               Stretch="UniformToFill"
+               Opacity="{Binding BackgroundImageOpacity}"/>
+
+        <!-- Tekst — każda linia osobno (obsługa ujemnego odstępu) -->
+           <TextBlock Text="{Binding SlideText}"
+                       VerticalAlignment="{Binding TextVerticalAlignment}"
+                       Margin="{Binding TextMargin}"
+                       FontFamily="{Binding FontFamily}"
+                       FontSize="{Binding FontSize}"
+                       FontWeight="{Binding FontWeight}"
+                       Foreground="{Binding TextBrush}"
+                       TextAlignment="{Binding TextAlignment}"
+                       TextWrapping="Wrap"
+                       LineHeight="{Binding DisplayLineHeight}">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black"
+                                      ShadowDepth="{Binding ShadowDepth}"
+                                      BlurRadius="{Binding ShadowBlur}"
+                                      Opacity="{Binding ShadowOpacity}"/>
+                </TextBlock.Effect>
+            </TextBlock>
+        <!-- Overlay pusty ekran -->
+        <Border Background="#000000"
+                Visibility="{Binding IsBlank, Converter={StaticResource BoolToVis}}"/>
+    </Grid>
+</Window>

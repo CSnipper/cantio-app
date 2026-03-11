@@ -1,0 +1,20 @@
+<!-- Znajdź i zastąp ten fragment (w PaneSets → ItemsControl "Lista grup") -->
+
+<!-- PRZED: -->
+<DataTrigger Binding="{Binding DataContext.SelectedGroup,
+    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+    Value="{Binding}">
+    <Setter Property="Foreground" Value="#c9a84c"/>
+</DataTrigger>
+
+<!-- PO: -->
+<DataTrigger Value="True">
+    <DataTrigger.Binding>
+        <MultiBinding Converter="{StaticResource IsEqual}">
+            <Binding Path="DataContext.SelectedGroup"
+                     RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+            <Binding/>
+        </MultiBinding>
+    </DataTrigger.Binding>
+    <Setter Property="Foreground" Value="#c9a84c"/>
+</DataTrigger>

@@ -1,0 +1,2822 @@
+<Window x:Class="Cantor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:Cantor.Helpers"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Cantor" Height="720" Width="1280"
+        MinHeight="600" MinWidth="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#0f1117">
+
+    <Window.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <helpers:EnumToBoolConverter x:Key="EnumBool"/>
+        <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
+        <helpers:IsEqualConverter x:Key="IsEqual"/>
+        <FontFamily x:Key="CinzelFont">/Assets/Fonts/#Cinzel</FontFamily>
+        
+        <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Background"           Value="#1e2535"/>
+            <Setter Property="Foreground"           Value="#e8eaf0"/>
+            <Setter Property="BorderBrush"          Value="#2a3347"/>
+            <Setter Property="BorderThickness"      Value="1"/>
+            <Setter Property="Padding"              Value="10,7"/>
+            <Setter Property="FontSize"             Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4">
+                                <Grid>
+                                    <ContentPresenter x:Name="ContentSite"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"/>
+                                    <TextBox x:Name="PART_EditableTextBox"
+                                     Visibility="Collapsed"
+                                     Background="Transparent" Foreground="{TemplateBinding Foreground}"
+                                     BorderThickness="0" Margin="{TemplateBinding Padding}"/>
+                                    <Path x:Name="Arrow" Data="M0,0 L4,4 L8,0"
+                                  Stroke="#959fb9" StrokeThickness="1.5"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Margin="0,0,12,0"/>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
+                           AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                CornerRadius="4" Margin="0,2,0,0">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3a4a65"/>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Bd"    Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter TargetName="Arrow" Property="Stroke"      Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="ContentSite"         Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background"      Value="Transparent"/>
+                        <Setter Property="Foreground"      Value="#e8eaf0"/>
+                        <Setter Property="Padding"         Value="10,7"/>
+                        <Setter Property="FontSize"        Value="13"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#252d3d"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#2a3347"/>
+                                <Setter Property="Foreground"  Value="#c9a84c"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Ciemny TextBox ─────────────────────────────────────────────────── -->
+        <Style x:Key="DarkTextBox" TargetType="TextBox">
+            <Setter Property="Background"      Value="#1e2535"/>
+            <Setter Property="Foreground"      Value="#e8eaf0"/>
+            <Setter Property="BorderBrush"     Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="8,6"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="CaretBrush"      Value="#c9a84c"/>
+            <Setter Property="SelectionBrush"  Value="#c9a84c"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#3a4a65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Ciemny Slider ─────────────────────────────────────────────────── -->
+        <Style x:Key="DarkSlider" TargetType="Slider">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*" MinHeight="18"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Track x:Name="PART_Track" Grid.Row="1">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton>
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="4" CornerRadius="2" Background="#c9a84c"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton>
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="4" CornerRadius="2" Background="#2a3347"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse Width="14" Height="14"
+                                                 Fill="#c9a84c" Stroke="#0f1117" StrokeThickness="2"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Ciemny CheckBox ───────────────────────────────────────────────── -->
+        <Style x:Key="DarkCheck" TargetType="CheckBox">
+            <Setter Property="Foreground"  Value="#e8eaf0"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="Box" Width="16" Height="16" CornerRadius="3"
+                            Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                            Margin="0,0,8,0">
+                                <Path x:Name="Check" Data="M2,8 L6,12 L14,4"
+                              Stroke="#c9a84c" StrokeThickness="2"
+                              Visibility="Collapsed"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Box"   Property="BorderBrush" Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#3a4a65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Ciemny RadioButton ────────────────────────────────────────────── -->
+        <Style x:Key="DarkRadio" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#e8eaf0"/>
+            <Setter Property="FontSize"   Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="Box" Width="16" Height="16" CornerRadius="8"
+                            Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                            Margin="0,0,8,0">
+                                <Ellipse x:Name="Dot" Width="8" Height="8"
+                                 Fill="#c9a84c" Visibility="Collapsed"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#c9a84c"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── ToggleButton (wyrównanie tekstu) ──────────────────────────────── -->
+        <Style x:Key="AlignBtn" TargetType="ToggleButton">
+            <Setter Property="Background"      Value="#1e2535"/>
+            <Setter Property="Foreground"      Value="#959fb9"/>
+            <Setter Property="BorderBrush"     Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width"  Value="36"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background"  Value="#2a3347"/>
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground"  Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#3a4a65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Zakładka ustawień (Czcionka/Kolor/itd.) ───────────────────────── -->
+        <Style x:Key="SettingsTab" TargetType="RadioButton">
+            <Setter Property="Background"  Value="Transparent"/>
+            <Setter Property="Foreground"  Value="#959fb9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"     Value="14,10"/>
+            <Setter Property="FontFamily"  Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontSize"    Value="10"/>
+            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                        BorderBrush="Transparent" BorderThickness="0,0,0,2"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
+        <!-- ── SCROLLBAR ── -->
+        <Style x:Key="SlimScrollViewer" TargetType="ScrollViewer">
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+        </Style>
+
+        <!-- ── TAB BUTTON ── -->
+        <Style x:Key="TabBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,5"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#959fb9"/>
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="40,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#08ffffff"/>
+                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TabBtnActive" TargetType="Button" BasedOn="{StaticResource TabBtn}">
+            <Setter Property="BorderBrush" Value="#c9a84c"/>
+            <Setter Property="Foreground" Value="#c9a84c"/>
+            <Setter Property="Background" Value="#0Dc9a84c"/>
+        </Style>
+
+        <!-- ── OUTLINE BUTTON ── -->
+        <Style x:Key="OutlineBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9aa3b8"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="16,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── RED BUTTON ── -->
+        <Style x:Key="RedBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+            <Setter Property="Foreground" Value="#d44a4a"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#18d44a4a"/>
+                                <Setter Property="BorderBrush" Value="#d44a4a"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── GOLD BUTTON ── -->
+        <Style x:Key="GoldBtn" TargetType="Button">
+            <Setter Property="Background" Value="#c9a84c"/>
+            <Setter Property="Foreground" Value="#0f1117"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#e8c97a"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── PIN BUTTON ── -->
+        <Style x:Key="PinBtn" TargetType="ToggleButton">
+            <Setter Property="Background" Value="#1e2535"/>
+            <Setter Property="Foreground" Value="#9aa3b8"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#1a2540"/>
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#e8c97a"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── NAV BUTTON ── -->
+        <Style x:Key="NavBtn" TargetType="Button">
+            <Setter Property="Background" Value="#1e2535"/>
+            <Setter Property="Foreground" Value="#e8eaf0"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="5">
+                            <TextBlock Text="{TemplateBinding Content}"
+                               FontSize="{TemplateBinding FontSize}"
+                               Foreground="{TemplateBinding Foreground}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#252d3d"/>
+                                <Setter Property="BorderBrush" Value="#4a7fd4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── SEARCH BOX ── -->
+        <Style x:Key="SearchBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#1e2535"/>
+            <Setter Property="Foreground" Value="#e8eaf0"/>
+            <Setter Property="CaretBrush" Value="#c9a84c"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="32,8,10,8"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#4a7fd4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── SHARED LIST ITEM ── -->
+        <Style x:Key="DarkListItem" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#9aa3b8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Stretch"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1e2535"/>
+                                <Setter Property="Foreground" Value="#e8eaf0"/>
+                                <Setter Property="BorderBrush" Value="#2a3347"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#1a2540"/>
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#e8eaf0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkListItemGold" TargetType="ListBoxItem" BasedOn="{StaticResource DarkListItem}">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="#e8c97a"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════ TOP BAR ══════════ -->
+        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="♪ CANTOR"
+                           FontFamily="{StaticResource CinzelFont}"
+                           FontSize="30" FontWeight="Bold" Foreground="#c9a84c"
+                           VerticalAlignment="Center" Margin="12,0,12,0"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar">
+                    <Button x:Name="TabShow"     Content="▶  WYŚWIETLANIE" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
+                    <Button x:Name="TabSongs"    Content="♪  PIEŚNI"       Style="{StaticResource TabBtn}"       Height="56" Click="TabSongs_Click"/>
+                    <Button x:Name="TabCats"     Content="☰  KATEGORIE"    Style="{StaticResource TabBtn}"       Height="56" Click="TabCats_Click"/>
+                    <Button x:Name="TabSets"     Content="☑  ZESTAWY"      Style="{StaticResource TabBtn}"       Height="56" Click="TabSets_Click"/>
+                    <Button x:Name="TabTemplate" Content="🎨  SZABLON"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
+                    <Button x:Name="TabImport"   Content="⬇  IMPORT"       Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click"/>
+                </StackPanel>
+
+                <Border Grid.Column="2" Margin="0,0,16,0"
+                        Background="#0D4ad47a" BorderBrush="#334ad47a" BorderThickness="1"
+                        CornerRadius="5" Padding="12,5"
+                        Visibility="{Binding IsScreenOn, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="#4ad47a" Margin="0,0,8,0">
+                            <Ellipse.Effect>
+                                <DropShadowEffect Color="#4ad47a" ShadowDepth="0" BlurRadius="6"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                        <TextBlock Text="NA ŻYWO" Foreground="#4ad47a"
+                                   FontFamily="{StaticResource CinzelFont}" FontSize="11" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ══════════ CONTENT ══════════ -->
+        <Grid Grid.Row="1">
+
+            <!-- ── TAB: WYŚWIETLANIE ── -->
+            <Grid x:Name="PaneShow" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="58"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="350"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- LEFT -->
+                    <Grid Grid.Column="0" Background="#0f1117">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.42*"/>
+                            <RowDefinition Height="2"/>
+                            <RowDefinition Height="0.58*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Kategorie -->
+                        <Grid Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,0,1,1" Padding="14,11">
+                                <TextBlock Text="KATEGORIE"
+                                           FontFamily="{StaticResource CinzelFont}"
+                                           FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                            </Border>
+                            <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                <ListBox ItemsSource="{Binding Categories}"
+                                         SelectedItem="{Binding SelectedCategory}"
+                                         Background="Transparent" BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                         ItemContainerStyle="{StaticResource DarkListItemGold}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" Padding="5,10,0,10"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                        </Grid>
+
+                        <Border Grid.Row="1" Background="#2a3347" BorderThickness="0,0,1,0" BorderBrush="#2a3347"/>
+
+                        <!-- Pieśni -->
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,0,1,1" Padding="14,11">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="PIEŚNI — "
+                                               FontFamily="{StaticResource CinzelFont}"
+                                               FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                    <TextBlock Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,0,1,1" Padding="10">
+                                <Grid>
+                                    <TextBox Style="{StaticResource SearchBox}"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="🔍" Foreground="#959fb9" FontSize="13"
+                                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0"/>
+                                    <TextBlock Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
+                                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="32,0,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                <ListBox ItemsSource="{Binding Songs}"
+                                         SelectedItem="{Binding SelectedSong}"
+                                         Background="Transparent" BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ItemContainerStyle="{StaticResource DarkListItem}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="38"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Number, StringFormat='{}{0:D3}'}"
+                                                           Foreground="#959fb9"
+                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontSize="10" VerticalAlignment="Center" Margin="11,12,0,12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                           Margin="0,12,0,12" TextWrapping="Wrap"/>
+                                                <Button Grid.Column="2" Content="+"
+                                                        Width="40" Height="40"
+                                                        Background="#343f58" BorderBrush="#2a3347"
+                                                        BorderThickness="0" Foreground="#959fb9"
+                                                        Cursor="Hand"
+                                                        Command="{Binding DataContext.AddToSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                    CornerRadius="0">
+                                                                <TextBlock Text="+"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,0,4"
+                                                                           FontSize="30" FontWeight="Bold"
+                                                                           Foreground="{TemplateBinding Foreground}"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#c9a84c"/>
+                                                                    <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                                    <Setter Property="Foreground" Value="#0f1117"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <!-- RIGHT: Zwrotki + Zestaw -->
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="240"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Zwrotki -->
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="70"/>
+                            </Grid.RowDefinitions>
+
+                        <!-- Nagłówek -->
+                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                BorderThickness="0,0,0,1" Padding="14,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="ZWROTKI"
+                                           FontFamily="{StaticResource CinzelFont}"
+                                           FontSize="10" FontWeight="SemiBold"
+                                           Foreground="#c9a84c" Margin="0,0,16,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding SelectedSong.Title}"
+                                           Foreground="#e8eaf0" FontSize="12" FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Lista zwrotek -->
+                        <ScrollViewer Grid.Row="1" Style="{StaticResource SlimScrollViewer}">
+                            <ListBox ItemsSource="{Binding Verses}"
+                                     SelectedItem="{Binding SelectedVerse}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ItemContainerStyle="{StaticResource DarkListItem}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid MinHeight="64">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Background="#1e2535"
+                                                    BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                                <TextBlock Text="{Binding Label, Mode=OneWay}"
+                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontSize="13" FontWeight="Bold"
+                                                           Foreground="{Binding LabelColor}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="1"
+                                                       helpers:TextBlockHelper.FormattedText="{Binding Text}"
+                                                       FontSize="15" LineHeight="24"
+                                                       TextWrapping="Wrap"
+                                                       VerticalAlignment="Center"
+                                                       Margin="14,12,12,12"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </ScrollViewer>
+
+                        <!-- Podgląd + strzałki -->
+                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                                BorderThickness="0,2,0,0" Padding="12,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="110"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Miniaturka -->
+                                <Border Grid.Column="0" CornerRadius="5"
+                                        Background="#000000" BorderBrush="#2a3347" BorderThickness="1"
+                                        Height="90" ClipToBounds="True">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="12" Opacity=".5"/>
+                                    </Border.Effect>
+                                    <TextBlock Text="{Binding SelectedVerse.Text}"
+                                               Foreground="White" FontSize="7" LineHeight="12"
+                                               TextWrapping="Wrap" TextAlignment="Center"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               Padding="8"/>
+                                </Border>
+
+                                <!-- Info -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
+                                    <TextBlock Text="PODGLĄD EKRANU"
+                                               FontFamily="{StaticResource CinzelFont}"
+                                               FontSize="9" Foreground="#959fb9" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding SelectedSong.Title}"
+                                               Foreground="#e8c97a" FontSize="13" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding VerseIndicator}"
+                                               Foreground="#959fb9" FontSize="11"/>
+                                </StackPanel>
+
+                                <!-- ◀ -->
+                                <Button Grid.Column="2" Content="◀"
+                                        Style="{StaticResource NavBtn}"
+                                        Height="100" FontSize="40" Width="100"
+                                        Command="{Binding PrevSlideCommand}"/>
+
+                                <!-- ▶ -->
+                                <Button Grid.Column="4" Content="▶"
+                                        Style="{StaticResource NavBtn}"
+                                        Height="100" FontSize="40" Width="100"
+                                        Command="{Binding NextSlideCommand}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- POKAŻ NA EKRANIE -->
+                        <Button Grid.Row="3" Height="70"
+                                Command="{Binding ToggleScreenCommand}" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#c9a84c"/>
+                                    <Setter Property="Foreground" Value="#0f1117"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+                                    <Setter Property="FontSize" Value="13"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#e8c97a"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScreenOn}" Value="True">
+                                            <Setter Property="Background" Value="#1e2535"/>
+                                            <Setter Property="Foreground" Value="#d44a4a"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ToggleScreenIcon}" FontSize="16"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding ToggleScreenText}"
+                                           VerticalAlignment="Center" FontSize="24"/>
+                            </StackPanel>
+                        </Button>
+                        </Grid>
+
+                        <!-- Zestaw -->
+                        <Grid Grid.Column="1" Background="#0f1117">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="1,0,0,1" Padding="12,11">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="ZESTAW"
+                                               FontFamily="{StaticResource CinzelFont}"
+                                               FontSize="10" FontWeight="SemiBold"
+                                               Foreground="#c9a84c" Margin="0,0,10,0"/>
+                                    <Border Background="#252d3d" CornerRadius="10" Padding="8,2">
+                                        <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="1,0,0,0">
+                                <ListBox ItemsSource="{Binding SetlistItems}"
+                                         SelectedItem="{Binding SelectedSetlistItem}"
+                                         Background="Transparent" BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ItemContainerStyle="{StaticResource DarkListItemGold}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="12"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Ellipse Grid.Column="0" Width="6" Height="6" Fill="#c9a84c"
+                                                         VerticalAlignment="Center"
+                                                         Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVis}}">
+                                                    <Ellipse.Effect>
+                                                        <DropShadowEffect Color="#c9a84c" ShadowDepth="0" BlurRadius="6"/>
+                                                    </Ellipse.Effect>
+                                                </Ellipse>
+                                                <TextBlock Grid.Column="1" Text="⠿" Foreground="#959fb9"
+                                                           FontSize="20" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding Position}"
+                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontSize="20" Foreground="#959fb9" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding Song.Title}"
+                                                           TextWrapping="Wrap" VerticalAlignment="Center" 
+                                                           HorizontalAlignment="Stretch"
+                                                           FontSize="14" Padding="10,0,0,0"/>
+                                                <Button Grid.Column="4" Content="×"
+                                                        Width="30" Height="30"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="20" Cursor="Hand"
+                                                        Command="{Binding DataContext.RemoveFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="Transparent">
+                                                                <TextBlock Text="×"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           FontSize="18"
+                                                                           Foreground="{TemplateBinding Foreground}"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+
+                            <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="1,1,0,0" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Content="ZAPISZ ZESTAW"
+                                            Style="{StaticResource OutlineBtn}" Margin="0,0,7,0"
+                                            Command="{Binding SaveSetlistCommand}"/>
+                                    <Button Grid.Column="1" Content="WYCZYŚĆ"
+                                            Style="{StaticResource RedBtn}"
+                                            Command="{Binding ClearSetlistCommand}"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- BOTTOM BAR -->
+                <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                        BorderThickness="0,1,0,0" Height="58">
+                    <Grid Margin="12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Przypięte zestawy -->
+                        <ItemsControl Grid.Column="0" ItemsSource="{Binding PinnedSetlists}"
+                                      VerticalAlignment="Center">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ToggleButton Content="{Binding Name}" Style="{StaticResource PinBtn}"
+                                                  Margin="0,0,7,0"
+                                                  Command="{Binding DataContext.LoadSetlistCommand,
+                                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- SlideInfo + Ctrl nawigacja -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="TERAZ WYŚWIETLANE"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontSize="9" Foreground="#959fb9"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding SelectedSong.Title}"
+                                       Foreground="#e8eaf0" FontSize="13" FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="200"
+                                       VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                    CornerRadius="5" Padding="14,0" Height="38">
+                                <TextBlock Text="{Binding SlideInfo}"
+                                           FontFamily="{StaticResource CinzelFont}"
+                                           FontSize="13" FontWeight="Bold" Foreground="#c9a84c"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+
+            </Grid>
+
+            <!-- OTHER TABS -->
+            <!-- PIEŚNI -->
+            <Grid x:Name="PaneSongs" Visibility="Collapsed" Background="#0f1117">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="320"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ═══════════════════════════════════════
+                     LEWA: lista pieśni
+                ═══════════════════════════════════════ -->
+                <Grid Grid.Column="0" Background="#0f1117">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Nagłówek + Nowa pieśń -->
+                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="14,11">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="PIEŚNI"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="+ NOWA"
+                                    Style="{StaticResource GoldBtn}" Padding="10,5"
+                                    Command="{Binding NewSongCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Szukaj -->
+                    <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="10">
+                        <Grid>
+                            <TextBox Style="{StaticResource SearchBox}"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="🔍" Foreground="#959fb9" FontSize="13"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="32,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <!-- Lista -->
+                    <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                        <ListBox ItemsSource="{Binding FilteredSongs}"
+                                 SelectedItem="{Binding SelectedSongInList}"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ItemContainerStyle="{StaticResource DarkListItem}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Number, StringFormat='{}{0:D3}'}"
+                                                   Foreground="#959fb9"
+                                                   FontFamily="{StaticResource CinzelFont}"
+                                                   FontSize="10" VerticalAlignment="Center"
+                                                   Margin="11,12,0,12"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                    Margin="4,8,8,8">
+                                            <TextBlock Text="{Binding Title}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       FontSize="13" Foreground="#e8eaf0"/>
+                                            <TextBlock Text="{Binding Category.Name}"
+                                                       FontSize="11" Foreground="#959fb9"
+                                                       Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+
+                <!-- ═══════════════════════════════════════
+                          PRAWA: edytor
+                     ═══════════════════════════════════════ -->
+                <Grid Grid.Column="1">
+
+                    <!-- Edytor — zawsze widoczny, treść zależy od IsEditing -->
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- INFORMACJE -->
+                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                    BorderThickness="0,0,0,1" Padding="20,14"
+                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="200"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="TYTUŁ"
+                               Foreground="#959fb9" FontSize="10"
+                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="NR"
+                               Foreground="#959fb9" FontSize="10"
+                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="KATEGORIA"
+                               Foreground="#959fb9" FontSize="10"
+                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               Margin="0,0,0,5"/>
+
+                                <TextBox Grid.Row="2" Grid.Column="0"
+                             Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkTextBox}" FontSize="15"/>
+                                <TextBox Grid.Row="2" Grid.Column="2"
+                             Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkTextBox}"
+                             helpers:NumericBox.IsEnabled="True"
+                             helpers:NumericBox.Min="0"
+                             helpers:NumericBox.Max="9999"
+                             TextAlignment="Center"/>
+                                <ComboBox Grid.Row="2" Grid.Column="4"
+                              Style="{StaticResource DarkCombo}"
+                              ItemsSource="{Binding Categories}"
+                              SelectedItem="{Binding EditCategory}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                        </Border>
+
+                        <!-- ZWROTKI + KOLEJNOŚĆ -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="1"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- ZWROTKI -->
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,0,1" Padding="14,10">
+                                    <TextBlock Text="ZWROTKI"
+                                   FontFamily="{StaticResource CinzelFont}"
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                </Border>
+
+                                <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,0,1" Padding="10,8"
+                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Dodaj:" Foreground="#959fb9" FontSize="12"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <Button Content="+ Zwrotka" Style="{StaticResource OutlineBtn}"
+                                    Padding="10,5" Margin="0,0,6,0"
+                                    Command="{Binding AddVerseCommand}" CommandParameter="v"/>
+                                        <Button Content="+ Refren" Style="{StaticResource OutlineBtn}"
+                                    Padding="10,5" Margin="0,0,6,0"
+                                    Command="{Binding AddVerseCommand}" CommandParameter="c"/>
+                                        <Button Content="+ Bridge" Style="{StaticResource OutlineBtn}"
+                                    Padding="10,5"
+                                    Command="{Binding AddVerseCommand}" CommandParameter="b"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Placeholder gdy brak pieśni — w kolumnie zwrotek -->
+                                <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Panel.ZIndex="1">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEditing}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="♪" FontSize="48" Foreground="#2a3347"
+                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Wybierz pieśń lub kliknij + NOWA"
+                                   Foreground="#959fb9" FontSize="14"
+                                   FontFamily="{StaticResource CinzelFont}"/>
+                                </StackPanel>
+
+                                <!-- Lista zwrotek + TextBox do edycji -->
+                                <Grid Grid.Row="2"
+                          Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="64"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Miniaturki zwrotek -->
+                                    <Border Grid.Column="0" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Hidden">
+                                            <ItemsControl ItemsSource="{Binding Verses}" Margin="6,6,6,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,4">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="18"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Button Grid.Column="0"
+                                                        Command="{Binding DataContext.SelectVerseCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Height="40" Cursor="Hand">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                                        <Setter Property="BorderBrush" Value="#2a3347"/>
+                                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                CornerRadius="4">
+                                                                                        <TextBlock Text="{Binding Label, Mode=OneWay}"
+                                                                                       FontFamily="{StaticResource CinzelFont}"
+                                                                                       FontSize="14" FontWeight="Bold"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       VerticalAlignment="Center">
+                                                                                            <TextBlock.Style>
+                                                                                                <Style TargetType="TextBlock">
+                                                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                                                                    <Style.Triggers>
+                                                                                                        <DataTrigger Binding="{Binding Type}" Value="c">
+                                                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                                                        </DataTrigger>
+                                                                                                        <DataTrigger Binding="{Binding Type}" Value="b">
+                                                                                                            <Setter Property="Foreground" Value="#4a9fd4"/>
+                                                                                                        </DataTrigger>
+                                                                                                    </Style.Triggers>
+                                                                                                </Style>
+                                                                                            </TextBlock.Style>
+                                                                                        </TextBlock>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Value="True">
+                                                                                <DataTrigger.Binding>
+                                                                                    <MultiBinding Converter="{StaticResource IsEqual}">
+                                                                                        <Binding Path="DataContext.SelectedVerse"
+                                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                                        <Binding/>
+                                                                                    </MultiBinding>
+                                                                                </DataTrigger.Binding>
+                                                                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                                                <Setter Property="Background"  Value="#1a2540"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Grid.Column="1" Content="×"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="14"
+                                                        Cursor="Hand" VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.RemoveVerseCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                                <Button.Template>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="Transparent">
+                                                                            <TextBlock Text="×" FontSize="14"
+                                                                           Foreground="{TemplateBinding Foreground}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Button.Template>
+                                                            </Button>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <!-- TextBox edycji tekstu zwrotki -->
+                                    <Grid Grid.Column="1">
+                                        <TextBox Text="{Binding SelectedVerseText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DarkTextBox}"
+                                     AcceptsReturn="True" AcceptsTab="False"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontSize="14" FontFamily="Consolas"
+                                     Background="#0f1117"
+                                     BorderThickness="0"
+                                     Padding="16"/>
+                                        <TextBlock Text="Wybierz zwrotkę aby edytować tekst..."
+                                       Foreground="#959fb9" FontSize="13"
+                                       IsHitTestVisible="False"
+                                       VerticalAlignment="Top" HorizontalAlignment="Left"
+                                       Margin="16">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedVerse}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+
+                            <!-- Separator -->
+                            <Border Grid.Column="1" Background="#2a3347"/>
+
+                            <!-- KOLEJNOŚĆ WYKONANIA -->
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="1"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,0,1" Padding="14,10">
+                                    <TextBlock Text="KOLEJNOŚĆ WYKONANIA"
+                                   FontFamily="{StaticResource CinzelFont}"
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                </Border>
+
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Hidden" Padding="12,8">
+                                    <ItemsControl ItemsSource="{Binding PlayOrder}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="28"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Background="#1e2535"
+                                                BorderBrush="#2a3347" BorderThickness="1"
+                                                CornerRadius="4" Padding="12,8">
+                                                        <TextBlock VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                                    <Setter Property="FontSize" Value="13"/>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                <Run Text="{Binding Label, Mode=OneWay}"
+                                                     FontFamily="{StaticResource CinzelFont}"
+                                                     FontWeight="Bold"/>
+                                                <Run Text=" — "/>
+                                                <Run Text="{Binding Type, Mode=OneWay}"
+                                                     Foreground="#959fb9" FontSize="11"/>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <Button Grid.Column="1" Content="×"
+                                                Background="Transparent" BorderThickness="0"
+                                                Foreground="#959fb9" FontSize="16"
+                                                Cursor="Hand" VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Command="{Binding DataContext.RemoveFromPlayOrderCommand,
+                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent">
+                                                                    <TextBlock Text="×" FontSize="16"
+                                                                   Foreground="{TemplateBinding Foreground}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+
+                                <Border Grid.Row="2" Background="#2a3347"/>
+
+                                <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,1,0,0" Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock Text="DODAJ DO KOLEJNOŚCI"
+                                       Foreground="#959fb9" FontSize="10"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <ItemsControl ItemsSource="{Binding Verses}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Margin="0,0,6,6" Padding="12,7" Cursor="Hand"
+                                                Command="{Binding DataContext.AddToPlayOrderCommand,
+                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Background" Value="#1e2535"/>
+                                                                <Setter Property="BorderBrush" Value="#2a3347"/>
+                                                                <Setter Property="BorderThickness" Value="1"/>
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                      VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#252d3d"/>
+                                                                                    <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="c">
+                                                                        <Setter Property="BorderBrush" Value="#4a5a30"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Type}" Value="b">
+                                                                        <Setter Property="BorderBrush" Value="#1a3a5a"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                        <TextBlock FontFamily="{StaticResource CinzelFont}"
+                                                       FontSize="13" FontWeight="Bold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="c">
+                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="b">
+                                                                            <Setter Property="Foreground" Value="#4a9fd4"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                <Run Text="{Binding Label, Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <!-- PRZYCISKI -->
+                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                    BorderThickness="0,1,0,0" Padding="20,12"
+                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="ZAPISZ PIEŚŃ"
+                            Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
+                            Command="{Binding SaveSongCommand}"/>
+                                <Button Grid.Column="2" Content="ANULUJ"
+                            Style="{StaticResource OutlineBtn}" Height="42" Padding="20,0"
+                            Command="{Binding CancelEditCommand}"/>
+                                <Button Grid.Column="4" Content="USUŃ"
+                            Style="{StaticResource RedBtn}" Height="42" Padding="20,0"
+                            Command="{Binding DeleteSongCommand}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
+                <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource CinzelFont}" FontSize="16"/>
+            </Grid>
+            <Grid x:Name="PaneSets" Visibility="Collapsed" Background="#0f1117">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ═══════════════════════════════════════
+                     LEWA: grupy + zestawy
+                ═══════════════════════════════════════ -->
+                <Grid Grid.Column="0" Background="#0f1117">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>  <!-- nagłówek -->
+                        <RowDefinition Height="Auto"/>  <!-- grupy -->
+                        <RowDefinition Height="*"/>     <!-- lista zestawów -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Nagłówek -->
+                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="14,11">
+                        <TextBlock Text="GRUPY"
+                                   FontFamily="{StaticResource CinzelFont}"
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                    </Border>
+
+                    <!-- Grupy -->
+                    <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="8,8">
+                        <StackPanel>
+
+                            <!-- Dodaj nową grupę -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="36"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}"
+                                         Background="#0f1117" Foreground="#e8eaf0" CaretBrush="#e8eaf0"
+                                         BorderBrush="#2a3347" BorderThickness="1"
+                                         FontSize="13" Padding="8,6"
+                                         Height="34">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Return" Command="{Binding AddGroupCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <Button Grid.Column="2"
+                                        Content="+"
+                                        Background="#c9a84c" BorderThickness="0"
+                                        Foreground="#0f1117" FontSize="20" FontWeight="Bold"
+                                        Width="36" Height="34"
+                                        Command="{Binding AddGroupCommand }"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <TextBlock Text="+" FontSize="20" FontWeight="Bold"
+                                                           Foreground="#0f1117"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#e0bc6a"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+
+                            <!-- Separator -->
+                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,0,0,8"/>
+
+                            <!-- Wszystkie -->
+                            <Button Command="{Binding SelectAllGroupsCommand}"
+                                    Cursor="Hand" Margin="0,0,0,2">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="4" Padding="8,6">
+                                                        <TextBlock Text="Wszystkie zestawy"
+                                                                   FontFamily="{StaticResource CinzelFont}"
+                                                                   FontSize="14" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#959fb9"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding SelectedGroup}" Value="{x:Null}">
+                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#1e2535"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <!-- Lista grup -->
+                            <ItemsControl ItemsSource="{Binding Groups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.SelectGroupCommand,
+                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Cursor="Hand" Margin="0,0,0,2">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        CornerRadius="4" Padding="8,6">
+                                                                    <TextBlock Text="{Binding}"
+                                                                               FontFamily="{StaticResource CinzelFont}"
+                                                                               FontSize="14" FontWeight="SemiBold">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Foreground" Value="#959fb9"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Value="True">
+                                                                                        <DataTrigger.Binding>
+                                                                                            <MultiBinding Converter="{StaticResource IsEqual}">
+                                                                                                <Binding Path="DataContext.SelectedGroup"
+                                                                                                         RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                                                <Binding/>
+                                                                                            </MultiBinding>
+                                                                                        </DataTrigger.Binding>
+                                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Lista zestawów -->
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                BorderThickness="0,0,1,1" Padding="14,8">
+                            <TextBlock Text="ZESTAWY"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                        </Border>
+                        <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                        <ListBox ItemsSource="{Binding FilteredSetlists}"
+                                 SelectedItem="{Binding SelectedSetlist}"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ItemContainerStyle="{StaticResource DarkListItem}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="11,10,8,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontSize="13" Foreground="#e8eaf0"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                <TextBlock Text="{Binding Group}"
+                                                           FontSize="11" Foreground="#959fb9"
+                                                           Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                           FontSize="11" Foreground="#3a4a65"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <!-- Pinezka -->
+                                        <TextBlock Grid.Column="1" Text="📌"
+                                                   FontSize="11" VerticalAlignment="Center"
+                                                   Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ═══════════════════════════════════════
+                     PRAWA: zawartość zestawu
+                ═══════════════════════════════════════ -->
+                <Grid Grid.Column="1">
+
+                    <!-- Placeholder -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSetlistSelected}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="☑" FontSize="48" Foreground="#2a3347"
+                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <TextBlock Text="Wybierz zestaw z listy"
+                                   Foreground="#959fb9" FontSize="14"
+                                   FontFamily="{StaticResource CinzelFont}"/>
+                    </StackPanel>
+
+                    <!-- Zawartość zestawu -->
+                    <Grid Visibility="{Binding IsSetlistSelected, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Nagłówek zestawu -->
+                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                BorderThickness="0,0,0,1" Padding="20,13">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding SelectedSetlist.Name}"
+                                               FontSize="16" FontWeight="SemiBold" Foreground="#e8eaf0"/>
+                                    <TextBlock Text="{Binding SelectedSetlist.Group}"
+                                               FontSize="11" Foreground="#959fb9" Margin="0,3,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="📌 PRZYPNIJ"
+                                            Style="{StaticResource OutlineBtn}" Padding="12,7" Margin="0,0,8,0"
+                                            Command="{Binding TogglePinCommand}"/>
+                                    <Button Content="USUŃ ZESTAW"
+                                            Style="{StaticResource RedBtn}" Padding="12,7"
+                                            Command="{Binding DeleteSetlistCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Lista pieśni -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Hidden">
+                            <ItemsControl ItemsSource="{Binding Items}" Margin="20,12,20,12"
+                                          x:Name="SetlistItemsControl"
+                                          AllowDrop="True">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#1e2535" BorderBrush="#2a3347"
+                                                BorderThickness="1" CornerRadius="5"
+                                                Margin="0,0,0,6" Padding="0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Uchwyt drag&drop -->
+                                                <TextBlock Grid.Column="0" Text="⠿"
+                                                           Foreground="#3a4a65" FontSize="20"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Cursor="SizeAll"/>
+
+                                                <!-- Numer -->
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding Position}"
+                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontSize="11" Foreground="#959fb9"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"/>
+
+                                                <!-- Tytuł -->
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Song.Title}"
+                                                           FontSize="13" Foreground="#e8eaf0"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Margin="0,12"/>
+
+                                                <!-- Klonuj -->
+                                                <Button Grid.Column="3"
+                                                        ToolTip="Klonuj"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="15"
+                                                        Cursor="Hand" VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        Command="{Binding DataContext.CloneItemCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="Transparent" Padding="4">
+                                                                <TextBlock Text="⧉" FontSize="15"
+                                                                           Foreground="{TemplateBinding Foreground}"
+                                                                           HorizontalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+
+                                                <!-- Usuń -->
+                                                <Button Grid.Column="4"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="16"
+                                                        Cursor="Hand" VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        Command="{Binding DataContext.RemoveItemCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="Transparent" Padding="4">
+                                                                <TextBlock Text="×" FontSize="16"
+                                                                           Foreground="{TemplateBinding Foreground}"
+                                                                           HorizontalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!-- Przyciski -->
+                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                                BorderThickness="0,1,0,0" Padding="20,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="ZAPISZ KOLEJNOŚĆ"
+                                        Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
+                                        Command="{Binding SaveItemsCommand}"/>
+                                <TextBlock Grid.Column="2"
+                                           Text="Niezapisane zmiany"
+                                           Foreground="#c9a84c" FontSize="11"
+                                           VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDirty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+
+            <!-- Zamień całą zawartość Grid x:Name="PaneTemplate" na poniższe -->
+
+            <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="#0f1117">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="380"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ════════════════════════════════════════════════════════════════
+         LEWA: zakładki ustawień
+    ════════════════════════════════════════════════════════════════ -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- tab bar -->
+                        <RowDefinition Height="*"/>
+                        <!-- treść zakładki -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- przyciski -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Tab bar -->
+                    <Border Grid.Row="0" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="CZCIONKA"  Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" IsChecked="True" x:Name="TabCzcionka"/>
+                            <RadioButton Content="KOLORY"    Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" x:Name="TabKolory"/>
+                            <RadioButton Content="TŁO"       Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" x:Name="TabTlo"/>
+                            <RadioButton Content="POZYCJA"   Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" x:Name="TabPozycja"/>
+                            <RadioButton Content="EKRAN"     Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" x:Name="TabEkran"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Treść zakładek -->
+                    <Grid Grid.Row="1">
+
+                        <!-- ── CZCIONKA ── -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                          Padding="20,16,20,0">
+                            <ScrollViewer.Style>
+                                <Style TargetType="ScrollViewer">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabCzcionka}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ScrollViewer.Style>
+                            <StackPanel>
+
+                                <!-- Rozmiar stały -->
+                                <TextBlock Text="ROZMIAR (PX)" Foreground="#959fb9" FontSize="10"
+                                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                           Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider Grid.Column="0" Style="{StaticResource DarkSlider}"
+                                            Minimum="10" Maximum="200" TickFrequency="1"
+                                            IsSnapToTickEnabled="True"
+                                            Value="{Binding FontSize}" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
+                                            BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                        <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:F0}'}"
+                                                 Style="{StaticResource DarkTextBox}"
+                                                 Background="Transparent" BorderThickness="0"
+                                                 Foreground="#c9a84c" FontSize="14" FontWeight="Bold"
+                                                 Padding="0" TextAlignment="Center"
+                                                 helpers:NumericBox.IsEnabled="True"
+                                                 helpers:NumericBox.Min="10"
+                                                 helpers:NumericBox.Max="200"
+                                                 helpers:NumericBox.Step="1"/>
+                                    </Border>
+                                </Grid>
+
+
+                                <!-- Rodzina -->
+                                <TextBlock Text="RODZINA CZCIONKI" Foreground="#959fb9" FontSize="10"
+                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+                                <ComboBox Style="{StaticResource DarkCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          Margin="0,0,0,16">
+                                    <ComboBox.ItemsSource>
+                                        <x:Array Type="{x:Type sys:String}"
+                                                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                            <sys:String>Segoe UI</sys:String>
+                                            <sys:String>Arial</sys:String>
+                                            <sys:String>Times New Roman</sys:String>
+                                            <sys:String>Cinzel</sys:String>
+                                            <sys:String>Georgia</sys:String>
+                                            <sys:String>Calibri</sys:String>
+                                            <sys:String>Verdana</sys:String>
+                                            <sys:String>Tahoma</sys:String>
+                                        </x:Array>
+                                    </ComboBox.ItemsSource>
+                                    <ComboBox.Text>
+                                        <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged"/>
+                                    </ComboBox.Text>
+                                </ComboBox>
+
+                                <!-- Styl + wyrównanie -->
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="STYL" Foreground="#959fb9" FontSize="10"
+                                       FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                       Margin="0,0,0,10"/>
+                                        <CheckBox IsChecked="{Binding FontBold}" Style="{StaticResource DarkCheck}">
+                                            <TextBlock Text="Pogrubiony" Foreground="#e8eaf0" FontSize="13"/>
+                                        </CheckBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="WYRÓWNANIE" Foreground="#959fb9" FontSize="10"
+                                       FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                       Margin="0,0,0,10"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
+                                              IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=left}"
+                                              Command="{Binding SetTextAlignCommand}" CommandParameter="left"
+                                              ToolTip="Do lewej">
+                                                <TextBlock Text="⬅" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                            </ToggleButton>
+                                            <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
+                                              IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=center}"
+                                              Command="{Binding SetTextAlignCommand}" CommandParameter="center"
+                                              ToolTip="Wyśrodkowany">
+                                                <TextBlock Text="☰" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                            </ToggleButton>
+                                            <ToggleButton Style="{StaticResource AlignBtn}"
+                                              IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=right}"
+                                              Command="{Binding SetTextAlignCommand}" CommandParameter="right"
+                                              ToolTip="Do prawej">
+                                                <TextBlock Text="➡" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                            </ToggleButton>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Odstęp linii -->
+                                <TextBlock Text="ODSTĘP LINII" Foreground="#959fb9" FontSize="10"
+                                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                           Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="60"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider Grid.Column="0" Style="{StaticResource DarkSlider}"
+                                            Minimum="1.3" Maximum="2.5" TickFrequency="0.05"
+                                            Value="{Binding LineHeightMultiplier}" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
+                                            BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                        <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='×{0:F2}'}"
+                                                 Style="{StaticResource DarkTextBox}"
+                                                 Background="Transparent" BorderThickness="0"
+                                                 Foreground="#9aa3b8" FontSize="12"
+                                                 Padding="0" TextAlignment="Center"
+                                                 helpers:NumericBox.IsEnabled="True"
+                                                 helpers:NumericBox.Min="1.3"
+                                                 helpers:NumericBox.Max="2.5"
+                                                 helpers:NumericBox.Step="0.05"
+                                                 helpers:NumericBox.Decimals="2"/>
+                                    </Border>
+                                </Grid>
+
+                             <TextBlock Text="POZYCJA PIONOWA" Foreground="#959fb9" FontSize="10"
+                                        FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                        Margin="0,16,0,12"/>
+                             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                 <RadioButton Content="Góra"   Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
+                                              IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=top}"
+                                              Command="{Binding SetTextPositionCommand}" CommandParameter="top"/>
+                                 <RadioButton Content="Środek" Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
+                                              IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=center}"
+                                              Command="{Binding SetTextPositionCommand}" CommandParameter="center"/>
+                                 <RadioButton Content="Dół"    Style="{StaticResource DarkRadio}"
+                                              IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=bottom}"
+                                              Command="{Binding SetTextPositionCommand}" CommandParameter="bottom"/>
+                             </StackPanel>
+                           </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- ── KOLORY ── -->
+                        <StackPanel Margin="20,16,20,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabKolory}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <!-- Kolor tekstu -->
+                            <TextBlock Text="KOLOR TEKSTU" Foreground="#959fb9" FontSize="10"
+                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                            <ItemsControl ItemsSource="{Binding TextPresets}" Margin="0,0,0,10">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Width="40" Height="40" Margin="0,0,6,6" ToolTip="{Binding Label, Mode=OneWay}"
+                                    Command="{Binding DataContext.SetTextColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding Hex}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{Binding Brush}" CornerRadius="5"
+                                                BorderBrush="#2a3347" BorderThickness="2">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect ShadowDepth="0" BlurRadius="6" Opacity=".3"/>
+                                                        </Border.Effect>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Border Background="{Binding TextColorSwatch}" Width="32" Height="32"
+                            CornerRadius="5" BorderBrush="#2a3347" BorderThickness="1" Margin="0,0,10,0"/>
+                                <TextBox Text="{Binding TextColor, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkTextBox}" Width="100"
+                             FontFamily="Consolas" FontSize="13"/>
+                            </StackPanel>
+
+                            <!-- Cień -->
+                            <TextBlock Text="CIEŃ TEKSTU" Foreground="#959fb9" FontSize="10"
+                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                            <CheckBox IsChecked="{Binding ShadowEnabled}" Style="{StaticResource DarkCheck}"
+                          Margin="0,0,0,12">
+                                <TextBlock Text="Włącz cień" Foreground="#e8eaf0" FontSize="13"/>
+                            </CheckBox>
+                            <Grid IsEnabled="{Binding ShadowEnabled}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="12"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="Rozmycie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="30" Value="{Binding ShadowBlur}"/>
+                                    <TextBlock Text="{Binding ShadowBlur, StringFormat='{}{0:F0}'}" Foreground="#9aa3b8" FontSize="11"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="2">
+                                    <TextBlock Text="Przesunięcie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="15" Value="{Binding ShadowDepth}"/>
+                                    <TextBlock Text="{Binding ShadowDepth, StringFormat='{}{0:F0}'}" Foreground="#9aa3b8" FontSize="11"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="0">
+                                    <TextBlock Text="Krycie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1" Value="{Binding ShadowOpacity}"/>
+                                    <TextBlock Text="{Binding ShadowOpacity, StringFormat='{}{0:P0}'}" Foreground="#9aa3b8" FontSize="11"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- ── TŁO ── -->
+                        <StackPanel Margin="20,16,20,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabTlo}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="KOLOR TŁA" Foreground="#959fb9" FontSize="10"
+                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                            <ItemsControl ItemsSource="{Binding BgPresets}" Margin="0,0,0,10">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Width="40" Height="40" Margin="0,0,6,6" ToolTip="{Binding Label, Mode=OneWay}"
+                                    Command="{Binding DataContext.SetBgColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding Hex}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{Binding Brush}" CornerRadius="5"
+                                                BorderBrush="#555" BorderThickness="2"/>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Border Background="{Binding BgColorSwatch}" Width="32" Height="32"
+                            CornerRadius="5" BorderBrush="#555" BorderThickness="1" Margin="0,0,10,0"/>
+                                <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkTextBox}" Width="100"
+                             FontFamily="Consolas" FontSize="13"/>
+                            </StackPanel>
+
+                            <TextBlock Text="OBRAZ TŁA" Foreground="#959fb9" FontSize="10"
+                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
+                            BorderThickness="1" CornerRadius="4" Padding="10,8">
+                                    <TextBlock TextTrimming="CharacterEllipsis" FontSize="12">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text"       Value="{Binding BackgroundImagePath}"/>
+                                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding BackgroundImagePath}" Value="{x:Null}">
+                                                        <Setter Property="Text"       Value="Brak obrazu"/>
+                                                        <Setter Property="Foreground" Value="#959fb9"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                                <Button Grid.Column="2" Content="WYBIERZ" Style="{StaticResource GoldBtn}"
+                            Padding="12,8" Command="{Binding BrowseBackgroundCommand}"/>
+                                <Button Grid.Column="4" Content="✕" Style="{StaticResource RedBtn}"
+                            Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
+                            </Grid>
+                            <StackPanel Visibility="{Binding BackgroundImagePath, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Krycie obrazu" Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
+                                <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1"
+                            Value="{Binding BackgroundImageOpacity}"/>
+                                <TextBlock Text="{Binding BackgroundImageOpacity, StringFormat='{}{0:P0}'}"
+                               Foreground="#9aa3b8" FontSize="11" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- ── EKRAN ── -->
+                        <StackPanel Margin="20,16,20,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabEkran}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="EKRAN PROJEKCJI" Foreground="#959fb9" FontSize="10"
+                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                            <TextBlock Text="Wybierz na którym monitorze wyświetlać tekst dla wiernych."
+                           Foreground="#959fb9" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                            <ListBox ItemsSource="{Binding Screens}"
+                                     SelectedItem="{Binding SelectedScreen}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0,0,0,8"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Bd" Background="#1e2535" BorderBrush="#2a3347"
+                                                            BorderThickness="1" CornerRadius="5" Padding="14,12" Cursor="Hand">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Ellipse x:Name="Dot" Width="10" Height="10"
+                                                                     Fill="#2a3347" Margin="0,0,10,0"/>
+                                                            <ContentPresenter VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="Bd" Property="BorderBrush" Value="#c9a84c"/>
+                                                            <Setter TargetName="Dot" Property="Fill" Value="#c9a84c"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label, Mode=OneWay}" Foreground="#e8eaf0" FontSize="13"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- Przyciski Zapisz/Reset -->
+                    <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="20,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="ZAPISZ USTAWIENIA"
+                        Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
+                        Command="{Binding SaveCommand}"/>
+                            <Button Grid.Column="2" Content="RESET"
+                        Style="{StaticResource RedBtn}" Height="42" Padding="20,0"
+                        Command="{Binding ResetCommand}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ════════════════════════════════════════════════════════════════
+                         PRAWA: podgląd 16:9
+                    ════════════════════════════════════════════════════════════════ -->
+                <Grid Grid.Column="1" Background="#0a0d14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                BorderThickness="1,0,0,1" Padding="20,13">
+                        <TextBlock Text="PODGLĄD" FontFamily="{StaticResource CinzelFont}"
+                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                    </Border>
+
+                    <Viewbox Grid.Row="1" Stretch="Uniform" Margin="32">
+                        <Border Width="960" Height="540" ClipToBounds="True">
+                            <Grid>
+                                <Border Background="{Binding PreviewBackgroundBrush}"/>
+                                <Image Source="{Binding BackgroundImagePath}"
+                           Stretch="UniformToFill"
+                           Opacity="{Binding BackgroundImageOpacity}"/>
+                                <Border VerticalAlignment="{Binding PreviewVerticalAlignment}"
+                            Padding="{Binding TextMarginH, Converter={StaticResource DoubleToThickness}}">
+                                    <TextBlock Text="{Binding PreviewText}"
+                                   FontFamily="{Binding PreviewFontFamily}"
+                                   FontSize="{Binding PreviewFontSize}"
+                                   FontWeight="{Binding PreviewFontWeight}"
+                                   Foreground="{Binding PreviewTextBrush}"
+                                   TextAlignment="{Binding PreviewTextAlignment}"
+                                   LineHeight="{Binding PreviewLineHeight}"
+                                   TextWrapping="Wrap">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect Color="Black"
+                                                  ShadowDepth="{Binding ShadowDepth}"
+                                                  BlurRadius="{Binding ShadowBlur}"
+                                                  Opacity="{Binding ShadowOpacity}"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Viewbox>
+                </Grid>
+
+            </Grid>
+
+
+            <Grid x:Name="PaneImport" Visibility="Collapsed" Background="#0f1117">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="420"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT: opcje importu -->
+                <Border Grid.Column="0" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                        <StackPanel Margin="28,28,28,28">
+
+                            <!-- Nagłówek -->
+                            <TextBlock Text="IMPORT"
+                           FontFamily="{StaticResource CinzelFont}"
+                           FontSize="18" FontWeight="Bold"
+                           Foreground="#c9a84c" Margin="0,0,0,4"/>
+                            <TextBlock Text="Importuj pieśni z OpenLP lub OpenSong"
+                           Foreground="#959fb9" FontSize="12" Margin="0,0,0,20"/>
+
+                            <!-- Format -->
+                            <TextBlock Text="FORMAT"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#c9a84c" Margin="0,0,0,8"/>
+                            <StackPanel Margin="0,0,0,24">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <RadioButton Content="OpenLP (sqlite)"
+                                                 IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
+                                                 Command="{Binding SelectFormatCommand}"
+                                                 CommandParameter="OpenLPSqlite"
+                                                 Foreground="#e8eaf0" FontSize="13"
+                                                 Margin="0,0,20,0"/>
+                                    <RadioButton Content="OpenLP (xml)"
+                                                 IsChecked="{Binding IsOpenLPXml, Mode=OneWay}"
+                                                 Command="{Binding SelectFormatCommand}"
+                                                 CommandParameter="OpenLPXml"
+                                                 Foreground="#e8eaf0" FontSize="13"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Content="OpenSong (folder)"
+                                                 IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
+                                                 Command="{Binding SelectFormatCommand}"
+                                                 CommandParameter="OpenSongFolder"
+                                                 Foreground="#e8eaf0" FontSize="13"
+                                                 Margin="0,0,20,0"/>
+                                    <RadioButton Content="OpenSong (xml)"
+                                                 IsChecked="{Binding IsOpenSongXml, Mode=OneWay}"
+                                                 Command="{Binding SelectFormatCommand}"
+                                                 CommandParameter="OpenSongXml"
+                                                 Foreground="#e8eaf0" FontSize="13"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Plik źródłowy -->
+                            <TextBlock Text="PLIK ŹRÓDŁOWY"
+                           FontFamily="{StaticResource CinzelFont}"
+                           FontSize="10" FontWeight="SemiBold"
+                           Foreground="#c9a84c" Margin="0,0,0,8"/>
+                            <Grid Margin="0,0,0,20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
+                            BorderThickness="1,1,0,1" CornerRadius="5,0,0,5" Padding="12,10">
+                                    <TextBlock Text="{Binding FilePath}"
+                                   Foreground="#e8eaf0" FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding FilePath}" Value="">
+                                                        <Setter Property="Text" Value="Nie wybrano pliku..."/>
+                                                        <Setter Property="Foreground" Value="#959fb9"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                                <Button Grid.Column="1" Content="PRZEGLĄDAJ"
+                            Style="{StaticResource GoldBtn}"
+                            Padding="16,10"
+                            Command="{Binding BrowseCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="#c9a84c" BorderThickness="1"
+                                        CornerRadius="0,5,5,0" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#e8c97a"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+
+                            <!-- Opcje -->
+                            <TextBlock Text="OPCJE"
+                           FontFamily="{StaticResource CinzelFont}"
+                           FontSize="10" FontWeight="SemiBold"
+                           Foreground="#c9a84c" Margin="0,0,0,12"/>
+
+                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                        CornerRadius="5" Padding="16,12" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <CheckBox IsChecked="{Binding ImportCategories}"
+                                  Foreground="#e8eaf0" FontSize="13"
+                                  Margin="0,0,0,4">
+                                        <TextBlock Text="Importuj kategorie" Foreground="#e8eaf0" FontSize="13"/>
+                                    </CheckBox>
+                                    <TextBlock Text="Tworzy nowe kategorie jeśli nie istnieją"
+                                   Foreground="#959fb9" FontSize="11" Margin="22,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                        CornerRadius="5" Padding="16,12" Margin="0,0,0,28">
+                                <StackPanel>
+                                    <CheckBox IsChecked="{Binding OverwriteExisting}"
+                                  Foreground="#e8eaf0" FontSize="13"
+                                  Margin="0,0,0,4">
+                                        <TextBlock Text="Nadpisuj istniejące pieśni" Foreground="#e8eaf0" FontSize="13"/>
+                                    </CheckBox>
+                                    <TextBlock Text="Jeśli odznaczone — istniejące pieśni zostaną pominięte"
+                                   Foreground="#959fb9" FontSize="11" Margin="22,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Sekcja importu zestawów .osz — wkleić do PaneImport.xaml -->
+                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                    CornerRadius="6" Padding="20" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
+                                               FontFamily="{StaticResource CinzelFont}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#c9a84c" Margin="0,0,0,14"/>
+
+                                    <!-- Dropdown grupy -->
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Grupa docelowa:"
+                                                   Foreground="#8899aa" FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Column="1"
+                                                  Style="{StaticResource DarkCombo}"
+                                                  ItemsSource="{Binding OszGroups}"
+                                                  SelectedItem="{Binding OszSelectedGroup}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <!-- Przycisk -->
+                                    <Button Content="WYBIERZ PLIKI .OSZ I IMPORTUJ"
+                                            Style="{StaticResource GoldBtn}"
+                                            Height="42" FontSize="12"
+                                            Command="{Binding ImportOszCommand}"/>
+
+                                    <!-- Status -->
+                                    <TextBlock Text="{Binding OszStatus}"
+                                               Foreground="#8899aa" FontSize="12"
+                                               Margin="0,10,0,0" TextWrapping="Wrap"
+                                               Visibility="{Binding OszStatus, 
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </StackPanel>
+                            </Border>
+
+
+                            <!-- Przyciski -->
+                            <Button Content="PODGLĄD"
+                        Style="{StaticResource OutlineBtn}"
+                        Height="40" Margin="0,0,0,10"
+                        Command="{Binding PreviewCommand}"/>
+
+                            <Button Content="IMPORTUJ"
+                        Height="48" FontSize="13"
+                        Command="{Binding ImportCommand}"
+                        IsEnabled="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GoldBtn}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsImporting}" Value="True">
+                                                <Setter Property="Background" Value="#3a4a65"/>
+                                                <Setter Property="Foreground" Value="#959fb9"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <!-- Pasek postępu -->
+                            <Border Margin="0,16,0,0"
+                        Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding ProgressText}"
+                                   Foreground="#9aa3b8" FontSize="11"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,0,0,6"/>
+                                    <ProgressBar Value="{Binding ProgressValue}"
+                                     Maximum="{Binding ProgressMax}"
+                                     Height="6"
+                                     Background="#1e2535"
+                                     Foreground="#c9a84c"
+                                     BorderThickness="0"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- RIGHT: log -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                BorderThickness="0,0,0,1" Padding="20,13">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="LOG IMPORTU"
+                           FontFamily="{StaticResource CinzelFont}"
+                           FontSize="10" FontWeight="SemiBold"
+                           Foreground="#c9a84c" Margin="0,0,16,0"/>
+                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
+                           Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden"
+                      Padding="20,12">
+                        <ItemsControl ItemsSource="{Binding LogEntries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="18"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Icon}"
+                                       Foreground="{Binding Color}" FontSize="12"
+                                       VerticalAlignment="Top"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Message}"
+                                       Foreground="{Binding Color}" FontSize="12"
+                                       TextWrapping="Wrap" LineHeight="18"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
