@@ -270,6 +270,12 @@ public partial class SongEditorViewModel : ObservableObject
         }
     }
 
+    public async Task ReloadCategoriesAsync()
+    {
+        var cats = await _db.GetCategoriesAsync();
+        Categories = new ObservableCollection<Category>(cats);
+    }
+
     private async Task LoadAsync()
     {
         try

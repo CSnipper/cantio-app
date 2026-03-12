@@ -163,7 +163,7 @@ public partial class SetlistViewModel : ObservableObject
         Items = new ObservableCollection<SetlistItem>(items);
     }
 
-    private async Task LoadAsync()
+    public async Task LoadAsync()
     {
         try
         {

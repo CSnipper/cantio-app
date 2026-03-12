@@ -1,0 +1,260 @@
+<Window x:Class="Cantio.Views.CategoryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Zarządzaj kategoriami"
+        Width="480" Height="520"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="#0f1117">
+    <Window.Resources>
+        <FontFamily x:Key="CinzelFont">/Assets/Fonts/#Cinzel</FontFamily>
+    </Window.Resources>
+    <Border BorderBrush="#2a3347" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="56"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+                <Grid Margin="16,0">
+                    <TextBlock Text="KATEGORIE"
+                               FontFamily="{StaticResource CinzelFont}"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="#c9a84c" VerticalAlignment="Center"/>
+                    <Button Content="✕" HorizontalAlignment="Right"
+                            Background="Transparent" BorderThickness="0"
+                            Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                            Click="Close_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="Transparent" Padding="8,4">
+                                    <TextBlock Text="✕" Foreground="{TemplateBinding Foreground}" FontSize="14"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#d44a4a"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Add new -->
+            <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
+                    BorderThickness="0,0,0,1" Padding="14,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="NewCatName"
+                             Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                             Foreground="#e8eaf0" FontSize="13" Padding="10,7"
+                             Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding AddCategoryCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox Grid.Column="2"
+                             Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                             Foreground="#c9a84c" FontSize="13" Padding="10,7"
+                             Text="{Binding NewCategoryNumber, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Numer kategorii"/>
+                    <Button Grid.Column="4" Content="+ DODAJ"
+                            Background="#c9a84c" BorderThickness="0"
+                            Foreground="#0f1117" FontSize="10" FontWeight="Bold"
+                            FontFamily="{StaticResource CinzelFont}"
+                            Cursor="Hand" Padding="0"
+                            Command="{Binding AddCategoryCommand}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" Padding="8,7">
+                                    <TextBlock Text="+ DODAJ" FontSize="9" FontWeight="Bold"
+                                               FontFamily="{StaticResource CinzelFont}"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#e8c97a"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- List -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Categories}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#2a3347" BorderThickness="0,0,0,1"
+                                    Background="Transparent">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#1e2535"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid Margin="14,0,8,0" Height="44">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"
+                                             FontFamily="{StaticResource CinzelFont}"
+                                             FontSize="16" Foreground="#c9a84c"
+                                             Background="Transparent" BorderThickness="0"
+                                             Padding="2,0" VerticalAlignment="Center"
+                                             CaretBrush="#c9a84c"
+                                             Width="40">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Return"
+                                                        Command="{Binding DataContext.SaveCategoriesCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        />
+                                        </TextBox.InputBindings>
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="True">
+                                                        <Setter Property="Background" Value="#252d3d"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="16" Foreground="#e8eaf0"
+                                             Background="Transparent" BorderThickness="0"
+                                             Padding="2,0" VerticalAlignment="Center"
+                                             CaretBrush="#c9a84c">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Return"
+                                                        Command="{Binding DataContext.SaveCategoriesCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        />
+                                        </TextBox.InputBindings>
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsFocused" Value="True">
+                                                        <Setter Property="Background" Value="#252d3d"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Button Grid.Column="2"
+                                            Background="Transparent" BorderThickness="0"
+                                            Foreground="#3a4a65" FontSize="16"
+                                            Cursor="Hand" VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Command="{Binding DataContext.UpdateCategoryCommand,
+                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="Transparent" Padding="4">
+                                                    <TextBlock Text="💾" FontSize="14"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Background="Transparent" BorderThickness="0"
+                                            Foreground="#3a4a65" FontSize="18"
+                                            Cursor="Hand" VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Command="{Binding DataContext.DeleteCategoryCommand,
+                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="Transparent" Padding="4">
+                                                    <TextBlock Text="×" FontSize="18"
+                                                               Foreground="{TemplateBinding Foreground}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Foreground" Value="#d44a4a"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0">
+                <Button Content="ZAMKNIJ" HorizontalAlignment="Right"
+                        Margin="14,0" VerticalAlignment="Center"
+                        Padding="20,8" Background="Transparent"
+                        BorderBrush="#2a3347" BorderThickness="1"
+                        Foreground="#9aa3b8" FontFamily="{StaticResource CinzelFont}"
+                        FontSize="10" FontWeight="Bold" Cursor="Hand"
+                        Click="Close_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <TextBlock Text="ZAMKNIJ"
+                                           FontFamily="{StaticResource CinzelFont}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

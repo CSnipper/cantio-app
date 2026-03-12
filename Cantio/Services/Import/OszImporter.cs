@@ -2,6 +2,7 @@ using Cantio.Models;
 using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
+using System.Windows;
 using System.Xml.Linq;
 
 namespace Cantio.Services.Import;
@@ -66,13 +67,12 @@ public class OszImporter
         // Rozpakuj ZIP w pamięci
         using var archive = ZipFile.OpenRead(oszPath);
         var entry = archive.GetEntry("service_data.osj")
-            ?? throw new Exception("Brak pliku service_data.osj w archiwum");
+            ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".osj"))
+            ?? throw new Exception("Brak pliku .osj w archiwum");
 
         using var stream = entry.Open();
         var json = await new StreamReader(stream).ReadToEndAsync();
-
         var items = ParseOsj(json);
-
         // Utwórz zestaw
         var setlist = new Setlist
         {
@@ -92,6 +92,7 @@ public class OszImporter
             if (item.Type != "songs") continue; // pomijamy obrazy, prezentacje itp.
 
             var song = await FindOrImportSongAsync(item);
+            MessageBox.Show($"Item: {item.Title}, Type: {item.Type}, Song: {song?.Id}");
             if (song == null) continue;
 
             setlistItems.Add(new SetlistItem
@@ -102,8 +103,16 @@ public class OszImporter
                 Type = "song"
             });
         }
+        try
+        {
+            await _db.SaveSetlistItemsAsync(setlist.Id, setlistItems);
+            MessageBox.Show($"Zapisano OK, count={setlistItems.Count}");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Błąd SaveSetlistItems: {ex.Message}\n{ex.InnerException?.Message}");
+        }
 
-        await _db.SaveSetlistItemsAsync(setlist.Id, setlistItems);
     }
 
     private async Task<Song?> FindOrImportSongAsync(OsjServiceItem item)
@@ -133,8 +142,9 @@ public class OszImporter
             await _db.SaveSongWithVersesAsync(song);
             return song;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"FindOrImportSong error: {ex.Message}");
             return null;
         }
     }

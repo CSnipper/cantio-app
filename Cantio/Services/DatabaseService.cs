@@ -21,6 +21,13 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task DeleteCategoryAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        var cat = await db.Categories.FindAsync(id);
+        if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
+    }
+
     // ── Pieśni ────────────────────────────────────────────────────────────
 
     public async Task<List<Song>> GetSongsByCategoryAsync(int categoryId)

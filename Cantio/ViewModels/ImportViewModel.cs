@@ -233,24 +233,18 @@ public partial class ImportViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportOszAsync()
     {
-        try
-        {
-            var dialog = new OpenFileDialog
+        var dialog = new OpenFileDialog
             {
                 Title = "Wybierz zestawy OpenLP (.osz)",
                 Filter = "OpenLP Zestawy (*.osz)|*.osz",
                 Multiselect = true
             };
             if (dialog.ShowDialog() != true) return;
-            MessageBox.Show($"Wybrano {dialog.FileNames.Length} plików:\n{string.Join("\n", dialog.FileNames)}");
-
 
             OszStatus = "Importuję...";
-            MessageBox.Show("Przed importem");
 
             var group = OszSelectedGroup == "(bez grupy)" ? null : OszSelectedGroup;
             var importer = new OszImporter(_db, group);
-            MessageBox.Show("Importer utworzony");
             var progress = new Progress<ImportProgress>(p =>
             {
                 OszStatus = $"[{p.Current}/{p.Total}] {p.Message}";
@@ -263,12 +257,6 @@ public partial class ImportViewModel : ObservableObject
                 ? $"✓ Zaimportowano {result.ImportedSetlists} zestawów."
                 : $"✓ Zestawy: {result.ImportedSetlists}   ✗ Błędy: {result.Errors.Count}\n"
                   + string.Join("\n", result.Errors);
-        
-      }
-        
-        catch (Exception ex)
-        
-
     }
    
 

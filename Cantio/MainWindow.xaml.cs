@@ -17,6 +17,29 @@ public partial class MainWindow : Window
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
+        // Nie przechwytuj gdy fokus jest na polu tekstowym
+        if (e.OriginalSource is TextBox || e.OriginalSource is RichTextBox)
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
+        if (e.Key == Key.Delete)
+        {
+            if (_activeTab == "sets" && _setlistVm.SelectedSetlist != null)
+            {
+                _setlistVm.DeleteSetlistCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+            if (_activeTab == "songs" && _songEditorVm.EditingSong != null)
+            {
+                _songEditorVm.DeleteSongCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+        }
+
         _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
         e.Handled = true;
         base.OnPreviewKeyDown(e);
@@ -52,9 +75,21 @@ public partial class MainWindow : Window
         }
     }
 
+    private readonly DatabaseService _db;
+
+    private void ManageCategories_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Views.CategoryDialog(_songEditorVm.Categories, _db);
+        dialog.Owner = this;
+        dialog.ShowDialog();
+        _ = _songEditorVm.ReloadCategoriesAsync();
+    }
+
     public MainWindow(DatabaseService db)
     {
         InitializeComponent();
+
+        _db = db;
 
         _vm = new DisplayViewModel(db, new ProjectionViewModel());
         DataContext = _vm;
@@ -72,6 +107,8 @@ public partial class MainWindow : Window
         _szablonVm.Saved += () => _vm.RebuildSlides();
         PaneTemplate.DataContext = _szablonVm;
 
+        _importVm.SetlistsImported += async () => await _setlistVm.LoadAsync();
+
         Loaded += async (_, _) => await _vm.InitializeAsync();
         KeyDown += _vm.OnKeyDown;
     }
@@ -80,7 +117,7 @@ public partial class MainWindow : Window
 
     private void TabShow_Click(object sender, RoutedEventArgs e) => ShowPane(PaneShow, TabShow);
     private void TabSongs_Click(object sender, RoutedEventArgs e) => ShowPane(PaneSongs, TabSongs);
-    private void TabCats_Click(object sender, RoutedEventArgs e) => ShowPane(PaneCats, TabCats);
+    // private void TabCats_Click(object sender, RoutedEventArgs e) => ShowPane(PaneCats, TabCats);
     private void TabSets_Click(object sender, RoutedEventArgs e) => ShowPane(PaneSets, TabSets);
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
@@ -90,7 +127,7 @@ public partial class MainWindow : Window
         // Hide all panes
         PaneShow.Visibility = Visibility.Collapsed;
         PaneSongs.Visibility = Visibility.Collapsed;
-        PaneCats.Visibility = Visibility.Collapsed;
+        // PaneCats.Visibility = Visibility.Collapsed;
         PaneSets.Visibility = Visibility.Collapsed;
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
@@ -102,5 +139,44 @@ public partial class MainWindow : Window
         // Activate selected
         pane.Visibility = Visibility.Visible;
         activeTab.Style = (Style)Resources["TabBtnActive"];
+
+        // Track active tab
+        _activeTab = pane == PaneShow ? "show"
+            : pane == PaneSongs ? "songs"
+            : pane == PaneCats ? "cats"
+            : pane == PaneSets ? "sets"
+            : pane == PaneTemplate ? "template"
+            : "import";
     }
+
+    private int _setsEditorDragFromIndex = -1;
+
+    private void SetlistEditorItem_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe)
+        {
+            if (fe.DataContext is SetlistItem item)
+            {
+                _setsEditorDragFromIndex = _setlistVm.Items.IndexOf(item);
+                if (_setsEditorDragFromIndex >= 0)
+                    DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
+            }
+        }
+    }
+
+    private void SetlistEditorItem_Drop(object sender, DragEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.DataContext is SetlistItem target)
+        {
+            int toIndex = _setlistVm.Items.IndexOf(target);
+            if (_setsEditorDragFromIndex >= 0 && toIndex >= 0 && _setsEditorDragFromIndex != toIndex)
+            {
+                _setlistVm.Items.Move(_setsEditorDragFromIndex, toIndex);
+                _setsEditorDragFromIndex = -1;
+            }
+        }
+    }
+
+    private string _activeTab = "show";
+
 }

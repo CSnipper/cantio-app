@@ -17,77 +17,86 @@
         <FontFamily x:Key="CinzelFont">/Assets/Fonts/#Cinzel</FontFamily>
         
         <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
+        <ControlTemplate x:Key="DarkComboToggle" TargetType="ToggleButton">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}">
+                <Grid>
+                    <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    <Path Data="M0,0 L4,4 L8,0" x:Name="Arrow"
+                          Stroke="#959fb9" StrokeThickness="1.5"
+                          HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Margin="0,0,12,0"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#3a4a65"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#c9a84c"/>
+                    <Setter TargetName="Arrow" Property="Stroke" Value="#c9a84c"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
         <Style x:Key="DarkCombo" TargetType="ComboBox">
-            <Setter Property="Background"           Value="#1e2535"/>
-            <Setter Property="Foreground"           Value="#e8eaf0"/>
-            <Setter Property="BorderBrush"          Value="#2a3347"/>
-            <Setter Property="BorderThickness"      Value="1"/>
-            <Setter Property="Padding"              Value="10,7"/>
-            <Setter Property="FontSize"             Value="13"/>
+            <Setter Property="Background" Value="#1e2535"/>
+            <Setter Property="Foreground" Value="#e8eaf0"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="4">
-                                <Grid>
-                                    <ContentPresenter x:Name="ContentSite"
-                                Content="{TemplateBinding SelectionBoxItem}"
-                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                Margin="{TemplateBinding Padding}"
-                                VerticalAlignment="Center"/>
-                                    <TextBox x:Name="PART_EditableTextBox"
-                                     Visibility="Collapsed"
-                                     Background="Transparent" Foreground="{TemplateBinding Foreground}"
-                                     BorderThickness="0" Margin="{TemplateBinding Padding}"/>
-                                    <Path x:Name="Arrow" Data="M0,0 L4,4 L8,0"
-                                  Stroke="#959fb9" StrokeThickness="1.5"
-                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                  Margin="0,0,12,0"/>
-                                </Grid>
-                            </Border>
-                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
-                           AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
-                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                CornerRadius="4" Margin="0,2,0,0">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ToggleButton x:Name="ToggleButton"
+                                          Template="{StaticResource DarkComboToggle}"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          Padding="{TemplateBinding Padding}"
+                                          Focusable="False" ClickMode="Press"/>
+                            <ContentPresenter x:Name="ContentSite"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False"
+                                   Placement="Bottom"
+                                   PlacementTarget="{Binding ElementName=ToggleButton}"
+                                   MinWidth="{Binding ActualWidth, ElementName=ToggleButton}"
+                                   StaysOpen="False">
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1" Margin="0,2,0,0">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
                                         <ItemsPresenter/>
                                     </ScrollViewer>
                                 </Border>
                             </Popup>
                         </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3a4a65"/>
-                            </Trigger>
-                            <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="Bd"    Property="BorderBrush" Value="#c9a84c"/>
-                                <Setter TargetName="Arrow" Property="Stroke"      Value="#c9a84c"/>
-                            </Trigger>
-                            <Trigger Property="IsEditable" Value="True">
-                                <Setter TargetName="ContentSite"         Property="Visibility" Value="Collapsed"/>
-                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
-                        <Setter Property="Background"      Value="Transparent"/>
-                        <Setter Property="Foreground"      Value="#e8eaf0"/>
-                        <Setter Property="Padding"         Value="10,7"/>
-                        <Setter Property="FontSize"        Value="13"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#e8eaf0"/>
+                        <Setter Property="Padding" Value="10,7"/>
+                        <Setter Property="FontSize" Value="13"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#252d3d"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="#2a3347"/>
-                                <Setter Property="Foreground"  Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -111,7 +120,7 @@
                         <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="4">
+                       >
                             <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -143,7 +152,7 @@
                                     <RepeatButton>
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border Height="4" CornerRadius="2" Background="#c9a84c"/>
+                                                <Border Height="4" Background="#c9a84c"/>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -152,7 +161,7 @@
                                     <RepeatButton>
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border Height="4" CornerRadius="2" Background="#2a3347"/>
+                                                <Border Height="4" Background="#2a3347"/>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -182,7 +191,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16" CornerRadius="3"
+                            <Border x:Name="Box" Width="16" Height="16"
                             Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Path x:Name="Check" Data="M2,8 L6,12 L14,4"
@@ -214,7 +223,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16" CornerRadius="8"
+                            <Border x:Name="Box" Width="16" Height="16"
                             Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Ellipse x:Name="Dot" Width="8" Height="8"
@@ -248,7 +257,7 @@
                         <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="4">
+                       >
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -359,7 +368,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -382,7 +391,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -409,7 +418,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -439,7 +448,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -463,7 +472,7 @@
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#e8eaf0"/>
             <Setter Property="BorderBrush" Value="#2a3347"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Width" Value="46"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="24"/>
@@ -474,7 +483,7 @@
                         <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="5">
+                       >
                             <TextBlock Text="{TemplateBinding Content}"
                                FontSize="{TemplateBinding FontSize}"
                                Foreground="{TemplateBinding Foreground}"
@@ -508,7 +517,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}">
                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -593,7 +602,6 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar">
                     <Button x:Name="TabShow"     Content="▶  WYŚWIETLANIE" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
                     <Button x:Name="TabSongs"    Content="♪  PIEŚNI"       Style="{StaticResource TabBtn}"       Height="56" Click="TabSongs_Click"/>
-                    <Button x:Name="TabCats"     Content="☰  KATEGORIE"    Style="{StaticResource TabBtn}"       Height="56" Click="TabCats_Click"/>
                     <Button x:Name="TabSets"     Content="☑  ZESTAWY"      Style="{StaticResource TabBtn}"       Height="56" Click="TabSets_Click"/>
                     <Button x:Name="TabTemplate" Content="🎨  SZABLON"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
                     <Button x:Name="TabImport"   Content="⬇  IMPORT"       Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click"/>
@@ -601,7 +609,7 @@
 
                 <Border Grid.Column="2" Margin="0,0,16,0"
                         Background="#0D4ad47a" BorderBrush="#334ad47a" BorderThickness="1"
-                        CornerRadius="5" Padding="12,5"
+                        Padding="12,5"
                         Visibility="{Binding IsScreenOn, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Ellipse Width="8" Height="8" Fill="#4ad47a" Margin="0,0,8,0">
@@ -637,7 +645,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.42*"/>
                             <RowDefinition Height="2"/>
-                            <RowDefinition Height="0.58*"/>
+                            <RowDefinition Height="0.5*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Kategorie -->
@@ -685,21 +693,29 @@
                                     <TextBlock Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8" FontSize="11"/>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
-                                    BorderThickness="0,0,1,1" Padding="10">
+                            <Border Grid.Row="1" Background="#161b25">
                                 <Grid>
-                                    <TextBox Style="{StaticResource SearchBox}"
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="16"
+                                               IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" x:Name="SearchBoxShow"
+                                             Style="{StaticResource SearchBox}"
+                                             Padding="4"
                                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <TextBlock Text="🔍" Foreground="#959fb9" FontSize="13"
-                                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0"/>
-                                    <TextBlock Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
-                                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="32,0,0,0">
+                                    <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="16"
+                                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding SearchText}" Value="">
                                                         <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsFocused, ElementName=SearchBoxShow}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -740,8 +756,7 @@
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{TemplateBinding Background}"
                                                                     BorderBrush="{TemplateBinding BorderBrush}"
-                                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                                    CornerRadius="0">
+                                                                    BorderThickness="{TemplateBinding BorderThickness}">
                                                                 <TextBlock Text="+"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
@@ -771,7 +786,7 @@
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="240"/>
+                            <ColumnDefinition Width="350"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Zwrotki -->
@@ -851,17 +866,17 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Miniaturka -->
-                                <Border Grid.Column="0" CornerRadius="5"
+                                <Border Grid.Column="0"
                                         Background="#000000" BorderBrush="#2a3347" BorderThickness="1"
-                                        Height="90" ClipToBounds="True">
+                                        Height="90" ClipToBounds="True" Margin="5,0,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="12" Opacity=".5"/>
                                     </Border.Effect>
-                                    <TextBlock Text="{Binding SelectedVerse.Text}"
+                                    <TextBlock Text="{Binding CurrentSlideText}"
                                                Foreground="White" FontSize="7" LineHeight="12"
                                                TextWrapping="Wrap" TextAlignment="Center"
                                                VerticalAlignment="Center" HorizontalAlignment="Center"
-                                               Padding="8"/>
+                                               Padding="2"/>
                                 </Border>
 
                                 <!-- Info -->
@@ -872,20 +887,20 @@
                                     <TextBlock Text="{Binding SelectedSong.Title}"
                                                Foreground="#e8c97a" FontSize="13" FontWeight="SemiBold"
                                                TextTrimming="CharacterEllipsis" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{Binding VerseIndicator}"
+                                    <TextBlock Text="{Binding SlideInfo}"
                                                Foreground="#959fb9" FontSize="11"/>
                                 </StackPanel>
 
                                 <!-- ◀ -->
                                 <Button Grid.Column="2" Content="◀"
                                         Style="{StaticResource NavBtn}"
-                                        Height="100" FontSize="40" Width="100"
+                                        Height="100" FontSize="40" Width="110"
                                         Command="{Binding PrevSlideCommand}"/>
 
                                 <!-- ▶ -->
                                 <Button Grid.Column="4" Content="▶"
                                         Style="{StaticResource NavBtn}"
-                                        Height="100" FontSize="40" Width="100"
+                                        Height="100" FontSize="40" Width="110"
                                         Command="{Binding NextSlideCommand}"/>
                             </Grid>
                         </Border>
@@ -1022,7 +1037,7 @@
                                                FontFamily="{StaticResource CinzelFont}"
                                                FontSize="10" FontWeight="SemiBold"
                                                Foreground="#c9a84c" Margin="0,0,10,0"/>
-                                    <Border Background="#252d3d" CornerRadius="10" Padding="8,2">
+                                    <Border Background="#252d3d" Padding="8,2">
                                         <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
                                     </Border>
                                 </StackPanel>
@@ -1107,7 +1122,7 @@
                                             Command="{Binding MoveToTopCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <Border Background="{TemplateBinding Background}">
                                                     <TextBlock Text="⏫" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -1126,7 +1141,7 @@
                                             Command="{Binding MoveUpCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <Border Background="{TemplateBinding Background}">
                                                     <TextBlock Text="🔼" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -1145,7 +1160,7 @@
                                             Command="{Binding MoveDownCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <Border Background="{TemplateBinding Background}">
                                                     <TextBlock Text="🔽" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -1164,7 +1179,7 @@
                                             Command="{Binding MoveToBottomCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <Border Background="{TemplateBinding Background}">
                                                     <TextBlock Text="⏬" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
@@ -1237,7 +1252,7 @@
                                        TextTrimming="CharacterEllipsis" MaxWidth="200"
                                        VerticalAlignment="Center" Margin="0,0,16,0"/>
                             <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                    CornerRadius="5" Padding="14,0" Height="38">
+                                    Padding="14,0" Height="38">
                                 <TextBlock Text="{Binding SlideInfo}"
                                            FontFamily="{StaticResource CinzelFont}"
                                            FontSize="13" FontWeight="Bold" Foreground="#c9a84c"
@@ -1270,38 +1285,52 @@
 
                     <!-- Nagłówek + Nowa pieśń -->
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="14,11">
+                            BorderThickness="0,0,1,1" Padding="3">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="PIEŚNI"
-                                       FontFamily="{StaticResource CinzelFont}"
-                                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"
-                                       VerticalAlignment="Center"/>
-                            <Button Grid.Column="1" Content="+ NOWA"
-                                    Style="{StaticResource GoldBtn}" Padding="10,5"
-                                    Command="{Binding NewSongCommand}"/>
-                        </Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="PIEŚNI"
+                                   FontFamily="{StaticResource CinzelFont}"
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="☰ KATEGORIE"
+                                Style="{StaticResource OutlineBtn}" Padding="10,5"
+                                Click="ManageCategories_Click"/>
+                        <Button Grid.Column="3" Content="+ NOWA"
+                                Style="{StaticResource GoldBtn}" Padding="10,5"
+                                Command="{Binding NewSongCommand}"/>
+                    </Grid>
                     </Border>
 
                     <!-- Szukaj -->
                     <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,1,1" Padding="10">
                         <Grid>
-                            <TextBox Style="{StaticResource SearchBox}"
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="13"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Column="1" x:Name="SearchBoxSongs"
+                                     Style="{StaticResource SearchBox}"
+                                     Padding="8,8,10,8"
                                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Text="🔍" Foreground="#959fb9" FontSize="13"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="32,0,0,0">
+                            <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SearchText}" Value="">
                                                 <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsFocused, ElementName=SearchBoxSongs}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1510,7 +1539,7 @@
                                                                                     <Border Background="{TemplateBinding Background}"
                                                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                CornerRadius="4">
+                                                                               >
                                                                                         <TextBlock Text="{Binding Label, Mode=OneWay}"
                                                                                        FontFamily="{StaticResource CinzelFont}"
                                                                                        FontSize="14" FontWeight="Bold"
@@ -1642,7 +1671,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0" Background="#1e2535"
                                                 BorderBrush="#2a3347" BorderThickness="1"
-                                                CornerRadius="4" Padding="12,8">
+                                                Padding="12,8">
                                                         <TextBlock VerticalAlignment="Center">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
@@ -1720,7 +1749,7 @@
                                                                             <Border Background="{TemplateBinding Background}"
                                                                         BorderBrush="{TemplateBinding BorderBrush}"
                                                                         BorderThickness="{TemplateBinding BorderThickness}"
-                                                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                                        Padding="{TemplateBinding Padding}">
                                                                                 <ContentPresenter HorizontalAlignment="Center"
                                                                                       VerticalAlignment="Center"/>
                                                                             </Border>
@@ -1854,7 +1883,7 @@
                                         Cursor="Hand">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                            <Border Background="{TemplateBinding Background}">
                                                 <TextBlock Text="+" FontSize="20" FontWeight="Bold"
                                                            Foreground="#0f1117"
                                                            HorizontalAlignment="Center"
@@ -1885,7 +1914,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="4" Padding="8,6">
+                                                            Padding="8,6">
                                                         <TextBlock Text="Wszystkie zestawy"
                                                                    FontFamily="{StaticResource CinzelFont}"
                                                                    FontSize="14" FontWeight="SemiBold">
@@ -1930,7 +1959,7 @@
                                                         <Setter.Value>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border Background="{TemplateBinding Background}"
-                                                                        CornerRadius="4" Padding="8,6">
+                                                                        Padding="8,6">
                                                                     <TextBlock Text="{Binding}"
                                                                                FontFamily="{StaticResource CinzelFont}"
                                                                                FontSize="14" FontWeight="SemiBold">
@@ -1989,31 +2018,57 @@
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ItemContainerStyle="{StaticResource DarkListItem}">
                             <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="11,10,8,10">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Name}"
-                                                       FontSize="13" Foreground="#e8eaf0"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                <TextBlock Text="{Binding Group}"
-                                                           FontSize="11" Foreground="#959fb9"
-                                                           Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
-                                                           FontSize="11" Foreground="#3a4a65"/>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="11,0,8,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="13" Foreground="#e8eaf0"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                    <TextBlock Text="{Binding Group}"
+                                                               FontSize="11" Foreground="#959fb9"
+                                                               Margin="0,0,8,0"/>
+                                                    <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                               FontSize="11" Foreground="#3a4a65"/>
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
-                                        <!-- Pinezka -->
-                                        <TextBlock Grid.Column="1" Text="📌"
-                                                   FontSize="11" VerticalAlignment="Center"
-                                                   Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
+                                            <TextBlock Grid.Column="1" Text="📌"
+                                                       FontSize="11" VerticalAlignment="Center"
+                                                       Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}"/>
+                                            <Button Grid.Column="2"
+                                                    Background="Transparent" BorderThickness="0"
+                                                    Foreground="#959fb9" FontSize="16"
+                                                    Cursor="Hand" VerticalAlignment="Top"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,0,0,10"
+                                                    Command="{Binding DataContext.DeleteSetlistCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent"
+                                                                Width="40" Height="40">
+                                                            <TextBlock Text="×" FontSize="40"
+                                                                       Foreground="{TemplateBinding Foreground}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
                         </ListBox>
                         </Border>
                     </Grid>
@@ -2085,8 +2140,11 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="#1e2535" BorderBrush="#2a3347"
-                                                BorderThickness="1" CornerRadius="5"
-                                                Margin="0,0,0,6" Padding="0">
+                                                BorderThickness="1"
+                                                Margin="0,0,0,6" Padding="0"
+                                                AllowDrop="True"
+                                                MouseMove="SetlistEditorItem_MouseMove"
+                                                Drop="SetlistEditorItem_Drop">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="40"/>
@@ -2280,7 +2338,7 @@
                                             IsSnapToTickEnabled="True"
                                             Value="{Binding FontSize}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
-                                            BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                            BorderThickness="1" Padding="6,4">
                                         <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:F0}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
@@ -2376,7 +2434,7 @@
                                             Minimum="1.3" Maximum="2.5" TickFrequency="0.05"
                                             Value="{Binding LineHeightMultiplier}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
-                                            BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                            BorderThickness="1" Padding="6,4">
                                         <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='×{0:F2}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
@@ -2427,7 +2485,7 @@
                                         IsSnapToTickEnabled="True"
                                         Value="{Binding TextMarginH}" VerticalAlignment="Center"/>
                                 <Border Grid.Row="2" Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
-                                        BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                        BorderThickness="1" Padding="6,4">
                                     <TextBox Text="{Binding TextMarginH, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:F0}'}"
                                                 Style="{StaticResource DarkTextBox}"
                                                 Background="Transparent" BorderThickness="0"
@@ -2459,7 +2517,7 @@
                                         IsSnapToTickEnabled="True"
                                         Value="{Binding TextMarginV}" VerticalAlignment="Center"/>
                                 <Border Grid.Row="2" Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
-                                        BorderThickness="1" CornerRadius="4" Padding="6,4">
+                                        BorderThickness="1" Padding="6,4">
                                     <TextBox Text="{Binding TextMarginV, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:F0}'}"
                                                 Style="{StaticResource DarkTextBox}"
                                                 Background="Transparent" BorderThickness="0"
@@ -2505,7 +2563,7 @@
                                     CommandParameter="{Binding Hex}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{Binding Brush}" CornerRadius="5"
+                                                    <Border Background="{Binding Brush}"
                                                 BorderBrush="#2a3347" BorderThickness="2">
                                                         <Border.Effect>
                                                             <DropShadowEffect ShadowDepth="0" BlurRadius="6" Opacity=".3"/>
@@ -2526,7 +2584,7 @@
                                 <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Border Background="{Binding TextColorSwatch}" Width="32" Height="32"
-                            CornerRadius="5" BorderBrush="#2a3347" BorderThickness="1" Margin="0,0,10,0"/>
+                            BorderBrush="#2a3347" BorderThickness="1" Margin="0,0,10,0"/>
                                 <TextBox Text="{Binding TextColor, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DarkTextBox}" Width="100"
                              FontFamily="Consolas" FontSize="13"/>
@@ -2598,7 +2656,7 @@
                                     CommandParameter="{Binding Hex}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{Binding Brush}" CornerRadius="5"
+                                                    <Border Background="{Binding Brush}"
                                                 BorderBrush="#555" BorderThickness="2"/>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
@@ -2615,7 +2673,7 @@
                                 <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Border Background="{Binding BgColorSwatch}" Width="32" Height="32"
-                            CornerRadius="5" BorderBrush="#555" BorderThickness="1" Margin="0,0,10,0"/>
+                            BorderBrush="#555" BorderThickness="1" Margin="0,0,10,0"/>
                                 <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DarkTextBox}" Width="100"
                              FontFamily="Consolas" FontSize="13"/>
@@ -2633,7 +2691,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
-                            BorderThickness="1" CornerRadius="4" Padding="10,8">
+                            BorderThickness="1" Padding="10,8">
                                     <TextBlock TextTrimming="CharacterEllipsis" FontSize="12">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -2694,7 +2752,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ListBoxItem">
                                                     <Border x:Name="Bd" Background="#1e2535" BorderBrush="#2a3347"
-                                                            BorderThickness="1" CornerRadius="5" Padding="14,12" Cursor="Hand">
+                                                            BorderThickness="1" Padding="14,12" Cursor="Hand">
                                                         <StackPanel Orientation="Horizontal">
                                                             <Ellipse x:Name="Dot" Width="10" Height="10"
                                                                      Fill="#2a3347" Margin="0,0,10,0"/>
@@ -2852,7 +2910,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
-                            BorderThickness="1,1,0,1" CornerRadius="5,0,0,5" Padding="12,10">
+                            BorderThickness="1,1,0,1" Padding="12,10">
                                     <TextBlock Text="{Binding FilePath}"
                                    Foreground="#e8eaf0" FontSize="12"
                                    TextTrimming="CharacterEllipsis"
@@ -2877,7 +2935,7 @@
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}"
                                         BorderBrush="#c9a84c" BorderThickness="1"
-                                        CornerRadius="0,5,5,0" Padding="{TemplateBinding Padding}">
+                                        Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -2897,7 +2955,7 @@
                            Foreground="#c9a84c" Margin="0,0,0,12"/>
 
                             <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                        CornerRadius="5" Padding="16,12" Margin="0,0,0,8">
+                        Padding="16,12" Margin="0,0,0,8">
                                 <StackPanel>
                                     <CheckBox IsChecked="{Binding ImportCategories}"
                                   Foreground="#e8eaf0" FontSize="13"
@@ -2910,7 +2968,7 @@
                             </Border>
 
                             <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                        CornerRadius="5" Padding="16,12" Margin="0,0,0,28">
+                        Padding="16,12" Margin="0,0,0,28">
                                 <StackPanel>
                                     <CheckBox IsChecked="{Binding OverwriteExisting}"
                                   Foreground="#e8eaf0" FontSize="13"
@@ -2924,7 +2982,7 @@
                             
                             <!-- Sekcja importu zestawów .osz — wkleić do PaneImport.xaml -->
                             <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
-                                    CornerRadius="6" Padding="20" Margin="0,0,0,16">
+                                    Padding="20" Margin="0,0,0,16">
                                 <StackPanel>
                                     <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
                                                FontFamily="{StaticResource CinzelFont}"
