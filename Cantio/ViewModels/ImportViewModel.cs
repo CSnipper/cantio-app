@@ -219,46 +219,58 @@ public partial class ImportViewModel : ObservableObject
 
     private async Task LoadOszGroupsAsync()
     {
-        var setlists = await _db.GetAllSetlistsAsync();
-        var groups = setlists
-            .Where(s => !string.IsNullOrEmpty(s.Group))
-            .Select(s => s.Group!)
-            .Distinct()
-            .OrderBy(g => g)
-            .ToList();
-
+        var setting = await _db.GetSettingAsync("setlist_groups");
+        var groups = string.IsNullOrWhiteSpace(setting)
+            ? new List<string>()
+            : setting.Split(',').Select(g => g.Trim()).Where(g => !string.IsNullOrWhiteSpace(g)).OrderBy(g => g).ToList();
         OszGroups = new ObservableCollection<string>(
             new[] { "(bez grupy)" }.Concat(groups));
     }
 
+    public event Action? SetlistsImported;
+
+
     [RelayCommand]
     private async Task ImportOszAsync()
     {
-        var dialog = new OpenFileDialog
+        try
         {
-            Title = "Wybierz zestawy OpenLP (.osz)",
-            Filter = "OpenLP Zestawy (*.osz)|*.osz",
-            Multiselect = true
-        };
-        if (dialog.ShowDialog() != true) return;
+            var dialog = new OpenFileDialog
+            {
+                Title = "Wybierz zestawy OpenLP (.osz)",
+                Filter = "OpenLP Zestawy (*.osz)|*.osz",
+                Multiselect = true
+            };
+            if (dialog.ShowDialog() != true) return;
+            MessageBox.Show($"Wybrano {dialog.FileNames.Length} plików:\n{string.Join("\n", dialog.FileNames)}");
 
-        OszStatus = "Importuję...";
 
-        var group = OszSelectedGroup == "(bez grupy)" ? null : OszSelectedGroup;
-        var importer = new OszImporter(_db, group);
+            OszStatus = "Importuję...";
+            MessageBox.Show("Przed importem");
 
-        var progress = new Progress<ImportProgress>(p =>
-        {
-            OszStatus = $"[{p.Current}/{p.Total}] {p.Message}";
-        });
+            var group = OszSelectedGroup == "(bez grupy)" ? null : OszSelectedGroup;
+            var importer = new OszImporter(_db, group);
+            MessageBox.Show("Importer utworzony");
+            var progress = new Progress<ImportProgress>(p =>
+            {
+                OszStatus = $"[{p.Current}/{p.Total}] {p.Message}";
+            });
 
-        var result = await importer.ImportFilesAsync(dialog.FileNames, progress);
+            var result = await importer.ImportFilesAsync(dialog.FileNames, progress);
+            SetlistsImported?.Invoke();
 
-        OszStatus = result.Errors.Count == 0
-            ? $"✓ Zaimportowano {result.ImportedSetlists} zestawów."
-            : $"✓ Zestawy: {result.ImportedSetlists}   ✗ Błędy: {result.Errors.Count}\n"
-              + string.Join("\n", result.Errors);
+            OszStatus = result.Errors.Count == 0
+                ? $"✓ Zaimportowano {result.ImportedSetlists} zestawów."
+                : $"✓ Zestawy: {result.ImportedSetlists}   ✗ Błędy: {result.Errors.Count}\n"
+                  + string.Join("\n", result.Errors);
+        
+      }
+        
+        catch (Exception ex)
+        
+
     }
+   
 
     private void BrowseXmlOrFolder(string fileFilter, string folderTitle)
     {
