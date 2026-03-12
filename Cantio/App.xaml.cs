@@ -1,0 +1,33 @@
+﻿using System.IO;
+using Cantio.Services;
+using System.Windows;
+using Application = System.Windows.Application;
+namespace Cantio;
+
+public partial class App : Application
+{
+    protected override async void OnStartup(StartupEventArgs e)
+    {
+        try
+        {
+            base.OnStartup(e);
+            var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
+            Directory.CreateDirectory(dbFolder); // ← musi być PRZED sprawdzeniem pliku
+            var dbPath = Path.Combine(dbFolder, "cantor.db");
+            if (!File.Exists(dbPath))
+            {
+                var seedDb = Path.Combine(AppContext.BaseDirectory, "cantor.db");
+                if (File.Exists(seedDb))
+                    File.Copy(seedDb, dbPath);
+            }
+            var db = new DatabaseService();
+            var window = new MainWindow(db);
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Błąd startu:\n{ex.Message}\n\n{ex.StackTrace}");
+            Shutdown();
+        }
+    }
+}
