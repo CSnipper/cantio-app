@@ -4,15 +4,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace Cantio.ViewModels;
 
-/// <summary>Pojedyncza zwrotka w edytorze — wrapper z UI-state.</summary>
+// ── Wrapper zwrotki w edytorze ────────────────────────────────────────────────
+
 public partial class VerseEditorItem : ObservableObject
 {
     [ObservableProperty] private string _type = "v";   // v, c, b
     [ObservableProperty] private string _text = string.Empty;
-    [ObservableProperty] private int _number = 1;      // numer zwrotki tego typu
+    [ObservableProperty] private int _number = 1;
 
     public string Label => Type switch
     {
@@ -25,6 +27,25 @@ public partial class VerseEditorItem : ObservableObject
     partial void OnNumberChanged(int value) => OnPropertyChanged(nameof(Label));
 }
 
+// ── Wrapper kategorii w edytorze (inline edit) ────────────────────────────────
+
+public partial class CategoryEditorItem : ObservableObject
+{
+    public int Id { get; set; }
+    public int Number { get; set; }
+
+    [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private string _editName = string.Empty;
+    [ObservableProperty] private bool _isEditing = false;
+
+    partial void OnIsEditingChanged(bool value)
+    {
+        if (value) EditName = Name;
+    }
+}
+
+// ── Główny ViewModel edytora pieśni ──────────────────────────────────────────
+
 public partial class SongEditorViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
@@ -35,13 +56,85 @@ public partial class SongEditorViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    // ── Lista pieśni (lewa kolumna) ───────────────────────────────────────
+    // ── Kategorie ─────────────────────────────────────────────────────────
+
+    [ObservableProperty] private ObservableCollection<Category> _categories = [];
+    [ObservableProperty] private ObservableCollection<CategoryEditorItem> _categoryItems = [];
+    [ObservableProperty] private string _newCategoryName = string.Empty;
+
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        var name = NewCategoryName.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+
+        var cat = new Category
+        {
+            Name = name,
+            Number = Categories.Count > 0 ? Categories.Max(c => c.Number) + 1 : 1
+        };
+        await _db.SaveCategoryAsync(cat);
+        NewCategoryName = string.Empty;
+        await ReloadCategoriesAsync();
+    }
+
+    [RelayCommand]
+    private void StartEditCategory(CategoryEditorItem item)
+    {
+        // zamknij inne otwarte edycje
+        foreach (var c in CategoryItems)
+            if (c != item) c.IsEditing = false;
+        item.IsEditing = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveCategoryAsync(CategoryEditorItem item)
+    {
+        var name = item.EditName.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+
+        await _db.SaveCategoryAsync(new Category
+        {
+            Id = item.Id,
+            Name = name,
+            Number = item.Number
+        });
+
+        item.Name = name;
+        item.IsEditing = false;
+        await ReloadCategoriesAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteCategoryAsync(CategoryEditorItem item)
+    {
+        var result = MessageBox.Show(
+            $"Usunąć kategorię \"{item.Name}\"?\nPieśni w tej kategorii pozostaną bez kategorii.",
+            "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (result != MessageBoxResult.Yes) return;
+
+        await _db.DeleteCategoryAsync(item.Id);
+        await ReloadCategoriesAsync();
+    }
+
+    [RelayCommand]
+    private void CancelEditCategory(CategoryEditorItem item)
+        => item.IsEditing = false;
+
+    public async Task ReloadCategoriesAsync()
+    {
+        var cats = await _db.GetCategoriesAsync();
+        Categories = new ObservableCollection<Category>(cats);
+        CategoryItems = new ObservableCollection<CategoryEditorItem>(
+            cats.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
+    }
+
+    // ── Lista pieśni ──────────────────────────────────────────────────────
 
     [ObservableProperty] private ObservableCollection<Song> _songs = [];
-    [ObservableProperty] private ObservableCollection<Category> _categories = [];
-    [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private ObservableCollection<Song> _filteredSongs = [];
-    [ObservableProperty] private Song? _selectedSongInList;  // ← dodaj tu
+    [ObservableProperty] private string _searchText = string.Empty;
+    [ObservableProperty] private Song? _selectedSongInList;
 
     partial void OnSelectedSongInListChanged(Song? value)
     {
@@ -72,7 +165,6 @@ public partial class SongEditorViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(SelectedVerseText))]
     private VerseEditorItem? _selectedVerse;
 
-    /// <summary>Tekst aktualnie wybranej zwrotki — dwukierunkowy binding z TextBox.</summary>
     public string SelectedVerseText
     {
         get => SelectedVerse?.Text ?? string.Empty;
@@ -88,10 +180,9 @@ public partial class SongEditorViewModel : ObservableObject
 
     // ── Kolejność wykonania ───────────────────────────────────────────────
 
-    /// <summary>Kolejność wykonania — każdy element to referencja do VerseEditorItem.</summary>
     [ObservableProperty] private ObservableCollection<VerseEditorItem> _playOrder = [];
 
-    // ── Commands ──────────────────────────────────────────────────────────
+    // ── Komendy pieśni ────────────────────────────────────────────────────
 
     [RelayCommand]
     private void NewSong()
@@ -104,7 +195,7 @@ public partial class SongEditorViewModel : ObservableObject
         Verses.Clear();
         PlayOrder.Clear();
         IsDirty = false;
-        AddVerse("v"); // pierwsza zwrotka od razu
+        AddVerse("v");
     }
 
     [RelayCommand]
@@ -123,10 +214,8 @@ public partial class SongEditorViewModel : ObservableObject
     [RelayCommand]
     private void RemoveVerse(VerseEditorItem verse)
     {
-        // Usuń też z kolejności wykonania
         var toRemove = PlayOrder.Where(p => p == verse).ToList();
         foreach (var p in toRemove) PlayOrder.Remove(p);
-
         Verses.Remove(verse);
         RenumberVerses();
         IsDirty = true;
@@ -169,28 +258,35 @@ public partial class SongEditorViewModel : ObservableObject
         EditingSong.Number = EditNumber;
         EditingSong.CategoryId = EditCategory?.Id ?? 0;
 
-        // Buduj zwrotki z edytora
-        EditingSong.Verses = Verses.Select((v, i) => new Verse
+        int pos = 0;
+        EditingSong.Verses = Verses.Select(v => new Verse
         {
-            Position = i,
             Type = v.Type,
-            Text = v.Text
+            Text = v.Text,
+            Position = pos++,
+            SongId = EditingSong.Id
         }).ToList();
 
         await _db.SaveSongAsync(EditingSong);
-        IsDirty = false;
-        await LoadAsync();
 
-        // Zaznacz zapisaną pieśń
-        var saved = Songs.FirstOrDefault(s => s.Title == EditingSong.Title);
-        if (saved != null) LoadSong(saved);
+        await LoadAsync();
+        IsDirty = false;
+    }
+
+    [RelayCommand]
+    private void CancelEdit()
+    {
+        EditingSong = null;
+        Verses.Clear();
+        PlayOrder.Clear();
+        IsDirty = false;
     }
 
     [RelayCommand]
     private async Task DeleteSongAsync()
     {
-        if (EditingSong == null || EditingSong.Id == 0) return;
-        var r = MessageBox.Show($"Usunąć pieśń \"{EditTitle}\"?",
+        if (EditingSong == null) return;
+        var r = MessageBox.Show($"Usunąć pieśń \"{EditingSong.Title}\"?",
             "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (r != MessageBoxResult.Yes) return;
 
@@ -201,21 +297,26 @@ public partial class SongEditorViewModel : ObservableObject
         await LoadAsync();
     }
 
-    [RelayCommand]
-    private void CancelEdit()
-    {
-        if (EditingSong != null && EditingSong.Id > 0)
-            LoadSong(EditingSong); // przywróć oryginał
-        else
-        {
-            EditingSong = null;
-            Verses.Clear();
-            PlayOrder.Clear();
-        }
-        IsDirty = false;
-    }
+    // ── Ładowanie ─────────────────────────────────────────────────────────
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    private async Task LoadAsync()
+    {
+        try
+        {
+            var cats = await _db.GetCategoriesAsync();
+            Categories = new ObservableCollection<Category>(cats);
+            CategoryItems = new ObservableCollection<CategoryEditorItem>(
+                cats.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
+
+            var songs = await _db.GetAllSongsAsync();
+            Songs = new ObservableCollection<Song>(songs);
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Błąd ładowania: {ex.Message}");
+        }
+    }
 
     private void LoadSong(Song song)
     {
@@ -224,11 +325,8 @@ public partial class SongEditorViewModel : ObservableObject
         EditAuthor = song.Author ?? string.Empty;
         EditNumber = song.Number;
         EditCategory = Categories.FirstOrDefault(c => c.Id == song.CategoryId);
-
         Verses.Clear();
         PlayOrder.Clear();
-
-        // Załaduj zwrotki z bazy
         _ = LoadSongVersesAsync(song.Id);
         IsDirty = false;
     }
@@ -245,17 +343,12 @@ public partial class SongEditorViewModel : ObservableObject
         {
             Type = v.Type,
             Text = v.Text,
-            Number = 1 // renumber below
+            Number = 1
         }).ToList();
 
         foreach (var item in items) Verses.Add(item);
         RenumberVerses();
-
-        // Odtwórz kolejność wykonania
-        // Domyślnie — kolejność jak zwrotki
         foreach (var v in Verses) PlayOrder.Add(v);
-
-
         SelectedVerse = Verses.FirstOrDefault();
     }
 
@@ -270,37 +363,13 @@ public partial class SongEditorViewModel : ObservableObject
         }
     }
 
-    public async Task ReloadCategoriesAsync()
-    {
-        var cats = await _db.GetCategoriesAsync();
-        Categories = new ObservableCollection<Category>(cats);
-    }
-
-    private async Task LoadAsync()
-    {
-        try
-        {
-            var cats = await _db.GetCategoriesAsync();
-            Categories = new ObservableCollection<Category>(cats);
-
-            var songs = await _db.GetAllSongsAsync();
-            Songs = new ObservableCollection<Song>(songs);
-            ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Błąd ładowania: {ex.Message}");
-        }
-    }
-
     private void ApplyFilter()
     {
         var q = SearchText.Trim().ToLower();
-        var filtered = string.IsNullOrEmpty(q)
-            ? Songs
+        FilteredSongs = string.IsNullOrEmpty(q)
+            ? new ObservableCollection<Song>(Songs)
             : new ObservableCollection<Song>(Songs.Where(s =>
                 s.Title.ToLower().Contains(q) ||
                 s.Number.ToString().Contains(q)));
-        FilteredSongs = filtered;
     }
 }

@@ -77,14 +77,6 @@ public partial class MainWindow : Window
 
     private readonly DatabaseService _db;
 
-    private void ManageCategories_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new Views.CategoryDialog(_songEditorVm.Categories, _db);
-        dialog.Owner = this;
-        dialog.ShowDialog();
-        _ = _songEditorVm.ReloadCategoriesAsync();
-    }
-
     public MainWindow(DatabaseService db)
     {
         InitializeComponent();

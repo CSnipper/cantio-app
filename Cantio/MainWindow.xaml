@@ -11,6 +11,7 @@
 
     <Window.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
         <helpers:EnumToBoolConverter x:Key="EnumBool"/>
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
@@ -47,7 +48,7 @@
             <Setter Property="BorderBrush" Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -111,7 +112,7 @@
             <Setter Property="BorderBrush"     Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding"         Value="8,6"/>
-            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontSize"        Value="14"/>
             <Setter Property="CaretBrush"      Value="#c9a84c"/>
             <Setter Property="SelectionBrush"  Value="#c9a84c"/>
             <Setter Property="Template">
@@ -411,7 +412,7 @@
             <Setter Property="Foreground" Value="#0f1117"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="18,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -1276,51 +1277,299 @@
                 <!-- ═══════════════════════════════════════
                      LEWA: lista pieśni
                 ═══════════════════════════════════════ -->
+                <!--
+                    PODMIEŃ całą lewą kolumnę w PaneSongs (Grid.Column="0").
+                    Upewnij się że w Window.Resources masz:
+                        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+                    (namespace helpers wskazuje na Cantio.Helpers, tak jak BoolToVis)
+                -->
+
                 <Grid Grid.Column="0" Background="#0f1117">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>   <!-- nagłówek KATEGORIE -->
+                        <RowDefinition Height="Auto"/>   <!-- lista kategorii -->
+                        <RowDefinition Height="Auto"/>   <!-- wiersz: dodaj nową kategorię -->
+                        <RowDefinition Height="Auto"/>   <!-- nagłówek PIEŚNI -->
+                        <RowDefinition Height="Auto"/>   <!-- szukaj -->
+                        <RowDefinition Height="*"/>      <!-- lista pieśni -->
                     </Grid.RowDefinitions>
 
-                    <!-- Nagłówek + Nowa pieśń -->
+                    <!-- ══════════════════════════════════════
+                         NAGŁÓWEK: KATEGORIE + Dodaj nową
+                    ══════════════════════════════════════ -->
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="3">
-                        <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="PIEŚNI"
+                            BorderThickness="0,0,1,1" Padding="14,11">
+                        <TextBlock Text="KATEGORIE"
                                    FontFamily="{StaticResource CinzelFont}"
-                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"
-                                   VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="☰ KATEGORIE"
-                                Style="{StaticResource OutlineBtn}" Padding="10,5"
-                                Click="ManageCategories_Click"/>
-                        <Button Grid.Column="3" Content="+ NOWA"
-                                Style="{StaticResource GoldBtn}" Padding="10,5"
-                                Command="{Binding NewSongCommand}"/>
-                    </Grid>
+                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
                     </Border>
 
-                    <!-- Szukaj -->
-                    <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="10">
+                    <!-- ══════════════════════════════════════
+                         POLE: nowa nazwa kategorii
+                         (widoczne zawsze — uproszczone UX)
+                    ══════════════════════════════════════ -->
+                    <Border Grid.Row="2" Background="#0f1117" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="8,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="6"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="#1e2535" Foreground="#e8eaf0"
+                                     BorderBrush="#2a3347" BorderThickness="1"
+                                     FontSize="12" Padding="8,6" CaretBrush="#c9a84c">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Return" Command="{Binding AddCategoryCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Grid.Column="0"
+                                       Text="Nowa kategoria..." Foreground="#4a5a7a" FontSize="12"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding NewCategoryName}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Button Grid.Column="2" Content="+ DODAJ"
+                                    Style="{StaticResource OutlineBtn}" Padding="10,6"
+                                    Command="{Binding AddCategoryCommand}"/>
+                        </Grid>
+                    </Border>
+                   <!-- ══════════════════════════════════════
+                         LISTA KATEGORII
+                    ══════════════════════════════════════ -->
+                    <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                        <ListBox ItemsSource="{Binding CategoryItems}"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 MaxHeight="200"
+                                 ItemContainerStyle="{StaticResource DarkListItemGold}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- tryb normalny -->
+                                    <Grid>
+                                        <Grid Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="36"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="30"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- numer -->
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Number}"
+                                                       Foreground="#4a5a7a"
+                                                       FontFamily="{StaticResource CinzelFont}"
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,10,0,10"/>
+
+                                            <!-- nazwa -->
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       Foreground="#e8eaf0" FontSize="16"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="0,10,4,10"/>
+
+                                            <!-- dyskietka (zapis/edycja) -->
+                                            <Button Grid.Column="2" VerticalAlignment="Center"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.StartEditCategoryCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent" Padding="4">
+                                                            <TextBlock Text="✎" FontSize="18">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="#3a4a65"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                                Value="True">
+                                                                                <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+                                            <!-- X (usuń) -->
+                                            <Button Grid.Column="3" VerticalAlignment="Center"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.DeleteCategoryCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent" Padding="4">
+                                                            <TextBlock Text="✕" FontSize="16">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="#3a4a65"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                                Value="True">
+                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </Grid>
+
+                                        <!-- tryb edycji inline -->
+                                        <Grid Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="36"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="30"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- numer (niezmieniony) -->
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Number}"
+                                                       Foreground="#4a5a7a"
+                                                       FontFamily="{StaticResource CinzelFont}"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"/>
+
+                                            <!-- TextBox edycji -->
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="#1e2535" Foreground="#e8eaf0"
+                                                     BorderBrush="#c9a84c" BorderThickness="1"
+                                                     FontSize="12" Padding="6,4"
+                                                     CaretBrush="#c9a84c"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,4,4,4"/>
+
+                                            <!-- 💾 zapisz -->
+                                            <Button Grid.Column="2" VerticalAlignment="Center"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.SaveCategoryCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent" Padding="4">
+                                                            <TextBlock Text="💾" FontSize="13">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                                Value="True">
+                                                                                <Setter Property="Foreground" Value="#e8c97a"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+                                            <!-- ✕ anuluj -->
+                                            <Button Grid.Column="3" VerticalAlignment="Center"
+                                                    Cursor="Hand"
+                                                    Command="{Binding DataContext.CancelEditCategoryCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent" Padding="4">
+                                                            <TextBlock Text="✕" FontSize="11">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="#6a7a8a"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMouseOver,
+                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                                Value="True">
+                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+
+                    <!-- ══════════════════════════════════════
+                         NAGŁÓWEK: PIEŚNI + Dodaj nową
+                    ══════════════════════════════════════ -->
+                    <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,1,1,1" Padding="14,0,8,0" Height="44">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="PIEŚNI"
+                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontSize="14" FontWeight="SemiBold" Foreground="#c9a84c"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="+ NOWA"
+                                    Style="{StaticResource GoldBtn}" Padding="10,5"
+                                    Command="{Binding NewSongCommand}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ══════════════════════════════════════
+                         SZUKAJ
+                    ══════════════════════════════════════ -->
+                    <Border Grid.Row="4" Background="#161b25" BorderBrush="#2a3347"
+                            BorderThickness="0,0,1,1" Padding="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="13"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="18"
+                                       IsHitTestVisible="False" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"/>
                             <TextBox Grid.Column="1" x:Name="SearchBoxSongs"
                                      Style="{StaticResource SearchBox}"
-                                     Padding="8,8,10,8"
+                                     Padding="3" FontSize="20"
                                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="13"
+                            <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="20"
                                        IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -1339,8 +1588,10 @@
                         </Grid>
                     </Border>
 
-                    <!-- Lista -->
-                    <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                    <!-- ══════════════════════════════════════
+                         LISTA PIEŚNI
+                    ══════════════════════════════════════ -->
+                    <Border Grid.Row="5" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                         <ListBox ItemsSource="{Binding FilteredSongs}"
                                  SelectedItem="{Binding SelectedSongInList}"
                                  Background="Transparent" BorderThickness="0"
@@ -1374,6 +1625,7 @@
                         </ListBox>
                     </Border>
                 </Grid>
+
 
                 <!-- ═══════════════════════════════════════
                           PRAWA: edytor
