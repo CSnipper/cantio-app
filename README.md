@@ -1,3 +1,6 @@
+<img width="1916" height="1128" alt="image" src="https://github.com/user-attachments/assets/ba8ed303-b830-4b4c-8ca2-6875da646033" />
+
+
 # Cantio
 
 > Aplikacja do wyświetlania pieśni liturgicznych na projektorze podczas nabożeństw.
