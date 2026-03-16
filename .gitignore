@@ -361,3 +361,20 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# ── Cantio — project-specific ────────────────────────────────────────────────
+
+# Claude Code — pamięć i konfiguracja (nie dla repozytorium)
+.claude/
+SKILL.md
+
+# Skrypty tymczasowe
+*.py
+
+# Pliki backup
+*.bak
+
+# Wyniki buildu instalatora
+Installer/Output/
+
+# Pliki publikacji — profile są w repo, ale output nie
+Cantio/bin/Publish/
