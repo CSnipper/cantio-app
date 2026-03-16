@@ -1,0 +1,149 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Navigation tabs -->
+    <sys:String x:Key="Tab.Show">DISPLAY</sys:String>
+    <sys:String x:Key="Tab.Songs">EDIT</sys:String>
+    <sys:String x:Key="Tab.Sets">SETS</sys:String>
+    <sys:String x:Key="Tab.Settings">SETTINGS</sys:String>
+    <sys:String x:Key="Tab.Import">IMPORT</sys:String>
+
+    <!-- Status -->
+    <sys:String x:Key="Live.Label">LIVE</sys:String>
+
+    <!-- Sections -->
+    <sys:String x:Key="Section.Categories">CATEGORIES</sys:String>
+    <sys:String x:Key="Section.Songs">SONGS</sys:String>
+    <sys:String x:Key="Section.Verses">VERSES</sys:String>
+    <sys:String x:Key="Section.ScreenPreview">SCREEN PREVIEW</sys:String>
+    <sys:String x:Key="Section.NowShowing">NOW SHOWING</sys:String>
+    <sys:String x:Key="Section.Setlist">SONG ORDER</sys:String>
+    <sys:String x:Key="Section.Groups">GROUPS</sys:String>
+    <sys:String x:Key="Section.AllSets">ALL SETS</sys:String>
+
+    <!-- Buttons -->
+    <sys:String x:Key="Btn.Blank">BLANK</sys:String>
+    <sys:String x:Key="Btn.ShowText">SHOW</sys:String>
+    <sys:String x:Key="Btn.SaveSetlist">SAVE SET</sys:String>
+    <sys:String x:Key="Btn.Clear">CLEAR</sys:String>
+    <sys:String x:Key="Btn.PinSetlist">PIN</sys:String>
+    <sys:String x:Key="Btn.DeleteSetlist">DELETE SET</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">SAVE ORDER</sys:String>
+    <sys:String x:Key="Btn.Clone">Clone set</sys:String>
+    <sys:String x:Key="Btn.AddCategory">+ CATEGORY</sys:String>
+    <sys:String x:Key="Btn.NewSong">NEW SONG</sys:String>
+    <sys:String x:Key="Btn.AddToOrder">ADD TO ORDER</sys:String>
+    <sys:String x:Key="Btn.SaveSong">SAVE SONG</sys:String>
+    <sys:String x:Key="Btn.CancelSettings">CANCEL</sys:String>
+    <sys:String x:Key="Btn.Delete">DELETE</sys:String>
+    <sys:String x:Key="Btn.Enable">Enable</sys:String>
+    <sys:String x:Key="Btn.SelectFiles">Select .osj files</sys:String>
+    <sys:String x:Key="Btn.Browse">BROWSE</sys:String>
+    <sys:String x:Key="Btn.Import">IMPORT</sys:String>
+    <sys:String x:Key="Btn.ImportOsz">IMPORT OSZ</sys:String>
+    <sys:String x:Key="Btn.SaveSettings">SAVE SETTINGS</sys:String>
+    <sys:String x:Key="Btn.ResetSettings">RESET</sys:String>
+    <sys:String x:Key="Btn.PickColor">Pick color</sys:String>
+
+    <!-- Placeholders -->
+    <sys:String x:Key="Placeholder.SearchSongs">Search songs...</sys:String>
+    <sys:String x:Key="Placeholder.NewCategory">Category name...</sys:String>
+
+    <!-- Form fields -->
+    <sys:String x:Key="Field.Title">TITLE</sys:String>
+    <sys:String x:Key="Field.Number">No.</sys:String>
+    <sys:String x:Key="Field.Category">CATEGORY</sys:String>
+
+    <!-- Verse types -->
+    <sys:String x:Key="VerseType.AddLabel">Add:</sys:String>
+    <sys:String x:Key="VerseType.Verse">+ Verse</sys:String>
+    <sys:String x:Key="VerseType.Chorus">+ Chorus</sys:String>
+    <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
+    <sys:String x:Key="VerseType.EditAll">✎ Edit all</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="Msg.SelectSong">Select a song from the list</sys:String>
+    <sys:String x:Key="Msg.SelectVerse">Select a verse</sys:String>
+    <sys:String x:Key="Msg.SelectSetlist">Select a set</sys:String>
+    <sys:String x:Key="Msg.UnsavedChanges">Unsaved changes!</sys:String>
+
+    <!-- Groups -->
+    <sys:String x:Key="Groups.AddNew">+ New group</sys:String>
+    <sys:String x:Key="Groups.Target">Move to:</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="Tooltip.ToTop">Move to top</sys:String>
+    <sys:String x:Key="Tooltip.Up">Up</sys:String>
+    <sys:String x:Key="Tooltip.Down">Down</sys:String>
+    <sys:String x:Key="Tooltip.ToBottom">Move to bottom</sys:String>
+    <sys:String x:Key="Tooltip.ToLeft">Left</sys:String>
+    <sys:String x:Key="Tooltip.ToRight">Right</sys:String>
+
+    <!-- Settings — tabs -->
+    <sys:String x:Key="Settings.Font">Font</sys:String>
+    <sys:String x:Key="Settings.Colors">Colors</sys:String>
+    <sys:String x:Key="Settings.Background">Background</sys:String>
+    <sys:String x:Key="Settings.Format">Format</sys:String>
+    <sys:String x:Key="Settings.Screen">Screen</sys:String>
+
+    <!-- Settings — font -->
+    <sys:String x:Key="Settings.FontSize">Font size</sys:String>
+    <sys:String x:Key="Settings.FontFamily">Font family</sys:String>
+    <sys:String x:Key="Settings.Bold">Bold</sys:String>
+    <sys:String x:Key="Settings.Alignment">Alignment</sys:String>
+    <sys:String x:Key="Settings.AlignCenter">Center</sys:String>
+    <sys:String x:Key="Settings.AlignTop">Top</sys:String>
+    <sys:String x:Key="Settings.AlignMiddle">Middle</sys:String>
+    <sys:String x:Key="Settings.AlignBottom">Bottom</sys:String>
+    <sys:String x:Key="Settings.Margins">Margins</sys:String>
+    <sys:String x:Key="Settings.AlignH">Horizontal alignment</sys:String>
+    <sys:String x:Key="Settings.AlignV">Vertical alignment</sys:String>
+    <sys:String x:Key="Settings.LineSpacing">Line spacing</sys:String>
+
+    <!-- Settings — colors -->
+    <sys:String x:Key="Settings.TextColor">Text color</sys:String>
+    <sys:String x:Key="Settings.Shadow">Text shadow</sys:String>
+    <sys:String x:Key="Settings.ShadowEnable">Enable shadow</sys:String>
+    <sys:String x:Key="Settings.ShadowBlur">Blur</sys:String>
+    <sys:String x:Key="Settings.ShadowDepth">Depth</sys:String>
+    <sys:String x:Key="Settings.Opacity">Opacity</sys:String>
+    <sys:String x:Key="Settings.BgColor">Background color</sys:String>
+    <sys:String x:Key="Settings.BgGradient">Background gradient</sys:String>
+    <sys:String x:Key="Settings.GradientColor1">Color 1</sys:String>
+    <sys:String x:Key="Settings.GradientColor2">Color 2</sys:String>
+    <sys:String x:Key="Settings.GradientLinear">Linear</sys:String>
+    <sys:String x:Key="Settings.GradientRadial">Radial</sys:String>
+    <sys:String x:Key="Settings.GradientAngle">Angle (°)</sys:String>
+    <sys:String x:Key="Settings.GradientOptions">Gradient options</sys:String>
+
+    <!-- Settings — background -->
+    <sys:String x:Key="Settings.BgImage">Background image</sys:String>
+    <sys:String x:Key="Settings.BgImageOpacity">Image opacity</sys:String>
+
+    <!-- Settings — format tags -->
+    <sys:String x:Key="Settings.Tags">Format tags</sys:String>
+    <sys:String x:Key="Settings.TagName">Tag name</sys:String>
+    <sys:String x:Key="Settings.TagColorHeader">Color</sys:String>
+    <sys:String x:Key="Settings.TagShortcutTip">Keyboard shortcut</sys:String>
+    <sys:String x:Key="Settings.TagShortcutInput">Shortcut</sys:String>
+    <sys:String x:Key="Settings.TagAdd">+ Add tag</sys:String>
+    <sys:String x:Key="Settings.TagsSyntax">Syntax: {tag}text{/tag}</sys:String>
+    <sys:String x:Key="Settings.TagsBuiltin">Built-in: {b} {i} {u}</sys:String>
+
+    <!-- Settings — screen -->
+    <sys:String x:Key="Settings.ScreenLabel">Projection screen</sys:String>
+
+    <!-- Settings — language -->
+    <sys:String x:Key="Settings.Language">Language</sys:String>
+
+    <!-- Import -->
+    <sys:String x:Key="Import.Title">Song Import</sys:String>
+    <sys:String x:Key="Import.Source">SOURCE FILE</sys:String>
+    <sys:String x:Key="Import.ImportCategories">Import categories</sys:String>
+    <sys:String x:Key="Import.ImportCategoriesTip">Creates new categories if they don't exist</sys:String>
+    <sys:String x:Key="Import.Overwrite">Overwrite existing songs</sys:String>
+    <sys:String x:Key="Import.OverwriteTip">Replaces song text if it already exists</sys:String>
+    <sys:String x:Key="Import.Log">IMPORT LOG</sys:String>
+
+</ResourceDictionary>

@@ -21,7 +21,7 @@ public class CantioDbContext : DbContext
 
         Directory.CreateDirectory(folder);
 
-        string dbPath = Path.Combine(folder, "cantor.db");
+        string dbPath = Path.Combine(folder, "cantio.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
 

@@ -1,5 +1,7 @@
+using Cantio.Models;
 using Cantio.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;
 namespace Cantio.ViewModels;
@@ -8,6 +10,7 @@ public partial class ProjectionViewModel : ObservableObject
 {
     private Slide? _pendingSlide;
 
+    [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
     [ObservableProperty] private string _slideText = string.Empty;
     [ObservableProperty] private bool _isBlank = false;
     [ObservableProperty] private FontFamily _fontFamily = new("Segoe UI");
@@ -48,8 +51,8 @@ public partial class ProjectionViewModel : ObservableObject
     private void ApplyPendingSlide()
     {
         if (_pendingSlide == null) return;
-        SlideText = _pendingSlide.Text;
         FontSize = _pendingSlide.FontSize;
+        SlideText = _pendingSlide.Text;
     }
 
     public void ApplySettings(DisplaySettings s)
@@ -65,7 +68,9 @@ public partial class ProjectionViewModel : ObservableObject
             _ => TextAlignment.Center
         };
         TextBrush = ToBrush(s.TextColor) ?? Brushes.White;
-        BackgroundBrush = ToBrush(s.BackgroundColor) ?? Brushes.Black;
+        BackgroundBrush = s.GradientEnabled
+            ? BuildGradient(s.GradientType, s.GradientColor1, s.GradientColor2, s.GradientAngle)
+            : ToBrush(s.BackgroundColor) ?? Brushes.Black;
         BackgroundImagePath = string.IsNullOrEmpty(s.BackgroundImagePath) ? null : s.BackgroundImagePath;
         BackgroundImageOpacity = s.BackgroundImageOpacity;
         ShadowEnabled = s.ShadowEnabled;
@@ -79,11 +84,27 @@ public partial class ProjectionViewModel : ObservableObject
             _ => VerticalAlignment.Center
         };
         TextMargin = new Thickness(s.TextMarginH, s.TextMarginV, s.TextMarginH, s.TextMarginV);
+        TextTags = new ObservableCollection<TextFormatTag>(s.TextTags);
     }
 
     private static Brush? ToBrush(string hex)
     {
         try { return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); }
         catch { return null; }
+    }
+
+    private static Brush BuildGradient(string type, string hex1, string hex2, double angleDeg)
+    {
+        Color c1, c2;
+        try { c1 = (Color)ColorConverter.ConvertFromString(hex1); } catch { c1 = Colors.Black; }
+        try { c2 = (Color)ColorConverter.ConvertFromString(hex2); } catch { c2 = Colors.Black; }
+
+        if (type == "radial")
+            return new RadialGradientBrush(c1, c2);
+
+        var rad = angleDeg * Math.PI / 180.0;
+        return new LinearGradientBrush(c1, c2,
+            new Point(0.5 - Math.Cos(rad) / 2, 0.5 - Math.Sin(rad) / 2),
+            new Point(0.5 + Math.Cos(rad) / 2, 0.5 + Math.Sin(rad) / 2));
     }
 }

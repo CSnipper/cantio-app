@@ -22,9 +22,14 @@ public partial class DisplayViewModel : ObservableObject
         _db = db;
         _projection = projection;
         _ = LoadCategoriesAsync();
+        _ = LoadPinnedSetlistsAsync();
     }
 
-    public Task InitializeAsync() => LoadCategoriesAsync();
+    public async Task InitializeAsync()
+    {
+        await LoadCategoriesAsync();
+        OpenProjectionWindow();
+    }
 
     public void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         => HandleKey(e.Key, e.KeyboardDevice.Modifiers);
@@ -32,7 +37,6 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void ToggleBlank()
     {
-        if (!ProjectionActive) return;
         ScreenBlanked = !ScreenBlanked;
         _projection.SetBlanked(ScreenBlanked);
     }
@@ -128,9 +132,6 @@ public partial class DisplayViewModel : ObservableObject
     public string SlideInfo => _slides.Count > 0 && CurrentSlideIndex >= 0
         ? $"{CurrentSlideIndex + 1} / {_slides.Count}" : string.Empty;
 
-    public string ToggleScreenIcon => IsScreenOn ? "■" : "▶";
-    public string ToggleScreenText => IsScreenOn ? "WYŁĄCZ EKRAN" : "WŁĄCZ EKRAN";
-
     public bool CanGoPrev => CurrentSlideIndex > 0;
     public bool CanGoNext => CurrentSlideIndex < _slides.Count - 1;
 
@@ -142,14 +143,7 @@ public partial class DisplayViewModel : ObservableObject
 
     // ── Projekcja ─────────────────────────────────────────────────────────
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ToggleScreenLabel))]
-    [NotifyPropertyChangedFor(nameof(IsScreenOn))]
-    [NotifyPropertyChangedFor(nameof(ToggleScreenIcon))]
-    [NotifyPropertyChangedFor(nameof(ToggleScreenText))]
-    private bool _projectionActive = false;
-
-    [ObservableProperty] private bool _screenBlanked = false;
+    [ObservableProperty] private bool _screenBlanked = true;
 
     [ObservableProperty] private SetlistItem? _selectedSetlistItem;
 
@@ -157,9 +151,6 @@ public partial class DisplayViewModel : ObservableObject
     {
         if (value != null) LoadSongFromSetlist(value);
     }
-
-    public string ToggleScreenLabel => ProjectionActive ? "■ WYŁĄCZ EKRAN" : "▶ POKAŻ NA EKRANIE";
-    public bool IsScreenOn => ProjectionActive;
 
     // ── Commands ──────────────────────────────────────────────────────────
 
@@ -211,13 +202,13 @@ public partial class DisplayViewModel : ObservableObject
     private void AddToSetlist(Song? song)
     {
         if (song == null) return;
-        SetlistItems.Add(new SetlistItem
-        {
-            Song = song,
-            SongId = song.Id,
-            Position = SetlistItems.Count + 1,
-            Type = "song"
-        });
+        var newItem = new SetlistItem { Song = song, SongId = song.Id, Type = "song" };
+        var idx = SelectedSetlistItem != null ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
+        if (idx >= 0)
+            SetlistItems.Insert(idx + 1, newItem);
+        else
+            SetlistItems.Add(newItem);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
     }
 
     [RelayCommand]
@@ -253,22 +244,6 @@ public partial class DisplayViewModel : ObservableObject
         if (SetlistItems.Count > 0) LoadSongFromSetlist(SetlistItems[0]);
     }
 
-    [RelayCommand]
-    private void ToggleScreen()
-    {
-        if (!ProjectionActive)
-        {
-            OpenProjectionWindow();
-            ProjectionActive = true;
-            ScreenBlanked = false;
-        }
-        else
-        {
-            CloseProjectionWindow();
-            ProjectionActive = false;
-        }
-    }
-
     // ── Klawiatura ────────────────────────────────────────────────────────
 
     public void HandleKey(Key key, ModifierKeys modifiers)
@@ -290,7 +265,6 @@ public partial class DisplayViewModel : ObservableObject
                 if (_slides.Count > 0) GoToSlide(0);
                 break;
             case Key.Escape:
-                if (!ProjectionActive) break;
                 ScreenBlanked = !ScreenBlanked;
                 _projection.SetBlanked(ScreenBlanked);
                 break;
@@ -376,11 +350,12 @@ public partial class DisplayViewModel : ObservableObject
         int screenIndex = int.TryParse(screenIndexStr, out var idx) ? idx : 1;
 
         _projectionWindow = new ProjectionWindow(_projection);
-        _projectionWindow.Closed += (_, _) => { _projectionWindow = null; ProjectionActive = false; };
+        _projectionWindow.Closed += (_, _) => _projectionWindow = null;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
         Application.Current.MainWindow.Focus();
         _projection.ApplySettings(_db.GetSettings());
+        _projection.SetBlanked(ScreenBlanked);
         if (CurrentSlideIndex >= 0 && CurrentSlideIndex < _slides.Count)
             _projection.SetSlide(_slides[CurrentSlideIndex]);
     }
@@ -391,7 +366,7 @@ public partial class DisplayViewModel : ObservableObject
         _projectionWindow = null;
     }
 
-    private async Task LoadPinnedSetlistsAsync()
+    public async Task LoadPinnedSetlistsAsync()
     {
         var list = await _db.GetPinnedSetlistsAsync();
         PinnedSetlists = new ObservableCollection<Setlist>(list);

@@ -1,4 +1,6 @@
+using Cantio.Models;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 
@@ -26,6 +28,10 @@ public class Slide
 
 public static class SlideLayoutService
 {
+    // Regex do usuwania tagów inline ({tag} i {/tag}) przed pomiarem szerokości
+    private static readonly Regex _tagPattern = new(@"\{/?[a-zA-Z0-9]+\}", RegexOptions.Compiled);
+    private static string StripTags(string text) => _tagPattern.Replace(text, string.Empty);
+
     public static List<Slide> BuildSlides(IList<string> verseTexts, SlideLayoutSettings settings)
     {
         var result = new List<Slide>();
@@ -37,7 +43,7 @@ public static class SlideLayoutService
                 result.Add(new Slide
                 {
                     Text = parts[pi],
-                    FontSize = settings.FontSize,
+                    FontSize = ComputeFitFontSize(parts[pi], settings),
                     VerseIndex = vi,
                     PartIndex = pi
                 });
@@ -48,37 +54,59 @@ public static class SlideLayoutService
 
     public static List<string> SplitVerse(string text, SlideLayoutSettings settings)
     {
-        var result = new List<string>();
         var availableH = settings.SlideHeight - 2 * settings.MarginV;
 
-        // Jeśli mieści się w całości — zwróć od razu
         if (MeasureTextHeight(text, settings) <= availableH)
-        {
-            result.Add(text);
-            return result;
-        }
+            return [text];
 
-        // Podziel na słowa i buduj slajdy słowo po słowie
-        var words = text.Split(' ');
-        var chunk = new List<string>();
+        // Podziel na linie i szukaj najmniejszej liczby slajdów k,
+        // przy której ceil(lineCount/k) linii mieści się na jednym slajdzie
+        var lines = text.Split('\n');
+        int lineCount = lines.Length;
 
-        foreach (var word in words)
+        for (int k = 2; k <= lineCount; k++)
         {
-            chunk.Add(word);
-            var candidate = string.Join(" ", chunk);
-            if (MeasureTextHeight(candidate, settings) > availableH && chunk.Count > 1)
+            int perSlide = (int)Math.Ceiling((double)lineCount / k);
+            var sample = string.Join("\n", lines.Take(perSlide));
+            if (MeasureTextHeight(sample, settings) <= availableH)
             {
-                chunk.RemoveAt(chunk.Count - 1);
-                result.Add(string.Join(" ", chunk));
-                chunk.Clear();
-                chunk.Add(word);
+                var result = new List<string>(k);
+                for (int s = 0; s < k; s++)
+                {
+                    int start = s * perSlide;
+                    int count = Math.Min(perSlide, lineCount - start);
+                    if (count <= 0) break;
+                    result.Add(string.Join("\n", lines.Skip(start).Take(count)));
+                }
+                return result;
             }
         }
 
-        if (chunk.Count > 0)
-            result.Add(string.Join(" ", chunk));
+        // Podziel na granicach słów (whitespace jako separator)
+        var words = text.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 1)
+        {
+            for (int k = 2; k <= words.Length; k++)
+            {
+                int perSlide = (int)Math.Ceiling((double)words.Length / k);
+                var sample = string.Join(" ", words.Take(perSlide));
+                if (MeasureTextHeight(sample, settings) <= availableH)
+                {
+                    var result = new List<string>(k);
+                    for (int s = 0; s < k; s++)
+                    {
+                        int start = s * perSlide;
+                        int count = Math.Min(perSlide, words.Length - start);
+                        if (count <= 0) break;
+                        result.Add(string.Join(" ", words.Skip(start).Take(count)));
+                    }
+                    return result;
+                }
+            }
+        }
 
-        return result.Count > 0 ? result : new List<string> { text };
+        // Fallback: każda linia na osobnym slajdzie
+        return lines.ToList();
     }
 
     public static double MeasureTextHeight(string text, SlideLayoutSettings settings)
@@ -91,7 +119,7 @@ public static class SlideLayoutService
             FontStretches.Normal);
 
         var ft = new FormattedText(
-            text,
+            StripTags(text),
             CultureInfo.CurrentCulture,
             FlowDirection.LeftToRight,
             typeface,
@@ -105,5 +133,43 @@ public static class SlideLayoutService
     }
 
     public static Slide BuildSingle(string text, SlideLayoutSettings settings)
-        => new() { Text = text, FontSize = settings.FontSize };
+        => new() { Text = text, FontSize = ComputeFitFontSize(text, settings) };
+
+    /// <summary>
+    /// Oblicza optymalny rozmiar czcionki bazowej dla slajdu.
+    /// Używa binarnego przeszukiwania efektywnego rozmiaru (base × multiplier),
+    /// mierząc wysokość z zawijaniem (MeasureTextHeight) — dokładnie tak jak renderuje TextBlock.
+    /// Wynik nigdy nie jest mniejszy niż settings.FontSize (minimum z ustawień).
+    /// </summary>
+    public static double ComputeFitFontSize(string slideText, SlideLayoutSettings settings)
+    {
+        double availableH = settings.SlideHeight - 2 * settings.MarginV;
+        double minFs = settings.FontSize;
+        double lo = minFs;
+        double hi = availableH / settings.LineHeightMultiplier;
+        if (hi < lo) hi = lo;
+
+        if (MeasureTextHeight(slideText, CloneWithFontSize(settings, lo)) > availableH - 4)
+            return minFs;
+
+        for (int i = 0; i < 20; i++)
+        {
+            double mid = (lo + hi) / 2;
+            if (MeasureTextHeight(slideText, CloneWithFontSize(settings, mid)) <= availableH - 4)
+                lo = mid;
+            else
+                hi = mid;
+        }
+
+        return Math.Max(minFs, Math.Round(lo, 1));
+    }
+
+    private static SlideLayoutSettings CloneWithFontSize(SlideLayoutSettings s, double fontSize) => new()
+    {
+        FontFamily = s.FontFamily, FontBold = s.FontBold,
+        FontSize = fontSize, LineHeightMultiplier = s.LineHeightMultiplier,
+        SlideWidth = s.SlideWidth, SlideHeight = s.SlideHeight,
+        MarginH = s.MarginH, MarginV = s.MarginV
+    };
+
 }

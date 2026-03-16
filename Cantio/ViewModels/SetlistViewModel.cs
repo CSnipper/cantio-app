@@ -11,6 +11,8 @@ public partial class SetlistViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
 
+    public event Action? PinnedChanged;
+
     public SetlistViewModel(DatabaseService db)
     {
         _db = db;
@@ -27,6 +29,12 @@ public partial class SetlistViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<Setlist> _setlists = [];
     [ObservableProperty] private ObservableCollection<Setlist> _filteredSetlists = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPinnedSetlists))]
+    private ObservableCollection<Setlist> _pinnedSetlists = [];
+
+    public bool HasPinnedSetlists => PinnedSetlists.Count > 0;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSetlistSelected))]
@@ -46,6 +54,12 @@ public partial class SetlistViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<SetlistItem> _items = [];
 
     // ── Commands ──────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void SelectSetlist(Setlist setlist)
+    {
+        SelectedSetlist = setlist;
+    }
 
     [RelayCommand]
     private void SelectAllGroups()
@@ -93,6 +107,7 @@ public partial class SetlistViewModel : ObservableObject
         if (SelectedSetlist == null) return;
         SelectedSetlist.IsPinned = !SelectedSetlist.IsPinned;
         await _db.SaveSetlistAsync(SelectedSetlist);
+        PinnedChanged?.Invoke();
         await LoadAsync();
     }
 
@@ -171,6 +186,7 @@ public partial class SetlistViewModel : ObservableObject
 
             var setlists = await _db.GetAllSetlistsAsync();
             Setlists = new ObservableCollection<Setlist>(setlists);
+            PinnedSetlists = new ObservableCollection<Setlist>(setlists.Where(s => s.IsPinned));
 
             var groupsFromSetlists = setlists
                 .Where(s => !string.IsNullOrEmpty(s.Group))

@@ -1,14 +1,16 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using Cantio.Models;
 
 namespace Cantio.Helpers
 {
     public static class TextBlockHelper
     {
-        // ── Attached Property ──────────────────────────────────────────────
+        // ── FormattedText Attached Property ───────────────────────────────
         public static readonly DependencyProperty FormattedTextProperty =
             DependencyProperty.RegisterAttached(
                 "FormattedText",
@@ -21,6 +23,38 @@ namespace Cantio.Helpers
 
         public static string GetFormattedText(TextBlock tb)
             => (string)tb.GetValue(FormattedTextProperty);
+
+        // ── LineHeightMultiplier Attached Property ────────────────────────
+        // Zamiast bindować TextBlock.LineHeight bezpośrednio, TextBlockHelper
+        // ustawia go po każdym Rebuild na: maxRunFontSize * lhm.
+        // Dzięki temu LineHeight jest zawsze spójne z faktycznym rozmiarem runów,
+        // niezależnie od kolejności aktualizacji bindingów w ViewModel.
+        public static readonly DependencyProperty LineHeightMultiplierProperty =
+            DependencyProperty.RegisterAttached(
+                "LineHeightMultiplier",
+                typeof(double),
+                typeof(TextBlockHelper),
+                new PropertyMetadata(1.35, OnLineHeightMultiplierChanged));
+
+        public static void SetLineHeightMultiplier(TextBlock tb, double value)
+            => tb.SetValue(LineHeightMultiplierProperty, value);
+
+        public static double GetLineHeightMultiplier(TextBlock tb)
+            => (double)tb.GetValue(LineHeightMultiplierProperty);
+
+        // ── TagDefinitions Attached Property ──────────────────────────────
+        public static readonly DependencyProperty TagDefinitionsProperty =
+            DependencyProperty.RegisterAttached(
+                "TagDefinitions",
+                typeof(IEnumerable<TextFormatTag>),
+                typeof(TextBlockHelper),
+                new PropertyMetadata(null, OnTagDefinitionsChanged));
+
+        public static void SetTagDefinitions(TextBlock tb, IEnumerable<TextFormatTag> value)
+            => tb.SetValue(TagDefinitionsProperty, value);
+
+        public static IEnumerable<TextFormatTag> GetTagDefinitions(TextBlock tb)
+            => (IEnumerable<TextFormatTag>)tb.GetValue(TagDefinitionsProperty);
 
         // ── Predefiniowane tagi OpenLP ─────────────────────────────────────
         // Kolory (webkit-text-fill-color)
@@ -35,8 +69,6 @@ namespace Cantio.Helpers
             { "pk", r => r.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC0CB")) },
             { "o",  r => r.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFA500")) },
             { "pp", r => r.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#800080")) },
-            // rozmiar
-            { "big", r => r.FontSize = r.FontSize > 0 ? r.FontSize * 2.0 : 26 },
             // dodatkowe użyteczne
             { "bold",   r => r.FontWeight = FontWeights.Bold },
             { "i",      r => r.FontStyle = FontStyles.Italic },
@@ -48,22 +80,84 @@ namespace Cantio.Helpers
         // Użycie: TextBlockHelper.CustomTags["mytag"] = r => r.Foreground = Brushes.Cyan;
         public static readonly Dictionary<string, Action<Run>> CustomTags = new();
 
+        // ── Helpers do budowania akcji z TextFormatTag ────────────────────
+        public static Action<Run> BuildTagAction(TextFormatTag tag)
+        {
+            return run =>
+            {
+                if (!string.IsNullOrEmpty(tag.Color))
+                {
+                    try { run.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(tag.Color)); }
+                    catch { }
+                }
+                if (tag.Bold) run.FontWeight = FontWeights.Bold;
+                if (tag.Italic) run.FontStyle = FontStyles.Italic;
+                if (tag.Underline) run.TextDecorations = TextDecorations.Underline;
+            };
+        }
+
+        public static void SetCustomTagsFromDefinitions(IEnumerable<TextFormatTag> tags)
+        {
+            CustomTags.Clear();
+            foreach (var tag in tags)
+            {
+                if (string.IsNullOrEmpty(tag.Name)) continue;
+                CustomTags[tag.Name.ToLower()] = BuildTagAction(tag);
+            }
+        }
+
         // ── Zmiana wartości ────────────────────────────────────────────────
         private static void OnFormattedTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not TextBlock tb) return;
+            Rebuild(tb);
+        }
 
+        private static void OnLineHeightMultiplierChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is not TextBlock tb) return;
+            Rebuild(tb);
+        }
+
+        private static void OnTagDefinitionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is not TextBlock tb) return;
+            Rebuild(tb);
+        }
+
+        private static void Rebuild(TextBlock tb)
+        {
             tb.Inlines.Clear();
-
-            var text = e.NewValue as string;
+            var text = GetFormattedText(tb);
             if (string.IsNullOrEmpty(text)) return;
 
-            // połącz wbudowane i użytkownika
             var allTags = new Dictionary<string, Action<Run>>(BuiltInTags);
             foreach (var kv in CustomTags)
                 allTags[kv.Key] = kv.Value;
 
+            var tagDefs = GetTagDefinitions(tb);
+            if (tagDefs != null)
+            {
+                foreach (var tag in tagDefs)
+                {
+                    if (string.IsNullOrEmpty(tag.Name)) continue;
+                    allTags[tag.Name.ToLower()] = BuildTagAction(tag);
+                }
+            }
+
             ParseInlines(tb, text, allTags);
+
+            // Ustaw LineHeight = maxRunFontSize * lhm.
+            // Musi być ≥ naturalnej wysokości runów (MaxHeight strategy WPF),
+            // żeby tekst wypełniał ekran zgodnie z obliczeniami SlideLayoutService.
+            double lhm = GetLineHeightMultiplier(tb);
+            double maxRunFs = tb.FontSize > 0 ? tb.FontSize : 13;
+            foreach (var run in tb.Inlines.OfType<Run>())
+            {
+                if (run.FontSize > maxRunFs)
+                    maxRunFs = run.FontSize;
+            }
+            tb.LineHeight = Math.Max(1, maxRunFs * lhm);
         }
 
         // ── Parser ─────────────────────────────────────────────────────────
@@ -111,22 +205,33 @@ namespace Cantio.Helpers
                     continue;
                 }
 
-                // zwykły tekst — utwórz Run i zastosuj wszystkie aktywne formaty
-                var run = new Run(token)
+                // zwykły tekst — podziel po \n i wstaw LineBreak między częściami
+                var parts = token.Split('\n');
+                bool needBreak = false;
+                foreach (var part in parts)
                 {
-                    FontSize = tb.FontSize > 0 ? tb.FontSize : 13
-                };
+                    if (needBreak)
+                        tb.Inlines.Add(new LineBreak());
+                    needBreak = true;
 
-                // zastosuj formaty od najstarszego do najnowszego
-                var activeList = stack.ToArray();
-                Array.Reverse(activeList);
-                foreach (var tag in activeList)
-                {
-                    if (rules.TryGetValue(tag, out var apply))
-                        apply(run);
+                    if (string.IsNullOrEmpty(part)) continue;
+
+                    var run = new Run(part)
+                    {
+                        FontSize = tb.FontSize > 0 ? tb.FontSize : 13
+                    };
+
+                    // zastosuj formaty od najstarszego do najnowszego
+                    var activeList = stack.ToArray();
+                    Array.Reverse(activeList);
+                    foreach (var tag in activeList)
+                    {
+                        if (rules.TryGetValue(tag, out var apply))
+                            apply(run);
+                    }
+
+                    tb.Inlines.Add(run);
                 }
-
-                tb.Inlines.Add(run);
             }
         }
     }

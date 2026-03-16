@@ -1,0 +1,149 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Pestañas de navegación -->
+    <sys:String x:Key="Tab.Show">PRESENTACIÓN</sys:String>
+    <sys:String x:Key="Tab.Songs">EDICIÓN</sys:String>
+    <sys:String x:Key="Tab.Sets">LISTAS</sys:String>
+    <sys:String x:Key="Tab.Settings">AJUSTES</sys:String>
+    <sys:String x:Key="Tab.Import">IMPORTAR</sys:String>
+
+    <!-- Estado -->
+    <sys:String x:Key="Live.Label">EN VIVO</sys:String>
+
+    <!-- Secciones -->
+    <sys:String x:Key="Section.Categories">CATEGORÍAS</sys:String>
+    <sys:String x:Key="Section.Songs">CANCIONES</sys:String>
+    <sys:String x:Key="Section.Verses">ESTROFAS</sys:String>
+    <sys:String x:Key="Section.ScreenPreview">VISTA PREVIA</sys:String>
+    <sys:String x:Key="Section.NowShowing">MOSTRANDO</sys:String>
+    <sys:String x:Key="Section.Setlist">ORDEN DE CANCIONES</sys:String>
+    <sys:String x:Key="Section.Groups">GRUPOS</sys:String>
+    <sys:String x:Key="Section.AllSets">TODAS LAS LISTAS</sys:String>
+
+    <!-- Botones -->
+    <sys:String x:Key="Btn.Blank">OCULTAR</sys:String>
+    <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
+    <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
+    <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
+    <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
+    <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">GUARDAR ORDEN</sys:String>
+    <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>
+    <sys:String x:Key="Btn.AddCategory">+ CATEGORÍA</sys:String>
+    <sys:String x:Key="Btn.NewSong">NUEVA CANCIÓN</sys:String>
+    <sys:String x:Key="Btn.AddToOrder">AÑADIR AL ORDEN</sys:String>
+    <sys:String x:Key="Btn.SaveSong">GUARDAR CANCIÓN</sys:String>
+    <sys:String x:Key="Btn.CancelSettings">CANCELAR</sys:String>
+    <sys:String x:Key="Btn.Delete">ELIMINAR</sys:String>
+    <sys:String x:Key="Btn.Enable">Activar</sys:String>
+    <sys:String x:Key="Btn.SelectFiles">Seleccionar archivos .osj</sys:String>
+    <sys:String x:Key="Btn.Browse">EXAMINAR</sys:String>
+    <sys:String x:Key="Btn.Import">IMPORTAR</sys:String>
+    <sys:String x:Key="Btn.ImportOsz">IMPORTAR OSZ</sys:String>
+    <sys:String x:Key="Btn.SaveSettings">GUARDAR CONFIGURACIÓN</sys:String>
+    <sys:String x:Key="Btn.ResetSettings">RESTABLECER</sys:String>
+    <sys:String x:Key="Btn.PickColor">Seleccionar color</sys:String>
+
+    <!-- Marcadores de posición -->
+    <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
+    <sys:String x:Key="Placeholder.NewCategory">Nombre de categoría...</sys:String>
+
+    <!-- Campos del formulario -->
+    <sys:String x:Key="Field.Title">TÍTULO</sys:String>
+    <sys:String x:Key="Field.Number">Núm.</sys:String>
+    <sys:String x:Key="Field.Category">CATEGORÍA</sys:String>
+
+    <!-- Tipos de estrofa -->
+    <sys:String x:Key="VerseType.AddLabel">Añadir:</sys:String>
+    <sys:String x:Key="VerseType.Verse">+ Estrofa</sys:String>
+    <sys:String x:Key="VerseType.Chorus">+ Coro</sys:String>
+    <sys:String x:Key="VerseType.Bridge">+ Puente</sys:String>
+    <sys:String x:Key="VerseType.EditAll">✎ Editar todo</sys:String>
+
+    <!-- Mensajes -->
+    <sys:String x:Key="Msg.SelectSong">Seleccionar una canción</sys:String>
+    <sys:String x:Key="Msg.SelectVerse">Seleccionar estrofa</sys:String>
+    <sys:String x:Key="Msg.SelectSetlist">Seleccionar lista</sys:String>
+    <sys:String x:Key="Msg.UnsavedChanges">¡Cambios sin guardar!</sys:String>
+
+    <!-- Grupos -->
+    <sys:String x:Key="Groups.AddNew">+ Nuevo grupo</sys:String>
+    <sys:String x:Key="Groups.Target">Mover a:</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="Tooltip.ToTop">Mover al inicio</sys:String>
+    <sys:String x:Key="Tooltip.Up">Arriba</sys:String>
+    <sys:String x:Key="Tooltip.Down">Abajo</sys:String>
+    <sys:String x:Key="Tooltip.ToBottom">Mover al final</sys:String>
+    <sys:String x:Key="Tooltip.ToLeft">Izquierda</sys:String>
+    <sys:String x:Key="Tooltip.ToRight">Derecha</sys:String>
+
+    <!-- Configuración — pestañas -->
+    <sys:String x:Key="Settings.Font">Fuente</sys:String>
+    <sys:String x:Key="Settings.Colors">Colores</sys:String>
+    <sys:String x:Key="Settings.Background">Fondo</sys:String>
+    <sys:String x:Key="Settings.Format">Formato</sys:String>
+    <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
+
+    <!-- Configuración — fuente -->
+    <sys:String x:Key="Settings.FontSize">Tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.FontFamily">Familia tipográfica</sys:String>
+    <sys:String x:Key="Settings.Bold">Negrita</sys:String>
+    <sys:String x:Key="Settings.Alignment">Alineación</sys:String>
+    <sys:String x:Key="Settings.AlignCenter">Centrar</sys:String>
+    <sys:String x:Key="Settings.AlignTop">Arriba</sys:String>
+    <sys:String x:Key="Settings.AlignMiddle">Centro</sys:String>
+    <sys:String x:Key="Settings.AlignBottom">Abajo</sys:String>
+    <sys:String x:Key="Settings.Margins">Márgenes</sys:String>
+    <sys:String x:Key="Settings.AlignH">Alineación horizontal</sys:String>
+    <sys:String x:Key="Settings.AlignV">Alineación vertical</sys:String>
+    <sys:String x:Key="Settings.LineSpacing">Espaciado de línea</sys:String>
+
+    <!-- Configuración — colores -->
+    <sys:String x:Key="Settings.TextColor">Color del texto</sys:String>
+    <sys:String x:Key="Settings.Shadow">Sombra del texto</sys:String>
+    <sys:String x:Key="Settings.ShadowEnable">Activar sombra</sys:String>
+    <sys:String x:Key="Settings.ShadowBlur">Desenfoque</sys:String>
+    <sys:String x:Key="Settings.ShadowDepth">Profundidad</sys:String>
+    <sys:String x:Key="Settings.Opacity">Opacidad</sys:String>
+    <sys:String x:Key="Settings.BgColor">Color de fondo</sys:String>
+    <sys:String x:Key="Settings.BgGradient">Degradado de fondo</sys:String>
+    <sys:String x:Key="Settings.GradientColor1">Color 1</sys:String>
+    <sys:String x:Key="Settings.GradientColor2">Color 2</sys:String>
+    <sys:String x:Key="Settings.GradientLinear">Lineal</sys:String>
+    <sys:String x:Key="Settings.GradientRadial">Radial</sys:String>
+    <sys:String x:Key="Settings.GradientAngle">Ángulo (°)</sys:String>
+    <sys:String x:Key="Settings.GradientOptions">Opciones de degradado</sys:String>
+
+    <!-- Configuración — fondo -->
+    <sys:String x:Key="Settings.BgImage">Imagen de fondo</sys:String>
+    <sys:String x:Key="Settings.BgImageOpacity">Opacidad de imagen</sys:String>
+
+    <!-- Configuración — etiquetas de formato -->
+    <sys:String x:Key="Settings.Tags">Etiquetas de formato</sys:String>
+    <sys:String x:Key="Settings.TagName">Nombre de etiqueta</sys:String>
+    <sys:String x:Key="Settings.TagColorHeader">Color</sys:String>
+    <sys:String x:Key="Settings.TagShortcutTip">Atajo de teclado</sys:String>
+    <sys:String x:Key="Settings.TagShortcutInput">Atajo</sys:String>
+    <sys:String x:Key="Settings.TagAdd">+ Añadir etiqueta</sys:String>
+    <sys:String x:Key="Settings.TagsSyntax">Sintaxis: {etiq}texto{/etiq}</sys:String>
+    <sys:String x:Key="Settings.TagsBuiltin">Incorporadas: {b} {i} {u}</sys:String>
+
+    <!-- Configuración — pantalla -->
+    <sys:String x:Key="Settings.ScreenLabel">Pantalla de proyección</sys:String>
+
+    <!-- Configuración — idioma -->
+    <sys:String x:Key="Settings.Language">Idioma</sys:String>
+
+    <!-- Importar -->
+    <sys:String x:Key="Import.Title">Importar canciones</sys:String>
+    <sys:String x:Key="Import.Source">ARCHIVO FUENTE</sys:String>
+    <sys:String x:Key="Import.ImportCategories">Importar categorías</sys:String>
+    <sys:String x:Key="Import.ImportCategoriesTip">Crea nuevas categorías si no existen</sys:String>
+    <sys:String x:Key="Import.Overwrite">Sobrescribir canciones existentes</sys:String>
+    <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
+    <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
+
+</ResourceDictionary>

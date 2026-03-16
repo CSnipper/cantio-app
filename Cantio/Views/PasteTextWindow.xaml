@@ -1,0 +1,70 @@
+<Window x:Class="Cantio.Views.PasteTextWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edytuj całość"
+        Width="540" Height="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip"
+        Background="#0f1117"
+        Foreground="#e8eaf0"
+        ShowInTaskbar="False">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Margin="0,0,0,10"
+                   Text="Edytuj tekst pieśni. Puste linie rozdzielają zwrotki."
+                   Foreground="#959fb9" FontSize="13" TextWrapping="Wrap"/>
+
+        <TextBox Grid.Row="1"
+                 x:Name="InputBox"
+                 AcceptsReturn="True"
+                 AcceptsTab="True"
+                 VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled"
+                 TextWrapping="Wrap"
+                 Background="#161b25"
+                 Foreground="#e8eaf0"
+                 CaretBrush="#e8eaf0"
+                 BorderBrush="#2a3347"
+                 BorderThickness="1"
+                 Padding="10"
+                 FontSize="14"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Anuluj" Width="100" Height="38" Margin="0,0,8,0"
+                    Click="Cancel_Click"
+                    Background="#1e2535" Foreground="#e8eaf0"
+                    BorderBrush="#2a3347" BorderThickness="1">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Content="OK — zapisz zwrotki" Width="160" Height="38"
+                    Click="Ok_Click"
+                    Background="#c9a84c" Foreground="#0f1117"
+                    FontWeight="Bold"
+                    BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

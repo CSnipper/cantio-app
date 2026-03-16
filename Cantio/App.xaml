@@ -2,14 +2,22 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Cantio"
-             xmlns:helpers="clr-namespace:Cantio.Helpers">
+             xmlns:helpers="clr-namespace:Cantio.Helpers"
+             ShutdownMode="OnMainWindowClose">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Assets/Localization/Strings.pl.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:BoolToVisibilityConverter  x:Key="BoolToVis"/>
         <helpers:EnumToBoolConverter        x:Key="EnumBool"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
+        <helpers:HexToColorConverter        x:Key="HexToColor"/>
 
-        <FontFamily x:Key="CinzelFont">pack://application:,,,/Assets/Fonts/#Cinzel</FontFamily>
+        <FontFamily x:Key="HeaderFont">pack://application:,,,/Assets/Fonts/#Grenze</FontFamily>
+        <FontFamily x:Key="BodyFont">pack://application:,,,/Assets/Fonts/#Lato</FontFamily>
 
         <!-- Slim scrollbar globalnie -->
         <Style TargetType="ScrollBar">
@@ -41,5 +49,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

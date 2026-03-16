@@ -1,7 +1,10 @@
+using Cantio.Helpers;
 using Cantio.Models;
 using Cantio.Services;
+using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;
 using WpfScreenHelper;
@@ -72,6 +75,33 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private string? _backgroundImagePath;
     [ObservableProperty] private double _backgroundImageOpacity = 1.0;
 
+    // ── Gradient ──────────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
+    private bool _gradientEnabled = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
+    [NotifyPropertyChangedFor(nameof(IsLinearGradient))]
+    private string _gradientType = "linear";
+
+    public bool IsLinearGradient => GradientType == "linear";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
+    [NotifyPropertyChangedFor(nameof(GradientColor1Swatch))]
+    private string _gradientColor1 = "#000000";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
+    [NotifyPropertyChangedFor(nameof(GradientColor2Swatch))]
+    private string _gradientColor2 = "#1a1a2e";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
+    private double _gradientAngle = 180;
+
     // ── Pozycja ───────────────────────────────────────────────────────────
 
     [ObservableProperty]
@@ -85,6 +115,19 @@ public partial class SzablonViewModel : ObservableObject
 
     [ObservableProperty] private List<ScreenOption> _screens = [];
     [ObservableProperty] private ScreenOption? _selectedScreen;
+
+    // ── Język ─────────────────────────────────────────────────────────────
+
+    [ObservableProperty] private string _selectedLanguage = "pl";
+
+    partial void OnSelectedLanguageChanged(string value)
+        => LocalizationManager.SetLanguage(value);
+
+    [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
+
+    // ── Tagi formatowania ─────────────────────────────────────────────────
+
+    [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
 
     // ── Preview ───────────────────────────────────────────────────────────
 
@@ -107,9 +150,13 @@ public partial class SzablonViewModel : ObservableObject
         _ => TextAlignment.Center
     };
     public Brush PreviewTextBrush => ToBrush(TextColor) ?? Brushes.White;
-    public Brush PreviewBackgroundBrush => ToBrush(BackgroundColor) ?? Brushes.Black;
+    public Brush PreviewBackgroundBrush => GradientEnabled
+        ? BuildGradient(GradientType, GradientColor1, GradientColor2, GradientAngle)
+        : ToBrush(BackgroundColor) ?? Brushes.Black;
     public Brush TextColorSwatch => PreviewTextBrush;
-    public Brush BgColorSwatch => PreviewBackgroundBrush;
+    public Brush BgColorSwatch => ToBrush(BackgroundColor) ?? Brushes.Black;
+    public Brush GradientColor1Swatch => ToBrush(GradientColor1) ?? Brushes.Black;
+    public Brush GradientColor2Swatch => ToBrush(GradientColor2) ?? Brushes.DarkBlue;
 
     public VerticalAlignment PreviewVerticalAlignment => TextPosition switch
     {
@@ -154,6 +201,38 @@ public partial class SzablonViewModel : ObservableObject
 
     // ── Commands ──────────────────────────────────────────────────────────
 
+    [RelayCommand] private void SetGradientType(string t) => GradientType = t;
+
+    [RelayCommand] private void PickTextColor() => PickColor(c => TextColor = c, TextColor);
+    [RelayCommand] private void PickBgColor() => PickColor(c => BackgroundColor = c, BackgroundColor);
+    [RelayCommand] private void PickGradientColor1() => PickColor(c => GradientColor1 = c, GradientColor1);
+    [RelayCommand] private void PickGradientColor2() => PickColor(c => GradientColor2 = c, GradientColor2);
+
+    private void PickColor(Action<string> setter, string current)
+    {
+        Color initial;
+        try { initial = (Color)ColorConverter.ConvertFromString(current); }
+        catch { initial = Colors.White; }
+        var dlg = new ColorPickerWindow(initial) { Owner = Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true) setter(dlg.SelectedHex);
+    }
+
+    [RelayCommand] private void AddTag() => TextTags.Add(new TextFormatTag { Name = "tag" });
+
+    [RelayCommand] private void RemoveTag(TextFormatTag tag) => TextTags.Remove(tag);
+
+    [RelayCommand]
+    private void PickTagColor(TextFormatTag tag)
+    {
+        Color initial;
+        try { initial = (Color)ColorConverter.ConvertFromString(tag.Color); }
+        catch { initial = Colors.White; }
+        var dlg = new ColorPickerWindow(initial) { Owner = Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true) tag.Color = dlg.SelectedHex;
+    }
+
+    private void RebuildCustomTags() => TextBlockHelper.SetCustomTagsFromDefinitions(TextTags);
+
     [RelayCommand] private void SetTextAlign(string a) => TextAlign = a;
     [RelayCommand] private void SetTextPosition(string p) => TextPosition = p;
     [RelayCommand] private void SetBgColor(string c) => BackgroundColor = c;
@@ -195,7 +274,15 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("text_margin_v", TextMarginV.ToString());
         if (SelectedScreen != null)
             await _db.SaveSettingAsync("projection_screen", SelectedScreen.Index.ToString());
+        await _db.SaveSettingAsync("bg_gradient_enabled", GradientEnabled ? "true" : "false");
+        await _db.SaveSettingAsync("bg_gradient_type", GradientType);
+        await _db.SaveSettingAsync("bg_gradient_color1", GradientColor1);
+        await _db.SaveSettingAsync("bg_gradient_color2", GradientColor2);
+        await _db.SaveSettingAsync("bg_gradient_angle", GradientAngle.ToString());
 
+        await _db.SaveSettingAsync("language", SelectedLanguage);
+        await _db.SaveTextTagsAsync(TextTags.ToList());
+        RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
         Saved?.Invoke();
     }
@@ -208,7 +295,9 @@ public partial class SzablonViewModel : ObservableObject
         TextColor = "#FFFFFF"; ShadowEnabled = true;
         ShadowBlur = 8; ShadowDepth = 2; ShadowOpacity = 0.8;
         BackgroundColor = "#000000"; BackgroundImagePath = null;
-        BackgroundImageOpacity = 1.0; TextPosition = "center";
+        BackgroundImageOpacity = 1.0;
+        GradientEnabled = false; GradientType = "linear"; GradientColor1 = "#000000"; GradientColor2 = "#1a1a2e"; GradientAngle = 180;
+        TextPosition = "center";
         TextMarginH = 80; TextMarginV = 60;
         await SaveAsync();
     }
@@ -231,14 +320,23 @@ public partial class SzablonViewModel : ObservableObject
         BackgroundColor = s.BackgroundColor;
         BackgroundImagePath = s.BackgroundImagePath;
         BackgroundImageOpacity = s.BackgroundImageOpacity;
+        GradientEnabled = s.GradientEnabled;
+        GradientType = s.GradientType;
+        GradientColor1 = s.GradientColor1;
+        GradientColor2 = s.GradientColor2;
+        GradientAngle = s.GradientAngle;
         TextPosition = s.TextPosition;
         TextMarginH = s.TextMarginH;
         TextMarginV = s.TextMarginV;
+        TextTags = new ObservableCollection<TextFormatTag>(s.TextTags);
+        RebuildCustomTags();
 
         var screenIdx = await _db.GetSettingAsync("projection_screen");
         SelectedScreen = int.TryParse(screenIdx, out int idx)
             ? Screens.FirstOrDefault(s2 => s2.Index == idx) ?? Screens.FirstOrDefault()
             : Screens.Count > 1 ? Screens[1] : Screens.FirstOrDefault();
+
+        SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
     }
 
     private void LoadScreens()
@@ -255,5 +353,20 @@ public partial class SzablonViewModel : ObservableObject
     {
         try { return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); }
         catch { return null; }
+    }
+
+    private static Brush BuildGradient(string type, string hex1, string hex2, double angleDeg)
+    {
+        Color c1, c2;
+        try { c1 = (Color)ColorConverter.ConvertFromString(hex1); } catch { c1 = Colors.Black; }
+        try { c2 = (Color)ColorConverter.ConvertFromString(hex2); } catch { c2 = Colors.Black; }
+
+        if (type == "radial")
+            return new RadialGradientBrush(c1, c2);
+
+        var rad = angleDeg * Math.PI / 180.0;
+        return new LinearGradientBrush(c1, c2,
+            new Point(0.5 - Math.Cos(rad) / 2, 0.5 - Math.Sin(rad) / 2),
+            new Point(0.5 + Math.Cos(rad) / 2, 0.5 + Math.Sin(rad) / 2));
     }
 }

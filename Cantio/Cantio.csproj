@@ -10,9 +10,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\Fonts\Cinzel-Bold.ttf" />
-    <None Remove="Assets\Fonts\Cinzel-Regular.ttf" />
-    <None Remove="Assets\Fonts\Cinzel-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\Grenze-Light.ttf" />
+    <None Remove="Assets\Fonts\Grenze-Regular.ttf" />
+    <None Remove="Assets\Fonts\Grenze-Medium.ttf" />
+    <None Remove="Assets\Fonts\Grenze-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\Grenze-Bold.ttf" />
+    <None Remove="Assets\Fonts\PlayfairDisplay-Regular.ttf" />
+    <None Remove="Assets\Fonts\PlayfairDisplay-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\PlayfairDisplay-Bold.ttf" />
+    <None Remove="Assets\Fonts\PoltawskiNowy-Regular.ttf" />
+    <None Remove="Assets\Fonts\PoltawskiNowy-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\PoltawskiNowy-Bold.ttf" />
+    <None Remove="Assets\Fonts\AsapCondensed-Regular.ttf" />
+    <None Remove="Assets\Fonts\AsapCondensed-Bold.ttf" />
+    <None Remove="Assets\Fonts\AsapCondensed-Italic.ttf" />
+    <None Remove="Assets\Fonts\AsapCondensed-BoldItalic.ttf" />
+    <None Remove="Assets\Fonts\BarlowSemiCondensed-Regular.ttf" />
+    <None Remove="Assets\Fonts\BarlowSemiCondensed-Bold.ttf" />
+    <None Remove="Assets\Fonts\BarlowSemiCondensed-Italic.ttf" />
+    <None Remove="Assets\Fonts\BarlowSemiCondensed-BoldItalic.ttf" />
+    <None Remove="Assets\Fonts\SofiaSansExtraCondensed-Regular.ttf" />
+    <None Remove="Assets\Fonts\SofiaSansExtraCondensed-Bold.ttf" />
+    <None Remove="Assets\Fonts\SofiaSansExtraCondensed-Italic.ttf" />
+    <None Remove="Assets\Fonts\Lato-Light.ttf" />
+    <None Remove="Assets\Fonts\Lato-Regular.ttf" />
+    <None Remove="Assets\Fonts\Lato-Bold.ttf" />
     <None Remove="cantio.ico" />
   </ItemGroup>
 
@@ -28,9 +50,31 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Resource Include="Assets\Fonts\Cinzel-Bold.ttf" />
-	<Resource Include="Assets\Fonts\Cinzel-Regular.ttf" />
-	<Resource Include="Assets\Fonts\Cinzel-SemiBold.ttf" />
+	<Resource Include="Assets\Fonts\Grenze-Light.ttf" />
+	<Resource Include="Assets\Fonts\Grenze-Regular.ttf" />
+	<Resource Include="Assets\Fonts\Grenze-Medium.ttf" />
+	<Resource Include="Assets\Fonts\Grenze-SemiBold.ttf" />
+	<Resource Include="Assets\Fonts\Grenze-Bold.ttf" />
+	<Resource Include="Assets\Fonts\PlayfairDisplay-Regular.ttf" />
+	<Resource Include="Assets\Fonts\PlayfairDisplay-SemiBold.ttf" />
+	<Resource Include="Assets\Fonts\PlayfairDisplay-Bold.ttf" />
+	<Resource Include="Assets\Fonts\PoltawskiNowy-Regular.ttf" />
+	<Resource Include="Assets\Fonts\PoltawskiNowy-SemiBold.ttf" />
+	<Resource Include="Assets\Fonts\PoltawskiNowy-Bold.ttf" />
+	<Resource Include="Assets\Fonts\AsapCondensed-Regular.ttf" />
+	<Resource Include="Assets\Fonts\AsapCondensed-Bold.ttf" />
+	<Resource Include="Assets\Fonts\AsapCondensed-Italic.ttf" />
+	<Resource Include="Assets\Fonts\AsapCondensed-BoldItalic.ttf" />
+	<Resource Include="Assets\Fonts\BarlowSemiCondensed-Regular.ttf" />
+	<Resource Include="Assets\Fonts\BarlowSemiCondensed-Bold.ttf" />
+	<Resource Include="Assets\Fonts\BarlowSemiCondensed-Italic.ttf" />
+	<Resource Include="Assets\Fonts\BarlowSemiCondensed-BoldItalic.ttf" />
+	<Resource Include="Assets\Fonts\SofiaSansExtraCondensed-Regular.ttf" />
+	<Resource Include="Assets\Fonts\SofiaSansExtraCondensed-Bold.ttf" />
+	<Resource Include="Assets\Fonts\SofiaSansExtraCondensed-Italic.ttf" />
+	<Resource Include="Assets\Fonts\Lato-Light.ttf" />
+	<Resource Include="Assets\Fonts\Lato-Regular.ttf" />
+	<Resource Include="Assets\Fonts\Lato-Bold.ttf" />
 	<Resource Include="cantio.ico" />
   </ItemGroup>
 

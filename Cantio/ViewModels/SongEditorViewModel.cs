@@ -1,5 +1,6 @@
 using Cantio.Models;
 using Cantio.Services;
+using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -36,11 +37,12 @@ public partial class CategoryEditorItem : ObservableObject
 
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _editName = string.Empty;
+    [ObservableProperty] private int _editNumber;
     [ObservableProperty] private bool _isEditing = false;
 
     partial void OnIsEditingChanged(bool value)
     {
-        if (value) EditName = Name;
+        if (value) { EditName = Name; EditNumber = Number; }
     }
 }
 
@@ -97,10 +99,11 @@ public partial class SongEditorViewModel : ObservableObject
         {
             Id = item.Id,
             Name = name,
-            Number = item.Number
+            Number = item.EditNumber > 0 ? item.EditNumber : item.Number
         });
 
         item.Name = name;
+        item.Number = item.EditNumber > 0 ? item.EditNumber : item.Number;
         item.IsEditing = false;
         await ReloadCategoriesAsync();
     }
@@ -200,6 +203,32 @@ public partial class SongEditorViewModel : ObservableObject
 
     [RelayCommand]
     private void SelectVerse(VerseEditorItem verse) => SelectedVerse = verse;
+
+    [RelayCommand]
+    private void OpenPasteTextDialog()
+    {
+        var currentText = string.Join("\n\n", Verses.Select(v => v.Text));
+        var dlg = new PasteTextWindow(currentText) { Owner = Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.ResultText))
+            PasteText(dlg.ResultText);
+    }
+
+    [RelayCommand]
+    private void PasteText(string rawText)
+    {
+        var blocks = rawText.Split(["\n\n", "\r\n\r\n"], StringSplitOptions.RemoveEmptyEntries);
+        Verses.Clear();
+        PlayOrder.Clear();
+        int n = 1;
+        foreach (var block in blocks)
+        {
+            var item = new VerseEditorItem { Type = "v", Text = block.Trim(), Number = n++ };
+            Verses.Add(item);
+            PlayOrder.Add(item);
+        }
+        SelectedVerse = Verses.FirstOrDefault();
+        IsDirty = true;
+    }
 
     [RelayCommand]
     private void AddVerse(string type)

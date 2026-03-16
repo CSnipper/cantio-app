@@ -1,5 +1,6 @@
 using Cantio.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Cantio.Services;
 
@@ -149,8 +150,8 @@ public class DatabaseService
     {
         await using var db = new CantioDbContext();
         return await db.Setlists.AsNoTracking()
-            .Where(sl => sl.IsPinned && sl.PinPosition != null)
-            .OrderBy(sl => sl.PinPosition)
+            .Where(sl => sl.IsPinned)
+            .OrderBy(sl => sl.Name)
             .ToListAsync();
     }
 
@@ -229,6 +230,31 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    // ── Tagi formatowania ─────────────────────────────────────────────────
+
+    private static List<TextFormatTag> GetDefaultTags() =>
+    [
+        new TextFormatTag { Name = "z",  Color = "#c9a84c" },
+        new TextFormatTag { Name = "cz", Color = "#e05555" },
+        new TextFormatTag { Name = "bb", Bold = true },
+        new TextFormatTag { Name = "kk", Italic = true },
+    ];
+
+    public List<TextFormatTag> GetTextTags()
+    {
+        using var db = new CantioDbContext();
+        var setting = db.Settings.AsNoTracking().FirstOrDefault(s => s.Key == "text_tags");
+        if (setting == null || string.IsNullOrEmpty(setting.Value)) return GetDefaultTags();
+        try { return JsonSerializer.Deserialize<List<TextFormatTag>>(setting.Value) ?? GetDefaultTags(); }
+        catch { return GetDefaultTags(); }
+    }
+
+    public async Task SaveTextTagsAsync(List<TextFormatTag> tags)
+    {
+        var json = JsonSerializer.Serialize(tags);
+        await SaveSettingAsync("text_tags", json);
+    }
+
     /// <summary>
     /// Ładuje wszystkie ustawienia wyświetlania z bazy jako DisplaySettings DTO.
     /// </summary>
@@ -258,6 +284,12 @@ public class DatabaseService
             TextPosition = Get("text_position", "center", v => v),
             TextMarginH = Get("text_margin_h", 40.0, v => double.TryParse(v, out var d) ? d : 40),
             TextMarginV = Get("text_margin_v", 20.0, v => double.TryParse(v, out var d) ? d : 20),
+            GradientEnabled = Get("bg_gradient_enabled", false, v => v == "true"),
+            GradientType = Get("bg_gradient_type", "linear", v => v),
+            GradientColor1 = Get("bg_gradient_color1", "#000000", v => v),
+            GradientColor2 = Get("bg_gradient_color2", "#1a1a2e", v => v),
+            GradientAngle = Get("bg_gradient_angle", 180.0, v => double.TryParse(v, out var d) ? d : 180),
+            TextTags = GetTextTags(),
         };
     }
 }

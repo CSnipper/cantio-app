@@ -100,6 +100,7 @@ public partial class MainWindow : Window
         PaneTemplate.DataContext = _szablonVm;
 
         _importVm.SetlistsImported += async () => await _setlistVm.LoadAsync();
+        _setlistVm.PinnedChanged += async () => await _vm.LoadPinnedSetlistsAsync();
 
         Loaded += async (_, _) => await _vm.InitializeAsync();
         KeyDown += _vm.OnKeyDown;
@@ -171,4 +172,41 @@ public partial class MainWindow : Window
 
     private string _activeTab = "show";
 
+    // ── Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek) ──────────
+
+    private void VerseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) return;
+        if (sender is not TextBox tb) return;
+
+        var keyLabel = Helpers.KeyCaptureHelper.KeyToLabel(e.Key);
+        var tag = _szablonVm.TextTags.FirstOrDefault(t =>
+            string.Equals(t.ShortcutKey, keyLabel, StringComparison.OrdinalIgnoreCase));
+        if (tag == null) return;
+
+        e.Handled = true;
+        InsertTagAroundSelection(tb, tag.Name);
+    }
+
+    private static void InsertTagAroundSelection(TextBox tb, string tagName)
+    {
+        int start = tb.SelectionStart;
+        int len = tb.SelectionLength;
+        var text = tb.Text;
+        var open = $"{{{tagName}}}";
+        var close = $"{{/{tagName}}}";
+
+        if (len > 0)
+        {
+            var selected = text.Substring(start, len);
+            tb.Text = text.Substring(0, start) + open + selected + close + text.Substring(start + len);
+            tb.SelectionStart = start + open.Length;
+            tb.SelectionLength = len;
+        }
+        else
+        {
+            tb.Text = text.Substring(0, start) + open + close + text.Substring(start);
+            tb.SelectionStart = start + open.Length;
+        }
+    }
 }

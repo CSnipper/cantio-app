@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace Cantio.Helpers;
 
@@ -23,4 +24,17 @@ public class InverseBoolToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => value is Visibility.Collapsed;
+}
+
+[ValueConversion(typeof(string), typeof(Color))]
+public class HexToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        try { return (Color)ColorConverter.ConvertFromString(value?.ToString() ?? "#ffffff"); }
+        catch { return Colors.White; }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
 }

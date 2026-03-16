@@ -25,7 +25,8 @@
                Opacity="{Binding BackgroundImageOpacity}"/>
 
         <!-- Tekst — każda linia osobno (obsługa ujemnego odstępu) -->
-           <TextBlock Text="{Binding SlideText}"
+           <TextBlock helpers:TextBlockHelper.FormattedText="{Binding SlideText}"
+                       helpers:TextBlockHelper.TagDefinitions="{Binding TextTags}"
                        VerticalAlignment="{Binding TextVerticalAlignment}"
                        Margin="{Binding TextMargin}"
                        FontFamily="{Binding FontFamily}"
@@ -34,7 +35,7 @@
                        Foreground="{Binding TextBrush}"
                        TextAlignment="{Binding TextAlignment}"
                        TextWrapping="Wrap"
-                       LineHeight="{Binding DisplayLineHeight}">
+                       helpers:TextBlockHelper.LineHeightMultiplier="{Binding LineHeightMultiplier}">
                 <TextBlock.Effect>
                     <DropShadowEffect Color="Black"
                                       ShadowDepth="{Binding ShadowDepth}"

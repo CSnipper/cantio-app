@@ -1,3 +1,5 @@
+using Cantio.Models;
+
 namespace Cantio.Services;
 
 public class DisplaySettings
@@ -18,4 +20,10 @@ public class DisplaySettings
     public string TextPosition { get; set; } = "center";
     public double TextMarginH { get; set; } = 80;
     public double TextMarginV { get; set; } = 60;
+    public bool GradientEnabled { get; set; } = false;
+    public string GradientType { get; set; } = "linear";
+    public string GradientColor1 { get; set; } = "#000000";
+    public string GradientColor2 { get; set; } = "#1a1a2e";
+    public double GradientAngle { get; set; } = 180;
+    public List<TextFormatTag> TextTags { get; set; } = [];
 }

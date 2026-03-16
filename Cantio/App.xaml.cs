@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Cantio.Helpers;
 using Cantio.Services;
 using System.Windows;
 using Application = System.Windows.Application;
@@ -13,14 +14,16 @@ public partial class App : Application
             base.OnStartup(e);
             var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
             Directory.CreateDirectory(dbFolder); // ← musi być PRZED sprawdzeniem pliku
-            var dbPath = Path.Combine(dbFolder, "cantor.db");
+            var dbPath = Path.Combine(dbFolder, "cantio.db");
             if (!File.Exists(dbPath))
             {
-                var seedDb = Path.Combine(AppContext.BaseDirectory, "cantor.db");
+                var seedDb = Path.Combine(AppContext.BaseDirectory, "cantio.db");
                 if (File.Exists(seedDb))
                     File.Copy(seedDb, dbPath);
             }
             var db = new DatabaseService();
+            var lang = db.GetSettingAsync("language").Result ?? "pl";
+            LocalizationManager.SetLanguage(lang);
             var window = new MainWindow(db);
             window.Show();
         }

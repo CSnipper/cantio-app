@@ -1,0 +1,113 @@
+<Window x:Class="Cantio.Views.ColorPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Wybierz kolor"
+        Width="280" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#0f1117"
+        Foreground="#e8eaf0"
+        ShowInTaskbar="False">
+    <StackPanel Margin="16">
+
+        <!-- SV canvas -->
+        <Grid x:Name="SvGrid" Width="248" Height="200" Cursor="Cross"
+              MouseDown="SvGrid_MouseDown" MouseMove="SvGrid_MouseMove" MouseUp="SvGrid_MouseUp">
+            <Rectangle x:Name="SvBase"/>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="White" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="Black" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Canvas Width="248" Height="200" IsHitTestVisible="False">
+                <Ellipse x:Name="SvThumb" Width="13" Height="13"
+                         Stroke="White" StrokeThickness="2" Fill="Transparent">
+                    <Ellipse.Effect>
+                        <DropShadowEffect ShadowDepth="0" BlurRadius="3" Color="Black" Opacity="0.8"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+            </Canvas>
+        </Grid>
+
+        <!-- Hue bar -->
+        <Grid x:Name="HueBar" Height="18" Width="248" Margin="0,8,0,12" Cursor="Hand"
+              MouseDown="HueBar_MouseDown" MouseMove="HueBar_MouseMove" MouseUp="HueBar_MouseUp">
+            <Rectangle>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="Red"     Offset="0"/>
+                        <GradientStop Color="Yellow"  Offset="0.167"/>
+                        <GradientStop Color="Lime"    Offset="0.333"/>
+                        <GradientStop Color="Cyan"    Offset="0.5"/>
+                        <GradientStop Color="Blue"    Offset="0.667"/>
+                        <GradientStop Color="Magenta" Offset="0.833"/>
+                        <GradientStop Color="Red"     Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Canvas Width="248" Height="18" IsHitTestVisible="False">
+                <Rectangle x:Name="HueThumb" Width="5" Height="18"
+                           Fill="White" Stroke="Black" StrokeThickness="1"/>
+            </Canvas>
+        </Grid>
+
+        <!-- Preview + hex -->
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="PreviewOld" Grid.Column="0" Height="36" BorderBrush="#2a3347" BorderThickness="1"/>
+            <Border x:Name="PreviewNew" Grid.Column="2" Height="36" BorderBrush="#2a3347" BorderThickness="1"/>
+            <TextBox x:Name="HexBox" Grid.Column="4" Height="36"
+                     Background="#161b25" Foreground="#e8eaf0" CaretBrush="#e8eaf0"
+                     BorderBrush="#2a3347" BorderThickness="1" Padding="8,0"
+                     FontFamily="Consolas" FontSize="15" VerticalContentAlignment="Center"
+                     TextChanged="HexBox_TextChanged"/>
+        </Grid>
+
+        <!-- Buttons -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Anuluj" Width="90" Height="38" Margin="0,0,8,0"
+                    Click="Cancel_Click"
+                    Background="#1e2535" Foreground="#e8eaf0" BorderBrush="#2a3347" BorderThickness="1">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Content="OK" Width="90" Height="38"
+                    Click="Ok_Click"
+                    Background="#c9a84c" Foreground="#0f1117" FontWeight="Bold" BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+
+    </StackPanel>
+</Window>

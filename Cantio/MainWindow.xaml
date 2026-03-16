@@ -7,6 +7,7 @@
         MinHeight="600" MinWidth="1000"
         WindowStartupLocation="CenterScreen"
         Background="#0f1117"
+        FontFamily="{StaticResource BodyFont}"
         Icon="cantio.ico">
 
     <Window.Resources>
@@ -15,7 +16,7 @@
         <helpers:EnumToBoolConverter x:Key="EnumBool"/>
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
-        <FontFamily x:Key="CinzelFont">/Assets/Fonts/#Cinzel</FontFamily>
+        <FontFamily x:Key="HeaderFont">/Assets/Fonts/#Grenze</FontFamily>
         
         <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
         <ControlTemplate x:Key="DarkComboToggle" TargetType="ToggleButton">
@@ -281,10 +282,10 @@
             <Setter Property="Background"  Value="Transparent"/>
             <Setter Property="Foreground"  Value="#959fb9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"     Value="14,10"/>
-            <Setter Property="FontFamily"  Value="{StaticResource CinzelFont}"/>
-            <Setter Property="FontSize"    Value="10"/>
-            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="Padding"     Value="8,4"/>
+            <Setter Property="FontFamily"  Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize"    Value="20"/>
+            <Setter Property="FontWeight"  Value="Light"/>
             <Setter Property="Cursor"      Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -319,13 +320,13 @@
         <!-- ── TAB BUTTON ── -->
         <Style x:Key="TabBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0,0,0,5"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#9aa3b8"/>
             <Setter Property="Foreground" Value="#959fb9"/>
-            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="40,0"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Padding" Value="20,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -350,6 +351,7 @@
             <Setter Property="BorderBrush" Value="#c9a84c"/>
             <Setter Property="Foreground" Value="#c9a84c"/>
             <Setter Property="Background" Value="#0Dc9a84c"/>
+            <Setter Property="BorderThickness" Value="1,0,0,3"/>
         </Style>
 
         <!-- ── OUTLINE BUTTON ── -->
@@ -358,10 +360,10 @@
             <Setter Property="Foreground" Value="#9aa3b8"/>
             <Setter Property="BorderBrush" Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="16,7"/>
+            <Setter Property="Padding" Value="16,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -411,8 +413,8 @@
             <Setter Property="Background" Value="#c9a84c"/>
             <Setter Property="Foreground" Value="#0f1117"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="18,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -438,7 +440,7 @@
             <Setter Property="Foreground" Value="#9aa3b8"/>
             <Setter Property="BorderBrush" Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="14,7"/>
@@ -511,7 +513,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="32,8,10,8"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontFamily" Value="{StaticResource BodyFont}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -595,31 +597,31 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
                     <Image Source="cantio.ico" Width="32" Height="32" Margin="0,0,10,0"/>
                     <TextBlock Text="Cantio"
-                               FontFamily="{StaticResource CinzelFont}"
-                               FontSize="24" FontWeight="Bold" Foreground="#c9a84c"
+                               FontFamily="{StaticResource HeaderFont}"
+                               FontSize="40" FontWeight="Bold" Foreground="#c9a84c"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar">
-                    <Button x:Name="TabShow"     Content="▶  WYŚWIETLANIE" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
-                    <Button x:Name="TabSongs"    Content="♪  PIEŚNI"       Style="{StaticResource TabBtn}"       Height="56" Click="TabSongs_Click"/>
-                    <Button x:Name="TabSets"     Content="☑  ZESTAWY"      Style="{StaticResource TabBtn}"       Height="56" Click="TabSets_Click"/>
-                    <Button x:Name="TabTemplate" Content="🎨  SZABLON"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
-                    <Button x:Name="TabImport"   Content="⬇  IMPORT"       Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="center">
+                    <Button x:Name="TabShow"     Content="{DynamicResource Tab.Show}" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
+                    <Button x:Name="TabSongs"    Content="{DynamicResource Tab.Songs}"       Style="{StaticResource TabBtn}"       Height="56" Click="TabSongs_Click"/>
+                    <Button x:Name="TabSets"     Content="{DynamicResource Tab.Sets}"      Style="{StaticResource TabBtn}"       Height="56" Click="TabSets_Click"/>
+                    <Button x:Name="TabTemplate" Content="{DynamicResource Tab.Settings}"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
+                    <Button x:Name="TabImport"   Content="{DynamicResource Tab.Import}"       Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1"/>
                 </StackPanel>
 
                 <Border Grid.Column="2" Margin="0,0,16,0"
                         Background="#0D4ad47a" BorderBrush="#334ad47a" BorderThickness="1"
                         Padding="12,5"
-                        Visibility="{Binding IsScreenOn, Converter={StaticResource BoolToVis}}">
+                        Visibility="Visible">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Ellipse Width="8" Height="8" Fill="#4ad47a" Margin="0,0,8,0">
                             <Ellipse.Effect>
                                 <DropShadowEffect Color="#4ad47a" ShadowDepth="0" BlurRadius="6"/>
                             </Ellipse.Effect>
                         </Ellipse>
-                        <TextBlock Text="NA ŻYWO" Foreground="#4ad47a"
-                                   FontFamily="{StaticResource CinzelFont}" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource Live.Label}" Foreground="#4ad47a"
+                                   FontFamily="{StaticResource HeaderFont}" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -656,10 +658,10 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                                    BorderThickness="0,0,1,1" Padding="14,11">
-                                <TextBlock Text="KATEGORIE"
-                                           FontFamily="{StaticResource CinzelFont}"
-                                           FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                    BorderThickness="0,0,1,1" Padding="10,3">
+                                <TextBlock Text="{DynamicResource Section.Categories}"
+                                           FontFamily="{StaticResource HeaderFont}"
+                                           FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                             </Border>
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                                 <ListBox ItemsSource="{Binding Categories}"
@@ -686,13 +688,19 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                                    BorderThickness="0,0,1,1" Padding="14,11">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="PIEŚNI — "
-                                               FontFamily="{StaticResource CinzelFont}"
-                                               FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
-                                    <TextBlock Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8" FontSize="11"/>
-                                </StackPanel>
+                                    BorderThickness="0,0,1,1" Padding="10,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8"
+                                               FontSize="14" Margin="10,7" VerticalAlignment="Center"
+                                               HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
+                                </Grid>
                             </Border>
                             <Border Grid.Row="1" Background="#161b25">
                                 <Grid>
@@ -706,7 +714,7 @@
                                              Style="{StaticResource SearchBox}"
                                              Padding="4"
                                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="16"
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Placeholder.SearchSongs}" Foreground="#959fb9" FontSize="16"
                                                IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -741,7 +749,7 @@
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding Number, StringFormat='{}{0:D3}'}"
                                                            Foreground="#959fb9"
-                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontFamily="{StaticResource HeaderFont}"
                                                            FontSize="10" VerticalAlignment="Center" Margin="11,12,0,12"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding Title}"
                                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
@@ -762,7 +770,7 @@
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,0,4"
-                                                                           FontSize="30" FontWeight="Bold"
+                                                                           FontSize="30" FontWeight="Light"
                                                                            Foreground="{TemplateBinding Foreground}"/>
                                                             </Border>
                                                             <ControlTemplate.Triggers>
@@ -807,9 +815,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="ZWROTKI"
-                                           FontFamily="{StaticResource CinzelFont}"
-                                           FontSize="10" FontWeight="SemiBold"
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Section.Verses}"
+                                           FontFamily="{StaticResource HeaderFont}"
+                                           FontSize="20" FontWeight="Light"
                                            Foreground="#c9a84c" Margin="0,0,16,0"/>
                                 <TextBlock Grid.Column="1" Text="{Binding SelectedSong.Title}"
                                            Foreground="#e8eaf0" FontSize="12" FontWeight="SemiBold"
@@ -836,7 +844,7 @@
                                             <Border Grid.Column="0" Background="#1e2535"
                                                     BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                                                 <TextBlock Text="{Binding VerseIndex}"
-                                                           FontFamily="{StaticResource CinzelFont}"
+                                                           FontFamily="{StaticResource HeaderFont}"
                                                            FontSize="13" FontWeight="Bold"
                                                            Foreground="#c9a84c"
                                                            HorizontalAlignment="Center"
@@ -868,22 +876,31 @@
 
                                 <!-- Miniaturka -->
                                 <Border Grid.Column="0"
-                                        Background="#000000" BorderBrush="#2a3347" BorderThickness="1"
+                                        Background="{Binding Projection.BackgroundBrush}"
+                                        BorderBrush="#2a3347" BorderThickness="1"
                                         Height="90" ClipToBounds="True" Margin="5,0,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="12" Opacity=".5"/>
                                     </Border.Effect>
-                                    <TextBlock Text="{Binding CurrentSlideText}"
-                                               Foreground="White" FontSize="7" LineHeight="12"
-                                               TextWrapping="Wrap" TextAlignment="Center"
-                                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                                               Padding="2"/>
+                                    <Grid>
+                                        <!-- Tekst slajdu -->
+                                        <TextBlock helpers:TextBlockHelper.FormattedText="{Binding CurrentSlideText}"
+                                                   helpers:TextBlockHelper.TagDefinitions="{Binding Projection.TextTags}"
+                                                   Foreground="{Binding Projection.TextBrush}"
+                                                   FontSize="7" LineHeight="12"
+                                                   TextWrapping="Wrap" TextAlignment="Center"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                   Padding="2"/>
+                                        <!-- Overlay: blank -->
+                                        <Border Background="Black"
+                                                Visibility="{Binding ScreenBlanked, Converter={StaticResource BoolToVis}}"/>
+                                    </Grid>
                                 </Border>
 
                                 <!-- Info -->
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
-                                    <TextBlock Text="PODGLĄD EKRANU"
-                                               FontFamily="{StaticResource CinzelFont}"
+                                    <TextBlock Text="{DynamicResource Section.ScreenPreview}"
+                                               FontFamily="{StaticResource HeaderFont}"
                                                FontSize="9" Foreground="#959fb9" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding SelectedSong.Title}"
                                                Foreground="#e8c97a" FontSize="13" FontWeight="SemiBold"
@@ -906,66 +923,15 @@
                             </Grid>
                         </Border>
 
-                        <!-- POKAŻ NA EKRANIE -->
-                        <Grid Grid.Row="3" Height="70">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="1"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Włącz/Wyłącz ekran -->
-                            <Button Grid.Column="0" Command="{Binding ToggleScreenCommand}" Cursor="Hand">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#c9a84c"/>
-                                        <Setter Property="Foreground" Value="#0f1117"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-                                        <Setter Property="FontSize" Value="13"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#e8c97a"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsScreenOn}" Value="True">
-                                                <Setter Property="Background" Value="#1e2535"/>
-                                                <Setter Property="Foreground" Value="#d44a4a"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding ToggleScreenIcon}" FontSize="16"
-                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding ToggleScreenText}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- Separator -->
-                            <Border Grid.Column="1" Background="#0f1117"/>
-
-                            <!-- Wygaś/Pokaż -->
-                            <Button Grid.Column="2" Command="{Binding ToggleBlankCommand}" Cursor="Hand"
-                                    IsEnabled="{Binding IsScreenOn}">
+                        <!-- WYGAŚ / POKAŻ -->
+                        <Button Grid.Row="3" Height="70" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Background" Value="#252d3d"/>
                                         <Setter Property="Foreground" Value="#9aa3b8"/>
                                         <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="FontFamily" Value="{StaticResource CinzelFont}"/>
-                                        <Setter Property="FontSize" Value="13"/>
+                                        <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                        <Setter Property="FontSize" Value="30"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
@@ -976,9 +942,6 @@
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="Background" Value="#2a3347"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter Property="Opacity" Value="0.3"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -993,33 +956,20 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="◼" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="◼"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                        <Setter Property="Text" Value="▶"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
                                     <TextBlock VerticalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="WYGAŚ"/>
+                                                <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                        <Setter Property="Text" Value="POKAŻ"/>
+                                                        <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
-                            </Button>
-                        </Grid>
+                        </Button>
                         </Grid>
 
                         <!-- Zestaw -->
@@ -1034,9 +984,9 @@
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="1,0,0,1" Padding="12,11">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="ZESTAW"
-                                               FontFamily="{StaticResource CinzelFont}"
-                                               FontSize="10" FontWeight="SemiBold"
+                                    <TextBlock Text="{DynamicResource Section.Setlist}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="20" FontWeight="Light"
                                                Foreground="#c9a84c" Margin="0,0,10,0"/>
                                     <Border Background="#252d3d" Padding="8,2">
                                         <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
@@ -1070,14 +1020,14 @@
                                                     </Ellipse.Effect>
                                                 </Ellipse>
                                                 <TextBlock Grid.Column="1" Text="⠿" Foreground="#959fb9"
-                                                           FontSize="20" VerticalAlignment="Center"/>
+                                                           FontSize="20" VerticalAlignment="Center" Padding="5,5,3,3"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding Position}"
-                                                           FontFamily="{StaticResource CinzelFont}"
-                                                           FontSize="20" Foreground="#959fb9" VerticalAlignment="Center"/>
+                                                           FontSize="20" Foreground="#959fb9" 
+                                                            Padding="0,4,0,4" VerticalAlignment="Center"/>
                                                 <TextBlock Grid.Column="3" Text="{Binding Song.Title}"
                                                            TextWrapping="Wrap" VerticalAlignment="Center" 
                                                            HorizontalAlignment="Stretch"
-                                                           FontSize="14" Padding="10,0,0,0"/>
+                                                           FontSize="20" Padding="10"/>
                                                 <Button Grid.Column="4" Content="×"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
@@ -1117,7 +1067,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="⏫" FontSize="16"
-                                            ToolTip="Na początek"
+                                            ToolTip="{DynamicResource Tooltip.ToTop}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
                                             Command="{Binding MoveToTopCommand}">
@@ -1136,7 +1086,7 @@
                                         </Button.Template>
                                     </Button>
                                     <Button Grid.Column="1" Content="🔼" FontSize="16"
-                                            ToolTip="Wyżej"
+                                            ToolTip="{DynamicResource Tooltip.Up}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
                                             Command="{Binding MoveUpCommand}">
@@ -1155,7 +1105,7 @@
                                         </Button.Template>
                                     </Button>
                                     <Button Grid.Column="2" Content="🔽" FontSize="16"
-                                            ToolTip="Niżej"
+                                            ToolTip="{DynamicResource Tooltip.Down}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
                                             Command="{Binding MoveDownCommand}">
@@ -1174,7 +1124,7 @@
                                         </Button.Template>
                                     </Button>
                                     <Button Grid.Column="3" Content="⏬" FontSize="16"
-                                            ToolTip="Na koniec"
+                                            ToolTip="{DynamicResource Tooltip.ToBottom}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
                                             Command="{Binding MoveToBottomCommand}">
@@ -1202,10 +1152,10 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="ZAPISZ ZESTAW"
+                                    <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSetlist}"
                                             Style="{StaticResource OutlineBtn}" Margin="0,0,7,0"
                                             Command="{Binding SaveSetlistCommand}"/>
-                                    <Button Grid.Column="1" Content="WYCZYŚĆ"
+                                    <Button Grid.Column="1" Content="{DynamicResource Btn.Clear}"
                                             Style="{StaticResource RedBtn}"
                                             Command="{Binding ClearSetlistCommand}"/>
                                 </Grid>
@@ -1235,7 +1185,7 @@
                                 <DataTemplate>
                                     <ToggleButton Content="{Binding Name}" Style="{StaticResource PinBtn}"
                                                   Margin="0,0,7,0"
-                                                  Command="{Binding DataContext.LoadSetlistCommand,
+                                                  Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                       RelativeSource={RelativeSource AncestorType=Window}}"
                                                   CommandParameter="{Binding}"/>
                                 </DataTemplate>
@@ -1244,8 +1194,8 @@
 
                         <!-- SlideInfo + Ctrl nawigacja -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="TERAZ WYŚWIETLANE"
-                                       FontFamily="{StaticResource CinzelFont}"
+                            <TextBlock Text="{DynamicResource Section.NowShowing}"
+                                       FontFamily="{StaticResource HeaderFont}"
                                        FontSize="9" Foreground="#959fb9"
                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding SelectedSong.Title}"
@@ -1255,7 +1205,7 @@
                             <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                                     Padding="14,0" Height="38">
                                 <TextBlock Text="{Binding SlideInfo}"
-                                           FontFamily="{StaticResource CinzelFont}"
+                                           FontFamily="{StaticResource HeaderFont}"
                                            FontSize="13" FontWeight="Bold" Foreground="#c9a84c"
                                            VerticalAlignment="Center"/>
                             </Border>
@@ -1266,8 +1216,7 @@
 
             </Grid>
 
-            <!-- OTHER TABS -->
-            <!-- PIEŚNI -->
+            <!-- EDYCJA -->
             <Grid x:Name="PaneSongs" Visibility="Collapsed" Background="#0f1117">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320"/>
@@ -1277,12 +1226,6 @@
                 <!-- ═══════════════════════════════════════
                      LEWA: lista pieśni
                 ═══════════════════════════════════════ -->
-                <!--
-                    PODMIEŃ całą lewą kolumnę w PaneSongs (Grid.Column="0").
-                    Upewnij się że w Window.Resources masz:
-                        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
-                    (namespace helpers wskazuje na Cantio.Helpers, tak jak BoolToVis)
-                -->
 
                 <Grid Grid.Column="0" Background="#0f1117">
                     <Grid.RowDefinitions>
@@ -1294,20 +1237,15 @@
                         <RowDefinition Height="*"/>      <!-- lista pieśni -->
                     </Grid.RowDefinitions>
 
-                    <!-- ══════════════════════════════════════
-                         NAGŁÓWEK: KATEGORIE + Dodaj nową
-                    ══════════════════════════════════════ -->
+                    <!-- NAGŁÓWEK: KATEGORIE + Dodaj nową -->
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,1,1" Padding="14,11">
-                        <TextBlock Text="KATEGORIE"
-                                   FontFamily="{StaticResource CinzelFont}"
-                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                        <TextBlock Text="{DynamicResource Section.Categories}"
+                                   FontFamily="{StaticResource HeaderFont}"
+                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                     </Border>
 
-                    <!-- ══════════════════════════════════════
-                         POLE: nowa nazwa kategorii
-                         (widoczne zawsze — uproszczone UX)
-                    ══════════════════════════════════════ -->
+                    <!-- POLE: nowa nazwa kategorii (widoczne zawsze — uproszczone UX) -->
                     <Border Grid.Row="2" Background="#0f1117" BorderBrush="#2a3347"
                             BorderThickness="0,0,1,1" Padding="8,6">
                         <Grid>
@@ -1321,13 +1259,13 @@
                                      Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}"
                                      Background="#1e2535" Foreground="#e8eaf0"
                                      BorderBrush="#2a3347" BorderThickness="1"
-                                     FontSize="12" Padding="8,6" CaretBrush="#c9a84c">
+                                     FontSize="16" Padding="8,6" CaretBrush="#c9a84c">
                                 <TextBox.InputBindings>
                                     <KeyBinding Key="Return" Command="{Binding AddCategoryCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>
                             <TextBlock Grid.Column="0"
-                                       Text="Nowa kategoria..." Foreground="#4a5a7a" FontSize="12"
+                                       Text="{DynamicResource Placeholder.NewCategory}" Foreground="#4a5a7a" FontSize="16"
                                        IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -1341,14 +1279,12 @@
                                 </TextBlock.Style>
                             </TextBlock>
 
-                            <Button Grid.Column="2" Content="+ DODAJ"
-                                    Style="{StaticResource OutlineBtn}" Padding="10,6"
+                            <Button Grid.Column="2" Content="{DynamicResource Btn.AddCategory}"
+                                    Style="{StaticResource OutlineBtn}" Padding="10,5"
                                     Command="{Binding AddCategoryCommand}"/>
                         </Grid>
                     </Border>
-                   <!-- ══════════════════════════════════════
-                         LISTA KATEGORII
-                    ══════════════════════════════════════ -->
+                   <!-- LISTA KATEGORII -->
                     <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                         <ListBox ItemsSource="{Binding CategoryItems}"
                                  Background="Transparent" BorderThickness="0"
@@ -1371,7 +1307,7 @@
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding Number}"
                                                        Foreground="#4a5a7a"
-                                                       FontFamily="{StaticResource CinzelFont}"
+                                                       FontFamily="{StaticResource HeaderFont}"
                                                        FontSize="14"
                                                        VerticalAlignment="Center"
                                                        HorizontalAlignment="Center"
@@ -1451,21 +1387,27 @@
                                                 <ColumnDefinition Width="30"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- numer (niezmieniony) -->
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding Number}"
-                                                       Foreground="#4a5a7a"
-                                                       FontFamily="{StaticResource CinzelFont}"
-                                                       FontSize="10"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Center"/>
+                                            <!-- numer (edytowalny) -->
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                     helpers:NumericBox.IsEnabled="True"
+                                                     helpers:NumericBox.Min="1"
+                                                     helpers:NumericBox.Max="9999"
+                                                     Background="#1e2535" Foreground="#c9a84c"
+                                                     BorderBrush="#c9a84c" BorderThickness="1"
+                                                     FontFamily="{StaticResource HeaderFont}"
+                                                     FontSize="12" Padding="2,4"
+                                                     CaretBrush="#c9a84c"
+                                                     TextAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,4,4,4"/>
 
                                             <!-- TextBox edycji -->
                                             <TextBox Grid.Column="1"
                                                      Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="#1e2535" Foreground="#e8eaf0"
                                                      BorderBrush="#c9a84c" BorderThickness="1"
-                                                     FontSize="12" Padding="6,4"
+                                                     FontSize="16" Padding="6,4"
                                                      CaretBrush="#c9a84c"
                                                      VerticalAlignment="Center"
                                                      Margin="0,4,4,4"/>
@@ -1532,9 +1474,7 @@
                         </ListBox>
                     </Border>
 
-                    <!-- ══════════════════════════════════════
-                         NAGŁÓWEK: PIEŚNI + Dodaj nową
-                    ══════════════════════════════════════ -->
+                    <!-- NAGŁÓWEK: PIEŚNI + Dodaj nową -->
                     <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,1,1,1" Padding="14,0,8,0" Height="44">
                         <Grid>
@@ -1542,11 +1482,11 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="PIEŚNI"
-                                       FontFamily="{StaticResource CinzelFont}"
-                                       FontSize="14" FontWeight="SemiBold" Foreground="#c9a84c"
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
+                                       FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="Light" Foreground="#c9a84c"
                                        VerticalAlignment="Center"/>
-                            <Button Grid.Column="1" Content="+ NOWA"
+                            <Button Grid.Column="1" Content="{DynamicResource Btn.NewSong}"
                                     Style="{StaticResource GoldBtn}" Padding="10,5"
                                     Command="{Binding NewSongCommand}"/>
                         </Grid>
@@ -1569,7 +1509,7 @@
                                      Style="{StaticResource SearchBox}"
                                      Padding="3" FontSize="20"
                                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBlock Grid.Column="1" Text="Szukaj pieśni..." Foreground="#959fb9" FontSize="20"
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Placeholder.SearchSongs}" Foreground="#959fb9" FontSize="20"
                                        IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -1588,9 +1528,7 @@
                         </Grid>
                     </Border>
 
-                    <!-- ══════════════════════════════════════
-                         LISTA PIEŚNI
-                    ══════════════════════════════════════ -->
+                    <!-- LISTA PIEŚNI -->
                     <Border Grid.Row="5" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                         <ListBox ItemsSource="{Binding FilteredSongs}"
                                  SelectedItem="{Binding SelectedSongInList}"
@@ -1607,16 +1545,16 @@
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding Number, StringFormat='{}{0:D3}'}"
                                                    Foreground="#959fb9"
-                                                   FontFamily="{StaticResource CinzelFont}"
+                                                   FontFamily="{StaticResource HeaderFont}"
                                                    FontSize="10" VerticalAlignment="Center"
                                                    Margin="11,12,0,12"/>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center"
-                                                    Margin="4,8,8,8">
+                                                    Margin="4,3,8,3">
                                             <TextBlock Text="{Binding Title}"
                                                        TextTrimming="CharacterEllipsis"
-                                                       FontSize="13" Foreground="#e8eaf0"/>
+                                                       FontSize="18" Foreground="#e8eaf0"/>
                                             <TextBlock Text="{Binding Category.Name}"
-                                                       FontSize="11" Foreground="#959fb9"
+                                                       FontSize="14" Foreground="#959fb9"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Grid>
@@ -1627,9 +1565,7 @@
                 </Grid>
 
 
-                <!-- ═══════════════════════════════════════
-                          PRAWA: edytor
-                     ═══════════════════════════════════════ -->
+                <!-- PRAWA: edytor -->
                 <Grid Grid.Column="1">
 
                     <!-- Edytor — zawsze widoczny, treść zależy od IsEditing -->
@@ -1658,17 +1594,17 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="TYTUŁ"
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Field.Title}"
                                Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
                                Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="NR"
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{DynamicResource Field.Number}"
                                Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
                                Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="0" Grid.Column="4" Text="KATEGORIA"
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="{DynamicResource Field.Category}"
                                Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
                                Margin="0,0,0,5"/>
 
                                 <TextBox Grid.Row="2" Grid.Column="0"
@@ -1712,26 +1648,29 @@
 
                                 <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,0,1" Padding="14,10">
-                                    <TextBlock Text="ZWROTKI"
-                                   FontFamily="{StaticResource CinzelFont}"
-                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                    <TextBlock Text="{DynamicResource Section.Verses}"
+                                   FontFamily="{StaticResource HeaderFont}"
+                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                                 </Border>
 
                                 <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,0,1" Padding="10,8"
                             Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Dodaj:" Foreground="#959fb9" FontSize="12"
+                                        <TextBlock Text="{DynamicResource VerseType.AddLabel}" Foreground="#959fb9" FontSize="12"
                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <Button Content="+ Zwrotka" Style="{StaticResource OutlineBtn}"
+                                        <Button Content="{DynamicResource VerseType.Verse}" Style="{StaticResource OutlineBtn}"
                                     Padding="10,5" Margin="0,0,6,0"
                                     Command="{Binding AddVerseCommand}" CommandParameter="v"/>
-                                        <Button Content="+ Refren" Style="{StaticResource OutlineBtn}"
+                                        <Button Content="{DynamicResource VerseType.Chorus}" Style="{StaticResource OutlineBtn}"
                                     Padding="10,5" Margin="0,0,6,0"
                                     Command="{Binding AddVerseCommand}" CommandParameter="c"/>
-                                        <Button Content="+ Bridge" Style="{StaticResource OutlineBtn}"
-                                    Padding="10,5"
+                                        <Button Content="{DynamicResource VerseType.Bridge}" Style="{StaticResource OutlineBtn}"
+                                    Padding="10,5" Margin="0,0,16,0"
                                     Command="{Binding AddVerseCommand}" CommandParameter="b"/>
+                                        <Button Content="{DynamicResource VerseType.EditAll}" Style="{StaticResource OutlineBtn}"
+                                    Padding="10,5"
+                                    Command="{Binding OpenPasteTextDialogCommand}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -1750,9 +1689,9 @@
                                     </StackPanel.Style>
                                     <TextBlock Text="♪" FontSize="48" Foreground="#2a3347"
                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                    <TextBlock Text="Wybierz pieśń lub kliknij + NOWA"
+                                    <TextBlock Text="{DynamicResource Msg.SelectSong}"
                                    Foreground="#959fb9" FontSize="14"
-                                   FontFamily="{StaticResource CinzelFont}"/>
+                                   FontFamily="{StaticResource HeaderFont}"/>
                                 </StackPanel>
 
                                 <!-- Lista zwrotek + TextBox do edycji -->
@@ -1793,7 +1732,7 @@
                                                                                 BorderThickness="{TemplateBinding BorderThickness}"
                                                                                >
                                                                                         <TextBlock Text="{Binding Label, Mode=OneWay}"
-                                                                                       FontFamily="{StaticResource CinzelFont}"
+                                                                                       FontFamily="{StaticResource HeaderFont}"
                                                                                        FontSize="14" FontWeight="Bold"
                                                                                        HorizontalAlignment="Center"
                                                                                        VerticalAlignment="Center">
@@ -1871,8 +1810,9 @@
                                      FontSize="14" FontFamily="Consolas"
                                      Background="#0f1117"
                                      BorderThickness="0"
-                                     Padding="16"/>
-                                        <TextBlock Text="Wybierz zwrotkę aby edytować tekst..."
+                                     Padding="16"
+                                     PreviewKeyDown="VerseTextBox_PreviewKeyDown"/>
+                                        <TextBlock Text="{DynamicResource Msg.SelectVerse}"
                                        Foreground="#959fb9" FontSize="13"
                                        IsHitTestVisible="False"
                                        VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -1906,9 +1846,9 @@
 
                                 <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,0,1" Padding="14,10">
-                                    <TextBlock Text="KOLEJNOŚĆ WYKONANIA"
-                                   FontFamily="{StaticResource CinzelFont}"
-                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                                    <TextBlock Text="{DynamicResource Section.Setlist}"
+                                   FontFamily="{StaticResource HeaderFont}"
+                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                                 </Border>
 
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
@@ -1932,7 +1872,7 @@
                                                                 </Style>
                                                             </TextBlock.Style>
                                                 <Run Text="{Binding Label, Mode=OneWay}"
-                                                     FontFamily="{StaticResource CinzelFont}"
+                                                     FontFamily="{StaticResource HeaderFont}"
                                                      FontWeight="Bold"/>
                                                 <Run Text=" — "/>
                                                 <Run Text="{Binding Type, Mode=OneWay}"
@@ -1974,9 +1914,9 @@
                                 <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,1,0,0" Padding="12,10">
                                     <StackPanel>
-                                        <TextBlock Text="DODAJ DO KOLEJNOŚCI"
+                                        <TextBlock Text="{DynamicResource Btn.AddToOrder}"
                                        Foreground="#959fb9" FontSize="10"
-                                       FontFamily="{StaticResource CinzelFont}"
+                                       FontFamily="{StaticResource HeaderFont}"
                                        FontWeight="SemiBold" Margin="0,0,0,8"/>
                                         <ItemsControl ItemsSource="{Binding Verses}">
                                             <ItemsControl.ItemsPanel>
@@ -2024,7 +1964,7 @@
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Button.Style>
-                                                        <TextBlock FontFamily="{StaticResource CinzelFont}"
+                                                        <TextBlock FontFamily="{StaticResource HeaderFont}"
                                                        FontSize="13" FontWeight="Bold">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
@@ -2062,14 +2002,14 @@
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="ZAPISZ PIEŚŃ"
-                            Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
+                                <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSong}"
+                            Style="{StaticResource GoldBtn}" Height="50" FontSize="28" Padding="0"
                             Command="{Binding SaveSongCommand}"/>
-                                <Button Grid.Column="2" Content="ANULUJ"
-                            Style="{StaticResource OutlineBtn}" Height="42" Padding="20,0"
+                                <Button Grid.Column="2" Content="{DynamicResource Btn.CancelSettings}"
+                            Style="{StaticResource OutlineBtn}" Height="50" Padding="20,0"
                             Command="{Binding CancelEditCommand}"/>
-                                <Button Grid.Column="4" Content="USUŃ"
-                            Style="{StaticResource RedBtn}" Height="42" Padding="20,0"
+                                <Button Grid.Column="4" Content="{DynamicResource Btn.Delete}"
+                            Style="{StaticResource RedBtn}" Height="50" Padding="20,0"
                             Command="{Binding DeleteSongCommand}"/>
                             </Grid>
                         </Border>
@@ -2078,18 +2018,67 @@
             </Grid>
 
             <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
-                <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource CinzelFont}" FontSize="16"/>
+                <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
             <Grid x:Name="PaneSets" Visibility="Collapsed" Background="#0f1117">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="300"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- ═══════════════════════════════════════
-                     LEWA: grupy + zestawy
-                ═══════════════════════════════════════ -->
-                <Grid Grid.Column="0" Background="#0f1117">
+                <!-- PASEK PRZYPIĘTYCH ZESTAWÓW -->
+                <Border Grid.Row="0" Grid.ColumnSpan="2"
+                        Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1"
+                        Padding="12,8"
+                        Visibility="{Binding HasPinnedSetlists, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl ItemsSource="{Binding PinnedSetlists}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.SelectSetlistCommand,
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"
+                                        Cursor="Hand" Margin="0,0,8,0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="#c9a84c" BorderThickness="1"
+                                                    CornerRadius="4" Padding="14,7">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="📌" FontSize="11" Margin="0,0,6,0"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontFamily="{StaticResource BodyFont}"
+                                                               FontSize="13" Foreground="#e8eaf0"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#1e2535"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="False">
+                                                    <Setter Property="Background" Value="#0f1117"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <!-- LEWA: grupy + zestawy -->
+                <Grid Grid.Row="1" Grid.Column="0" Background="#0f1117">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>  <!-- nagłówek -->
                         <RowDefinition Height="Auto"/>  <!-- grupy -->
@@ -2099,60 +2088,15 @@
                     <!-- Nagłówek -->
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,1,1" Padding="14,11">
-                        <TextBlock Text="GRUPY"
-                                   FontFamily="{StaticResource CinzelFont}"
-                                   FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                        <TextBlock Text="{DynamicResource Section.Groups}"
+                                   FontFamily="{StaticResource HeaderFont}"
+                                   FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c"/>
                     </Border>
 
                     <!-- Grupy -->
                     <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
                             BorderThickness="0,0,1,1" Padding="8,8">
                         <StackPanel>
-
-                            <!-- Dodaj nową grupę -->
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="36"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0"
-                                         Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="#0f1117" Foreground="#e8eaf0" CaretBrush="#e8eaf0"
-                                         BorderBrush="#2a3347" BorderThickness="1"
-                                         FontSize="13" Padding="8,6"
-                                         Height="34">
-                                    <TextBox.InputBindings>
-                                        <KeyBinding Key="Return" Command="{Binding AddGroupCommand}"/>
-                                    </TextBox.InputBindings>
-                                </TextBox>
-                                <Button Grid.Column="2"
-                                        Content="+"
-                                        Background="#c9a84c" BorderThickness="0"
-                                        Foreground="#0f1117" FontSize="20" FontWeight="Bold"
-                                        Width="36" Height="34"
-                                        Command="{Binding AddGroupCommand }"
-                                        Cursor="Hand">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}">
-                                                <TextBlock Text="+" FontSize="20" FontWeight="Bold"
-                                                           Foreground="#0f1117"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#e0bc6a"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </Grid>
-
-                            <!-- Separator -->
-                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,0,0,8"/>
 
                             <!-- Wszystkie -->
                             <Button Command="{Binding SelectAllGroupsCommand}"
@@ -2167,9 +2111,9 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}"
                                                             Padding="8,6">
-                                                        <TextBlock Text="Wszystkie zestawy"
-                                                                   FontFamily="{StaticResource CinzelFont}"
-                                                                   FontSize="14" FontWeight="SemiBold">
+                                                        <TextBlock Text="{DynamicResource Section.AllSets}"
+                                                                   FontFamily="{StaticResource BodyFont}"
+                                                                   FontSize="18" FontWeight="SemiBold">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Setter Property="Foreground" Value="#959fb9"/>
@@ -2213,8 +2157,8 @@
                                                                 <Border Background="{TemplateBinding Background}"
                                                                         Padding="8,6">
                                                                     <TextBlock Text="{Binding}"
-                                                                               FontFamily="{StaticResource CinzelFont}"
-                                                                               FontSize="14" FontWeight="SemiBold">
+                                                                               FontFamily="{StaticResource HeaderFont}"
+                                                                               FontSize="20" FontWeight="Regular">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock">
                                                                                 <Setter Property="Foreground" Value="#959fb9"/>
@@ -2248,6 +2192,66 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            
+                            <!-- Separator -->
+                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,0,0,8"/>
+
+                            <!-- Dodaj nową grupę -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="36"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <TextBox Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="#0f1117" Foreground="#e8eaf0" CaretBrush="#e8eaf0"
+                                             BorderBrush="#2a3347" BorderThickness="1"
+                                             FontSize="16" Padding="6"
+                                             Height="34">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Return" Command="{Binding AddGroupCommand}"/>
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                    <TextBlock Text="{DynamicResource Groups.AddNew}"
+                                               Foreground="#555d70" FontSize="16"
+                                               Padding="8,6" IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding NewGroupName}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                                <Button Grid.Column="2"
+                                        Content="+"
+                                        Background="#c9a84c" BorderThickness="0"
+                                        Foreground="#0f1117" FontSize="20" FontWeight="Bold"
+                                        Width="36" Height="34"
+                                        Command="{Binding AddGroupCommand }"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}">
+                                                <TextBlock Text="+" FontSize="20" FontWeight="Bold"
+                                                           Foreground="#0f1117"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#e0bc6a"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -2259,9 +2263,9 @@
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                 BorderThickness="0,0,1,1" Padding="14,8">
-                            <TextBlock Text="ZESTAWY"
-                                       FontFamily="{StaticResource CinzelFont}"
-                                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                            <TextBlock Text="{DynamicResource Section.AllSets}"
+                                       FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                         </Border>
                         <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
                         <ListBox ItemsSource="{Binding FilteredSetlists}"
@@ -2279,18 +2283,18 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0" Margin="11,0,8,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Name}"
-                                                           FontSize="13" Foreground="#e8eaf0"
+                                                           FontSize="20" Foreground="#e8eaf0"
                                                            TextTrimming="CharacterEllipsis"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
                                                     <TextBlock Text="{Binding Group}"
-                                                               FontSize="11" Foreground="#959fb9"
+                                                               FontSize="16" Foreground="#959fb9"
                                                                Margin="0,0,8,0"/>
                                                     <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
-                                                               FontSize="11" Foreground="#3a4a65"/>
+                                                               FontSize="12" Foreground="#3a4a65"/>
                                                 </StackPanel>
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Text="📌"
-                                                       FontSize="11" VerticalAlignment="Center"
+                                                       FontSize="16" VerticalAlignment="Center"
                                                        Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}"/>
                                             <Button Grid.Column="2"
                                                     Background="Transparent" BorderThickness="0"
@@ -2326,10 +2330,8 @@
                     </Grid>
                 </Grid>
 
-                <!-- ═══════════════════════════════════════
-                     PRAWA: zawartość zestawu
-                ═══════════════════════════════════════ -->
-                <Grid Grid.Column="1">
+                <!-- PRAWA: zawartość zestawu -->
+                <Grid Grid.Row="1" Grid.Column="1">
 
                     <!-- Placeholder -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -2345,9 +2347,9 @@
                         </StackPanel.Style>
                         <TextBlock Text="☑" FontSize="48" Foreground="#2a3347"
                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                        <TextBlock Text="Wybierz zestaw z listy"
+                        <TextBlock Text="{DynamicResource Msg.SelectSetlist}"
                                    Foreground="#959fb9" FontSize="14"
-                                   FontFamily="{StaticResource CinzelFont}"/>
+                                   FontFamily="{StaticResource HeaderFont}"/>
                     </StackPanel>
 
                     <!-- Zawartość zestawu -->
@@ -2373,10 +2375,10 @@
                                                FontSize="11" Foreground="#959fb9" Margin="0,3,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Content="📌 PRZYPNIJ"
+                                    <Button Content="{DynamicResource Btn.PinSetlist}"
                                             Style="{StaticResource OutlineBtn}" Padding="12,7" Margin="0,0,8,0"
                                             Command="{Binding TogglePinCommand}"/>
-                                    <Button Content="USUŃ ZESTAW"
+                                    <Button Content="{DynamicResource Btn.DeleteSetlist}"
                                             Style="{StaticResource RedBtn}" Padding="12,7"
                                             Command="{Binding DeleteSetlistCommand}"/>
                                 </StackPanel>
@@ -2416,24 +2418,23 @@
                                                 <!-- Numer -->
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding Position}"
-                                                           FontFamily="{StaticResource CinzelFont}"
-                                                           FontSize="11" Foreground="#959fb9"
+                                                           FontSize="20" Foreground="#959fb9"
                                                            VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"/>
 
                                                 <!-- Tytuł -->
                                                 <TextBlock Grid.Column="2"
                                                            Text="{Binding Song.Title}"
-                                                           FontSize="13" Foreground="#e8eaf0"
+                                                           FontSize="20" Foreground="#e8eaf0"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"
                                                            Margin="0,12"/>
 
                                                 <!-- Klonuj -->
                                                 <Button Grid.Column="3"
-                                                        ToolTip="Klonuj"
+                                                        ToolTip="{DynamicResource Btn.Clone}"
                                                         Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="15"
+                                                        Foreground="#959fb9" FontSize="20"
                                                         Cursor="Hand" VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Command="{Binding DataContext.CloneItemCommand,
@@ -2442,7 +2443,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent" Padding="4">
-                                                                <TextBlock Text="⧉" FontSize="15"
+                                                                <TextBlock Text="⧉" FontSize="20"
                                                                            Foreground="{TemplateBinding Foreground}"
                                                                            HorizontalAlignment="Center"/>
                                                             </Border>
@@ -2458,7 +2459,7 @@
                                                 <!-- Usuń -->
                                                 <Button Grid.Column="4"
                                                         Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="16"
+                                                        Foreground="#959fb9" FontSize="20"
                                                         Cursor="Hand" VerticalAlignment="Center"
                                                         HorizontalAlignment="Center"
                                                         Command="{Binding DataContext.RemoveItemCommand,
@@ -2467,7 +2468,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent" Padding="4">
-                                                                <TextBlock Text="×" FontSize="16"
+                                                                <TextBlock Text="×" FontSize="20"
                                                                            Foreground="{TemplateBinding Foreground}"
                                                                            HorizontalAlignment="Center"/>
                                                             </Border>
@@ -2495,11 +2496,11 @@
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="ZAPISZ KOLEJNOŚĆ"
-                                        Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
-                                        Command="{Binding SaveItemsCommand}"/>
+                                <Button Grid.Column="0" Content="{DynamicResource Btn.SaveOrder}"
+                                        Style="{StaticResource GoldBtn}" Height="50" FontSize="30"
+                                        Command="{Binding SaveItemsCommand}" Padding="0"/>
                                 <TextBlock Grid.Column="2"
-                                           Text="Niezapisane zmiany"
+                                           Text="{DynamicResource Msg.UnsavedChanges}"
                                            Foreground="#c9a84c" FontSize="11"
                                            VerticalAlignment="Center">
                                     <TextBlock.Style>
@@ -2520,17 +2521,15 @@
             </Grid>
 
 
-            <!-- Zamień całą zawartość Grid x:Name="PaneTemplate" na poniższe -->
+            <!-- USTAWIENIA -->
 
             <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="#0f1117">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="380"/>
+                    <ColumnDefinition Width="450"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- ════════════════════════════════════════════════════════════════
-         LEWA: zakładki ustawień
-    ════════════════════════════════════════════════════════════════ -->
+                <!-- LEWA: zakładki ustawień -->
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -2544,15 +2543,15 @@
                     <!-- Tab bar -->
                     <Border Grid.Row="0" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton Content="CZCIONKA"  Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Font}"  Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" IsChecked="True" x:Name="TabCzcionka"/>
-                            <RadioButton Content="KOLORY"    Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Colors}"    Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabKolory"/>
-                            <RadioButton Content="TŁO"       Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Background}"       Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabTlo"/>
-                            <RadioButton Content="POZYCJA"   Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Format}"   Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabPozycja"/>
-                            <RadioButton Content="EKRAN"     Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Screen}"     Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabEkran"/>
                         </StackPanel>
                     </Border>
@@ -2576,8 +2575,8 @@
                             <StackPanel>
 
                                 <!-- Rozmiar stały -->
-                                <TextBlock Text="ROZMIAR (PX)" Foreground="#959fb9" FontSize="10"
-                                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Settings.FontSize}" Foreground="#959fb9" FontSize="16"
+                                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
@@ -2594,7 +2593,7 @@
                                         <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:F0}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
-                                                 Foreground="#c9a84c" FontSize="14" FontWeight="Bold"
+                                                 Foreground="#c9a84c" FontSize="16" FontWeight="Bold"
                                                  Padding="0" TextAlignment="Center"
                                                  helpers:NumericBox.IsEnabled="True"
                                                  helpers:NumericBox.Min="10"
@@ -2605,8 +2604,8 @@
 
 
                                 <!-- Rodzina -->
-                                <TextBlock Text="RODZINA CZCIONKI" Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Settings.FontFamily}" Foreground="#959fb9" FontSize="16"
+                               FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                Margin="0,0,0,8"/>
                                 <ComboBox Style="{StaticResource DarkCombo}"
                                           IsEditable="True"
@@ -2615,14 +2614,16 @@
                                     <ComboBox.ItemsSource>
                                         <x:Array Type="{x:Type sys:String}"
                                                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                                            <sys:String>Segoe UI</sys:String>
+                                            <sys:String>Asap Condensed</sys:String>
+                                            <sys:String>Barlow Semi Condensed</sys:String>
+                                            <sys:String>Sofia Sans Extra Condensed</sys:String>
                                             <sys:String>Arial</sys:String>
-                                            <sys:String>Times New Roman</sys:String>
-                                            <sys:String>Cinzel</sys:String>
-                                            <sys:String>Georgia</sys:String>
                                             <sys:String>Calibri</sys:String>
-                                            <sys:String>Verdana</sys:String>
+                                            <sys:String>Georgia</sys:String>
+                                            <sys:String>Segoe UI</sys:String>
                                             <sys:String>Tahoma</sys:String>
+                                            <sys:String>Times New Roman</sys:String>
+                                            <sys:String>Verdana</sys:String>
                                         </x:Array>
                                     </ComboBox.ItemsSource>
                                     <ComboBox.Text>
@@ -2638,43 +2639,43 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="STYL" Foreground="#959fb9" FontSize="10"
-                                       FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Settings.Bold}" Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                        Margin="0,0,0,10"/>
                                         <CheckBox IsChecked="{Binding FontBold}" Style="{StaticResource DarkCheck}">
-                                            <TextBlock Text="Pogrubiony" Foreground="#e8eaf0" FontSize="13"/>
+                                            <TextBlock Text="{DynamicResource Settings.Bold}" Foreground="#e8eaf0" FontSize="16"/>
                                         </CheckBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="WYRÓWNANIE" Foreground="#959fb9" FontSize="10"
-                                       FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Settings.Alignment}" Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                        Margin="0,0,0,10"/>
                                         <StackPanel Orientation="Horizontal">
                                             <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=left}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="left"
-                                              ToolTip="Do lewej">
-                                                <TextBlock Text="⬅" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                              ToolTip="{DynamicResource Tooltip.ToLeft}">
+                                                <TextBlock Text="⬅" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=center}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="center"
-                                              ToolTip="Wyśrodkowany">
-                                                <TextBlock Text="☰" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                              ToolTip="{DynamicResource Settings.AlignCenter}">
+                                                <TextBlock Text="☰" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=right}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="right"
-                                              ToolTip="Do prawej">
-                                                <TextBlock Text="➡" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                              ToolTip="{DynamicResource Tooltip.ToRight}">
+                                                <TextBlock Text="➡" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>
 
                                 <!-- Odstęp linii -->
-                                <TextBlock Text="ODSTĘP LINII" Foreground="#959fb9" FontSize="10"
-                                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Settings.LineSpacing}" Foreground="#959fb9" FontSize="16"
+                                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
                                 <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
@@ -2690,7 +2691,7 @@
                                         <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='×{0:F2}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
-                                                 Foreground="#9aa3b8" FontSize="12"
+                                                 Foreground="#9aa3b8" FontSize="16"
                                                  Padding="0" TextAlignment="Center"
                                                  helpers:NumericBox.IsEnabled="True"
                                                  helpers:NumericBox.Min="1.3"
@@ -2700,22 +2701,22 @@
                                     </Border>
                                 </Grid>
 
-                             <TextBlock Text="POZYCJA PIONOWA" Foreground="#959fb9" FontSize="10"
-                                        FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                             <TextBlock Text="{DynamicResource Settings.Alignment}" Foreground="#959fb9" FontSize="16"
+                                        FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                         Margin="0,16,0,12"/>
                              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                 <RadioButton Content="Góra"   Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
+                                 <RadioButton Content="{DynamicResource Settings.AlignTop}"   Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
                                               IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=top}"
                                               Command="{Binding SetTextPositionCommand}" CommandParameter="top"/>
-                                 <RadioButton Content="Środek" Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
+                                 <RadioButton Content="{DynamicResource Settings.AlignMiddle}" Style="{StaticResource DarkRadio}" Margin="0,0,20,0"
                                               IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=center}"
                                               Command="{Binding SetTextPositionCommand}" CommandParameter="center"/>
-                                 <RadioButton Content="Dół"    Style="{StaticResource DarkRadio}"
+                                 <RadioButton Content="{DynamicResource Settings.AlignBottom}"    Style="{StaticResource DarkRadio}"
                                               IsChecked="{Binding TextPosition, Converter={StaticResource EnumBool}, ConverterParameter=bottom}"
                                               Command="{Binding SetTextPositionCommand}" CommandParameter="bottom"/>
                              </StackPanel>
-                            <TextBlock Text="MARGINESY" Foreground="#959fb9" FontSize="10"
-                                        FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.Margins}" Foreground="#959fb9" FontSize="16"
+                                        FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                         Margin="0,16,0,12"/>
 
                             <!-- Margines poziomy -->
@@ -2730,8 +2731,8 @@
                                     <RowDefinition Height="8"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Poziomy (lewo/prawo)"
-                                            Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
+                                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{DynamicResource Settings.AlignH}"
+                                            Foreground="#959fb9" FontSize="16" Margin="0,0,0,6"/>
                                 <Slider Grid.Row="2" Grid.Column="0" Style="{StaticResource DarkSlider}"
                                         Minimum="0" Maximum="300" TickFrequency="5"
                                         IsSnapToTickEnabled="True"
@@ -2762,8 +2763,8 @@
                                     <RowDefinition Height="8"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Pionowy (góra/dół)"
-                                            Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
+                                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{DynamicResource Settings.AlignV}"
+                                            Foreground="#959fb9" FontSize="16" Margin="0,0,0,6"/>
                                 <Slider Grid.Row="2" Grid.Column="0" Style="{StaticResource DarkSlider}"
                                         Minimum="0" Maximum="200" TickFrequency="5"
                                         IsSnapToTickEnabled="True"
@@ -2799,8 +2800,8 @@
                             </StackPanel.Style>
 
                             <!-- Kolor tekstu -->
-                            <TextBlock Text="KOLOR TEKSTU" Foreground="#959fb9" FontSize="10"
-                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.TextColor}" Foreground="#959fb9" FontSize="16"
+                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
                             <ItemsControl ItemsSource="{Binding TextPresets}" Margin="0,0,0,10">
                                 <ItemsControl.ItemsPanel>
@@ -2833,22 +2834,29 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <Border Background="{Binding TextColorSwatch}" Width="32" Height="32"
-                            BorderBrush="#2a3347" BorderThickness="1" Margin="0,0,10,0"/>
+                                <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
+                                        ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickTextColorCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{Binding TextColorSwatch}"
+                                                    BorderBrush="#2a3347" BorderThickness="1"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
                                 <TextBox Text="{Binding TextColor, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DarkTextBox}" Width="100"
                              FontFamily="Consolas" FontSize="13"/>
                             </StackPanel>
 
                             <!-- Cień -->
-                            <TextBlock Text="CIEŃ TEKSTU" Foreground="#959fb9" FontSize="10"
-                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.Shadow}" Foreground="#959fb9" FontSize="16"
+                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
                             <CheckBox IsChecked="{Binding ShadowEnabled}" Style="{StaticResource DarkCheck}"
                           Margin="0,0,0,12">
-                                <TextBlock Text="Włącz cień" Foreground="#e8eaf0" FontSize="13"/>
+                                <TextBlock Text="{DynamicResource Settings.ShadowEnable}" Foreground="#e8eaf0" FontSize="16"/>
                             </CheckBox>
                             <Grid IsEnabled="{Binding ShadowEnabled}">
                                 <Grid.ColumnDefinitions>
@@ -2862,17 +2870,17 @@
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Grid.Column="0">
-                                    <TextBlock Text="Rozmycie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Settings.ShadowBlur}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                     <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="30" Value="{Binding ShadowBlur}"/>
                                     <TextBlock Text="{Binding ShadowBlur, StringFormat='{}{0:F0}'}" Foreground="#9aa3b8" FontSize="11"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="0" Grid.Column="2">
-                                    <TextBlock Text="Przesunięcie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Settings.ShadowDepth}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                     <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="15" Value="{Binding ShadowDepth}"/>
                                     <TextBlock Text="{Binding ShadowDepth, StringFormat='{}{0:F0}'}" Foreground="#9aa3b8" FontSize="11"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="Krycie" Foreground="#959fb9" FontSize="11" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Settings.Opacity}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                     <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1" Value="{Binding ShadowOpacity}"/>
                                     <TextBlock Text="{Binding ShadowOpacity, StringFormat='{}{0:P0}'}" Foreground="#9aa3b8" FontSize="11"/>
                                 </StackPanel>
@@ -2892,8 +2900,8 @@
                                 </Style>
                             </StackPanel.Style>
 
-                            <TextBlock Text="KOLOR TŁA" Foreground="#959fb9" FontSize="10"
-                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.BgColor}" Foreground="#959fb9" FontSize="16"
+                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
                             <ItemsControl ItemsSource="{Binding BgPresets}" Margin="0,0,0,10">
                                 <ItemsControl.ItemsPanel>
@@ -2922,17 +2930,151 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="12"
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <Border Background="{Binding BgColorSwatch}" Width="32" Height="32"
-                            BorderBrush="#555" BorderThickness="1" Margin="0,0,10,0"/>
+                                <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
+                                        ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickBgColorCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{Binding BgColorSwatch}"
+                                                    BorderBrush="#555" BorderThickness="1"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
                                 <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DarkTextBox}" Width="100"
                              FontFamily="Consolas" FontSize="13"/>
                             </StackPanel>
 
-                            <TextBlock Text="OBRAZ TŁA" Foreground="#959fb9" FontSize="10"
-                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <!-- ── GRADIENT ── -->
+                            <StackPanel Margin="0,0,0,24">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="{DynamicResource Settings.BgGradient}" Foreground="#959fb9" FontSize="16"
+                                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <CheckBox IsChecked="{Binding GradientEnabled}"
+                                              Foreground="#e8eaf0" FontSize="16"
+                                              VerticalAlignment="Center"
+                                              Content="{DynamicResource Btn.Enable}"/>
+                                </StackPanel>
+                                <StackPanel Visibility="{Binding GradientEnabled, Converter={StaticResource BoolToVis}}">
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{DynamicResource Settings.GradientColor1}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Width="44" Height="44" Margin="0,0,6,0" Cursor="Hand"
+                                                        ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickGradientColor1Command}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{Binding GradientColor1Swatch}"
+                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                                <TextBox Text="{Binding GradientColor1, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         Width="90" FontFamily="Consolas" FontSize="16"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="{DynamicResource Settings.GradientColor2}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Width="44" Height="44" Margin="0,0,6,0" Cursor="Hand"
+                                                        ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickGradientColor2Command}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{Binding GradientColor2Swatch}"
+                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                                <TextBox Text="{Binding GradientColor2, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         Width="90" FontFamily="Consolas" FontSize="16"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                    <!-- Typ gradientu -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <Button Content="{DynamicResource Settings.GradientLinear}" Height="30" Padding="14" Margin="0,0,6,0"
+                                                Command="{Binding SetGradientTypeCommand}" CommandParameter="linear" FontSize="16">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1e2535"/>
+                                                    <Setter Property="Foreground" Value="#959fb9"/>
+                                                    <Setter Property="BorderBrush" Value="#2a3347"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="4">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding GradientType}" Value="linear">
+                                                            <Setter Property="Background" Value="#c9a84c"/>
+                                                            <Setter Property="Foreground" Value="#0f1117"/>
+                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="{DynamicResource Settings.GradientRadial}" Height="30" Padding="14,0" FontSize="16"
+                                                Command="{Binding SetGradientTypeCommand}" CommandParameter="radial">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1e2535"/>
+                                                    <Setter Property="Foreground" Value="#959fb9"/>
+                                                    <Setter Property="BorderBrush" Value="#2a3347"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="4">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding GradientType}" Value="radial">
+                                                            <Setter Property="Background" Value="#c9a84c"/>
+                                                            <Setter Property="Foreground" Value="#0f1117"/>
+                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                    <!-- Kąt — tylko dla liniowego -->
+                                    <StackPanel Visibility="{Binding IsLinearGradient, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="{DynamicResource Settings.GradientAngle}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
+                                        <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="360"
+                                                Value="{Binding GradientAngle}" TickFrequency="45"/>
+                                        <TextBlock Text="{Binding GradientAngle, StringFormat='{}{0:F0}°'}"
+                                                   Foreground="#9aa3b8" FontSize="14" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Settings.BgImage}" Foreground="#959fb9" FontSize="16"
+                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
@@ -2944,7 +3086,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
                             BorderThickness="1" Padding="10,8">
-                                    <TextBlock TextTrimming="CharacterEllipsis" FontSize="12">
+                                    <TextBlock TextTrimming="CharacterEllipsis" FontSize="16">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text"       Value="{Binding BackgroundImagePath}"/>
@@ -2959,19 +3101,153 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Button Grid.Column="2" Content="WYBIERZ" Style="{StaticResource GoldBtn}"
+                                <Button Grid.Column="2" Content="{DynamicResource Btn.SelectFiles}" Style="{StaticResource GoldBtn}"
                             Padding="12,8" Command="{Binding BrowseBackgroundCommand}"/>
                                 <Button Grid.Column="4" Content="✕" Style="{StaticResource RedBtn}"
                             Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
                             </Grid>
                             <StackPanel Visibility="{Binding BackgroundImagePath, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Krycie obrazu" Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
+                                <TextBlock Text="{DynamicResource Settings.BgImageOpacity}" Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
                                 <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1"
                             Value="{Binding BackgroundImageOpacity}"/>
                                 <TextBlock Text="{Binding BackgroundImageOpacity, StringFormat='{}{0:P0}'}"
                                Foreground="#9aa3b8" FontSize="11" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
+
+                        <!-- ── FORMAT ── -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                                      Padding="20,16,20,0">
+                            <ScrollViewer.Style>
+                                <Style TargetType="ScrollViewer">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabPozycja}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ScrollViewer.Style>
+                            <StackPanel>
+
+                                <TextBlock Text="{DynamicResource Settings.Tags}" Foreground="#959fb9" FontSize="16"
+                                           FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                           Margin="0,0,0,12"/>
+
+                                <!-- Nagłówek kolumn -->
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="42"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="36"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Settings.TagName}" Foreground="#555f7a" FontSize="13"/>
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Settings.TagColorHeader}" Foreground="#555f7a" FontSize="13"/>
+                                    <TextBlock Grid.Column="2" Text="B" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="I" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="U" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="Ctrl+" Foreground="#555f7a" FontSize="13"
+                                               ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
+                                </Grid>
+
+                                <!-- Lista tagów -->
+                                <ItemsControl ItemsSource="{Binding TextTags}" Margin="0,0,0,10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="12"/>
+                                                    <ColumnDefinition Width="50"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <!-- Nazwa tagu -->
+                                                <TextBox Grid.Column="0"
+                                                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontFamily="Consolas" FontSize="14" Padding="6,4"/>
+                                                <!-- Kolor — swatch -->
+                                                <Button Grid.Column="2" Width="36" Height="34" Cursor="Hand"
+                                                        ToolTip="{DynamicResource Btn.PickColor}"
+                                                        Command="{Binding DataContext.PickTagColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border BorderBrush="#555" BorderThickness="1">
+                                                                <Border.Background>
+                                                                    <SolidColorBrush Color="{Binding Color, Converter={StaticResource HexToColor}, FallbackValue=White}"/>
+                                                                </Border.Background>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity" Value="0.8"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                                <!-- Bold -->
+                                                <CheckBox Grid.Column="4" IsChecked="{Binding Bold}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <!-- Italic -->
+                                                <CheckBox Grid.Column="5" IsChecked="{Binding Italic}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <!-- Underline -->
+                                                <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <!-- Skrót klawiszowy -->
+                                                <TextBox Grid.Column="8"
+                                                         Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontFamily="Consolas" FontSize="14" Padding="4,4"
+                                                         TextAlignment="Center"
+                                                         ToolTip="{DynamicResource Settings.TagShortcutInput}"
+                                                         helpers:KeyCaptureHelper.IsEnabled="True"/>
+                                                <!-- Usuń -->
+                                                <Button Grid.Column="10" Content="✕" Width="30" Height="30"
+                                                        Style="{StaticResource RedBtn}"
+                                                        Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Padding="0" FontSize="14"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Dodaj tag -->
+                                <Button Content="{DynamicResource Settings.TagAdd}" Style="{StaticResource GoldBtn}"
+                                        Command="{Binding AddTagCommand}"
+                                        Height="36" Padding="16,0" HorizontalAlignment="Left"
+                                        FontSize="14" Margin="0,0,0,20"/>
+
+                                <!-- Podpowiedź składni -->
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                        Padding="12,10" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.TagsSyntax}" Foreground="#9aa3b8"
+                                                   FontFamily="Consolas" FontSize="13" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{DynamicResource Settings.TagsBuiltin}"
+                                                   Foreground="#9aa3b8" FontFamily="Consolas" FontSize="13"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
 
                         <!-- ── EKRAN ── -->
                         <StackPanel Margin="20,16,20,0">
@@ -2986,11 +3262,11 @@
                                 </Style>
                             </StackPanel.Style>
 
-                            <TextBlock Text="EKRAN PROJEKCJI" Foreground="#959fb9" FontSize="10"
-                           FontFamily="{StaticResource CinzelFont}" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.Screen}" Foreground="#959fb9" FontSize="16"
+                           FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
                            Margin="0,0,0,10"/>
-                            <TextBlock Text="Wybierz na którym monitorze wyświetlać tekst dla wiernych."
-                           Foreground="#959fb9" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                            <TextBlock Text="{DynamicResource Settings.ScreenLabel}"
+                           Foreground="#959fb9" FontSize="16" TextWrapping="Wrap" Margin="0,0,0,16"/>
                             <ListBox ItemsSource="{Binding Screens}"
                                      SelectedItem="{Binding SelectedScreen}"
                                      Background="Transparent" BorderThickness="0"
@@ -3024,27 +3300,44 @@
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Label, Mode=OneWay}" Foreground="#e8eaf0" FontSize="13"/>
+                                        <TextBlock Text="{Binding Label, Mode=OneWay}" Foreground="#e8eaf0" FontSize="16"/>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+
+                            <!-- Język -->
+                            <TextBlock Text="{DynamicResource Settings.Language}"
+                                       Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,20,0,8"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="Polski" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=pl}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="pl"/>
+                                <RadioButton Content="English" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=en}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
+                                <RadioButton Content="Español" Style="{StaticResource DarkRadio}"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
+                            </StackPanel>
                         </StackPanel>
 
                     </Grid>
 
                     <!-- Przyciski Zapisz/Reset -->
-                    <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="20,14">
+                    <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="5,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="ZAPISZ USTAWIENIA"
-                        Style="{StaticResource GoldBtn}" Height="42" FontSize="12"
-                        Command="{Binding SaveCommand}"/>
-                            <Button Grid.Column="2" Content="RESET"
-                        Style="{StaticResource RedBtn}" Height="42" Padding="20,0"
+                            <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSettings}"
+                        Style="{StaticResource GoldBtn}" Height="50" FontSize="30"
+                        Command="{Binding SaveCommand}" Padding="0"/>
+                            <Button Grid.Column="2" Content="{DynamicResource Btn.ResetSettings}"
+                        Style="{StaticResource RedBtn}" Height="42" Padding="10,0"
                         Command="{Binding ResetCommand}"/>
                         </Grid>
                     </Border>
@@ -3061,8 +3354,8 @@
 
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                 BorderThickness="1,0,0,1" Padding="20,13">
-                        <TextBlock Text="PODGLĄD" FontFamily="{StaticResource CinzelFont}"
-                       FontSize="10" FontWeight="SemiBold" Foreground="#c9a84c"/>
+                        <TextBlock Text="{DynamicResource Section.ScreenPreview}" FontFamily="{StaticResource HeaderFont}"
+                       FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
                     </Border>
 
                     <Viewbox Grid.Row="1" Stretch="Uniform" Margin="32">
@@ -3110,17 +3403,17 @@
                         <StackPanel Margin="28,28,28,28">
 
                             <!-- Nagłówek -->
-                            <TextBlock Text="IMPORT"
-                           FontFamily="{StaticResource CinzelFont}"
-                           FontSize="18" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource Import.Title}"
+                           FontFamily="{StaticResource HeaderFont}"
+                           FontSize="18" FontWeight="Regular"
                            Foreground="#c9a84c" Margin="0,0,0,4"/>
-                            <TextBlock Text="Importuj pieśni z OpenLP lub OpenSong"
-                           Foreground="#959fb9" FontSize="12" Margin="0,0,0,20"/>
+                            <TextBlock Text="{DynamicResource Import.Title}"
+                           Foreground="#959fb9" FontSize="16" Margin="0,0,0,20"/>
 
                             <!-- Format -->
-                            <TextBlock Text="FORMAT"
-                                       FontFamily="{StaticResource CinzelFont}"
-                                       FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.Format}"
+                                       FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="Light"
                                        Foreground="#c9a84c" Margin="0,0,0,8"/>
                             <StackPanel Margin="0,0,0,24">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -3128,33 +3421,33 @@
                                                  IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
                                                  Command="{Binding SelectFormatCommand}"
                                                  CommandParameter="OpenLPSqlite"
-                                                 Foreground="#e8eaf0" FontSize="13"
+                                                 Foreground="#e8eaf0" FontSize="16"
                                                  Margin="0,0,20,0"/>
                                     <RadioButton Content="OpenLP (xml)"
                                                  IsChecked="{Binding IsOpenLPXml, Mode=OneWay}"
                                                  Command="{Binding SelectFormatCommand}"
                                                  CommandParameter="OpenLPXml"
-                                                 Foreground="#e8eaf0" FontSize="13"/>
+                                                 Foreground="#e8eaf0" FontSize="16"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton Content="OpenSong (folder)"
                                                  IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
                                                  Command="{Binding SelectFormatCommand}"
                                                  CommandParameter="OpenSongFolder"
-                                                 Foreground="#e8eaf0" FontSize="13"
+                                                 Foreground="#e8eaf0" FontSize="16"
                                                  Margin="0,0,20,0"/>
                                     <RadioButton Content="OpenSong (xml)"
                                                  IsChecked="{Binding IsOpenSongXml, Mode=OneWay}"
                                                  Command="{Binding SelectFormatCommand}"
                                                  CommandParameter="OpenSongXml"
-                                                 Foreground="#e8eaf0" FontSize="13"/>
+                                                 Foreground="#e8eaf0" FontSize="16"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- Plik źródłowy -->
-                            <TextBlock Text="PLIK ŹRÓDŁOWY"
-                           FontFamily="{StaticResource CinzelFont}"
-                           FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Import.Source}"
+                           FontFamily="{StaticResource HeaderFont}"
+                           FontSize="20" FontWeight="Light"
                            Foreground="#c9a84c" Margin="0,0,0,8"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions>
@@ -3179,7 +3472,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Button Grid.Column="1" Content="PRZEGLĄDAJ"
+                                <Button Grid.Column="1" Content="{DynamicResource Btn.Browse}"
                             Style="{StaticResource GoldBtn}"
                             Padding="16,10"
                             Command="{Binding BrowseCommand}">
@@ -3201,21 +3494,21 @@
                             </Grid>
 
                             <!-- Opcje -->
-                            <TextBlock Text="OPCJE"
-                           FontFamily="{StaticResource CinzelFont}"
-                           FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Settings.GradientOptions}"
+                           FontFamily="{StaticResource HeaderFont}"
+                           FontSize="20" FontWeight="Light"
                            Foreground="#c9a84c" Margin="0,0,0,12"/>
 
                             <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                         Padding="16,12" Margin="0,0,0,8">
                                 <StackPanel>
                                     <CheckBox IsChecked="{Binding ImportCategories}"
-                                  Foreground="#e8eaf0" FontSize="13"
+                                  Foreground="#e8eaf0" FontSize="16"
                                   Margin="0,0,0,4">
-                                        <TextBlock Text="Importuj kategorie" Foreground="#e8eaf0" FontSize="13"/>
+                                        <TextBlock Text="{DynamicResource Import.ImportCategories}" Foreground="#e8eaf0" FontSize="16"/>
                                     </CheckBox>
-                                    <TextBlock Text="Tworzy nowe kategorie jeśli nie istnieją"
-                                   Foreground="#959fb9" FontSize="11" Margin="22,0,0,0"/>
+                                    <TextBlock Text="{DynamicResource Import.ImportCategoriesTip}"
+                                   Foreground="#959fb9" FontSize="14" Margin="22,0,0,0"/>
                                 </StackPanel>
                             </Border>
 
@@ -3223,22 +3516,22 @@
                         Padding="16,12" Margin="0,0,0,28">
                                 <StackPanel>
                                     <CheckBox IsChecked="{Binding OverwriteExisting}"
-                                  Foreground="#e8eaf0" FontSize="13"
+                                  Foreground="#e8eaf0" FontSize="16"
                                   Margin="0,0,0,4">
-                                        <TextBlock Text="Nadpisuj istniejące pieśni" Foreground="#e8eaf0" FontSize="13"/>
+                                        <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="#e8eaf0" FontSize="16"/>
                                     </CheckBox>
-                                    <TextBlock Text="Jeśli odznaczone — istniejące pieśni zostaną pominięte"
-                                   Foreground="#959fb9" FontSize="11" Margin="22,0,0,0"/>
+                                    <TextBlock Text="{DynamicResource Import.OverwriteTip}"
+                                   Foreground="#959fb9" FontSize="14" Margin="22,0,0,0"/>
                                 </StackPanel>
                             </Border>
                             
                             <!-- Sekcja importu zestawów .osz — wkleić do PaneImport.xaml -->
                             <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="20" Margin="0,0,0,16">
+                                    Padding="10" Margin="0,0,0,16">
                                 <StackPanel>
                                     <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
-                                               FontFamily="{StaticResource CinzelFont}"
-                                               FontSize="11" FontWeight="SemiBold"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="18" FontWeight="Light"
                                                Foreground="#c9a84c" Margin="0,0,0,14"/>
 
                                     <!-- Dropdown grupy -->
@@ -3247,8 +3540,8 @@
                                             <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Grupa docelowa:"
-                                                   Foreground="#8899aa" FontSize="13"
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Groups.Target}"
+                                                   Foreground="#8899aa" FontSize="16"
                                                    VerticalAlignment="Center"/>
                                         <ComboBox Grid.Column="1"
                                                   Style="{StaticResource DarkCombo}"
@@ -3263,14 +3556,14 @@
                                     </Grid>
 
                                     <!-- Przycisk -->
-                                    <Button Content="WYBIERZ PLIKI .OSZ I IMPORTUJ"
+                                    <Button Content="{DynamicResource Btn.ImportOsz}"
                                             Style="{StaticResource GoldBtn}"
-                                            Height="42" FontSize="12"
+                                            Height="50" FontSize="20"
                                             Command="{Binding ImportOszCommand}"/>
 
                                     <!-- Status -->
                                     <TextBlock Text="{Binding OszStatus}"
-                                               Foreground="#8899aa" FontSize="12"
+                                               Foreground="#8899aa" FontSize="16"
                                                Margin="0,10,0,0" TextWrapping="Wrap"
                                                Visibility="{Binding OszStatus, 
                                                    Converter={StaticResource BoolToVis}}"/>
@@ -3284,8 +3577,8 @@
                         Height="40" Margin="0,0,0,10"
                         Command="{Binding PreviewCommand}"/>
 
-                            <Button Content="IMPORTUJ"
-                        Height="48" FontSize="13"
+                            <Button Content="{DynamicResource Btn.Import}"
+                        Height="50" FontSize="30" Padding="0"
                         Command="{Binding ImportCommand}"
                         IsEnabled="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
                                 <Button.Style>
@@ -3331,9 +3624,9 @@
                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                 BorderThickness="0,0,0,1" Padding="20,13">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="LOG IMPORTU"
-                           FontFamily="{StaticResource CinzelFont}"
-                           FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Import.Log}"
+                           FontFamily="{StaticResource HeaderFont}"
+                           FontSize="20" FontWeight="Light"
                            Foreground="#c9a84c" Margin="0,0,16,0"/>
                             <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
                            Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
