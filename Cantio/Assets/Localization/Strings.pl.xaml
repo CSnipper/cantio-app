@@ -27,6 +27,7 @@
     <sys:String x:Key="Btn.ShowText">POKAŻ</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clear">WYCZYŚĆ</sys:String>
+    <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PRZYPNIJ</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
     <sys:String x:Key="Btn.SaveOrder">ZAPISZ KOLEJNOŚĆ</sys:String>
@@ -49,6 +50,7 @@
     <!-- Placeholdery -->
     <sys:String x:Key="Placeholder.SearchSongs">Szukaj pieśni...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nazwa kategorii...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistName">Nazwa zestawu (opcjonalna)...</sys:String>
 
     <!-- Pola formularza -->
     <sys:String x:Key="Field.Title">TYTUŁ</sys:String>

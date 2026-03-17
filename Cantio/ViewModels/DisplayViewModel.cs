@@ -14,14 +14,16 @@ public partial class DisplayViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
     private readonly ProjectionViewModel _projection;
+    private readonly ShortcutService _shortcuts;
     private ProjectionWindow? _projectionWindow;
 
     public ProjectionViewModel Projection => _projection;
 
-    public DisplayViewModel(DatabaseService db, ProjectionViewModel projection)
+    public DisplayViewModel(DatabaseService db, ProjectionViewModel projection, ShortcutService shortcuts)
     {
         _db = db;
         _projection = projection;
+        _shortcuts = shortcuts;
         _ = LoadCategoriesAsync();
         _ = LoadPinnedSetlistsAsync();
     }
@@ -29,7 +31,7 @@ public partial class DisplayViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
-        OpenProjectionWindow();
+        await OpenProjectionWindowAsync();
     }
 
     public void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -162,6 +164,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenSetlistSearchAsync()
     {
+        if (IsSetlistSearchOpen) { IsSetlistSearchOpen = false; return; }
         _allSetlists = await _db.GetAllSetlistsAsync();
         SetlistSearchText = string.Empty;
         FilteredSetlists = new ObservableCollection<Setlist>(_allSetlists);
@@ -173,6 +176,17 @@ public partial class DisplayViewModel : ObservableObject
     {
         IsSetlistSearchOpen = false;
         await LoadPinnedSetlistAsync(setlist);
+    }
+
+    [RelayCommand]
+    private async Task AppendSetlistFromSearchAsync(Setlist setlist)
+    {
+        IsSetlistSearchOpen = false;
+        var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
+        if (full == null) return;
+        foreach (var item in full.Items)
+            SetlistItems.Add(item);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
     }
 
     // ── Edytor zwrotek inline ─────────────────────────────────────────────
@@ -228,6 +242,8 @@ public partial class DisplayViewModel : ObservableObject
     // ── Projekcja ─────────────────────────────────────────────────────────
 
     [ObservableProperty] private bool _screenBlanked = true;
+    [ObservableProperty] private double _projectionScreenWidth = 1920;
+    [ObservableProperty] private double _projectionScreenHeight = 1080;
 
     [ObservableProperty] private SetlistItem? _selectedSetlistItem;
 
@@ -343,33 +359,26 @@ public partial class DisplayViewModel : ObservableObject
 
     public void HandleKey(Key key, ModifierKeys modifiers)
     {
-        switch (key)
-        {
-            case Key.Right:
-            case Key.Space:
-            case Key.Next:
-                if (modifiers == ModifierKeys.Control) NextSong();
-                else NextSlide();
-                break;
-            case Key.Left:
-            case Key.Prior:
-                if (modifiers == ModifierKeys.Control) PrevSong();
-                else PrevSlide();
-                break;
-            case Key.Home:
-                if (_slides.Count > 0) GoToSlide(0);
-                break;
-            case Key.Escape:
-                ScreenBlanked = !ScreenBlanked;
-                _projection.SetBlanked(ScreenBlanked);
-                break;
-            case Key.Up:
-                PrevSong();
-                break;
-            case Key.Down:
-                NextSong();
-                break;
-        }
+        // Space is kept as a secondary hardcoded alias for slide_next (remote controls)
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SlideNext)
+            || (key == Key.Space && modifiers == ModifierKeys.None))
+        { NextSlide(); return; }
+
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SlidePrev))
+        { PrevSlide(); return; }
+
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SongNext))
+        { NextSong(); return; }
+
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SongPrev))
+        { PrevSong(); return; }
+
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.Blank))
+        { ToggleBlank(); return; }
+
+        // Home always goes to first slide (not configurable)
+        if (key == Key.Home && _slides.Count > 0)
+        { GoToSlide(0); return; }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
@@ -453,13 +462,19 @@ public partial class DisplayViewModel : ObservableObject
         SelectedSetlistItem = item;
     }
 
-    private void OpenProjectionWindow()
+    private async Task OpenProjectionWindowAsync()
     {
         if (_projectionWindow != null) return;
-        var screenIndexStr = _db.GetSettingAsync("projection_screen").Result;
+        var screenIndexStr = await _db.GetSettingAsync("projection_screen");
         int screenIndex = int.TryParse(screenIndexStr, out var idx) ? idx : 1;
 
+        var screens = WpfScreenHelper.Screen.AllScreens.ToList();
+        var target = screenIndex < screens.Count ? screens[screenIndex] : screens.Last();
+        ProjectionScreenWidth = target.WpfBounds.Width;
+        ProjectionScreenHeight = target.WpfBounds.Height;
+
         _projectionWindow = new ProjectionWindow(_projection);
+        _projectionWindow.Owner = Application.Current.MainWindow;
         _projectionWindow.Closed += (_, _) => _projectionWindow = null;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
@@ -485,21 +500,14 @@ public partial class DisplayViewModel : ObservableObject
     private SlideLayoutSettings BuildLayoutSettings()
     {
         var s = _db.GetSettings();
-
-        // Pobierz wymiary ekranu projekcji
-        var screens = WpfScreenHelper.Screen.AllScreens.ToList();
-        var screenIndexStr = _db.GetSettingAsync("projection_screen").Result;
-        int screenIndex = int.TryParse(screenIndexStr, out var idx) ? idx : 1;
-        var target = screenIndex < screens.Count ? screens[screenIndex] : screens.Last();
-
         return new SlideLayoutSettings
         {
             FontFamily = s.FontFamily,
             FontBold = s.FontBold,
             FontSize = s.FontSize,
             LineHeightMultiplier = s.LineHeightMultiplier,
-            SlideWidth = target.WpfBounds.Width,
-            SlideHeight = target.WpfBounds.Height,
+            SlideWidth = ProjectionScreenWidth,
+            SlideHeight = ProjectionScreenHeight,
             MarginH = s.TextMarginH,
             MarginV = s.TextMarginV
         };

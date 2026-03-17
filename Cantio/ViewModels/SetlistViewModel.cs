@@ -12,6 +12,7 @@ public partial class SetlistViewModel : ObservableObject
     private readonly DatabaseService _db;
 
     public event Action? PinnedChanged;
+    public event Action<Setlist>? LoadForDisplayRequested;
 
     public SetlistViewModel(DatabaseService db)
     {
@@ -59,6 +60,13 @@ public partial class SetlistViewModel : ObservableObject
     private void SelectSetlist(Setlist setlist)
     {
         SelectedSetlist = setlist;
+    }
+
+    [RelayCommand]
+    private void LoadForDisplay()
+    {
+        if (SelectedSetlist != null)
+            LoadForDisplayRequested?.Invoke(SelectedSetlist);
     }
 
     [RelayCommand]

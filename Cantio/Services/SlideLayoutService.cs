@@ -54,7 +54,8 @@ public static class SlideLayoutService
 
     public static List<string> SplitVerse(string text, SlideLayoutSettings settings)
     {
-        var availableH = settings.SlideHeight - 2 * settings.MarginV;
+        // 8% bufor bezpieczeństwa — FormattedText może zaniżać wysokość vs TextBlock
+        var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
 
         if (MeasureTextHeight(text, settings) <= availableH)
             return [text];
@@ -139,29 +140,61 @@ public static class SlideLayoutService
     /// Oblicza optymalny rozmiar czcionki bazowej dla slajdu.
     /// Używa binarnego przeszukiwania efektywnego rozmiaru (base × multiplier),
     /// mierząc wysokość z zawijaniem (MeasureTextHeight) — dokładnie tak jak renderuje TextBlock.
+    /// Dodatkowo ogranicza rozmiar tak, by najszersze nieprzenoszalne słowo mieściło się w szerokości.
     /// Wynik nigdy nie jest mniejszy niż settings.FontSize (minimum z ustawień).
     /// </summary>
     public static double ComputeFitFontSize(string slideText, SlideLayoutSettings settings)
     {
-        double availableH = settings.SlideHeight - 2 * settings.MarginV;
+        double availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
+        double availableW = settings.SlideWidth - 2 * settings.MarginH;
         double minFs = settings.FontSize;
         double lo = minFs;
         double hi = availableH / settings.LineHeightMultiplier;
         if (hi < lo) hi = lo;
 
-        if (MeasureTextHeight(slideText, CloneWithFontSize(settings, lo)) > availableH - 4)
+        if (MeasureTextHeight(slideText, CloneWithFontSize(settings, lo)) > availableH)
             return minFs;
 
         for (int i = 0; i < 20; i++)
         {
             double mid = (lo + hi) / 2;
-            if (MeasureTextHeight(slideText, CloneWithFontSize(settings, mid)) <= availableH - 4)
+            if (MeasureTextHeight(slideText, CloneWithFontSize(settings, mid)) <= availableH)
                 lo = mid;
             else
                 hi = mid;
         }
 
+        // Constraint szerokości: każda jawna linia tekstu musi mieścić się bez zawijania.
+        // Mierzymy naturalną szerokość (bez MaxTextWidth), bo WPF może zawijać wewnątrz
+        // linii przy znakach interpunkcyjnych i diakrytycznych (Unicode break opportunities).
+        double maxLineW = MeasureMaxLineWidth(slideText, CloneWithFontSize(settings, lo));
+        if (maxLineW > availableW && maxLineW > 0)
+            lo = lo * availableW / maxLineW;
+
         return Math.Max(minFs, Math.Round(lo, 1));
+    }
+
+    /// <summary>
+    /// Mierzy naturalną szerokość najszerszej jawnej linii tekstu (split po \n, bez MaxTextWidth).
+    /// Zapobiega zawijaniu WPF wewnątrz linii przy znakach interpunkcyjnych i diakrytycznych.
+    /// </summary>
+    private static double MeasureMaxLineWidth(string text, SlideLayoutSettings settings)
+    {
+        var typeface = new Typeface(
+            new FontFamily(settings.FontFamily),
+            FontStyles.Normal,
+            settings.FontBold ? FontWeights.Bold : FontWeights.Normal,
+            FontStretches.Normal);
+
+        double maxW = 0;
+        foreach (var line in StripTags(text).Split('\n'))
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            var ft = new FormattedText(line.Trim(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                typeface, settings.FontSize, Brushes.White, 96);
+            if (ft.Width > maxW) maxW = ft.Width;
+        }
+        return maxW;
     }
 
     private static SlideLayoutSettings CloneWithFontSize(SlideLayoutSettings s, double fontSize) => new()

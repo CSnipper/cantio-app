@@ -57,8 +57,7 @@ public static class KeyCaptureHelper
             return;
         }
 
-        // Zachowaj tylko jeden znak — litery i cyfry; resztę też przyjmij
-        tb.Text = KeyToLabel(e.Key);
+        tb.Text = Services.ShortcutService.KeyComboToLabel(e.Key, e.KeyboardDevice.Modifiers);
         e.Handled = true;
     }
 

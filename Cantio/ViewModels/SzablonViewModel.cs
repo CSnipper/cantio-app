@@ -26,6 +26,14 @@ public partial class SzablonViewModel : ObservableObject
         _ = LoadAsync();
     }
 
+    // ── Lista czcionek systemowych ─────────────────────────────────────────
+
+    public static IReadOnlyList<string> SystemFonts { get; } =
+        System.Windows.Media.Fonts.SystemFontFamilies
+            .Select(f => f.Source)
+            .OrderBy(n => n)
+            .ToList();
+
     // ── Czcionka ──────────────────────────────────────────────────────────
 
     [ObservableProperty]

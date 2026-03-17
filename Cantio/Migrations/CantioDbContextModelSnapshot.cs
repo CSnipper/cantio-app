@@ -66,6 +66,9 @@ namespace Cantio.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Group")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsPinned")
                         .HasColumnType("INTEGER");
 
@@ -102,6 +105,9 @@ namespace Cantio.Migrations
                     b.Property<int>("SongId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SetlistId");
@@ -125,6 +131,9 @@ namespace Cantio.Migrations
 
                     b.Property<int>("Number")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("PlayOrderJson")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()

@@ -8,6 +8,7 @@ public class Song
     public string? Author { get; set; }
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
+    public string? PlayOrderJson { get; set; }
     public ICollection<Verse> Verses { get; set; } = [];
     public ICollection<SetlistItem> SetlistItems { get; set; } = [];
 }

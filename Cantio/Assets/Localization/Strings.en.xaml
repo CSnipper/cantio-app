@@ -27,6 +27,7 @@
     <sys:String x:Key="Btn.ShowText">SHOW</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">SAVE SET</sys:String>
     <sys:String x:Key="Btn.Clear">CLEAR</sys:String>
+    <sys:String x:Key="Btn.LoadToDisplay">▶ DISPLAY</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PIN</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">DELETE SET</sys:String>
     <sys:String x:Key="Btn.SaveOrder">SAVE ORDER</sys:String>
@@ -49,6 +50,7 @@
     <!-- Placeholders -->
     <sys:String x:Key="Placeholder.SearchSongs">Search songs...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Category name...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistName">Set name (optional)...</sys:String>
 
     <!-- Form fields -->
     <sys:String x:Key="Field.Title">TITLE</sys:String>

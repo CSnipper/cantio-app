@@ -31,6 +31,7 @@ namespace Cantio.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Group = table.Column<string>(type: "TEXT", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     IsPinned = table.Column<bool>(type: "INTEGER", nullable: false),
                     PinPosition = table.Column<int>(type: "INTEGER", nullable: true)
@@ -84,6 +85,7 @@ namespace Cantio.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Position = table.Column<int>(type: "INTEGER", nullable: false),
+                    Type = table.Column<string>(type: "TEXT", nullable: true),
                     SelectedVerses = table.Column<string>(type: "TEXT", nullable: true),
                     SetlistId = table.Column<int>(type: "INTEGER", nullable: false),
                     SongId = table.Column<int>(type: "INTEGER", nullable: false)

@@ -27,6 +27,7 @@
     <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
+    <sys:String x:Key="Btn.LoadToDisplay">▶ MOSTRAR</sys:String>
     <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
     <sys:String x:Key="Btn.SaveOrder">GUARDAR ORDEN</sys:String>
@@ -49,6 +50,7 @@
     <!-- Marcadores de posición -->
     <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nombre de categoría...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistName">Nombre de la lista (opcional)...</sys:String>
 
     <!-- Campos del formulario -->
     <sys:String x:Key="Field.Title">TÍTULO</sys:String>

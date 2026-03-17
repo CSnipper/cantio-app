@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Cantio.Helpers;
 using Cantio.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using Application = System.Windows.Application;
 namespace Cantio;
@@ -21,6 +22,11 @@ public partial class App : Application
                 if (File.Exists(seedDb))
                     File.Copy(seedDb, dbPath);
             }
+
+            // Zastosuj pending migracje EF Core
+            await using (var ctx = new CantioDbContext())
+                await ctx.Database.MigrateAsync();
+
             var db = new DatabaseService();
             var lang = db.GetSettingAsync("language").Result ?? "pl";
             LocalizationManager.SetLanguage(lang);

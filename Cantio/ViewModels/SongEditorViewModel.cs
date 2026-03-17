@@ -4,6 +4,7 @@ using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Windows;
 using System.Xml.Linq;
 
@@ -296,6 +297,12 @@ public partial class SongEditorViewModel : ObservableObject
             SongId = EditingSong.Id
         }).ToList();
 
+        // Zapisz kolejność wykonania jako indeksy do tablicy Verses
+        var playOrderIndices = PlayOrder.Select(p => Verses.IndexOf(p)).Where(i => i >= 0).ToList();
+        EditingSong.PlayOrderJson = playOrderIndices.Count > 0
+            ? JsonSerializer.Serialize(playOrderIndices)
+            : null;
+
         await _db.SaveSongAsync(EditingSong);
 
         await LoadAsync();
@@ -377,7 +384,25 @@ public partial class SongEditorViewModel : ObservableObject
 
         foreach (var item in items) Verses.Add(item);
         RenumberVerses();
-        foreach (var v in Verses) PlayOrder.Add(v);
+
+        // Wczytaj kolejność wykonania
+        List<int> playOrderIndices = [];
+        if (!string.IsNullOrEmpty(full.PlayOrderJson))
+        {
+            try { playOrderIndices = JsonSerializer.Deserialize<List<int>>(full.PlayOrderJson) ?? []; }
+            catch { }
+        }
+
+        if (playOrderIndices.Count > 0)
+        {
+            foreach (var idx in playOrderIndices)
+                if (idx >= 0 && idx < Verses.Count) PlayOrder.Add(Verses[idx]);
+        }
+        else
+        {
+            foreach (var v in Verses) PlayOrder.Add(v);
+        }
+
         SelectedVerse = Verses.FirstOrDefault();
     }
 

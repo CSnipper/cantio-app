@@ -14,9 +14,37 @@ public partial class MainWindow : Window
     private readonly SzablonViewModel _szablonVm;
     private readonly SongEditorViewModel _songEditorVm;
     private readonly SetlistViewModel _setlistVm;
+    private readonly ShortcutService _shortcutService;
+    private readonly ShortcutsViewModel _shortcutsVm;
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
+        // Configured tab / search shortcuts (skip when focus is on text input)
+        if (e.OriginalSource is not TextBox && e.OriginalSource is not RichTextBox)
+        {
+            var mods = e.KeyboardDevice.Modifiers;
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabShow))
+            { ShowPane(PaneShow, TabShow); e.Handled = true; return; }
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabSongs))
+            { ShowPane(PaneSongs, TabSongs); e.Handled = true; return; }
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabSets))
+            { ShowPane(PaneSets, TabSets); e.Handled = true; return; }
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabTemplate))
+            { ShowPane(PaneTemplate, TabTemplate); e.Handled = true; return; }
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabImport))
+            { ShowPane(PaneImport, TabImport); e.Handled = true; return; }
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.SearchOpen))
+            { _vm.OpenSetlistSearchCommand.Execute(null); e.Handled = true; return; }
+        }
+
+        // Ctrl+S → zapisz zależnie od aktywnej zakładki (działa też gdy fokus jest na TextBox)
+        if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            HandleSave();
+            e.Handled = true;
+            return;
+        }
+
         // Nie przechwytuj gdy fokus jest na polu tekstowym
         if (e.OriginalSource is TextBox || e.OriginalSource is RichTextBox)
         {
@@ -82,8 +110,9 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _db = db;
+        _shortcutService = new ShortcutService();
 
-        _vm = new DisplayViewModel(db, new ProjectionViewModel());
+        _vm = new DisplayViewModel(db, new ProjectionViewModel(), _shortcutService);
         DataContext = _vm;
 
         _importVm = new ImportViewModel(db);
@@ -99,8 +128,16 @@ public partial class MainWindow : Window
         _szablonVm.Saved += () => _vm.RebuildSlides();
         PaneTemplate.DataContext = _szablonVm;
 
+        _shortcutsVm = new ShortcutsViewModel(db, _shortcutService);
+        PaneShortcutsContent.DataContext = _shortcutsVm;
+
         _importVm.SetlistsImported += async () => await _setlistVm.LoadAsync();
         _setlistVm.PinnedChanged += async () => await _vm.LoadPinnedSetlistsAsync();
+        _setlistVm.LoadForDisplayRequested += setlist =>
+        {
+            _ = _vm.LoadPinnedSetlistAsync(setlist);
+            ShowPane(PaneShow, TabShow);
+        };
 
         Loaded += async (_, _) => await _vm.InitializeAsync();
         KeyDown += _vm.OnKeyDown;
@@ -134,11 +171,11 @@ public partial class MainWindow : Window
         activeTab.Style = (Style)Resources["TabBtnActive"];
 
         // Track active tab
-        _activeTab = pane == PaneShow ? "show"
-            : pane == PaneSongs ? "songs"
-            : pane == PaneCats ? "cats"
-            : pane == PaneSets ? "sets"
-            : pane == PaneTemplate ? "template"
+        _activeTab = pane == PaneShow      ? "show"
+            : pane == PaneSongs            ? "songs"
+            : pane == PaneCats             ? "cats"
+            : pane == PaneSets             ? "sets"
+            : pane == PaneTemplate         ? "template"
             : "import";
     }
 
@@ -171,6 +208,56 @@ public partial class MainWindow : Window
     }
 
     private string _activeTab = "show";
+
+    private void HandleSave()
+    {
+        switch (_activeTab)
+        {
+            case "songs":
+                if (_songEditorVm.SaveSongCommand.CanExecute(null))
+                    _songEditorVm.SaveSongCommand.Execute(null);
+                break;
+            case "sets":
+                if (_setlistVm.SaveItemsCommand.CanExecute(null))
+                    _setlistVm.SaveItemsCommand.Execute(null);
+                break;
+            case "template":
+                if (TabSkroty.IsChecked == true)
+                {
+                    if (_shortcutsVm.SaveCommand.CanExecute(null))
+                        _shortcutsVm.SaveCommand.Execute(null);
+                }
+                else if (_szablonVm.SaveCommand.CanExecute(null))
+                    _szablonVm.SaveCommand.Execute(null);
+                break;
+            case "show":
+                if (_vm.IsInlineEditorOpen && _vm.SaveInlineEditCommand.CanExecute(null))
+                    _vm.SaveInlineEditCommand.Execute(null);
+                else if (_vm.SaveSetlistCommand.CanExecute(null))
+                    _vm.SaveSetlistCommand.Execute(null);
+                break;
+        }
+    }
+
+    // ── Nawigacja strzałką w dół z pola wyszukiwania na listę ─────────────────
+
+    private void SearchBoxShow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Down) return;
+        SongListShow.Focus();
+        if (SongListShow.Items.Count > 0 && SongListShow.SelectedIndex < 0)
+            SongListShow.SelectedIndex = 0;
+        e.Handled = true;
+    }
+
+    private void SearchBoxSongs_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Down) return;
+        SongListSongs.Focus();
+        if (SongListSongs.Items.Count > 0 && SongListSongs.SelectedIndex < 0)
+            SongListSongs.SelectedIndex = 0;
+        e.Handled = true;
+    }
 
     // ── Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek) ──────────
 
