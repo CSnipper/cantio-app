@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helpers="clr-namespace:Cantio.Helpers"
+        xmlns:views="clr-namespace:Cantio.Views"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Cantio" Height="720" Width="1280"
         MinHeight="600" MinWidth="1000"
@@ -16,6 +17,7 @@
         <helpers:EnumToBoolConverter x:Key="EnumBool"/>
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
+        <helpers:StripTagsConverter x:Key="StripTags"/>
         <FontFamily x:Key="HeaderFont">/Assets/Fonts/#Grenze</FontFamily>
         
         <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
@@ -804,7 +806,6 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="70"/>
                             </Grid.RowDefinitions>
 
                         <!-- Nagłówek -->
@@ -826,14 +827,16 @@
                         </Border>
 
                         <!-- Lista zwrotek -->
-                        <ScrollViewer Grid.Row="1" Style="{StaticResource SlimScrollViewer}">
-                                <ListBox ItemsSource="{Binding SlideList }"
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                                <ListBox ItemsSource="{Binding SlideList}"
                                      SelectedIndex="{Binding CurrentSlideIndex}"
                                      Background="Transparent" BorderThickness="0"
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      ItemContainerStyle="{StaticResource DarkListItem}"
                                      KeyboardNavigation.DirectionalNavigation="None"
-                                     Focusable="False">
+                                     Focusable="False"
+                                     helpers:ListBoxAutoScrollBehavior.IsEnabled="True">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid MinHeight="64">
@@ -851,7 +854,7 @@
                                                            VerticalAlignment="Center"/>
                                             </Border>
                                             <TextBlock Grid.Column="1"
-                                                       Text="{Binding Text}"
+                                                       Text="{Binding Text, Converter={StaticResource StripTags}}"
                                                        FontSize="15" LineHeight="24"
                                                        TextWrapping="Wrap"
                                                        VerticalAlignment="Center"
@@ -862,43 +865,32 @@
                             </ListBox>
                         </ScrollViewer>
 
-                        <!-- Podgląd + strzałki -->
+                        <!-- Podgląd + strzałki + POKAŻ -->
                         <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
-                                BorderThickness="0,2,0,0" Padding="12,10">
+                                BorderThickness="0,1,0,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="110"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="205"/>
+                                    <ColumnDefinition Width="4"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Miniaturka -->
+                                <!-- Miniaturka (16:9) — dokładna kopia ekranu projekcji -->
                                 <Border Grid.Column="0"
-                                        Background="{Binding Projection.BackgroundBrush}"
-                                        BorderBrush="#2a3347" BorderThickness="1"
-                                        Height="90" ClipToBounds="True" Margin="5,0,0,0">
+                                        BorderBrush="#2a3347" BorderThickness="0,0,1,0"
+                                        Width="288" Height="162" ClipToBounds="True">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="12" Opacity=".5"/>
                                     </Border.Effect>
-                                    <Grid>
-                                        <!-- Tekst slajdu -->
-                                        <TextBlock helpers:TextBlockHelper.FormattedText="{Binding CurrentSlideText}"
-                                                   helpers:TextBlockHelper.TagDefinitions="{Binding Projection.TextTags}"
-                                                   Foreground="{Binding Projection.TextBrush}"
-                                                   FontSize="7" LineHeight="12"
-                                                   TextWrapping="Wrap" TextAlignment="Center"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                   Padding="2"/>
-                                        <!-- Overlay: blank -->
-                                        <Border Background="Black"
-                                                Visibility="{Binding ScreenBlanked, Converter={StaticResource BoolToVis}}"/>
-                                    </Grid>
+                                    <Viewbox Stretch="Uniform">
+                                        <views:ProjectionView DataContext="{Binding Projection}"
+                                                              Width="1920" Height="1080"/>
+                                    </Viewbox>
                                 </Border>
 
                                 <!-- Info -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0">
                                     <TextBlock Text="{DynamicResource Section.ScreenPreview}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="9" Foreground="#959fb9" Margin="0,0,0,4"/>
@@ -909,71 +901,83 @@
                                                Foreground="#959fb9" FontSize="11"/>
                                 </StackPanel>
 
-                                <!-- ◀ -->
-                                <Button Grid.Column="2" Content="◀"
-                                        Style="{StaticResource NavBtn}"
-                                        Height="100" FontSize="40" Width="110"
-                                        Command="{Binding PrevSlideCommand}"/>
+                                <!-- Kolumna nawigacji: [◀ ▶] na górze, POKAŻ na dole -->
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="50"/>
+                                        <RowDefinition Height="4"/>
+                                    </Grid.RowDefinitions>
 
-                                <!-- ▶ -->
-                                <Button Grid.Column="4" Content="▶"
-                                        Style="{StaticResource NavBtn}"
-                                        Height="100" FontSize="40" Width="110"
-                                        Command="{Binding NextSlideCommand}"/>
-                            </Grid>
-                        </Border>
+                                    <!-- ◀ ▶ obok siebie -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Content="◀"
+                                                Style="{StaticResource NavBtn}"
+                                                FontSize="40" Height="100" Width="100"
+                                                Command="{Binding PrevSlideCommand}"/>
+                                        <Button Grid.Column="2" Content="▶"
+                                                Style="{StaticResource NavBtn}"
+                                                FontSize="40" Height="100" Width="100"
+                                                Command="{Binding NextSlideCommand}"/>
+                                    </Grid>
 
-                        <!-- WYGAŚ / POKAŻ -->
-                        <Button Grid.Row="3" Height="70" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#252d3d"/>
-                                        <Setter Property="Foreground" Value="#9aa3b8"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-                                        <Setter Property="FontSize" Value="30"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#2a3347"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                <Setter Property="Background" Value="#1e2535"/>
-                                                <Setter Property="Foreground" Value="#c9a84c"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                    <!-- WYGAŚ / POKAŻ -->
+                                    <Button Grid.Row="1" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="#252d3d"/>
+                                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                <Setter Property="BorderThickness" Value="0"/>
+                                                <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                                <Setter Property="FontSize" Value="30"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#2a3347"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                        <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Foreground" Value="#c9a84c"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                        </Button>
+                                        </Button.Style>
+                                        <TextBlock VerticalAlignment="Center" TextAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                            <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Border>
                         </Grid>
 
                         <!-- Zestaw -->
-                        <Grid Grid.Column="1" Background="#0f1117">
+                        <Grid Grid.Column="1" Background="#0f1117" ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
@@ -982,17 +986,101 @@
                             </Grid.RowDefinitions>
 
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                                    BorderThickness="1,0,0,1" Padding="12,11">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource Section.Setlist}"
+                                    BorderThickness="1,0,0,1" Padding="12,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="ZESTAW"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="20" FontWeight="Light"
-                                               Foreground="#c9a84c" Margin="0,0,10,0"/>
-                                    <Border Background="#252d3d" Padding="8,2">
+                                               Foreground="#c9a84c" Margin="0,0,10,0"
+                                               VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Background="#252d3d" Padding="8,2" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
                                     </Border>
-                                </StackPanel>
+                                    <Button Grid.Column="3" x:Name="BtnOpenSetlist"
+                                            Content="⊞ Otwórz"
+                                            Command="{Binding OpenSetlistSearchAsyncCommand}"
+                                            Background="#252d3d" BorderThickness="0"
+                                            Foreground="#9aa3b8" FontSize="13" Cursor="Hand"
+                                            Padding="10,5" VerticalAlignment="Center">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#c9a84c"/>
+                                                        <Setter Property="Foreground" Value="#0f1117"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
                             </Border>
+
+                            <!-- Popup wyszukiwania zestawów -->
+                            <Popup Grid.Row="0"
+                                   IsOpen="{Binding IsSetlistSearchOpen, Mode=TwoWay}"
+                                   PlacementTarget="{Binding ElementName=BtnOpenSetlist}"
+                                   Placement="Bottom"
+                                   StaysOpen="False"
+                                   AllowsTransparency="True">
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                        Width="340" MaxHeight="400">
+                                    <Grid Margin="8">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBox Grid.Row="0"
+                                                 Style="{StaticResource DarkTextBox}"
+                                                 Text="{Binding SetlistSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="15" Padding="8,6" Margin="0,0,0,6"/>
+                                        <ListBox Grid.Row="1"
+                                                 ItemsSource="{Binding FilteredSetlists}"
+                                                 Background="Transparent" BorderThickness="0"
+                                                 MaxHeight="340"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                 ItemContainerStyle="{StaticResource DarkListItem}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Background="Transparent" BorderThickness="0"
+                                                            Cursor="Hand" HorizontalAlignment="Stretch"
+                                                            Command="{Binding DataContext.LoadSetlistFromSearchAsyncCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent" Padding="4,8">
+                                                                    <StackPanel>
+                                                                        <TextBlock Text="{Binding Name}"
+                                                                                   FontSize="16" Foreground="#e8eaf0"
+                                                                                   TextTrimming="CharacterEllipsis"/>
+                                                                        <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                                                   FontSize="11" Foreground="#959fb9"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#252d3d"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Grid>
+                                </Border>
+                            </Popup>
 
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="1,0,0,0">
                                 <ListBox ItemsSource="{Binding SetlistItems}"
@@ -1010,6 +1098,7 @@
                                                     <ColumnDefinition Width="30"/>
                                                     <ColumnDefinition Width="22"/>
                                                     <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="34"/>
                                                     <ColumnDefinition Width="30"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Ellipse Grid.Column="0" Width="6" Height="6" Fill="#c9a84c"
@@ -1028,7 +1117,34 @@
                                                            TextWrapping="Wrap" VerticalAlignment="Center" 
                                                            HorizontalAlignment="Stretch"
                                                            FontSize="20" Padding="10"/>
-                                                <Button Grid.Column="4" Content="×"
+                                                <Button Grid.Column="4" Content="✏"
+                                                        Width="30" Height="30"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                        IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        Command="{Binding DataContext.OpenInlineEditorAsyncCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="Transparent">
+                                                                <TextBlock Text="✏"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           FontSize="15"
+                                                                           Foreground="{TemplateBinding Foreground}"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                </Trigger>
+                                                                <Trigger Property="IsEnabled" Value="False">
+                                                                    <Setter Property="Foreground" Value="#3a4460"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                                <Button Grid.Column="5" Content="×"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="20" Cursor="Hand"
@@ -1146,20 +1262,167 @@
                             </Border>
 
                             <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
-                                    BorderThickness="1,1,0,0" Padding="10">
+                                    BorderThickness="1,1,0,0" Padding="8,8">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSetlist}"
-                                            Style="{StaticResource OutlineBtn}" Margin="0,0,7,0"
-                                            Command="{Binding SaveSetlistCommand}"/>
-                                    <Button Grid.Column="1" Content="{DynamicResource Btn.Clear}"
-                                            Style="{StaticResource RedBtn}"
-                                            Command="{Binding ClearSetlistCommand}"/>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- Pole nazwy zestawu -->
+                                    <Grid Grid.Row="0" Margin="0,0,0,6">
+                                        <TextBox Style="{StaticResource DarkTextBox}"
+                                                 Text="{Binding SetlistName, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14" Padding="8,6" Height="34"/>
+                                        <TextBlock Text="{DynamicResource Placeholder.SetlistName}"
+                                                   Foreground="#555d70" FontSize="14"
+                                                   Padding="10,6" IsHitTestVisible="False" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SetlistName}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <!-- Przyciski -->
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSetlist}"
+                                                Style="{StaticResource OutlineBtn}" Margin="0,0,7,0"
+                                                Command="{Binding SaveSetlistCommand}"/>
+                                        <Button Grid.Column="1" Content="{DynamicResource Btn.Clear}"
+                                                Style="{StaticResource RedBtn}"
+                                                Command="{Binding ClearSetlistCommand}"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
+
+                            <!-- Panel edycji zwrotek — wyjeżdża z prawej -->
+                            <Grid Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="10"
+                                  Background="#1e2535">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="350"/>
+                                </Grid.RenderTransform>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsInlineEditorOpen}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation
+                                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                To="0" Duration="0:0:0.2"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation
+                                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                To="350" Duration="0:0:0.15"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.ExitActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Nagłówek -->
+                                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                            BorderThickness="0,0,0,1" Padding="12,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding InlineEditorTitle}"
+                                                       FontSize="15" FontWeight="SemiBold"
+                                                       Foreground="#e8eaf0"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="×"
+                                                    Background="Transparent" BorderThickness="0"
+                                                    Foreground="#959fb9" FontSize="20" Cursor="Hand"
+                                                    Command="{Binding CancelInlineEditCommand}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="Transparent" Padding="8,4">
+                                                            <TextBlock Text="×" FontSize="20"
+                                                                       Foreground="{TemplateBinding Foreground}"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Lista zwrotek do edycji -->
+                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding EditableVerses}"
+                                                      Margin="8,4">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Margin="0,6">
+                                                        <TextBlock Text="{Binding Label}"
+                                                                   FontSize="11" Foreground="#c9a84c"
+                                                                   Margin="0,0,0,3" FontWeight="SemiBold"/>
+                                                        <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource DarkTextBox}"
+                                                                 AcceptsReturn="True"
+                                                                 TextWrapping="Wrap"
+                                                                 MinHeight="60"
+                                                                 FontSize="14"
+                                                                 Padding="8,6"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+
+                                    <!-- Przyciski Zapisz / Anuluj -->
+                                    <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                                            BorderThickness="0,1,0,0" Padding="8,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0"
+                                                    Content="Zapisz"
+                                                    Style="{StaticResource OutlineBtn}"
+                                                    Margin="0,0,7,0"
+                                                    Command="{Binding SaveInlineEditAsyncCommand}"/>
+                                            <Button Grid.Column="1"
+                                                    Content="Anuluj"
+                                                    Style="{StaticResource RedBtn}"
+                                                    Command="{Binding CancelInlineEditCommand}"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -2375,6 +2638,9 @@
                                                FontSize="11" Foreground="#959fb9" Margin="0,3,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="{DynamicResource Btn.LoadToDisplay}"
+                                            Style="{StaticResource GoldBtn}" Padding="12,7" Margin="0,0,8,0"
+                                            Command="{Binding LoadForDisplayCommand}"/>
                                     <Button Content="{DynamicResource Btn.PinSetlist}"
                                             Style="{StaticResource OutlineBtn}" Padding="12,7" Margin="0,0,8,0"
                                             Command="{Binding TogglePinCommand}"/>
@@ -2610,22 +2876,8 @@
                                 <ComboBox Style="{StaticResource DarkCombo}"
                                           IsEditable="True"
                                           IsTextSearchEnabled="True"
+                                          ItemsSource="{Binding SystemFonts}"
                                           Margin="0,0,0,16">
-                                    <ComboBox.ItemsSource>
-                                        <x:Array Type="{x:Type sys:String}"
-                                                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                                            <sys:String>Asap Condensed</sys:String>
-                                            <sys:String>Barlow Semi Condensed</sys:String>
-                                            <sys:String>Sofia Sans Extra Condensed</sys:String>
-                                            <sys:String>Arial</sys:String>
-                                            <sys:String>Calibri</sys:String>
-                                            <sys:String>Georgia</sys:String>
-                                            <sys:String>Segoe UI</sys:String>
-                                            <sys:String>Tahoma</sys:String>
-                                            <sys:String>Times New Roman</sys:String>
-                                            <sys:String>Verdana</sys:String>
-                                        </x:Array>
-                                    </ComboBox.ItemsSource>
                                     <ComboBox.Text>
                                         <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged"/>
                                     </ComboBox.Text>

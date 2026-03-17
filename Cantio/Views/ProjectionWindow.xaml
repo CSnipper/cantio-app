@@ -1,7 +1,7 @@
 <Window x:Class="Cantio.Views.ProjectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:helpers="clr-namespace:Cantio.Helpers"
+        xmlns:local="clr-namespace:Cantio.Views"
         Title="Cantio — Projekcja"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -9,42 +9,10 @@
         Background="{Binding BackgroundBrush}"
         AllowsTransparency="False">
     <WindowChrome.WindowChrome>
-        <WindowChrome ResizeBorderThickness="0" 
-                      CaptionHeight="0" 
+        <WindowChrome ResizeBorderThickness="0"
+                      CaptionHeight="0"
                       GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
-    <Window.Resources>
-        <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
-    </Window.Resources>
 
-    <Grid x:Name="RootGrid" Background="{Binding BackgroundBrush}" ClipToBounds="True">
-
-        <!-- Tło graficzne -->
-        <Image Source="{Binding BackgroundImagePath}"
-               Stretch="UniformToFill"
-               Opacity="{Binding BackgroundImageOpacity}"/>
-
-        <!-- Tekst — każda linia osobno (obsługa ujemnego odstępu) -->
-           <TextBlock helpers:TextBlockHelper.FormattedText="{Binding SlideText}"
-                       helpers:TextBlockHelper.TagDefinitions="{Binding TextTags}"
-                       VerticalAlignment="{Binding TextVerticalAlignment}"
-                       Margin="{Binding TextMargin}"
-                       FontFamily="{Binding FontFamily}"
-                       FontSize="{Binding FontSize}"
-                       FontWeight="{Binding FontWeight}"
-                       Foreground="{Binding TextBrush}"
-                       TextAlignment="{Binding TextAlignment}"
-                       TextWrapping="Wrap"
-                       helpers:TextBlockHelper.LineHeightMultiplier="{Binding LineHeightMultiplier}">
-                <TextBlock.Effect>
-                    <DropShadowEffect Color="Black"
-                                      ShadowDepth="{Binding ShadowDepth}"
-                                      BlurRadius="{Binding ShadowBlur}"
-                                      Opacity="{Binding ShadowOpacity}"/>
-                </TextBlock.Effect>
-            </TextBlock>
-        <!-- Overlay pusty ekran -->
-        <Border Background="#000000"
-                Visibility="{Binding IsBlank, Converter={StaticResource BoolToVis}}"/>
-    </Grid>
+    <local:ProjectionView DataContext="{Binding}"/>
 </Window>

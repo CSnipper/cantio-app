@@ -4,6 +4,7 @@ using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 
@@ -141,6 +142,89 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private string _setlistName = string.Empty;
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
 
+    // ── Wyszukiwarka zestawów ─────────────────────────────────────────────
+
+    [ObservableProperty] private bool _isSetlistSearchOpen;
+    [ObservableProperty] private string _setlistSearchText = string.Empty;
+    [ObservableProperty] private ObservableCollection<Setlist> _filteredSetlists = [];
+
+    private List<Setlist> _allSetlists = [];
+
+    partial void OnSetlistSearchTextChanged(string value)
+    {
+        var q = value.Trim().ToLowerInvariant();
+        FilteredSetlists = new ObservableCollection<Setlist>(
+            string.IsNullOrEmpty(q)
+                ? _allSetlists
+                : _allSetlists.Where(s => s.Name.ToLowerInvariant().Contains(q)));
+    }
+
+    [RelayCommand]
+    private async Task OpenSetlistSearchAsync()
+    {
+        _allSetlists = await _db.GetAllSetlistsAsync();
+        SetlistSearchText = string.Empty;
+        FilteredSetlists = new ObservableCollection<Setlist>(_allSetlists);
+        IsSetlistSearchOpen = true;
+    }
+
+    [RelayCommand]
+    private async Task LoadSetlistFromSearchAsync(Setlist setlist)
+    {
+        IsSetlistSearchOpen = false;
+        await LoadPinnedSetlistAsync(setlist);
+    }
+
+    // ── Edytor zwrotek inline ─────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanOpenInlineEditor))]
+    private bool _isInlineEditorOpen;
+
+    public bool CanOpenInlineEditor => !IsInlineEditorOpen;
+
+    [ObservableProperty] private string _inlineEditorTitle = string.Empty;
+    [ObservableProperty] private ObservableCollection<EditableVerse> _editableVerses = [];
+
+    [RelayCommand]
+    private async Task OpenInlineEditorAsync(SetlistItem item)
+    {
+        var song = await _db.GetSongWithVersesAsync(item.SongId);
+        if (song == null) return;
+        InlineEditorTitle = song.Title;
+        var verses = song.Verses.OrderBy(v => v.Position).ToList();
+        var counts = new Dictionary<string, int>();
+        EditableVerses = new ObservableCollection<EditableVerse>(
+            verses.Select(v =>
+            {
+                counts[v.Type] = counts.GetValueOrDefault(v.Type) + 1;
+                var label = v.Type switch
+                {
+                    "c" => counts[v.Type] == 1 ? "Refren" : $"Refren {counts[v.Type]}",
+                    "b" => counts[v.Type] == 1 ? "Bridge" : $"Bridge {counts[v.Type]}",
+                    _ => $"Zwrotka {counts[v.Type]}"
+                };
+                return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text };
+            }));
+        IsInlineEditorOpen = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveInlineEditAsync()
+    {
+        foreach (var ev in EditableVerses)
+            await _db.SaveVerseTextAsync(ev.Id, ev.Text);
+        IsInlineEditorOpen = false;
+        RebuildSlides();
+    }
+
+    [RelayCommand]
+    private void CancelInlineEdit()
+    {
+        IsInlineEditorOpen = false;
+        EditableVerses = [];
+    }
+
     // ── Projekcja ─────────────────────────────────────────────────────────
 
     [ObservableProperty] private bool _screenBlanked = true;
@@ -212,7 +296,11 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RemoveFromSetlist(SetlistItem item) => SetlistItems.Remove(item);
+    private void RemoveFromSetlist(SetlistItem item)
+    {
+        if (IsInlineEditorOpen) CancelInlineEdit();
+        SetlistItems.Remove(item);
+    }
 
     [RelayCommand]
     private async Task SaveSetlistAsync()
@@ -221,9 +309,16 @@ public partial class DisplayViewModel : ObservableObject
             ? $"Zestaw {DateTime.Now:dd.MM HH:mm}" : SetlistName.Trim();
 
         var setlist = new Setlist { Name = name, CreatedAt = DateTime.UtcNow };
-        setlist.Items = SetlistItems.Select((item, i) => { item.Position = i + 1; return item; }).ToList();
+        // Tworzymy nowe obiekty bez nav property Song — inaczej EF próbuje wstawić istniejące piosenki
+        setlist.Items = SetlistItems.Select((item, i) => new SetlistItem
+        {
+            SongId = item.SongId,
+            Position = i + 1,
+            Type = item.Type
+        }).ToList();
 
         await _db.SaveSetlistAsync(setlist);
+        SetlistName = string.Empty;
         await LoadPinnedSetlistsAsync();
     }
 
@@ -235,7 +330,7 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task LoadPinnedSetlistAsync(Setlist setlist)
+    public async Task LoadPinnedSetlistAsync(Setlist setlist)
     {
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
         if (full == null) return;
@@ -307,7 +402,22 @@ public partial class DisplayViewModel : ObservableObject
     {
         var song = await _db.GetSongWithVersesAsync(songId);
         if (song == null) return;
-        Verses = new ObservableCollection<Verse>(song.Verses);
+
+        var baseVerses = song.Verses.OrderBy(v => v.Position).ToList();
+        List<Verse> ordered = baseVerses;
+
+        if (!string.IsNullOrEmpty(song.PlayOrderJson))
+        {
+            try
+            {
+                var indices = JsonSerializer.Deserialize<List<int>>(song.PlayOrderJson) ?? [];
+                var expanded = indices.Where(i => i >= 0 && i < baseVerses.Count).Select(i => baseVerses[i]).ToList();
+                if (expanded.Count > 0) ordered = expanded;
+            }
+            catch { }
+        }
+
+        Verses = new ObservableCollection<Verse>(ordered);
         RebuildSlides();
         if (_slides.Count > 0)
             GoToSlide(goToLast ? _slides.Count - 1 : 0);

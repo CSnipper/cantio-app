@@ -119,6 +119,17 @@ public class DatabaseService
         if (song is not null) { db.Songs.Remove(song); await db.SaveChangesAsync(); }
     }
 
+    public async Task SaveVerseTextAsync(int verseId, string newText)
+    {
+        await using var db = new CantioDbContext();
+        var verse = await db.Verses.FindAsync(verseId);
+        if (verse != null)
+        {
+            verse.Text = newText;
+            await db.SaveChangesAsync();
+        }
+    }
+
     public async Task SaveSongWithVersesAsync(Song song)
     {
         await using var db = new CantioDbContext();
