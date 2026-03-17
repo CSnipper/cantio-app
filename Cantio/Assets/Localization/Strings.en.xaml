@@ -46,6 +46,13 @@
     <sys:String x:Key="Btn.SaveSettings">SAVE SETTINGS</sys:String>
     <sys:String x:Key="Btn.ResetSettings">RESET</sys:String>
     <sys:String x:Key="Btn.PickColor">Pick color</sys:String>
+    <sys:String x:Key="Btn.OpenSet">⊞ Open</sys:String>
+    <sys:String x:Key="Btn.Open">Open</sys:String>
+    <sys:String x:Key="Btn.Append">Append</sys:String>
+    <sys:String x:Key="Btn.Save">Save</sys:String>
+    <sys:String x:Key="Btn.Preview">PREVIEW</sys:String>
+    <sys:String x:Key="Btn.ResetShortcuts">Reset to defaults</sys:String>
+    <sys:String x:Key="Btn.SaveShortcuts">Save shortcuts</sys:String>
 
     <!-- Placeholders -->
     <sys:String x:Key="Placeholder.SearchSongs">Search songs...</sys:String>
@@ -88,6 +95,7 @@
     <sys:String x:Key="Settings.Background">Background</sys:String>
     <sys:String x:Key="Settings.Format">Format</sys:String>
     <sys:String x:Key="Settings.Screen">Screen</sys:String>
+    <sys:String x:Key="Settings.Shortcuts">Shortcuts</sys:String>
 
     <!-- Settings — font -->
     <sys:String x:Key="Settings.FontSize">Font size</sys:String>
@@ -135,9 +143,32 @@
 
     <!-- Settings — screen -->
     <sys:String x:Key="Settings.ScreenLabel">Projection screen</sys:String>
+    <sys:String x:Key="Settings.ScreenPrimary">(primary)</sys:String>
+
+    <!-- Settings — background image -->
+    <sys:String x:Key="Settings.NoImage">No image</sys:String>
 
     <!-- Settings — language -->
     <sys:String x:Key="Settings.Language">Language</sys:String>
+
+    <!-- Keyboard shortcuts -->
+    <sys:String x:Key="Shortcuts.Navigation">Navigation</sys:String>
+    <sys:String x:Key="Shortcuts.SlideNext">Next slide</sys:String>
+    <sys:String x:Key="Shortcuts.SlidePrev">Previous slide</sys:String>
+    <sys:String x:Key="Shortcuts.SongNext">Next song</sys:String>
+    <sys:String x:Key="Shortcuts.SongPrev">Previous song</sys:String>
+    <sys:String x:Key="Shortcuts.Blank">Show / Blank screen</sys:String>
+    <sys:String x:Key="Shortcuts.Tabs">Tab switching</sys:String>
+    <sys:String x:Key="Shortcuts.TabShow">Tab: Display</sys:String>
+    <sys:String x:Key="Shortcuts.TabSongs">Tab: Songs</sys:String>
+    <sys:String x:Key="Shortcuts.TabSets">Tab: Sets</sys:String>
+    <sys:String x:Key="Shortcuts.TabTemplate">Tab: Settings</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Import</sys:String>
+    <sys:String x:Key="Shortcuts.Search">Search</sys:String>
+    <sys:String x:Key="Shortcuts.SearchOpen">Open set search</sys:String>
+
+    <!-- Display tab — setlist -->
+    <sys:String x:Key="Section.CurrentSet">SET</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Song Import</sys:String>
@@ -147,5 +178,6 @@
     <sys:String x:Key="Import.Overwrite">Overwrite existing songs</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Replaces song text if it already exists</sys:String>
     <sys:String x:Key="Import.Log">IMPORT LOG</sys:String>
+    <sys:String x:Key="Import.NoGroup">(no group)</sys:String>
 
 </ResourceDictionary>

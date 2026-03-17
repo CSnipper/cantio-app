@@ -349,11 +349,13 @@ public partial class SzablonViewModel : ObservableObject
 
     private void LoadScreens()
     {
+        var screenWord  = Application.Current.TryFindResource("Settings.Screen")  as string ?? "Screen";
+        var primaryWord = Application.Current.TryFindResource("Settings.ScreenPrimary") as string ?? "(primary)";
         Screens = Screen.AllScreens
             .Select((s, i) => new ScreenOption
             {
                 Index = i,
-                Label = $"Ekran {i + 1}{(s.Primary ? " (główny)" : "")}  {(int)s.WpfBounds.Width}×{(int)s.WpfBounds.Height}"
+                Label = $"{screenWord} {i + 1}{(s.Primary ? $" {primaryWord}" : "")}  {(int)s.WpfBounds.Width}×{(int)s.WpfBounds.Height}"
             }).ToList();
     }
 

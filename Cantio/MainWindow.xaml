@@ -1001,7 +1001,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="ZESTAW"
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Section.CurrentSet}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="20" FontWeight="Light"
                                                Foreground="#c9a84c" Margin="0,0,10,0"
@@ -1010,7 +1010,7 @@
                                         <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
                                     </Border>
                                     <Button Grid.Column="3" x:Name="BtnOpenSetlist"
-                                            Content="⊞ Otwórz"
+                                            Content="{DynamicResource Btn.OpenSet}"
                                             Command="{Binding OpenSetlistSearchCommand}"
                                             Background="#252d3d" BorderThickness="0"
                                             Foreground="#9aa3b8" FontSize="13" Cursor="Hand"
@@ -1038,7 +1038,7 @@
                                    IsOpen="{Binding IsSetlistSearchOpen, Mode=TwoWay}"
                                    PlacementTarget="{Binding ElementName=BtnOpenSetlist}"
                                    Placement="Bottom"
-                                   StaysOpen="True"
+                                   StaysOpen="False"
                                    AllowsTransparency="True">
                                 <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                                         Width="340" MaxHeight="400">
@@ -1072,7 +1072,7 @@
                                                             <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy}'}"
                                                                        FontSize="11" Foreground="#959fb9"/>
                                                         </StackPanel>
-                                                        <Button Grid.Column="1" Content="Otwórz"
+                                                        <Button Grid.Column="1" Content="{DynamicResource Btn.Open}"
                                                                 Margin="0,0,4,0" Padding="8,4"
                                                                 Background="#252d3d" BorderThickness="0"
                                                                 Foreground="#9aa3b8" FontSize="12" Cursor="Hand"
@@ -1092,7 +1092,7 @@
                                                                 </ControlTemplate>
                                                             </Button.Template>
                                                         </Button>
-                                                        <Button Grid.Column="2" Content="Dołącz"
+                                                        <Button Grid.Column="2" Content="{DynamicResource Btn.Append}"
                                                                 Padding="8,4"
                                                                 Background="#252d3d" BorderThickness="0"
                                                                 Foreground="#9aa3b8" FontSize="12" Cursor="Hand"
@@ -1421,12 +1421,12 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Button Grid.Column="0"
-                                                    Content="Zapisz"
+                                                    Content="{DynamicResource Btn.Save}"
                                                     Style="{StaticResource OutlineBtn}"
                                                     Margin="0,0,7,0"
                                                     Command="{Binding SaveInlineEditCommand}"/>
                                             <Button Grid.Column="1"
-                                                    Content="Anuluj"
+                                                    Content="{DynamicResource Btn.CancelSettings}"
                                                     Style="{StaticResource RedBtn}"
                                                     Command="{Binding CancelInlineEditCommand}"/>
                                         </Grid>
@@ -2829,7 +2829,7 @@
                              GroupName="SzablonTabs" x:Name="TabKolory"/>
                             <RadioButton Content="{DynamicResource Settings.Format}"   Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabPozycja"/>
-                            <RadioButton Content="Skróty"                              Style="{StaticResource SettingsTab}"
+                            <RadioButton Content="{DynamicResource Settings.Shortcuts}" Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabSkroty"/>
                             <!-- TabTlo usunięty — tło scalone z Kolory -->
                             <RadioButton x:Name="TabTlo" Visibility="Collapsed" GroupName="SzablonTabs"/>
@@ -3349,7 +3349,7 @@
                                                 <Setter Property="Foreground" Value="#9aa3b8"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding BackgroundImagePath}" Value="{x:Null}">
-                                                        <Setter Property="Text"       Value="Brak obrazu"/>
+                                                        <Setter Property="Text"       Value="{DynamicResource Settings.NoImage}"/>
                                                         <Setter Property="Foreground" Value="#959fb9"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -3357,7 +3357,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Button Grid.Column="2" Content="{DynamicResource Btn.SelectFiles}" Style="{StaticResource GoldBtn}"
+                                <Button Grid.Column="2" Content="{DynamicResource Btn.Browse}" Style="{StaticResource GoldBtn}"
                             Padding="12,8" Command="{Binding BrowseBackgroundCommand}"/>
                                 <Button Grid.Column="4" Content="✕" Style="{StaticResource RedBtn}"
                             Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
@@ -3611,79 +3611,79 @@
                             </StackPanel.Resources>
 
                             <!-- Nawigacja -->
-                            <TextBlock Text="Nawigacja" Foreground="#959fb9" FontSize="13"
+                            <TextBlock Text="{DynamicResource Shortcuts.Navigation}" Foreground="#959fb9" FontSize="13"
                                        Margin="0,0,0,10" FontFamily="{StaticResource BodyFont}"/>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Następny slajd" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.SlideNext}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding SlideNext, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Poprzedni slajd" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.SlidePrev}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding SlidePrev, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Następna pieśń" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.SongNext}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding SongNext, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Poprzednia pieśń" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.SongPrev}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding SongPrev, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Pokaż / Zaciemnij ekran" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.Blank}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding Blank, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
 
                             <!-- Zakładki -->
-                            <TextBlock Text="Przełączanie zakładek" Foreground="#959fb9" FontSize="13"
+                            <TextBlock Text="{DynamicResource Shortcuts.Tabs}" Foreground="#959fb9" FontSize="13"
                                        Margin="0,16,0,10" FontFamily="{StaticResource BodyFont}"/>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tab: Wyświetlanie" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.TabShow}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabShow, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tab: Pieśni" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.TabSongs}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabSongs, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tab: Zestawy" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.TabSets}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabSets, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tab: Szablon" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.TabTemplate}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabTemplate, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tab: Import" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.TabImport}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabImport, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
 
                             <!-- Wyszukiwarka -->
-                            <TextBlock Text="Wyszukiwarka" Foreground="#959fb9" FontSize="13"
+                            <TextBlock Text="{DynamicResource Shortcuts.Search}" Foreground="#959fb9" FontSize="13"
                                        Margin="0,16,0,10" FontFamily="{StaticResource BodyFont}"/>
                             <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Otwórz wyszukiwarkę zestawu" Style="{StaticResource ShortcutLabel}"/>
+                                <TextBlock Text="{DynamicResource Shortcuts.SearchOpen}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding SearchOpen, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
 
                             <!-- Przyciski -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                                <Button Content="Przywróć domyślne"
+                                <Button Content="{DynamicResource Btn.ResetShortcuts}"
                                         Command="{Binding ResetCommand}"
                                         Style="{StaticResource OutlineBtn}"
                                         Height="44" Padding="16,0" Margin="0,0,10,0"/>
-                                <Button Content="Zapisz skróty"
+                                <Button Content="{DynamicResource Btn.SaveShortcuts}"
                                         Command="{Binding SaveCommand}"
                                         Style="{StaticResource GoldBtn}"
                                         Height="44" Padding="20,0"/>
@@ -3941,7 +3941,7 @@
 
 
                             <!-- Przyciski -->
-                            <Button Content="PODGLĄD"
+                            <Button Content="{DynamicResource Btn.Preview}"
                         Style="{StaticResource OutlineBtn}"
                         Height="40" Margin="0,0,0,10"
                         Command="{Binding PreviewCommand}"/>

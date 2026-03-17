@@ -213,9 +213,12 @@ public partial class ImportViewModel : ObservableObject
 
     // ── OSZ Import ────────────────────────────────────────────────────────
 
-    [ObservableProperty] private ObservableCollection<string> _oszGroups = ["(bez grupy)"];
-    [ObservableProperty] private string _oszSelectedGroup = "(bez grupy)";
+    [ObservableProperty] private ObservableCollection<string> _oszGroups = [];
+    [ObservableProperty] private string _oszSelectedGroup = string.Empty;
     [ObservableProperty] private string? _oszStatus;
+
+    private static string NoGroupLabel =>
+        Application.Current.TryFindResource("Import.NoGroup") as string ?? "(no group)";
 
     private async Task LoadOszGroupsAsync()
     {
@@ -223,8 +226,10 @@ public partial class ImportViewModel : ObservableObject
         var groups = string.IsNullOrWhiteSpace(setting)
             ? new List<string>()
             : setting.Split(',').Select(g => g.Trim()).Where(g => !string.IsNullOrWhiteSpace(g)).OrderBy(g => g).ToList();
+        var noGroup = NoGroupLabel;
         OszGroups = new ObservableCollection<string>(
-            new[] { "(bez grupy)" }.Concat(groups));
+            new[] { noGroup }.Concat(groups));
+        OszSelectedGroup = noGroup;
     }
 
     public event Action? SetlistsImported;
@@ -243,7 +248,7 @@ public partial class ImportViewModel : ObservableObject
 
             OszStatus = "Importuję...";
 
-            var group = OszSelectedGroup == "(bez grupy)" ? null : OszSelectedGroup;
+            var group = OszSelectedGroup == NoGroupLabel ? null : OszSelectedGroup;
             var importer = new OszImporter(_db, group);
             var progress = new Progress<ImportProgress>(p =>
             {

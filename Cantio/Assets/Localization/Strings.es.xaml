@@ -46,6 +46,13 @@
     <sys:String x:Key="Btn.SaveSettings">GUARDAR CONFIGURACIÓN</sys:String>
     <sys:String x:Key="Btn.ResetSettings">RESTABLECER</sys:String>
     <sys:String x:Key="Btn.PickColor">Seleccionar color</sys:String>
+    <sys:String x:Key="Btn.OpenSet">⊞ Abrir</sys:String>
+    <sys:String x:Key="Btn.Open">Abrir</sys:String>
+    <sys:String x:Key="Btn.Append">Añadir</sys:String>
+    <sys:String x:Key="Btn.Save">Guardar</sys:String>
+    <sys:String x:Key="Btn.Preview">VISTA PREVIA</sys:String>
+    <sys:String x:Key="Btn.ResetShortcuts">Restablecer</sys:String>
+    <sys:String x:Key="Btn.SaveShortcuts">Guardar atajos</sys:String>
 
     <!-- Marcadores de posición -->
     <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
@@ -88,6 +95,7 @@
     <sys:String x:Key="Settings.Background">Fondo</sys:String>
     <sys:String x:Key="Settings.Format">Formato</sys:String>
     <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
+    <sys:String x:Key="Settings.Shortcuts">Atajos</sys:String>
 
     <!-- Configuración — fuente -->
     <sys:String x:Key="Settings.FontSize">Tamaño de fuente</sys:String>
@@ -135,9 +143,32 @@
 
     <!-- Configuración — pantalla -->
     <sys:String x:Key="Settings.ScreenLabel">Pantalla de proyección</sys:String>
+    <sys:String x:Key="Settings.ScreenPrimary">(principal)</sys:String>
+
+    <!-- Configuración — imagen de fondo -->
+    <sys:String x:Key="Settings.NoImage">Sin imagen</sys:String>
 
     <!-- Configuración — idioma -->
     <sys:String x:Key="Settings.Language">Idioma</sys:String>
+
+    <!-- Atajos de teclado -->
+    <sys:String x:Key="Shortcuts.Navigation">Navegación</sys:String>
+    <sys:String x:Key="Shortcuts.SlideNext">Diapositiva siguiente</sys:String>
+    <sys:String x:Key="Shortcuts.SlidePrev">Diapositiva anterior</sys:String>
+    <sys:String x:Key="Shortcuts.SongNext">Siguiente canción</sys:String>
+    <sys:String x:Key="Shortcuts.SongPrev">Canción anterior</sys:String>
+    <sys:String x:Key="Shortcuts.Blank">Mostrar / Oscurecer pantalla</sys:String>
+    <sys:String x:Key="Shortcuts.Tabs">Cambio de pestañas</sys:String>
+    <sys:String x:Key="Shortcuts.TabShow">Tab: Presentación</sys:String>
+    <sys:String x:Key="Shortcuts.TabSongs">Tab: Canciones</sys:String>
+    <sys:String x:Key="Shortcuts.TabSets">Tab: Listas</sys:String>
+    <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ajustes</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Importar</sys:String>
+    <sys:String x:Key="Shortcuts.Search">Búsqueda</sys:String>
+    <sys:String x:Key="Shortcuts.SearchOpen">Abrir búsqueda de lista</sys:String>
+
+    <!-- Pestaña Presentación — lista -->
+    <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>
@@ -147,5 +178,6 @@
     <sys:String x:Key="Import.Overwrite">Sobrescribir canciones existentes</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
     <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
+    <sys:String x:Key="Import.NoGroup">(sin grupo)</sys:String>
 
 </ResourceDictionary>
