@@ -1305,9 +1305,32 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <!-- Pole nazwy zestawu -->
+                                    <!-- Pole grupy zestawu -->
                                     <Grid Grid.Row="0" Margin="0,0,0,6">
+                                        <ComboBox Style="{StaticResource DarkCombo}"
+                                                  ItemsSource="{Binding SetlistGroups}"
+                                                  Text="{Binding SetlistGroup, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEditable="True"
+                                                  FontSize="16" Height="34"/>
+                                        <TextBlock Text="{DynamicResource Placeholder.SetlistGroup}"
+                                                   Foreground="#555d70" FontSize="16"
+                                                   Padding="7,3" IsHitTestVisible="False" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SetlistGroup}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <!-- Pole nazwy zestawu -->
+                                    <Grid Grid.Row="1" Margin="0,0,0,6">
                                         <TextBox Style="{StaticResource DarkTextBox}"
                                                  Text="{Binding SetlistName, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="18" Padding="3" Height="34"/>
@@ -1327,7 +1350,7 @@
                                         </TextBlock>
                                     </Grid>
                                     <!-- Przyciski -->
-                                    <Grid Grid.Row="1">
+                                    <Grid Grid.Row="2">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
