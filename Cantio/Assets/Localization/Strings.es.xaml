@@ -94,6 +94,8 @@
     <sys:String x:Key="Settings.Colors">Colores</sys:String>
     <sys:String x:Key="Settings.Background">Fondo</sys:String>
     <sys:String x:Key="Settings.Format">Formato</sys:String>
+    <sys:String x:Key="Settings.Main">General</sys:String>
+    <sys:String x:Key="Settings.LoadLastSetlist">Cargar último repertorio al iniciar</sys:String>
     <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Atajos</sys:String>
 

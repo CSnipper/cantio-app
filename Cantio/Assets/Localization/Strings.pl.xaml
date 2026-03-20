@@ -94,6 +94,8 @@
     <sys:String x:Key="Settings.Colors">Kolory</sys:String>
     <sys:String x:Key="Settings.Background">Tło</sys:String>
     <sys:String x:Key="Settings.Format">Format</sys:String>
+    <sys:String x:Key="Settings.Main">Główne</sys:String>
+    <sys:String x:Key="Settings.LoadLastSetlist">Ładuj ostatnio otwarty zestaw przy starcie</sys:String>
     <sys:String x:Key="Settings.Screen">Ekran</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Skróty</sys:String>
 

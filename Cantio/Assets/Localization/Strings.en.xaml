@@ -94,6 +94,8 @@
     <sys:String x:Key="Settings.Colors">Colors</sys:String>
     <sys:String x:Key="Settings.Background">Background</sys:String>
     <sys:String x:Key="Settings.Format">Format</sys:String>
+    <sys:String x:Key="Settings.Main">General</sys:String>
+    <sys:String x:Key="Settings.LoadLastSetlist">Load last opened setlist on startup</sys:String>
     <sys:String x:Key="Settings.Screen">Screen</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Shortcuts</sys:String>
 
