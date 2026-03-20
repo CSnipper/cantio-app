@@ -138,7 +138,12 @@ PRAWA KOLUMNA — Podgląd i Zestaw
       kliknij "DODAJ DO KOLEJNOŚCI" lub przeciągnij ją
 
   Zapisywanie zestawu:
+    - Nad polem nazwy znajduje się pole grupy (opcjonalne) — pozwala
+      przypisać zestaw do grupy (np. "Niedziela", "Środa")
     - Przycisk ZAPISZ ZESTAW zapisuje bieżący zestaw do biblioteki
+    - Jeśli zestaw był wcześniej załadowany z biblioteki, pojawi się
+      pytanie: "Tak" = nadpisz istniejący zestaw, "Dodaj nowy" = zapisz
+      jako nowy zestaw, "Nie" = anuluj
     - Możesz wpisać nazwę zestawu (np. "Niedziela 16.03.2026")
     - Jeśli nie wpiszesz nazwy, zostanie użyta data i godzina
     - Ctrl+S na zakładce Wyświetlanie = zapisz zestaw
