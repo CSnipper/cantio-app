@@ -32,6 +32,17 @@ public partial class DisplayViewModel : ObservableObject
     {
         await LoadCategoriesAsync();
         await OpenProjectionWindowAsync();
+
+        var loadLast = await _db.GetSettingAsync("load_last_setlist");
+        if (loadLast == "1")
+        {
+            var lastId = await _db.GetSettingAsync("last_setlist_id");
+            if (int.TryParse(lastId, out var id))
+            {
+                var setlist = await _db.GetSetlistWithItemsAsync(id);
+                if (setlist != null) await LoadPinnedSetlistAsync(setlist);
+            }
+        }
     }
 
     public void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -350,6 +361,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
         if (full == null) return;
+        await _db.SaveSettingAsync("last_setlist_id", setlist.Id.ToString());
         SetlistItems = new ObservableCollection<SetlistItem>(full.Items);
         SetlistName = full.Name;
         if (SetlistItems.Count > 0) LoadSongFromSetlist(SetlistItems[0]);
