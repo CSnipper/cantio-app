@@ -151,8 +151,13 @@ public partial class DisplayViewModel : ObservableObject
 
     // ── Zestaw ────────────────────────────────────────────────────────────
 
+    private int _loadedSetlistId;
+    private string _loadedSetlistName = string.Empty;
+
     [ObservableProperty] private ObservableCollection<SetlistItem> _setlistItems = [];
     [ObservableProperty] private string _setlistName = string.Empty;
+    [ObservableProperty] private string _setlistGroup = string.Empty;
+    [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
 
     // ── Wyszukiwarka zestawów ─────────────────────────────────────────────
@@ -334,26 +339,68 @@ public partial class DisplayViewModel : ObservableObject
     {
         var name = string.IsNullOrEmpty(SetlistName.Trim())
             ? $"Zestaw {DateTime.Now:dd.MM HH:mm}" : SetlistName.Trim();
+        var group = string.IsNullOrEmpty(SetlistGroup.Trim()) ? null : SetlistGroup.Trim();
 
-        var setlist = new Setlist { Name = name, CreatedAt = DateTime.UtcNow };
-        // Tworzymy nowe obiekty bez nav property Song — inaczej EF próbuje wstawić istniejące piosenki
-        setlist.Items = SetlistItems.Select((item, i) => new SetlistItem
+        if (_loadedSetlistId != 0)
+        {
+            var dlg = new ConfirmOverwriteWindow(_loadedSetlistName);
+            dlg.Owner = Application.Current.MainWindow;
+            dlg.ShowDialog();
+            switch (dlg.Result)
+            {
+                case OverwriteChoice.Overwrite:
+                    var existing = await _db.GetSetlistAsync(_loadedSetlistId);
+                    if (existing == null) goto case OverwriteChoice.AddNew;
+                    existing.Name = name;
+                    existing.Group = group;
+                    await _db.SaveSetlistAsync(existing);
+                    await _db.SaveSetlistItemsAsync(existing.Id, BuildItems());
+                    _loadedSetlistName = name;
+                    break;
+                case OverwriteChoice.AddNew:
+                    await SaveAsNewAsync(name, group);
+                    break;
+                case OverwriteChoice.Cancel:
+                    return;
+            }
+        }
+        else
+        {
+            await SaveAsNewAsync(name, group);
+        }
+
+        await LoadPinnedSetlistsAsync();
+    }
+
+    private async Task SaveAsNewAsync(string name, string? group)
+    {
+        var setlist = new Setlist { Name = name, Group = group, CreatedAt = DateTime.UtcNow };
+        await _db.SaveSetlistAsync(setlist);
+        await _db.SaveSetlistItemsAsync(setlist.Id, BuildItems());
+        _loadedSetlistId = setlist.Id;
+        _loadedSetlistName = setlist.Name;
+        SetlistName = string.Empty;
+        SetlistGroup = string.Empty;
+    }
+
+    // Tworzymy nowe obiekty bez nav property Song — inaczej EF próbuje wstawić istniejące piosenki
+    private List<SetlistItem> BuildItems() =>
+        SetlistItems.Select((item, i) => new SetlistItem
         {
             SongId = item.SongId,
             Position = i + 1,
-            Type = item.Type
+            Type = item.Type,
+            SelectedVerses = item.SelectedVerses
         }).ToList();
-
-        await _db.SaveSetlistAsync(setlist);
-        SetlistName = string.Empty;
-        await LoadPinnedSetlistsAsync();
-    }
 
     [RelayCommand]
     private void ClearSetlist()
     {
         SetlistItems.Clear();
         SetlistName = string.Empty;
+        SetlistGroup = string.Empty;
+        _loadedSetlistId = 0;
+        _loadedSetlistName = string.Empty;
     }
 
     [RelayCommand]
@@ -362,9 +409,25 @@ public partial class DisplayViewModel : ObservableObject
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
         if (full == null) return;
         await _db.SaveSettingAsync("last_setlist_id", setlist.Id.ToString());
+        _loadedSetlistId = full.Id;
+        _loadedSetlistName = full.Name;
         SetlistItems = new ObservableCollection<SetlistItem>(full.Items);
         SetlistName = full.Name;
+        SetlistGroup = full.Group ?? string.Empty;
+        await LoadSetlistGroupsAsync();
         if (SetlistItems.Count > 0) LoadSongFromSetlist(SetlistItems[0]);
+    }
+
+    private async Task LoadSetlistGroupsAsync()
+    {
+        var csv = await _db.GetSettingAsync("setlist_groups") ?? string.Empty;
+        var groups = csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(g => g.Trim())
+                        .Where(g => !string.IsNullOrEmpty(g))
+                        .Distinct()
+                        .OrderBy(g => g)
+                        .ToList();
+        SetlistGroups = new ObservableCollection<string>(groups);
     }
 
     // ── Klawiatura ────────────────────────────────────────────────────────
