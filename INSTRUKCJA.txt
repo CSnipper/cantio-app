@@ -252,10 +252,8 @@ Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
 
 -- Główne --
   - Ładuj ostatnio otwarty zestaw przy starcie:
-    Jeśli zaznaczone, program automatycznie ładuje do zakładki
-    WYŚWIETLANIE ostatni zestaw, który był otwarty przed zamknięciem.
-    Przydatne przy nagłym braku prądu — po restarcie program
-    jest natychmiast gotowy do pracy.
+    Jeśli zaznaczone, program automatycznie ładuje ostatnio używany
+    zestaw do zakładki WYŚWIETLANIE przy każdym uruchomieniu.
 
 -- Ekran --
   - Wybierz monitor/projektor z listy
@@ -450,9 +448,10 @@ Szybki dostęp do zestawów:
   - Przypnij często używane zestawy (przycisk 📌 w ZESTAWY)
   - Będą widoczne na górze listy
 
-Przywracanie po awarii zasilania:
+Automatyczne ładowanie zestawu przy starcie:
   - W Ustawienia → Główne włącz "Ładuj ostatnio otwarty zestaw przy starcie"
-  - Po restarcie programu ostatnio używany zestaw jest ładowany automatycznie
+  - Program zapamięta ostatnio używany zestaw i załaduje go automatycznie
+    przy każdym uruchomieniu
   - Zestaw jest zapisywany przy każdym załadowaniu (przycisk ▶ WYŚWIETLAJ,
     wyszukiwarka zestawów) — nie wymaga ręcznego zapisu
 
