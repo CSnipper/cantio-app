@@ -157,6 +157,13 @@ public class DatabaseService
             .ToListAsync();
     }
 
+    public async Task<Setlist?> GetSetlistAsync(int setlistId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Setlists.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == setlistId);
+    }
+
     public async Task<List<Setlist>> GetPinnedSetlistsAsync()
     {
         await using var db = new CantioDbContext();
