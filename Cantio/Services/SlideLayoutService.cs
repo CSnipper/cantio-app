@@ -77,7 +77,11 @@ public static class SlideLayoutService
                     int start = s * perSlide;
                     int count = Math.Min(perSlide, lineCount - start);
                     if (count <= 0) break;
-                    result.Add(string.Join("\n", lines.Skip(start).Take(count)));
+                    var chunk = lines.Skip(start).Take(count).ToList();
+                    // Usuń puste linie z początku i końca fragmentu
+                    while (chunk.Count > 0 && string.IsNullOrWhiteSpace(chunk[0])) chunk.RemoveAt(0);
+                    while (chunk.Count > 0 && string.IsNullOrWhiteSpace(chunk[^1])) chunk.RemoveAt(chunk.Count - 1);
+                    if (chunk.Count > 0) result.Add(string.Join("\n", chunk));
                 }
                 return result;
             }
@@ -106,8 +110,8 @@ public static class SlideLayoutService
             }
         }
 
-        // Fallback: każda linia na osobnym slajdzie
-        return lines.ToList();
+        // Fallback: każda niepusta linia na osobnym slajdzie
+        return lines.Where(l => !string.IsNullOrWhiteSpace(l)).ToList();
     }
 
     public static double MeasureTextHeight(string text, SlideLayoutSettings settings)

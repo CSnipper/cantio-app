@@ -891,8 +891,7 @@
                                     <Viewbox Stretch="Uniform">
                                         <views:ProjectionView DataContext="{Binding Projection}"
                                                               Width="{Binding ProjectionScreenWidth}"
-                                                              Height="{Binding ProjectionScreenHeight}"
-                                                              Padding="0,10"/>
+                                                              Height="{Binding ProjectionScreenHeight}"/>
                                     </Viewbox>
                                 </Border>
 
