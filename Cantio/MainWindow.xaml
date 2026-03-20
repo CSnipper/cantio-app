@@ -2821,8 +2821,10 @@
                     <!-- Tab bar -->
                     <Border Grid.Row="0" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
                         <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="{DynamicResource Settings.Main}"    Style="{StaticResource SettingsTab}"
+                             GroupName="SzablonTabs" IsChecked="True" x:Name="TabGlowne"/>
                             <RadioButton Content="{DynamicResource Settings.Screen}"   Style="{StaticResource SettingsTab}"
-                             GroupName="SzablonTabs" IsChecked="True" x:Name="TabEkran"/>
+                             GroupName="SzablonTabs" x:Name="TabEkran"/>
                             <RadioButton Content="{DynamicResource Settings.Font}"     Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabCzcionka"/>
                             <RadioButton Content="{DynamicResource Settings.Colors}"   Style="{StaticResource SettingsTab}"
@@ -2838,6 +2840,30 @@
 
                     <!-- Treść zakładek -->
                     <Grid Grid.Row="1">
+
+                        <!-- ── GŁÓWNE ── -->
+                        <StackPanel Margin="20,16,20,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=TabGlowne}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="{DynamicResource Settings.Main}"
+                                       Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,0,0,16"/>
+
+                            <CheckBox IsChecked="{Binding LoadLastSetlistOnStartup}"
+                                      Style="{StaticResource DarkCheck}">
+                                <TextBlock Text="{DynamicResource Settings.LoadLastSetlist}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
+                            </CheckBox>
+                        </StackPanel>
 
                         <!-- ── CZCIONKA ── -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
