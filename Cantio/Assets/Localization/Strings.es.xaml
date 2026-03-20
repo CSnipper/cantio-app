@@ -57,6 +57,7 @@
     <!-- Marcadores de posición -->
     <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nombre de categoría...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistGroup">Grupo (opcional)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nombre de la lista (opcional)...</sys:String>
 
     <!-- Campos del formulario -->

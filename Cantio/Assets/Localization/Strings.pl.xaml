@@ -57,6 +57,7 @@
     <!-- Placeholdery -->
     <sys:String x:Key="Placeholder.SearchSongs">Szukaj pieśni...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nazwa kategorii...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistGroup">Grupa (opcjonalnie)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nazwa zestawu (opcjonalna)...</sys:String>
 
     <!-- Pola formularza -->
