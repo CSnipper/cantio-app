@@ -248,7 +248,14 @@ PRAWA KOLUMNA — Edytor zestawu
 
 Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
 
-  EKRAN | CZCIONKA | KOLORY | POZYCJA | SKRÓTY
+  GŁÓWNE | EKRAN | CZCIONKA | KOLORY | POZYCJA | SKRÓTY
+
+-- Główne --
+  - Ładuj ostatnio otwarty zestaw przy starcie:
+    Jeśli zaznaczone, program automatycznie ładuje do zakładki
+    WYŚWIETLANIE ostatni zestaw, który był otwarty przed zamknięciem.
+    Przydatne przy nagłym braku prądu — po restarcie program
+    jest natychmiast gotowy do pracy.
 
 -- Ekran --
   - Wybierz monitor/projektor z listy
@@ -442,6 +449,12 @@ Płynne prowadzenie nabożeństwa:
 Szybki dostęp do zestawów:
   - Przypnij często używane zestawy (przycisk 📌 w ZESTAWY)
   - Będą widoczne na górze listy
+
+Przywracanie po awarii zasilania:
+  - W Ustawienia → Główne włącz "Ładuj ostatnio otwarty zestaw przy starcie"
+  - Po restarcie programu ostatnio używany zestaw jest ładowany automatycznie
+  - Zestaw jest zapisywany przy każdym załadowaniu (przycisk ▶ WYŚWIETLAJ,
+    wyszukiwarka zestawów) — nie wymaga ręcznego zapisu
 
 Blank screen (zaciemnienie):
   - Użyj przycisku WYGAŚ lub klawisza Escape
