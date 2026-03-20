@@ -57,61 +57,73 @@ public static class SlideLayoutService
         // 8% bufor bezpieczeństwa — FormattedText może zaniżać wysokość vs TextBlock
         var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
 
+        text = text.Trim();
         if (MeasureTextHeight(text, settings) <= availableH)
             return [text];
 
-        // Podziel na linie i szukaj najmniejszej liczby slajdów k,
-        // przy której ceil(lineCount/k) linii mieści się na jednym slajdzie
-        var lines = text.Split('\n');
-        int lineCount = lines.Length;
+        var slides = new List<string>();
+        SplitRecursive(text, settings, availableH, slides);
+        return slides.Count > 0 ? slides : [text];
+    }
 
-        for (int k = 2; k <= lineCount; k++)
+    /// <summary>
+    /// Rekurencyjnie dzieli tekst, zachłannie maksymalizując każdy fragment.
+    /// </summary>
+    private static void SplitRecursive(string text, SlideLayoutSettings settings, double availableH, List<string> slides)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        text = text.Trim();
+
+        if (MeasureTextHeight(text, settings) <= availableH)
         {
-            int perSlide = (int)Math.Ceiling((double)lineCount / k);
-            var sample = string.Join("\n", lines.Take(perSlide));
-            if (MeasureTextHeight(sample, settings) <= availableH)
+            slides.Add(text);
+            return;
+        }
+
+        var (first, rest) = FindBestSplitPoint(text, settings, availableH);
+        if (first != null && rest != null)
+        {
+            slides.Add(first);
+            SplitRecursive(rest, settings, availableH, slides);
+        }
+        else
+        {
+            slides.Add(text); // nie da się podzielić — pokaż w całości
+        }
+    }
+
+    /// <summary>
+    /// Szuka najpóźniejszego miejsca podziału w tekście przy zachowaniu priorytetu:
+    /// enter (\n) > kropka (.) > przecinek (,) > spacja.
+    /// Zwraca najdłuższy możliwy prefix mieszczący się na jednym slajdzie.
+    /// </summary>
+    private static (string? first, string? rest) FindBestSplitPoint(
+        string text, SlideLayoutSettings settings, double availableH)
+    {
+        foreach (char breakChar in new[] { '\n', '.', ',', ' ' })
+        {
+            // Kropka i przecinek zostają przy pierwszym fragmencie
+            bool includeChar = breakChar is '.' or ',';
+
+            // Skanuj od końca — szukamy najpóźniejszego pasującego miejsca
+            for (int pos = text.Length - 1; pos > 0; pos--)
             {
-                var result = new List<string>(k);
-                for (int s = 0; s < k; s++)
-                {
-                    int start = s * perSlide;
-                    int count = Math.Min(perSlide, lineCount - start);
-                    if (count <= 0) break;
-                    var chunk = lines.Skip(start).Take(count).ToList();
-                    // Usuń puste linie z początku i końca fragmentu
-                    while (chunk.Count > 0 && string.IsNullOrWhiteSpace(chunk[0])) chunk.RemoveAt(0);
-                    while (chunk.Count > 0 && string.IsNullOrWhiteSpace(chunk[^1])) chunk.RemoveAt(chunk.Count - 1);
-                    if (chunk.Count > 0) result.Add(string.Join("\n", chunk));
-                }
-                return result;
+                if (text[pos] != breakChar) continue;
+
+                var prefix = includeChar
+                    ? text[..(pos + 1)].TrimEnd()
+                    : text[..pos].TrimEnd();
+                var suffix = text[(pos + 1)..].TrimStart();
+
+                if (string.IsNullOrWhiteSpace(prefix) || string.IsNullOrWhiteSpace(suffix))
+                    continue;
+
+                if (MeasureTextHeight(prefix, settings) <= availableH)
+                    return (prefix, suffix);
             }
         }
 
-        // Podziel na granicach słów (whitespace jako separator)
-        var words = text.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length > 1)
-        {
-            for (int k = 2; k <= words.Length; k++)
-            {
-                int perSlide = (int)Math.Ceiling((double)words.Length / k);
-                var sample = string.Join(" ", words.Take(perSlide));
-                if (MeasureTextHeight(sample, settings) <= availableH)
-                {
-                    var result = new List<string>(k);
-                    for (int s = 0; s < k; s++)
-                    {
-                        int start = s * perSlide;
-                        int count = Math.Min(perSlide, words.Length - start);
-                        if (count <= 0) break;
-                        result.Add(string.Join(" ", words.Skip(start).Take(count)));
-                    }
-                    return result;
-                }
-            }
-        }
-
-        // Fallback: każda niepusta linia na osobnym slajdzie
-        return lines.Where(l => !string.IsNullOrWhiteSpace(l)).ToList();
+        return (null, null);
     }
 
     public static double MeasureTextHeight(string text, SlideLayoutSettings settings)
