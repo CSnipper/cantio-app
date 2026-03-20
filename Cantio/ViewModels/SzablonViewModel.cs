@@ -289,6 +289,7 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("bg_gradient_angle", GradientAngle.ToString());
 
         await _db.SaveSettingAsync("language", SelectedLanguage);
+        await _db.SaveSettingAsync("load_last_setlist", LoadLastSetlistOnStartup ? "1" : "0");
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
@@ -309,6 +310,11 @@ public partial class SzablonViewModel : ObservableObject
         TextMarginH = 80; TextMarginV = 60;
         await SaveAsync();
     }
+
+    // ── Ogólne ────────────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    private bool _loadLastSetlistOnStartup;
 
     // ── Load ──────────────────────────────────────────────────────────────
 
@@ -345,6 +351,9 @@ public partial class SzablonViewModel : ObservableObject
             : Screens.Count > 1 ? Screens[1] : Screens.FirstOrDefault();
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
+
+        var loadLast = await _db.GetSettingAsync("load_last_setlist");
+        LoadLastSetlistOnStartup = loadLast == "1";
     }
 
     private void LoadScreens()
