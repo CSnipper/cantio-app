@@ -515,6 +515,7 @@ public partial class DisplayViewModel : ObservableObject
         var settings = BuildLayoutSettings();
         var texts = Verses.Select(v => v.Text).ToList();
         _slides = SlideLayoutService.BuildSlides(texts, settings);
+
         SlideList = new ObservableCollection<Slide>(_slides);
         CurrentSlideIndex = -1;
         OnPropertyChanged(nameof(SlideInfo));

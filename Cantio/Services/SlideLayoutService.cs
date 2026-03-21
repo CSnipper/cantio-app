@@ -2,6 +2,7 @@ using Cantio.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Cantio.Services;
@@ -131,27 +132,26 @@ public static class SlideLayoutService
         output.Add(text);
     }
 
+    // Statyczny TextBlock wielokrotnego użytku — identyczny engine co widoczny TextBlock
+    [System.ThreadStatic] private static TextBlock? _measureTb;
+    private static TextBlock MeasureTb => _measureTb ??= new TextBlock();
+
     public static double MeasureTextHeight(string text, SlideLayoutSettings settings)
     {
         var availableWidth = settings.SlideWidth - 2 * settings.MarginH;
-        var typeface = new Typeface(
-            new FontFamily(settings.FontFamily),
-            FontStyles.Normal,
-            settings.FontBold ? FontWeights.Bold : FontWeights.Normal,
-            FontStretches.Normal);
+        var tb = MeasureTb;
 
-        var ft = new FormattedText(
-            StripTags(text),
-            CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            typeface,
-            settings.FontSize,
-            Brushes.White,
-            96);
+        tb.FontFamily   = new FontFamily(settings.FontFamily);
+        tb.FontSize     = settings.FontSize;
+        tb.FontWeight   = settings.FontBold ? FontWeights.Bold : FontWeights.Normal;
+        tb.TextWrapping = TextWrapping.Wrap;
+        tb.Text         = StripTags(text);
 
-        ft.MaxTextWidth = availableWidth;
-        ft.LineHeight = settings.FontSize * settings.LineHeightMultiplier;
-        return ft.Height;
+        double lh = settings.FontSize * settings.LineHeightMultiplier;
+        tb.LineHeight = lh >= 1 ? lh : double.NaN;
+
+        tb.Measure(new Size(availableWidth, double.PositiveInfinity));
+        return tb.DesiredSize.Height;
     }
 
     public static Slide BuildSingle(string text, SlideLayoutSettings settings)
@@ -216,7 +216,7 @@ public static class SlideLayoutService
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
             var ft = new FormattedText(line.Trim(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
-                typeface, settings.FontSize, Brushes.White, 96);
+                typeface, settings.FontSize, Brushes.White, 1.0);
             // Linie szersze niż dostępna szerokość i tak będą zawijane przez TextBlock —
             // nie constrainujemy ich fontu (to by spowodowało minimalny font dla długich tekstów bez \n).
             if (ft.Width > availableWidth) continue;
