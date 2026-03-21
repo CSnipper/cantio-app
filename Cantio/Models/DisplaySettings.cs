@@ -26,4 +26,5 @@ public class DisplaySettings
     public string GradientColor2 { get; set; } = "#1a1a2e";
     public double GradientAngle { get; set; } = 180;
     public List<TextFormatTag> TextTags { get; set; } = [];
+    public bool FontAutoFit { get; set; } = true;
 }
