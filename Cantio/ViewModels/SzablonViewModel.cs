@@ -129,7 +129,10 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private string _selectedLanguage = "pl";
 
     partial void OnSelectedLanguageChanged(string value)
-        => LocalizationManager.SetLanguage(value);
+    {
+        LocalizationManager.SetLanguage(value);
+        OnPropertyChanged(nameof(FontSizeLabel));
+    }
 
     [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
 

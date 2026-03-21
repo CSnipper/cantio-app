@@ -230,7 +230,8 @@ public static class SlideLayoutService
         FontFamily = s.FontFamily, FontBold = s.FontBold,
         FontSize = fontSize, LineHeightMultiplier = s.LineHeightMultiplier,
         SlideWidth = s.SlideWidth, SlideHeight = s.SlideHeight,
-        MarginH = s.MarginH, MarginV = s.MarginV
+        MarginH = s.MarginH, MarginV = s.MarginV,
+        AutoFit = s.AutoFit
     };
 
 }
