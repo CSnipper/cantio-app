@@ -290,6 +290,7 @@ public partial class SzablonViewModel : ObservableObject
 
         await _db.SaveSettingAsync("language", SelectedLanguage);
         await _db.SaveSettingAsync("load_last_setlist", LoadLastSetlistOnStartup ? "1" : "0");
+        await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
@@ -308,10 +309,19 @@ public partial class SzablonViewModel : ObservableObject
         GradientEnabled = false; GradientType = "linear"; GradientColor1 = "#000000"; GradientColor2 = "#1a1a2e"; GradientAngle = 180;
         TextPosition = "center";
         TextMarginH = 80; TextMarginV = 60;
+        FontAutoFit = true;
         await SaveAsync();
     }
 
     // ── Ogólne ────────────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
+    private bool _fontAutoFit = true;
+
+    public string FontSizeLabel => FontAutoFit
+        ? (Application.Current.TryFindResource("Settings.FontSizeMin") as string ?? "Rozmiar minimalny")
+        : (Application.Current.TryFindResource("Settings.FontSize") as string ?? "Rozmiar czcionki");
 
     [ObservableProperty]
     private bool _loadLastSetlistOnStartup;
@@ -354,6 +364,7 @@ public partial class SzablonViewModel : ObservableObject
 
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";
+        FontAutoFit = s.FontAutoFit;
     }
 
     private void LoadScreens()
