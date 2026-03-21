@@ -27,18 +27,16 @@ public static class ListBoxAutoScrollBehavior
     private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox lb || lb.SelectedItem == null) return;
-        lb.UpdateLayout();
 
         int idx = lb.SelectedIndex;
+        lb.ScrollIntoView(lb.Items[idx]);
 
-        // Bieżący slajd
-        (lb.ItemContainerGenerator.ContainerFromIndex(idx) as FrameworkElement)?.BringIntoView();
-
-        // Look-ahead: pokaż też następny slajd, jeśli istnieje
         if (idx + 1 < lb.Items.Count)
         {
-            lb.UpdateLayout();
-            (lb.ItemContainerGenerator.ContainerFromIndex(idx + 1) as FrameworkElement)?.BringIntoView();
+            lb.Dispatcher.InvokeAsync(() =>
+            {
+                lb.ScrollIntoView(lb.Items[idx + 1]);
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
     }
 }
