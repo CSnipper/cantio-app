@@ -29,6 +29,7 @@
     <sys:String x:Key="Btn.Clear">WYCZYŚĆ</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PRZYPNIJ</sys:String>
+    <sys:String x:Key="Btn.UnpinSetlist">ODEPNIJ</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
     <sys:String x:Key="Btn.SaveOrder">ZAPISZ KOLEJNOŚĆ</sys:String>
     <sys:String x:Key="Btn.Clone">Klonuj zestaw</sys:String>

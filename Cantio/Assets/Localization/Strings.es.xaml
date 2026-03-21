@@ -29,6 +29,7 @@
     <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ MOSTRAR</sys:String>
     <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
+    <sys:String x:Key="Btn.UnpinSetlist">DESFIJAR</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
     <sys:String x:Key="Btn.SaveOrder">GUARDAR ORDEN</sys:String>
     <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>

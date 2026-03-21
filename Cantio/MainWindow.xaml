@@ -2675,9 +2675,19 @@
                                     <Button Content="{DynamicResource Btn.LoadToDisplay}"
                                             Style="{StaticResource GoldBtn}" Padding="12,7" Margin="0,0,8,0"
                                             Command="{Binding LoadForDisplayCommand}"/>
-                                    <Button Content="{DynamicResource Btn.PinSetlist}"
-                                            Style="{StaticResource OutlineBtn}" Padding="12,7" Margin="0,0,8,0"
-                                            Command="{Binding TogglePinCommand}"/>
+                                    <Button Padding="12,7" Margin="0,0,8,0"
+                                            Command="{Binding TogglePinCommand}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+                                                <Setter Property="Content" Value="{DynamicResource Btn.PinSetlist}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedSetlist.IsPinned}" Value="True">
+                                                        <Setter Property="Content" Value="{DynamicResource Btn.UnpinSetlist}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                     <Button Content="{DynamicResource Btn.DeleteSetlist}"
                                             Style="{StaticResource RedBtn}" Padding="12,7"
                                             Command="{Binding DeleteSetlistCommand}"/>

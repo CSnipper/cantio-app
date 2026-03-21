@@ -113,10 +113,12 @@ public partial class SetlistViewModel : ObservableObject
     private async Task TogglePinAsync()
     {
         if (SelectedSetlist == null) return;
+        var prevId = SelectedSetlist.Id;
         SelectedSetlist.IsPinned = !SelectedSetlist.IsPinned;
         await _db.SaveSetlistAsync(SelectedSetlist);
         PinnedChanged?.Invoke();
         await LoadAsync();
+        SelectedSetlist = Setlists.FirstOrDefault(s => s.Id == prevId);
     }
 
     [RelayCommand]

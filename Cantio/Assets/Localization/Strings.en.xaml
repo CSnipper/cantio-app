@@ -29,6 +29,7 @@
     <sys:String x:Key="Btn.Clear">CLEAR</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ DISPLAY</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PIN</sys:String>
+    <sys:String x:Key="Btn.UnpinSetlist">UNPIN</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">DELETE SET</sys:String>
     <sys:String x:Key="Btn.SaveOrder">SAVE ORDER</sys:String>
     <sys:String x:Key="Btn.Clone">Clone set</sys:String>
