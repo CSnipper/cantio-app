@@ -26,6 +26,7 @@ public class Slide
     public double FontSize { get; set; }
     public int VerseIndex { get; set; }
     public int PartIndex { get; set; }
+    public string Label { get; set; } = string.Empty;
 }
 
 public static class SlideLayoutService

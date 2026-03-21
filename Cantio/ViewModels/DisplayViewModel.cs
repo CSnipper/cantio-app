@@ -516,6 +516,21 @@ public partial class DisplayViewModel : ObservableObject
         var texts = Verses.Select(v => v.Text).ToList();
         _slides = SlideLayoutService.BuildSlides(texts, settings);
 
+        var typeCounts = new Dictionary<string, int>();
+        var verseLabels = Verses.Select(v =>
+        {
+            typeCounts[v.Type] = typeCounts.GetValueOrDefault(v.Type) + 1;
+            return v.Type switch
+            {
+                "c" => typeCounts[v.Type] == 1 ? "R" : $"R{typeCounts[v.Type]}",
+                "b" => typeCounts[v.Type] == 1 ? "B" : $"B{typeCounts[v.Type]}",
+                _ => typeCounts[v.Type].ToString()
+            };
+        }).ToArray();
+        foreach (var slide in _slides)
+            if (slide.VerseIndex >= 0 && slide.VerseIndex < verseLabels.Length)
+                slide.Label = verseLabels[slide.VerseIndex];
+
         SlideList = new ObservableCollection<Slide>(_slides);
         CurrentSlideIndex = -1;
         OnPropertyChanged(nameof(SlideInfo));

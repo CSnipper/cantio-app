@@ -850,7 +850,7 @@
                                             </Grid.ColumnDefinitions>
                                             <Border Grid.Column="0" Background="#1e2535"
                                                     BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                                                <TextBlock Text="{Binding VerseIndex}"
+                                                <TextBlock Text="{Binding Label}"
                                                            FontFamily="{StaticResource BodyFont}"
                                                            FontSize="20"
                                                            Foreground="#c9a84c"
