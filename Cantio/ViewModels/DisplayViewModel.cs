@@ -584,7 +584,8 @@ public partial class DisplayViewModel : ObservableObject
             SlideWidth = ProjectionScreenWidth,
             SlideHeight = ProjectionScreenHeight,
             MarginH = s.TextMarginH,
-            MarginV = s.TextMarginV
+            MarginV = s.TextMarginV,
+            AutoFit = s.FontAutoFit
         };
     }
 }
