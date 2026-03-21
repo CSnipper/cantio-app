@@ -556,9 +556,10 @@ public partial class DisplayViewModel : ObservableObject
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
 
-        // Poczekaj aż WPF ustawi DPI okna projekcji (PerMonitorV2 — każde okno ma własny DPI)
+        // Czekaj na Background — niższy priorytet niż Loaded (6), więc wykona się po wszystkich Loaded callbackach
+        // Dzięki temu odczytujemy DPI już po tym, jak okno zostało ustabilizowane na docelowym monitorze
         await _projectionWindow.Dispatcher.InvokeAsync(
-            () => { }, System.Windows.Threading.DispatcherPriority.Render);
+            () => { }, System.Windows.Threading.DispatcherPriority.Background);
 
         // Pobierz faktyczny DPI okna projekcji (nie okna głównego) i przelicz wymiary
         var ps = System.Windows.PresentationSource.FromVisual(_projectionWindow);
@@ -570,6 +571,9 @@ public partial class DisplayViewModel : ObservableObject
             _projectionWindow.Width  = ProjectionScreenWidth;
             _projectionWindow.Height = ProjectionScreenHeight;
         }
+
+        // Przebuduj slajdy z poprawnymi wymiarami ekranu (AutoFit używa ProjectionScreenWidth/Height)
+        RebuildSlides();
 
         Application.Current.MainWindow.Focus();
         _projection.ApplySettings(_db.GetSettings());
