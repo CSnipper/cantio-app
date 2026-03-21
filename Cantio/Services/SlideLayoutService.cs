@@ -16,6 +16,7 @@ public class SlideLayoutSettings
     public double SlideHeight { get; set; } = 1080;
     public double MarginH { get; set; } = 80;
     public double MarginV { get; set; } = 60;
+    public bool AutoFit { get; set; } = true;
 }
 
 public class Slide
@@ -165,6 +166,9 @@ public static class SlideLayoutService
     /// </summary>
     public static double ComputeFitFontSize(string slideText, SlideLayoutSettings settings)
     {
+        if (!settings.AutoFit)
+            return settings.FontSize;
+
         double availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
         double availableW = settings.SlideWidth - 2 * settings.MarginH;
         double minFs = settings.FontSize;
