@@ -2153,7 +2153,9 @@
                                     <ItemsControl ItemsSource="{Binding PlayOrder}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Margin="0,0,0,4">
+                                                <Grid Margin="0,0,0,4" AllowDrop="True"
+                                                      MouseMove="PlayOrderItem_MouseMove"
+                                                      Drop="PlayOrderItem_Drop">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="28"/>

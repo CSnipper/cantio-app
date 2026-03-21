@@ -207,6 +207,35 @@ public partial class MainWindow : Window
         }
     }
 
+    private int _playOrderDragFromIndex = -1;
+
+    private void PlayOrderItem_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe)
+        {
+            if (fe.DataContext is VerseEditorItem item)
+            {
+                _playOrderDragFromIndex = _songEditorVm.PlayOrder.IndexOf(item);
+                if (_playOrderDragFromIndex >= 0)
+                    DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
+            }
+        }
+    }
+
+    private void PlayOrderItem_Drop(object sender, DragEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.DataContext is VerseEditorItem target)
+        {
+            int toIndex = _songEditorVm.PlayOrder.IndexOf(target);
+            if (_playOrderDragFromIndex >= 0 && toIndex >= 0 && _playOrderDragFromIndex != toIndex)
+            {
+                _songEditorVm.PlayOrder.Move(_playOrderDragFromIndex, toIndex);
+                _songEditorVm.IsDirty = true;
+                _playOrderDragFromIndex = -1;
+            }
+        }
+    }
+
     private string _activeTab = "show";
 
     private void HandleSave()
