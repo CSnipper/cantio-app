@@ -35,7 +35,9 @@ public static class ListBoxAutoScrollBehavior
         {
             lb.Dispatcher.InvokeAsync(() =>
             {
-                lb.ScrollIntoView(lb.Items[idx + 1]);
+                // Wykonaj look-ahead tylko jeśli zaznaczenie nie zmieniło się od czasu zaplanowania
+                if (lb.SelectedIndex == idx && idx + 1 < lb.Items.Count)
+                    lb.ScrollIntoView(lb.Items[idx + 1]);
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
     }
