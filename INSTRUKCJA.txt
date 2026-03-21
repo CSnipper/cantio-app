@@ -229,7 +229,8 @@ LEWA KOLUMNA — Grupy i zestawy
     - Wszystkie zapisane zestawy
     - Pole wyszukiwania — filtruje po nazwie
     - Kliknij zestaw, aby zobaczyć jego zawartość po prawej
-    - Przycisk 📌 — przypina zestaw do szybkiego dostępu
+    - Przycisk PRZYPNIJ / ODEPNIJ — przypina/odpina zestaw do szybkiego
+      dostępu; gdy zestaw jest przypięty, przycisk zmienia się na ODEPNIJ
     - Przycisk "▶ WYŚWIETLAJ" — ładuje zestaw na zakładkę Wyświetlanie
     - Przycisk USUŃ ZESTAW — kasuje zestaw (prosi o potwierdzenie)
 
@@ -260,6 +261,14 @@ Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
     Jeśli zaznaczone, program automatycznie ładuje ostatnio używany
     zestaw do zakładki WYŚWIETLANIE przy każdym uruchomieniu.
 
+  - Automatyczne dopasowanie rozmiaru czcionki:
+    Jeśli zaznaczone, program powiększa czcionkę tak, żeby tekst slajdu
+    wypełniał jak największą część ekranu. Rozmiar czcionki ustawiony
+    w zakładce Czcionka staje się wówczas minimalnym rozmiarem — nigdy
+    nie zostanie zmniejszony poniżej tej wartości.
+    Jeśli odznaczone, używany jest zawsze dokładnie ten rozmiar co w
+    ustawieniach (tryb statyczny).
+
 -- Ekran --
   - Wybierz monitor/projektor z listy
   - Lista wyświetla wszystkie podłączone ekrany z rozdzielczością
@@ -269,6 +278,9 @@ Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
 -- Czcionka --
   - Rodzina czcionki: wybierz z listy czcionek systemowych
   - Rozmiar czcionki: suwak (w pikselach)
+    Gdy włączone jest Automatyczne dopasowanie (Główne), jest to
+    minimalny rozmiar. Obok suwaka widoczna jest etykieta z aktualnie
+    wyliczonym rozmiarem dla bieżącego slajdu.
   - Pogrubienie: checkbox
   - Wyrównanie poziome: Wyśrodkuj / Lewo / Prawo
   - Odstęp między wierszami: suwak (mnożnik rozmiaru czcionki)
@@ -460,6 +472,13 @@ Automatyczne ładowanie zestawu przy starcie:
   - Zestaw jest zapisywany przy każdym załadowaniu (przycisk ▶ WYŚWIETLAJ,
     wyszukiwarka zestawów) — nie wymaga ręcznego zapisu
 
+Automatyczne dopasowanie czcionki:
+  - W Ustawienia → Główne włącz "Automatyczne dopasowanie rozmiaru czcionki"
+  - Program powiększa czcionkę tak, żeby tekst zajmował jak najwięcej
+    miejsca na ekranie — przydatne gdy różne zwrotki mają różną długość
+  - Rozmiar w Ustawienia → Czcionka staje się minimalnym rozmiarem
+  - Wyłącz, gdy chcesz stały rozmiar czcionki na wszystkich slajdach
+
 Blank screen (zaciemnienie):
   - Użyj przycisku WYGAŚ lub klawisza Escape
   - Projektor pokazuje ciemny ekran — przydatne podczas kazania,
@@ -471,6 +490,13 @@ Podział na slajdy:
   - Podział zależy od rozmiaru czcionki i rozdzielczości projektora
   - Jeśli chcesz ręcznie kontrolować podział, użyj pustej linii
     w tekście zwrotki jako miejsca podziału
+  - Lista slajdów pokazuje etykiety zwrotek: 1, 2, 3 dla zwrotek,
+    R dla refrenu, B dla bridge (R2, B2 gdy jest ich kilka)
+
+Nawigacja między pieśniami:
+  - Cofnięcie slajdu na pierwszym slajdzie pieśni przechodzi do
+    ostatniego slajdu poprzedniej pieśni w zestawie
+  - Lista slajdów automatycznie scrolluje do bieżącego slajdu
 
 Formatowanie tekstu:
   - W edytorze zwrotek możesz wyróżnić słowa kolorem
