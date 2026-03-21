@@ -263,9 +263,11 @@ public partial class DisplayViewModel : ObservableObject
 
     [ObservableProperty] private SetlistItem? _selectedSetlistItem;
 
+    private bool _loadingFromSetlist;
+
     partial void OnSelectedSetlistItemChanged(SetlistItem? value)
     {
-        if (value != null) LoadSongFromSetlist(value);
+        if (!_loadingFromSetlist && value != null) LoadSongFromSetlist(value);
     }
 
     // ── Commands ──────────────────────────────────────────────────────────
@@ -549,8 +551,10 @@ public partial class DisplayViewModel : ObservableObject
     private void LoadSongFromSetlist(SetlistItem item, bool goToLast = false)
     {
         if (item.SongId == 0) return;
-        _ = LoadVersesAsync(item.SongId, goToLast);
+        _loadingFromSetlist = true;
         SelectedSetlistItem = item;
+        _loadingFromSetlist = false;
+        _ = LoadVersesAsync(item.SongId, goToLast);
     }
 
     private async Task OpenProjectionWindowAsync()
