@@ -890,8 +890,8 @@
                                     </Border.Effect>
                                     <Viewbox Stretch="Uniform">
                                         <views:ProjectionView DataContext="{Binding Projection}"
-                                                              Width="{Binding ProjectionScreenWidth}"
-                                                              Height="{Binding ProjectionScreenHeight}"/>
+                                                              Width="{Binding DataContext.ProjectionScreenWidth, RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"
+                                                              Height="{Binding DataContext.ProjectionScreenHeight, RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
                                     </Viewbox>
                                 </Border>
 

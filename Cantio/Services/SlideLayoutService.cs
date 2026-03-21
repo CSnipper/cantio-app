@@ -61,69 +61,73 @@ public static class SlideLayoutService
         if (MeasureTextHeight(text, settings) <= availableH)
             return [text];
 
-        var slides = new List<string>();
-        SplitRecursive(text, settings, availableH, slides);
-        return slides.Count > 0 ? slides : [text];
+        var result = new List<string>();
+        SplitRecursive(text, settings, availableH, result);
+        return result.Count > 0 ? result : [text];
     }
 
-    /// <summary>
-    /// Rekurencyjnie dzieli tekst, zachłannie maksymalizując każdy fragment.
-    /// </summary>
-    private static void SplitRecursive(string text, SlideLayoutSettings settings, double availableH, List<string> slides)
+    private static void SplitRecursive(string text, SlideLayoutSettings settings, double availableH, List<string> output)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
         text = text.Trim();
 
         if (MeasureTextHeight(text, settings) <= availableH)
         {
-            slides.Add(text);
+            output.Add(text);
             return;
         }
 
-        var (first, rest) = FindBestSplitPoint(text, settings, availableH);
-        if (first != null && rest != null)
+        // Krok 1: zbalansowany podział po \n
+        // Szukamy minimalnego k takiego, że ceil(lineCount/k) linii mieści się na slajdzie.
+        // Daje równomierne fragmenty (np. 7+6 zamiast 11+2).
+        var lines = text.Split('\n');
+        if (lines.Length > 1)
         {
-            slides.Add(first);
-            SplitRecursive(rest, settings, availableH, slides);
-        }
-        else
-        {
-            slides.Add(text); // nie da się podzielić — pokaż w całości
-        }
-    }
-
-    /// <summary>
-    /// Szuka najpóźniejszego miejsca podziału w tekście przy zachowaniu priorytetu:
-    /// enter (\n) > kropka (.) > przecinek (,) > spacja.
-    /// Zwraca najdłuższy możliwy prefix mieszczący się na jednym slajdzie.
-    /// </summary>
-    private static (string? first, string? rest) FindBestSplitPoint(
-        string text, SlideLayoutSettings settings, double availableH)
-    {
-        foreach (char breakChar in new[] { '\n', '.', ',', ' ' })
-        {
-            // Kropka i przecinek zostają przy pierwszym fragmencie
-            bool includeChar = breakChar is '.' or ',';
-
-            // Skanuj od końca — szukamy najpóźniejszego pasującego miejsca
-            for (int pos = text.Length - 1; pos > 0; pos--)
+            for (int k = 2; k <= lines.Length; k++)
             {
-                if (text[pos] != breakChar) continue;
-
-                var prefix = includeChar
-                    ? text[..(pos + 1)].TrimEnd()
-                    : text[..pos].TrimEnd();
-                var suffix = text[(pos + 1)..].TrimStart();
-
-                if (string.IsNullOrWhiteSpace(prefix) || string.IsNullOrWhiteSpace(suffix))
-                    continue;
-
-                if (MeasureTextHeight(prefix, settings) <= availableH)
-                    return (prefix, suffix);
+                int perSlide = (int)Math.Ceiling((double)lines.Length / k);
+                var sample = string.Join("\n", lines.Take(perSlide));
+                if (MeasureTextHeight(sample, settings) <= availableH)
+                {
+                    for (int s = 0; s < k; s++)
+                    {
+                        int start = s * perSlide;
+                        int count = Math.Min(perSlide, lines.Length - start);
+                        if (count <= 0) break;
+                        var chunk = string.Join("\n",
+                            lines.Skip(start).Take(count)
+                                 .SkipWhile(string.IsNullOrWhiteSpace)
+                                 .Reverse().SkipWhile(string.IsNullOrWhiteSpace).Reverse());
+                        if (!string.IsNullOrWhiteSpace(chunk))
+                            SplitRecursive(chunk, settings, availableH, output);
+                    }
+                    return;
+                }
             }
         }
 
-        return (null, null);
+        // Krok 2: podział wewnątrz tekstu po . > , > spacja
+        // Używany gdy brak \n lub gdy nawet jedna linia nie mieści się sama.
+        foreach (char breakChar in new[] { '.', ',', ' ' })
+        {
+            bool includeChar = breakChar is '.' or ',';
+            for (int pos = text.Length - 1; pos > 0; pos--)
+            {
+                if (text[pos] != breakChar) continue;
+                var prefix = includeChar ? text[..(pos + 1)].TrimEnd() : text[..pos].TrimEnd();
+                var suffix = text[(pos + 1)..].TrimStart();
+                if (string.IsNullOrWhiteSpace(prefix) || string.IsNullOrWhiteSpace(suffix)) continue;
+                if (MeasureTextHeight(prefix, settings) <= availableH)
+                {
+                    output.Add(prefix);
+                    SplitRecursive(suffix, settings, availableH, output);
+                    return;
+                }
+            }
+        }
+
+        // Fallback: nie da się podzielić — pokaż w całości
+        output.Add(text);
     }
 
     public static double MeasureTextHeight(string text, SlideLayoutSettings settings)
@@ -202,12 +206,16 @@ public static class SlideLayoutService
             settings.FontBold ? FontWeights.Bold : FontWeights.Normal,
             FontStretches.Normal);
 
+        double availableWidth = settings.SlideWidth - 2 * settings.MarginH;
         double maxW = 0;
         foreach (var line in StripTags(text).Split('\n'))
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
             var ft = new FormattedText(line.Trim(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
                 typeface, settings.FontSize, Brushes.White, 96);
+            // Linie szersze niż dostępna szerokość i tak będą zawijane przez TextBlock —
+            // nie constrainujemy ich fontu (to by spowodowało minimalny font dla długich tekstów bez \n).
+            if (ft.Width > availableWidth) continue;
             if (ft.Width > maxW) maxW = ft.Width;
         }
         return maxW;
