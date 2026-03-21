@@ -28,7 +28,17 @@ public static class ListBoxAutoScrollBehavior
     {
         if (sender is not ListBox lb || lb.SelectedItem == null) return;
         lb.UpdateLayout();
-        var container = lb.ItemContainerGenerator.ContainerFromItem(lb.SelectedItem) as FrameworkElement;
-        container?.BringIntoView();
+
+        int idx = lb.SelectedIndex;
+
+        // Bieżący slajd
+        (lb.ItemContainerGenerator.ContainerFromIndex(idx) as FrameworkElement)?.BringIntoView();
+
+        // Look-ahead: pokaż też następny slajd, jeśli istnieje
+        if (idx + 1 < lb.Items.Count)
+        {
+            lb.UpdateLayout();
+            (lb.ItemContainerGenerator.ContainerFromIndex(idx + 1) as FrameworkElement)?.BringIntoView();
+        }
     }
 }
