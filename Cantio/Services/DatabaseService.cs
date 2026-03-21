@@ -308,6 +308,7 @@ public class DatabaseService
             GradientColor2 = Get("bg_gradient_color2", "#1a1a2e", v => v),
             GradientAngle = Get("bg_gradient_angle", 180.0, v => double.TryParse(v, out var d) ? d : 180),
             TextTags = GetTextTags(),
+            FontAutoFit = Get("font_auto_fit", true, v => v == "true"),
         };
     }
 }
