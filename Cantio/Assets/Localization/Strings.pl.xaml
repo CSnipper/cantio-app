@@ -97,11 +97,13 @@
     <sys:String x:Key="Settings.Format">Format</sys:String>
     <sys:String x:Key="Settings.Main">Główne</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Ładuj ostatnio otwarty zestaw przy starcie</sys:String>
+    <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
     <sys:String x:Key="Settings.Screen">Ekran</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Skróty</sys:String>
 
     <!-- Ustawienia — czcionka -->
     <sys:String x:Key="Settings.FontSize">Rozmiar czcionki</sys:String>
+    <sys:String x:Key="Settings.FontSizeMin">Rozmiar minimalny</sys:String>
     <sys:String x:Key="Settings.FontFamily">Rodzina czcionki</sys:String>
     <sys:String x:Key="Settings.Bold">Pogrubienie</sys:String>
     <sys:String x:Key="Settings.Alignment">Wyrównanie</sys:String>
