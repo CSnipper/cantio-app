@@ -2885,6 +2885,10 @@
                                       Style="{StaticResource DarkCheck}">
                                 <TextBlock Text="{DynamicResource Settings.LoadLastSetlist}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
+                            <CheckBox IsChecked="{Binding FontAutoFit}"
+                                      Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
+                                <TextBlock Text="{DynamicResource Settings.FontAutoFit}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
+                            </CheckBox>
                         </StackPanel>
 
                         <!-- ── CZCIONKA ── -->
@@ -2903,7 +2907,7 @@
                             <StackPanel>
 
                                 <!-- Rozmiar stały -->
-                                <TextBlock Text="{DynamicResource Settings.FontSize}" Foreground="#959fb9" FontSize="16"
+                                <TextBlock Text="{Binding FontSizeLabel}" Foreground="#959fb9" FontSize="16"
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
                                 <Grid Margin="0,0,0,16">
