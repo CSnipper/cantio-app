@@ -545,6 +545,8 @@ public partial class DisplayViewModel : ObservableObject
 
         var screens = WpfScreenHelper.Screen.AllScreens.ToList();
         var target = screenIndex < screens.Count ? screens[screenIndex] : screens.Last();
+
+        // Wstępna wartość na wypadek gdyby PresentationSource nie był dostępny
         ProjectionScreenWidth = target.WpfBounds.Width;
         ProjectionScreenHeight = target.WpfBounds.Height;
 
@@ -553,6 +555,22 @@ public partial class DisplayViewModel : ObservableObject
         _projectionWindow.Closed += (_, _) => _projectionWindow = null;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
+
+        // Poczekaj aż WPF ustawi DPI okna projekcji (PerMonitorV2 — każde okno ma własny DPI)
+        await _projectionWindow.Dispatcher.InvokeAsync(
+            () => { }, System.Windows.Threading.DispatcherPriority.Render);
+
+        // Pobierz faktyczny DPI okna projekcji (nie okna głównego) i przelicz wymiary
+        var ps = System.Windows.PresentationSource.FromVisual(_projectionWindow);
+        if (ps?.CompositionTarget != null)
+        {
+            var scale = ps.CompositionTarget.TransformFromDevice;
+            ProjectionScreenWidth  = target.Bounds.Width  * scale.M11;
+            ProjectionScreenHeight = target.Bounds.Height * scale.M22;
+            _projectionWindow.Width  = ProjectionScreenWidth;
+            _projectionWindow.Height = ProjectionScreenHeight;
+        }
+
         Application.Current.MainWindow.Focus();
         _projection.ApplySettings(_db.GetSettings());
         _projection.SetBlanked(ScreenBlanked);
