@@ -635,15 +635,12 @@
 
             <!-- ── TAB: WYŚWIETLANIE ── -->
             <Grid x:Name="PaneShow" Visibility="Visible">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="58"/>
-                </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="350"/>
+                        <ColumnDefinition Width="380"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- LEFT -->
@@ -1459,55 +1456,6 @@
                         </Grid>
                     </Grid>
                 </Grid>
-
-                <!-- BOTTOM BAR -->
-                <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
-                        BorderThickness="0,1,0,0" Height="58">
-                    <Grid Margin="12,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Przypięte zestawy -->
-                        <ItemsControl Grid.Column="0" ItemsSource="{Binding PinnedSetlists}"
-                                      VerticalAlignment="Center">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <ToggleButton Content="{Binding Name}" Style="{StaticResource PinBtn}"
-                                                  Margin="0,0,7,0"
-                                                  Command="{Binding DataContext.LoadPinnedSetlistCommand,
-                                                      RelativeSource={RelativeSource AncestorType=Window}}"
-                                                  CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <!-- SlideInfo + Ctrl nawigacja -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Section.NowShowing}"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="9" Foreground="#959fb9"
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding SelectedSong.Title}"
-                                       Foreground="#e8eaf0" FontSize="13" FontWeight="SemiBold"
-                                       TextTrimming="CharacterEllipsis" MaxWidth="200"
-                                       VerticalAlignment="Center" Margin="0,0,16,0"/>
-                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="14,0" Height="38">
-                                <TextBlock Text="{Binding SlideInfo}"
-                                           FontFamily="{StaticResource HeaderFont}"
-                                           FontSize="13" FontWeight="Bold" Foreground="#c9a84c"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Grid>
-                </Border>
 
 
             </Grid>
