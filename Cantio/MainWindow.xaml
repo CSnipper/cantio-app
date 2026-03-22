@@ -18,6 +18,7 @@
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
         <helpers:StripTagsConverter x:Key="StripTags"/>
+        <helpers:WidthToHeightConverter x:Key="WidthToHeight"/>
         <FontFamily x:Key="HeaderFont">/Assets/Fonts/#Grenze</FontFamily>
         
         <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
@@ -2670,8 +2671,30 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="{Binding SelectedSetlist.Name}"
                                                FontSize="16" FontWeight="SemiBold" Foreground="#e8eaf0"/>
-                                    <TextBlock Text="{Binding SelectedSetlist.Group}"
-                                               FontSize="11" Foreground="#959fb9" Margin="0,3,0,0"/>
+                                    <ComboBox ItemsSource="{Binding GroupsWithEmpty}"
+                                              SelectedItem="{Binding EditingSetlistGroup}"
+                                              Style="{StaticResource DarkCombo}"
+                                              Height="28" FontSize="12" Margin="0,4,0,0"
+                                              MaxWidth="220" HorizontalAlignment="Left">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="{Binding}"/>
+                                                            <Setter Property="Foreground" Value="#e8eaf0"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding}" Value="">
+                                                                    <Setter Property="Text" Value="Wybierz grupę"/>
+                                                                    <Setter Property="Foreground" Value="#555d70"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                                     <Button Content="{DynamicResource Btn.LoadToDisplay}"
