@@ -1003,6 +1003,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
@@ -1378,8 +1379,35 @@
                                 </Grid>
                             </Border>
 
+                            <!-- Przypięte zestawy — ostatni wiersz -->
+                            <Border Grid.Row="4" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="8">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Section.Pinned}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="9" Foreground="#3a4a65"
+                                               Margin="0,0,0,5"/>
+                                    <ItemsControl ItemsSource="{Binding PinnedSetlists}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="2"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Content="{Binding Name}"
+                                                              Style="{StaticResource PinBtn}"
+                                                              Margin="0,0,4,4"
+                                                              Command="{Binding DataContext.LoadPinnedSetlistCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
                             <!-- Panel edycji zwrotek -->
-                            <Grid Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="10"
+                            <Grid Grid.Row="0" Grid.RowSpan="5" Panel.ZIndex="10"
                                   Background="#1e2535"
                                   Visibility="{Binding IsInlineEditorOpen, Converter={StaticResource BoolToVis}}">
 

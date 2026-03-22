@@ -31,7 +31,7 @@
     <sys:String x:Key="Btn.PinSetlist">PIN</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">UNPIN</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">DELETE SET</sys:String>
-    <sys:String x:Key="Btn.SaveOrder">SAVE ORDER</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">SAVE SET</sys:String>
     <sys:String x:Key="Btn.Clone">Clone set</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ CATEGORY</sys:String>
     <sys:String x:Key="Btn.NewSong">NEW SONG</sys:String>
@@ -173,6 +173,7 @@
 
     <!-- Display tab — setlist -->
     <sys:String x:Key="Section.CurrentSet">SET</sys:String>
+    <sys:String x:Key="Section.Pinned">PINNED</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Song Import</sys:String>

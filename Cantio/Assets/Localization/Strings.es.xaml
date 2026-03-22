@@ -31,7 +31,7 @@
     <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">DESFIJAR</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
-    <sys:String x:Key="Btn.SaveOrder">GUARDAR ORDEN</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ CATEGORÍA</sys:String>
     <sys:String x:Key="Btn.NewSong">NUEVA CANCIÓN</sys:String>
@@ -173,6 +173,7 @@
 
     <!-- Pestaña Presentación — lista -->
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
+    <sys:String x:Key="Section.Pinned">FIJADOS</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>
