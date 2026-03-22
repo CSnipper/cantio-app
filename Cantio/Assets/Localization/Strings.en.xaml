@@ -17,7 +17,6 @@
     <sys:String x:Key="Section.Songs">SONGS</sys:String>
     <sys:String x:Key="Section.Verses">VERSES</sys:String>
     <sys:String x:Key="Section.ScreenPreview">SCREEN PREVIEW</sys:String>
-    <sys:String x:Key="Section.NowShowing">NOW SHOWING</sys:String>
     <sys:String x:Key="Section.Setlist">SONG ORDER</sys:String>
     <sys:String x:Key="Section.Groups">GROUPS</sys:String>
     <sys:String x:Key="Section.AllSets">ALL SETS</sys:String>

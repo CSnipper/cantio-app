@@ -711,8 +711,8 @@
                     <Grid Grid.Column="1" Background="#0f1117">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
-                            <RowDefinition Height="Auto"/>   <!-- Row 1: Podgląd 16:9 (Task 5) -->
-                            <RowDefinition Height="Auto"/>   <!-- Row 2: Kontrolki (Task 6) -->
+                            <RowDefinition Height="Auto"/>   <!-- Row 1: Podgląd 16:9 -->
+                            <RowDefinition Height="Auto"/>   <!-- Row 2: Pasek kontrolny -->
                         </Grid.RowDefinitions>
 
                         <!-- Row 0: Kategorie (left) + Pieśni (right) -->
@@ -896,7 +896,7 @@
                                 <!-- LIVE badge — dimmed when screen is blanked -->
                                 <Border Grid.Column="0" Margin="10,8" Padding="8,5"
                                         Background="#d44a4a22" BorderBrush="#d44a4a55" BorderThickness="1"
-                                        CornerRadius="3" VerticalAlignment="Stretch">
+                                        CornerRadius="3" VerticalAlignment="Center">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Opacity" Value="1"/>
@@ -996,7 +996,7 @@
 
                     </Grid>
 
-                    <!-- Col 2: ZESTAW (moved from old inner sub-col 1, Task 7 will finalize) -->
+                    <!-- Col 2: ZESTAW -->
                     <Grid Grid.Column="2" Background="#0f1117" ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

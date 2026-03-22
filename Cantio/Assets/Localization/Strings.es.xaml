@@ -17,7 +17,6 @@
     <sys:String x:Key="Section.Songs">CANCIONES</sys:String>
     <sys:String x:Key="Section.Verses">ESTROFAS</sys:String>
     <sys:String x:Key="Section.ScreenPreview">VISTA PREVIA</sys:String>
-    <sys:String x:Key="Section.NowShowing">MOSTRANDO</sys:String>
     <sys:String x:Key="Section.Setlist">ORDEN DE CANCIONES</sys:String>
     <sys:String x:Key="Section.Groups">GRUPOS</sys:String>
     <sys:String x:Key="Section.AllSets">TODAS LAS LISTAS</sys:String>

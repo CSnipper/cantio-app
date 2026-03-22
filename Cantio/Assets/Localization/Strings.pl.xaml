@@ -17,7 +17,6 @@
     <sys:String x:Key="Section.Songs">PIEŚNI</sys:String>
     <sys:String x:Key="Section.Verses">ZWROTKI</sys:String>
     <sys:String x:Key="Section.ScreenPreview">PODGLĄD EKRANU</sys:String>
-    <sys:String x:Key="Section.NowShowing">TERAZ WYŚWIETLANE</sys:String>
     <sys:String x:Key="Section.Setlist">KOLEJNOŚĆ WYKONANIA</sys:String>
     <sys:String x:Key="Section.Groups">GRUPY</sys:String>
     <sys:String x:Key="Section.AllSets">WSZYSTKIE ZESTAWY</sys:String>
