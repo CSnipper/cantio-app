@@ -147,6 +147,21 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task SaveVerseOrderAsync(IEnumerable<(int id, int position)> order)
+    {
+        await using var db = new CantioDbContext();
+        foreach (var (id, position) in order)
+        {
+            var verse = await db.Verses.FindAsync(id);
+            if (verse != null)
+            {
+                verse.Position = position;
+                db.Verses.Update(verse);
+            }
+        }
+        await db.SaveChangesAsync();
+    }
+
     // ── Zestawy ───────────────────────────────────────────────────────────
 
     public async Task<List<Setlist>> GetSetlistsAsync()
@@ -225,6 +240,7 @@ public class DatabaseService
         {
             item.SetlistId = setlistId;
             item.Id = 0;
+            item.Song = null;
         }
         db.SetlistItems.AddRange(items);
         await db.SaveChangesAsync();
