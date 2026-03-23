@@ -727,7 +727,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | â—€ | â–¶ -->
+                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | ◀ | ▶ -->
                         <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="0,0,5,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -812,14 +812,14 @@
                                     </Button>
                                 </Grid>
 
-                                <!-- â—€ Poprzedni slajd -->
-                                <Button Grid.Column="3" Content="â—€"
+                                <!-- ◀ Poprzedni slajd -->
+                                <Button Grid.Column="3" Content="◀"
                                         Style="{StaticResource NavBtn}"
                                         FontSize="40" Width="108" Height="108"
                                         Command="{Binding PrevSlideCommand}"/>
 
-                                <!-- â–¶ Następny slajd -->
-                                <Button Grid.Column="5" Content="â–¶"
+                                <!-- ▶ Następny slajd -->
+                                <Button Grid.Column="5" Content="▶"
                                         Style="{StaticResource NavBtn}"
                                         FontSize="40" Width="108" Height="108"
                                         Command="{Binding NextSlideCommand}"/>
@@ -1035,7 +1035,7 @@
                                             <ColumnDefinition Width="30"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="đź”Ť" Foreground="#959fb9" FontSize="20"
+                                        <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="20"
                                                    IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                         <TextBox Grid.Column="1" x:Name="SearchBoxShow"
                                                  Style="{StaticResource SearchBox}"
@@ -1364,7 +1364,7 @@
                                                         <DropShadowEffect Color="#c9a84c" ShadowDepth="0" BlurRadius="6"/>
                                                     </Ellipse.Effect>
                                                 </Ellipse>
-                                                <TextBlock Grid.Column="1" Text="â ż" Foreground="#959fb9"
+                                                <TextBlock Grid.Column="1" Text="⠿" Foreground="#959fb9"
                                                            FontSize="20" VerticalAlignment="Center" Padding="5,5,3,3"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding Position}"
                                                            FontSize="20" Foreground="#959fb9" 
@@ -1373,7 +1373,7 @@
                                                            TextWrapping="Wrap" VerticalAlignment="Center" 
                                                            HorizontalAlignment="Stretch"
                                                            FontSize="20" Padding="10"/>
-                                                <Button Grid.Column="4" Content="âśŹ"
+                                                <Button Grid.Column="4" Content="✏"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="16" Cursor="Hand"
@@ -1383,7 +1383,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent">
-                                                                <TextBlock Text="âśŹ"
+                                                                <TextBlock Text="✏"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
                                                                            FontSize="15"
@@ -1400,7 +1400,7 @@
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
-                                                <Button Grid.Column="5" Content="Ă—"
+                                                <Button Grid.Column="5" Content="×"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="20" Cursor="Hand"
@@ -1409,7 +1409,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent">
-                                                                <TextBlock Text="Ă—"
+                                                                <TextBlock Text="×"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
                                                                            FontSize="18"
@@ -1438,7 +1438,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="âŹ«" FontSize="16"
+                                    <Button Grid.Column="0" Content="⏫" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToTop}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1446,7 +1446,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="âŹ«" FontSize="16"
+                                                    <TextBlock Text="⏫" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1457,7 +1457,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="1" Content="đź”Ľ" FontSize="16"
+                                    <Button Grid.Column="1" Content="🔼" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Up}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1465,7 +1465,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="đź”Ľ" FontSize="16"
+                                                    <TextBlock Text="🔼" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1476,7 +1476,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="2" Content="đź”˝" FontSize="16"
+                                    <Button Grid.Column="2" Content="🔽" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Down}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1484,7 +1484,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="đź”˝" FontSize="16"
+                                                    <TextBlock Text="🔽" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1495,7 +1495,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="3" Content="âŹ¬" FontSize="16"
+                                    <Button Grid.Column="3" Content="⏬" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToBottom}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1503,7 +1503,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="âŹ¬" FontSize="16"
+                                                    <TextBlock Text="⏬" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1609,14 +1609,14 @@
                                                        Foreground="#e8eaf0"
                                                        TextTrimming="CharacterEllipsis"
                                                        VerticalAlignment="Center"/>
-                                            <Button Grid.Column="1" Content="Ă—"
+                                            <Button Grid.Column="1" Content="×"
                                                     Background="Transparent" BorderThickness="0"
                                                     Foreground="#959fb9" FontSize="20" Cursor="Hand"
                                                     Command="{Binding CancelInlineEditCommand}">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border Background="Transparent" Padding="8,4">
-                                                            <TextBlock Text="Ă—" FontSize="20"
+                                                            <TextBlock Text="×" FontSize="20"
                                                                        Foreground="{TemplateBinding Foreground}"/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -1700,7 +1700,7 @@
             </Grid>
 
             <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
-                <TextBlock Text="â° KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
+                <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
 
 
@@ -1856,19 +1856,19 @@
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=left}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="left"
                                               ToolTip="{DynamicResource Tooltip.ToLeft}">
-                                                <TextBlock Text="â¬…" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="⬅" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=center}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="center"
                                               ToolTip="{DynamicResource Settings.AlignCenter}">
-                                                <TextBlock Text="â°" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="☰" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=right}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="right"
                                               ToolTip="{DynamicResource Tooltip.ToRight}">
-                                                <TextBlock Text="âžˇ" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="➡" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                         </StackPanel>
                                     </StackPanel>
@@ -1889,7 +1889,7 @@
                                             Value="{Binding LineHeightMultiplier}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
                                             BorderThickness="1" Padding="6,4">
-                                        <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='Ă—{0:F2}'}"
+                                        <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='×{0:F2}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
                                                  Foreground="#9aa3b8" FontSize="16"
@@ -2258,7 +2258,7 @@
                                         <TextBlock Text="{DynamicResource Settings.GradientAngle}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                         <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="360"
                                                 Value="{Binding GradientAngle}" TickFrequency="45"/>
-                                        <TextBlock Text="{Binding GradientAngle, StringFormat='{}{0:F0}Â°'}"
+                                        <TextBlock Text="{Binding GradientAngle, StringFormat='{}{0:F0}°'}"
                                                    Foreground="#9aa3b8" FontSize="14" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -2509,7 +2509,7 @@
                                 <RadioButton Content="English" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
                                              IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=en}"
                                              Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
-                                <RadioButton Content="EspaĂ±ol" Style="{StaticResource DarkRadio}"
+                                <RadioButton Content="Español" Style="{StaticResource DarkRadio}"
                                              IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
                                              Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
                             </StackPanel>
