@@ -10,43 +10,6 @@ using System.Xml.Linq;
 
 namespace Cantio.ViewModels;
 
-// ── Wrapper zwrotki w edytorze ────────────────────────────────────────────────
-
-public partial class VerseEditorItem : ObservableObject
-{
-    [ObservableProperty] private string _type = "v";   // v, c, b
-    [ObservableProperty] private string _text = string.Empty;
-    [ObservableProperty] private int _number = 1;
-
-    public string Label => Type switch
-    {
-        "c" => "R",
-        "b" => "B",
-        _ => $"{Number}"
-    };
-
-    partial void OnTypeChanged(string value) => OnPropertyChanged(nameof(Label));
-    partial void OnNumberChanged(int value) => OnPropertyChanged(nameof(Label));
-}
-
-// ── Wrapper kategorii w edytorze (inline edit) ────────────────────────────────
-
-public partial class CategoryEditorItem : ObservableObject
-{
-    public int Id { get; set; }
-    public int Number { get; set; }
-
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private string _editName = string.Empty;
-    [ObservableProperty] private int _editNumber;
-    [ObservableProperty] private bool _isEditing = false;
-
-    partial void OnIsEditingChanged(bool value)
-    {
-        if (value) { EditName = Name; EditNumber = Number; }
-    }
-}
-
 // ── Główny ViewModel edytora pieśni ──────────────────────────────────────────
 
 public partial class SongEditorViewModel : ObservableObject
