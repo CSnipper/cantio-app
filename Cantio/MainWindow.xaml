@@ -248,7 +248,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ ToggleButton (wyrĂłwnanie tekstu) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!-- â”€â”€ ToggleButton (wyrównanie tekstu) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="AlignBtn" TargetType="ToggleButton">
             <Setter Property="Background"      Value="#1e2535"/>
             <Setter Property="Foreground"      Value="#959fb9"/>
@@ -280,7 +280,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ ZakĹ‚adka ustawieĹ„ (Czcionka/Kolor/itd.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!-- â”€â”€ Zakładka ustawień (Czcionka/Kolor/itd.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="SettingsTab" TargetType="RadioButton">
             <Setter Property="Background"  Value="Transparent"/>
             <Setter Property="Foreground"  Value="#959fb9"/>
@@ -672,7 +672,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- NagĹ‚Ăłwek: ZWROTKI + tytuĹ‚ pieĹ›ni -->
+                        <!-- Nagłówek: ZWROTKI + tytuł pieśni -->
                         <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                 BorderThickness="0,0,1,1" Padding="14,11">
                             <Grid>
@@ -691,7 +691,7 @@
                             </Grid>
                         </Border>
 
-                        <!-- Lista slajdĂłw -->
+                        <!-- Lista slajdów -->
                         <ListBox Grid.Row="1"
                                  ItemsSource="{Binding SlideList}"
                                  SelectedIndex="{Binding CurrentSlideIndex}"
@@ -727,7 +727,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <!-- Row 2: Kontrolki â€” LIVE | TytuĹ‚+POKAĹ» | â—€ | â–¶ -->
+                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | â—€ | â–¶ -->
                         <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="0,0,5,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -739,13 +739,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- TytuĹ‚ pieĹ›ni + licznik slajdĂłw / POKAĹ»-WYGAĹš button -->
+                                <!-- Tytuł pieśni + licznik slajdów / POKAĹ»-WYGAĹš button -->
                                 <Grid Grid.Column="1" Margin="0,8">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <!-- LIVE badge â€” dimmed when screen is blanked -->
+                                    <!-- LIVE badge — dimmed when screen is blanked -->
                                     <Border Grid.Column="0" Margin="0,0,0,5" Padding="15,5"
                                             Background="#d44a4a22" VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border.Style>
@@ -818,7 +818,7 @@
                                         FontSize="40" Width="108" Height="108"
                                         Command="{Binding PrevSlideCommand}"/>
 
-                                <!-- â–¶ NastÄ™pny slajd -->
+                                <!-- â–¶ Następny slajd -->
                                 <Button Grid.Column="5" Content="â–¶"
                                         Style="{StaticResource NavBtn}"
                                         FontSize="40" Width="108" Height="108"
@@ -827,14 +827,14 @@
                         </Border>
                     </Grid>
 
-                    <!-- Col 1: ĹšRODKOWA (Kat+PieĹ›ni top, podglÄ…d middle, kontrolki bottom) -->
+                    <!-- Col 1: ĹšRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
                     <Grid Grid.Column="1" Background="#0f1117">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + PieĹ›ni -->
+                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
                             <RowDefinition Height="Auto"/>   <!-- Row 1: PodglÄ…d 16:9 -->
                         </Grid.RowDefinitions>
 
-                        <!-- Song Edit Mode overlay â€” covers entire Col 1 -->
+                        <!-- Song Edit Mode overlay — covers entire Col 1 -->
                         <Grid Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
                             <Grid.RowDefinitions>
@@ -844,26 +844,26 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- NagĹ‚Ăłwek: WrĂłÄ‡ -->
+                            <!-- Nagłówek: Wróć -->
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="0,0,0,1" Padding="8,6">
-                                <Button Content="â† WrĂłÄ‡" Style="{StaticResource GoldBtn}"
+                                <Button Content="← Wróć" Style="{StaticResource GoldBtn}"
                                         HorizontalAlignment="Left" Padding="12,6"
                                         Command="{Binding BackFromEditCommand}"/>
                             </Border>
 
-                            <!-- Metadane pieĹ›ni -->
+                            <!-- Metadane pieśni -->
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,0,1" Padding="10,8">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <!-- TytuĹ‚ -->
+                                    <!-- Tytuł -->
                                     <TextBox Grid.Row="0" Style="{StaticResource DarkTextBox}"
                                              Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="16" Height="36" Margin="0,0,0,6"
-                                             Tag="TYTUĹ"/>
+                                             Tag="TYTUŁ"/>
                                     <!-- Nr + Kategoria -->
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -906,17 +906,17 @@
                                                                  MinHeight="50" FontSize="13" Padding="6,5"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
-                                                        <Button Content="â†‘" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseUpCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Content="â†“" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="↓" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseDownCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Content="âś•" Width="28" Height="28"
+                                                        <Button Content="✕" Width="28" Height="28"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Foreground="#d44a4a"
                                                                 Command="{Binding DataContext.RemoveVerseFromEditorCommand,
@@ -928,7 +928,7 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <!-- Dodaj zwrotkÄ™ + Edytuj caĹ‚oĹ›Ä‡ -->
+                                    <!-- Dodaj zwrotkę + Edytuj całość -->
                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
                                         <Button Content="+ Zwrotka" Style="{StaticResource OutlineBtn}"
                                                 Margin="0,0,4,0" Padding="8,5"
@@ -943,13 +943,13 @@
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="b"/>
                                     </StackPanel>
-                                    <Button Content="âśŽ Edytuj caĹ‚oĹ›Ä‡" Style="{StaticResource OutlineBtn}"
+                                    <Button Content="✎ Edytuj całość" Style="{StaticResource OutlineBtn}"
                                             HorizontalAlignment="Left" Padding="10,6" Margin="0,0,0,4"
                                             Command="{Binding OpenPasteTextEditorCommand}"/>
                                 </StackPanel>
                             </ScrollViewer>
 
-                            <!-- Zapisz / UsuĹ„ -->
+                            <!-- Zapisz / Usuń -->
                             <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="0,1,0,0" Padding="8,8">
                                 <Grid>
@@ -967,7 +967,7 @@
                             </Border>
                         </Grid>
 
-                        <!-- Row 0: Kategorie (left) + PieĹ›ni (right) -->
+                        <!-- Row 0: Kategorie (left) + Pieśni (right) -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
@@ -1092,7 +1092,7 @@
                                                         <Button.Template>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border Background="Transparent" Padding="4,2">
-                                                                    <TextBlock Text="âśŽ" FontSize="11">
+                                                                    <TextBlock Text="✎" FontSize="11">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock">
                                                                                 <Setter Property="Foreground" Value="Transparent"/>
@@ -1147,7 +1147,7 @@
                             </Grid>
                         </Grid>
 
-                        <!-- Row 1: PodglÄ…d 16:9 + PrzypiÄ™te -->
+                        <!-- Row 1: PodglÄ…d 16:9 + Przypięte -->
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1173,7 +1173,7 @@
                                 </Viewbox>
                             </Border>
 
-                            <!-- PrzypiÄ™te zestawy -->
+                            <!-- Przypięte zestawy -->
                             <Border Grid.Column="1" Background="#0d1018"
                                     BorderBrush="#2a3347" BorderThickness="1,1,0,1" Padding="6,8">
                                 <DockPanel>
@@ -1251,7 +1251,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Popup wyszukiwania zestawĂłw -->
+                            <!-- Popup wyszukiwania zestawów -->
                             <Popup Grid.Row="0"
                                    IsOpen="{Binding IsSetlistSearchOpen, Mode=TwoWay}"
                                    PlacementTarget="{Binding ElementName=BtnOpenSetlist}"
@@ -1596,7 +1596,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <!-- NagĹ‚Ăłwek -->
+                                    <!-- Nagłówek -->
                                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                             BorderThickness="0,0,0,1" Padding="12,10">
                                         <Grid>
@@ -1655,12 +1655,12 @@
                                                                      Padding="8,6"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,0,0,0">
-                                                            <Button Content="â†‘" Width="28" Height="28" Margin="0,0,0,2"
+                                                            <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
                                                                     Style="{StaticResource SmallIconBtn}"
                                                                     Command="{Binding DataContext.MoveEditableVerseUpCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                     CommandParameter="{Binding}"/>
-                                                            <Button Content="â†“" Width="28" Height="28"
+                                                            <Button Content="↓" Width="28" Height="28"
                                                                     Style="{StaticResource SmallIconBtn}"
                                                                     Command="{Binding DataContext.MoveEditableVerseDownCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -1700,7 +1700,7 @@
             </Grid>
 
             <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
-                <TextBlock Text="â° KATEGORIE â€” wkrĂłtce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
+                <TextBlock Text="â° KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
 
 
@@ -1712,13 +1712,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- LEWA: zakĹ‚adki ustawieĹ„ -->
+                <!-- LEWA: zakładki ustawień -->
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <!-- tab bar -->
                         <RowDefinition Height="*"/>
-                        <!-- treĹ›Ä‡ zakĹ‚adki -->
+                        <!-- treść zakładki -->
                         <RowDefinition Height="Auto"/>
                         <!-- przyciski -->
                     </Grid.RowDefinitions>
@@ -1738,15 +1738,15 @@
                              GroupName="SzablonTabs" x:Name="TabPozycja"/>
                             <RadioButton Content="{DynamicResource Settings.Shortcuts}" Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabSkroty"/>
-                            <!-- TabTlo usuniÄ™ty â€” tĹ‚o scalone z Kolory -->
+                            <!-- TabTlo usunięty — tło scalone z Kolory -->
                             <RadioButton x:Name="TabTlo" Visibility="Collapsed" GroupName="SzablonTabs"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- TreĹ›Ä‡ zakĹ‚adek -->
+                    <!-- Treść zakładek -->
                     <Grid Grid.Row="1">
 
-                        <!-- â”€â”€ GĹĂ“WNE â”€â”€ -->
+                        <!-- â”€â”€ GŁĂ“WNE â”€â”€ -->
                         <StackPanel Margin="20,16,20,0">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -1789,7 +1789,7 @@
                             </ScrollViewer.Style>
                             <StackPanel>
 
-                                <!-- Rozmiar staĹ‚y -->
+                                <!-- Rozmiar stały -->
                                 <TextBlock Text="{Binding FontSizeLabel}" Foreground="#959fb9" FontSize="16"
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
@@ -1832,7 +1832,7 @@
                                     </ComboBox.Text>
                                 </ComboBox>
 
-                                <!-- Styl + wyrĂłwnanie -->
+                                <!-- Styl + wyrównanie -->
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -1874,7 +1874,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- OdstÄ™p linii -->
+                                <!-- Odstęp linii -->
                                 <TextBlock Text="{DynamicResource Settings.LineSpacing}" Foreground="#959fb9" FontSize="16"
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
@@ -1987,7 +1987,7 @@
                            </StackPanel>
                         </ScrollViewer>
 
-                        <!-- â”€â”€ KOLORY + TĹO â”€â”€ -->
+                        <!-- â”€â”€ KOLORY + TŁO â”€â”€ -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
                                       Padding="20,16,20,0">
                             <ScrollViewer.Style>
@@ -2037,7 +2037,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                                <TextBlock Text="WĹ‚asny:" Foreground="#959fb9" FontSize="16"
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
                                         ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickTextColorCommand}">
@@ -2053,7 +2053,7 @@
                              FontFamily="Consolas" FontSize="13"/>
                             </StackPanel>
 
-                            <!-- CieĹ„ -->
+                            <!-- Cień -->
                             <TextBlock Text="{DynamicResource Settings.Shadow}" Foreground="#959fb9" FontSize="16"
                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
@@ -2121,7 +2121,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                                <TextBlock Text="WĹ‚asny:" Foreground="#959fb9" FontSize="16"
+                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
                                         ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickBgColorCommand}">
@@ -2253,7 +2253,7 @@
                                             </Button.Style>
                                         </Button>
                                     </StackPanel>
-                                    <!-- KÄ…t â€” tylko dla liniowego -->
+                                    <!-- KÄ…t — tylko dla liniowego -->
                                     <StackPanel Visibility="{Binding IsLinearGradient, Converter={StaticResource BoolToVis}}">
                                         <TextBlock Text="{DynamicResource Settings.GradientAngle}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                         <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="360"
@@ -2294,7 +2294,7 @@
                                 </Border>
                                 <Button Grid.Column="2" Content="{DynamicResource Btn.Browse}" Style="{StaticResource GoldBtn}"
                             Padding="12,8" Command="{Binding BrowseBackgroundCommand}"/>
-                                <Button Grid.Column="4" Content="âś•" Style="{StaticResource RedBtn}"
+                                <Button Grid.Column="4" Content="✕" Style="{StaticResource RedBtn}"
                             Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
                             </Grid>
                             <StackPanel Visibility="{Binding BackgroundImagePath, Converter={StaticResource BoolToVis}}">
@@ -2326,7 +2326,7 @@
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,12"/>
 
-                                <!-- NagĹ‚Ăłwek kolumn -->
+                                <!-- Nagłówek kolumn -->
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90"/>
@@ -2347,7 +2347,7 @@
                                                ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
                                 </Grid>
 
-                                <!-- Lista tagĂłw -->
+                                <!-- Lista tagów -->
                                 <ItemsControl ItemsSource="{Binding TextTags}" Margin="0,0,0,10">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -2370,7 +2370,7 @@
                                                          Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
                                                          FontFamily="Consolas" FontSize="14" Padding="6,4"/>
-                                                <!-- Kolor â€” swatch -->
+                                                <!-- Kolor — swatch -->
                                                 <Button Grid.Column="2" Width="36" Height="34" Cursor="Hand"
                                                         ToolTip="{DynamicResource Btn.PickColor}"
                                                         Command="{Binding DataContext.PickTagColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -2402,7 +2402,7 @@
                                                 <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
                                                           VerticalAlignment="Center" HorizontalAlignment="Center"
                                                           Foreground="#e8eaf0"/>
-                                                <!-- SkrĂłt klawiszowy -->
+                                                <!-- Skrót klawiszowy -->
                                                 <TextBox Grid.Column="8"
                                                          Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
@@ -2410,8 +2410,8 @@
                                                          TextAlignment="Center"
                                                          ToolTip="{DynamicResource Settings.TagShortcutInput}"
                                                          helpers:KeyCaptureHelper.IsEnabled="True"/>
-                                                <!-- UsuĹ„ -->
-                                                <Button Grid.Column="10" Content="âś•" Width="30" Height="30"
+                                                <!-- Usuń -->
+                                                <Button Grid.Column="10" Content="✕" Width="30" Height="30"
                                                         Style="{StaticResource RedBtn}"
                                                         Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"
@@ -2427,7 +2427,7 @@
                                         Height="36" Padding="16,0" HorizontalAlignment="Left"
                                         FontSize="14" Margin="0,0,0,20"/>
 
-                                <!-- PodpowiedĹş skĹ‚adni -->
+                                <!-- PodpowiedĹş składni -->
                                 <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                                         Padding="12,10" Margin="0,0,0,8">
                                     <StackPanel>
@@ -2497,7 +2497,7 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <!-- JÄ™zyk -->
+                            <!-- Język -->
                             <TextBlock Text="{DynamicResource Settings.Language}"
                                        Foreground="#959fb9" FontSize="16"
                                        FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
@@ -2574,7 +2574,7 @@
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
 
-                            <!-- ZakĹ‚adki -->
+                            <!-- Zakładki -->
                             <TextBlock Text="{DynamicResource Shortcuts.Tabs}" Foreground="#959fb9" FontSize="13"
                                        Margin="0,16,0,10" FontFamily="{StaticResource BodyFont}"/>
                             <Grid Margin="0,0,0,12">
@@ -2696,7 +2696,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
                         <StackPanel Margin="28,28,28,28">
 
-                            <!-- NagĹ‚Ăłwek -->
+                            <!-- Nagłówek -->
                             <TextBlock Text="{DynamicResource Import.Title}"
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="18" FontWeight="Regular"
@@ -2738,7 +2738,7 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Plik ĹşrĂłdĹ‚owy -->
+                            <!-- Plik Ĺşródłowy -->
                             <TextBlock Text="{DynamicResource Import.Source}"
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="20" FontWeight="Light"
@@ -2819,7 +2819,7 @@
                                 </StackPanel>
                             </Border>
                             
-                            <!-- Sekcja importu zestawĂłw .osz â€” wkleiÄ‡ do PaneImport.xaml -->
+                            <!-- Sekcja importu zestawów .osz — wkleić do PaneImport.xaml -->
                             <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
                                     Padding="10" Margin="0,0,0,16">
                                 <StackPanel>
@@ -2887,7 +2887,7 @@
                                 </Button.Style>
                             </Button>
 
-                            <!-- Pasek postÄ™pu -->
+                            <!-- Pasek postępu -->
                             <Border Margin="0,16,0,0"
                         Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
@@ -2922,7 +2922,7 @@
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="20" FontWeight="Light"
                            Foreground="#c9a84c" Margin="0,0,16,0"/>
-                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisĂłw)'}"
+                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
                            Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
