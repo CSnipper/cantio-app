@@ -1191,7 +1191,7 @@
                                                             Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                 RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
-                                                            Style="{StaticResource PinBtn}"/>
+                                                            Style="{StaticResource OutlineBtn}"/>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
