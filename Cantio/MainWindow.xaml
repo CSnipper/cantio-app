@@ -836,6 +836,139 @@
                             <RowDefinition Height="Auto"/>   <!-- Row 1: Podgląd 16:9 -->
                         </Grid.RowDefinitions>
 
+                        <!-- Song Edit Mode overlay — covers entire Col 1 -->
+                        <Grid Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
+                              Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Nagłówek: Wróć -->
+                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,0,0,1" Padding="8,6">
+                                <Button Content="← Wróć" Style="{StaticResource GoldBtn}"
+                                        HorizontalAlignment="Left" Padding="12,6"
+                                        Command="{Binding BackFromEditCommand}"/>
+                            </Border>
+
+                            <!-- Metadane pieśni -->
+                            <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,0,1" Padding="10,8">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- Tytuł -->
+                                    <TextBox Grid.Row="0" Style="{StaticResource DarkTextBox}"
+                                             Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="16" Height="36" Margin="0,0,0,6"
+                                             Tag="TYTUŁ"/>
+                                    <!-- Nr + Kategoria -->
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Style="{StaticResource DarkTextBox}"
+                                                 Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14" Height="34" Margin="0,0,6,0"
+                                                 Tag="NR"/>
+                                        <ComboBox Grid.Column="1" Style="{StaticResource DarkCombo}"
+                                                  ItemsSource="{Binding Categories}"
+                                                  SelectedItem="{Binding EditCategory}"
+                                                  DisplayMemberPath="Name"
+                                                  FontSize="14" Height="34"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Lista zwrotek -->
+                            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="8,4">
+                                    <!-- Zwrotki -->
+                                    <ItemsControl ItemsSource="{Binding EditingVerses}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding Label}"
+                                                                   FontSize="11" Foreground="#c9a84c"
+                                                                   Margin="0,0,0,2" FontWeight="SemiBold"/>
+                                                        <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource DarkTextBox}"
+                                                                 AcceptsReturn="True" TextWrapping="Wrap"
+                                                                 MinHeight="50" FontSize="13" Padding="6,5"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
+                                                        <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Command="{Binding DataContext.MoveEditorVerseUpCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <Button Content="↓" Width="28" Height="28" Margin="0,0,0,2"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Command="{Binding DataContext.MoveEditorVerseDownCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <Button Content="✕" Width="28" Height="28"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Foreground="#d44a4a"
+                                                                Command="{Binding DataContext.RemoveVerseFromEditorCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Dodaj zwrotkę + Edytuj całość -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
+                                        <Button Content="+ Zwrotka" Style="{StaticResource OutlineBtn}"
+                                                Margin="0,0,4,0" Padding="8,5"
+                                                Command="{Binding AddVerseToEditorCommand}"
+                                                CommandParameter="v"/>
+                                        <Button Content="+ Refren" Style="{StaticResource OutlineBtn}"
+                                                Margin="0,0,4,0" Padding="8,5"
+                                                Command="{Binding AddVerseToEditorCommand}"
+                                                CommandParameter="c"/>
+                                        <Button Content="+ Bridge" Style="{StaticResource OutlineBtn}"
+                                                Padding="8,5"
+                                                Command="{Binding AddVerseToEditorCommand}"
+                                                CommandParameter="b"/>
+                                    </StackPanel>
+                                    <Button Content="✎ Edytuj całość" Style="{StaticResource OutlineBtn}"
+                                            HorizontalAlignment="Left" Padding="10,6" Margin="0,0,0,4"
+                                            Command="{Binding OpenPasteTextEditorCommand}"/>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <!-- Zapisz / Usuń -->
+                            <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,1,0,0" Padding="8,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSong}"
+                                            Style="{StaticResource GoldBtn}" Margin="0,0,8,0"
+                                            Command="{Binding SaveEditedSongCommand}"/>
+                                    <Button Grid.Column="1" Content="{DynamicResource Btn.Delete}"
+                                            Style="{StaticResource RedBtn}" Padding="12,0"
+                                            Command="{Binding DeleteEditedSongCommand}"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
                         <!-- Row 0: Kategorie (left) + Pieśni (right) -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
@@ -885,6 +1018,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
                                                    FontFamily="{StaticResource HeaderFont}"
@@ -892,6 +1026,9 @@
                                         <TextBlock Grid.Column="1" Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8"
                                                    FontSize="14" Margin="10,7" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
+                                        <Button Grid.Column="2" Content="{DynamicResource Btn.NewSong}"
+                                                Style="{StaticResource GoldBtn}"
+                                                Padding="8,4" Command="{Binding NewSongCommand}"/>
                                     </Grid>
                                 </Border>
                                 <Border Grid.Row="1" Background="#161b25">
@@ -938,6 +1075,7 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="36"/>
                                                         <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="32"/>
                                                         <ColumnDefinition Width="38"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0"
@@ -948,7 +1086,33 @@
                                                     <TextBlock Grid.Column="1" Text="{Binding Title}"
                                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                                                                Margin="0,12,0,12" TextWrapping="Wrap" FontSize="18"/>
-                                                    <Button Grid.Column="2" Content="+"
+                                                    <Button Grid.Column="2"
+                                                            Command="{Binding DataContext.EditSongCommand,
+                                                                RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}"
+                                                            VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent" Padding="4,2">
+                                                                    <TextBlock Text="✎" FontSize="11">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Foreground" Value="Transparent"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsMouseOver,
+                                                                                        RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                                                        Value="True">
+                                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    <Button Grid.Column="3" Content="+"
                                                             Width="40" Height="40"
                                                             Background="#343f58" BorderBrush="#2a3347"
                                                             BorderThickness="0" Foreground="#959fb9"
