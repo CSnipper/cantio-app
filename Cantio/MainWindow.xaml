@@ -827,7 +827,7 @@
                         </Border>
                     </Grid>
 
-                    <!-- Col 1: ĹšRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
+                    <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
                     <Grid Grid.Column="1" Background="#0f1117">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
@@ -856,13 +856,13 @@
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,0,1" Padding="10,8">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <!-- Tytuł -->
                                     <TextBox Grid.Row="0" Style="{StaticResource DarkTextBox}"
                                              Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
-                                             FontSize="16" Height="36" Margin="0,0,0,6"
+                                             FontSize="16" Height="36" Margin="0,0,0,6" Padding="4"
                                              Tag="TYTUŁ"/>
                                     <!-- Nr + Kategoria -->
                                     <Grid Grid.Row="1">
@@ -872,13 +872,18 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBox Grid.Column="0" Style="{StaticResource DarkTextBox}"
                                                  Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
-                                                 FontSize="14" Height="34" Margin="0,0,6,0"
+                                                 FontSize="14" Height="34" Margin="0,0,6,0" Padding="4"
                                                  Tag="NR"/>
                                         <ComboBox Grid.Column="1" Style="{StaticResource DarkCombo}"
                                                   ItemsSource="{Binding Categories}"
                                                   SelectedItem="{Binding EditCategory}"
-                                                  DisplayMemberPath="Name"
-                                                  FontSize="14" Height="34"/>
+                                                  FontSize="14" Height="34">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}"/>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                     </Grid>
                                 </Grid>
                             </Border>
@@ -898,20 +903,20 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0">
                                                         <TextBlock Text="{Binding Label}"
-                                                                   FontSize="11" Foreground="#c9a84c"
+                                                                   FontSize="16" Foreground="#c9a84c"
                                                                    Margin="0,0,0,2" FontWeight="SemiBold"/>
                                                         <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
                                                                  Style="{StaticResource DarkTextBox}"
                                                                  AcceptsReturn="True" TextWrapping="Wrap"
-                                                                 MinHeight="50" FontSize="13" Padding="6,5"/>
+                                                                 MinHeight="50" FontSize="18" Padding="6,5"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
-                                                        <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="🔼" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseUpCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Content="↓" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="🔽" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseDownCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
