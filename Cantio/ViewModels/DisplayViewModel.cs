@@ -365,6 +365,198 @@ public partial class DisplayViewModel : ObservableObject
     // Delegates to LoadCategoriesAsync (no logic duplication)
     private async Task ReloadCategoriesForEditorAsync() => await LoadCategoriesAsync();
 
+    [RelayCommand]
+    private void NewSong()
+    {
+        _editingSong = new Song { Id = 0 };
+        EditTitle = string.Empty;
+        EditNumber = string.Empty;
+        EditCategory = Categories.FirstOrDefault();
+        EditingVerses.Clear();
+        AddVerseToEditor("v");
+        IsEditDirty = false;
+        IsEditMode = true;
+    }
+
+    [RelayCommand]
+    private async Task EditSongAsync(Song song)
+    {
+        _editingSong = song;
+        EditTitle = song.Title;
+        EditNumber = song.Number > 0 ? song.Number.ToString() : string.Empty;
+        EditCategory = Categories.FirstOrDefault(c => c.Id == song.CategoryId);
+        EditingVerses.Clear();
+        var full = await _db.GetSongWithVersesAsync(song.Id);
+        if (full != null)
+        {
+            var items = full.Verses.OrderBy(v => v.Position).ToList();
+            var counters = new Dictionary<string, int>();
+            foreach (var v in items)
+            {
+                counters[v.Type] = counters.GetValueOrDefault(v.Type) + 1;
+                EditingVerses.Add(new VerseEditorItem { Type = v.Type, Text = v.Text, Number = counters[v.Type] });
+            }
+        }
+        IsEditDirty = false;
+        IsEditMode = true;
+    }
+
+    [RelayCommand]
+    private void BackFromEdit()
+    {
+        if (IsEditDirty && !Confirm("Masz niezapisane zmiany. Wyjść bez zapisywania?"))
+            return;
+        IsEditMode = false;
+        IsEditDirty = false;
+        _editingSong = null;
+    }
+
+    [RelayCommand]
+    private async Task SaveEditedSongAsync()
+    {
+        if (_editingSong == null) return;
+        _editingSong.Title = EditTitle.Trim();
+        _editingSong.Number = int.TryParse(EditNumber, out var n) ? n : 0;
+        _editingSong.CategoryId = EditCategory?.Id ?? 0;
+        int pos = 0;
+        _editingSong.Verses = EditingVerses.Select(v => new Verse
+        {
+            Type = v.Type,
+            Text = v.Text,
+            Position = pos++,
+            SongId = _editingSong.Id
+        }).ToList();
+        await _db.SaveSongAsync(_editingSong);
+        await LoadCategoriesAsync();
+        if (SelectedCategory != null)
+            await LoadSongsAsync(SelectedCategory.Id);
+        IsEditMode = false;
+        IsEditDirty = false;
+        _editingSong = null;
+    }
+
+    [RelayCommand]
+    private async Task DeleteEditedSongAsync()
+    {
+        if (_editingSong == null) return;
+        if (!Confirm($"Usunąć pieśń \"{_editingSong.Title}\"?")) return;
+        await _db.DeleteSongAsync(_editingSong.Id);
+        if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
+        IsEditMode = false;
+        _editingSong = null;
+    }
+
+    [RelayCommand]
+    private void AddVerseToEditor(string type)
+    {
+        int number = EditingVerses.Count(v => v.Type == type) + 1;
+        EditingVerses.Add(new VerseEditorItem { Type = type, Number = number });
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void RemoveVerseFromEditor(VerseEditorItem verse)
+    {
+        if (!string.IsNullOrWhiteSpace(verse.Text) && !Confirm("Usunąć tę zwrotkę?"))
+            return;
+        EditingVerses.Remove(verse);
+        RenumberEditorVerses();
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void MoveEditorVerseUp(VerseEditorItem verse)
+    {
+        var idx = EditingVerses.IndexOf(verse);
+        if (idx <= 0) return;
+        EditingVerses.Move(idx, idx - 1);
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void MoveEditorVerseDown(VerseEditorItem verse)
+    {
+        var idx = EditingVerses.IndexOf(verse);
+        if (idx < 0 || idx >= EditingVerses.Count - 1) return;
+        EditingVerses.Move(idx, idx + 1);
+        IsEditDirty = true;
+    }
+
+    private void RenumberEditorVerses()
+    {
+        var counters = new Dictionary<string, int>();
+        foreach (var v in EditingVerses)
+        {
+            counters[v.Type] = counters.GetValueOrDefault(v.Type) + 1;
+            v.Number = counters[v.Type];
+        }
+    }
+
+    [RelayCommand]
+    private void OpenPasteTextEditor()
+    {
+        var currentText = string.Join("\n\n", EditingVerses.Select(v => v.Text));
+        var dlg = new PasteTextWindow(currentText) { Owner = Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.ResultText))
+            ParseAndApplyText(dlg.ResultText);
+    }
+
+    private void ParseAndApplyText(string rawText)
+    {
+        var blocks = rawText.Split(["\n\n", "\r\n\r\n"], StringSplitOptions.RemoveEmptyEntries)
+                            .Select(b => b.Trim())
+                            .Where(b => !string.IsNullOrEmpty(b))
+                            .ToList();
+        EditingVerses.Clear();
+
+        // Detect chorus and determine its index
+        int chorusBlockIndex = -1;
+        var parsed = blocks.Select((block, i) =>
+        {
+            bool isChorus = block.StartsWith("Refren:", StringComparison.OrdinalIgnoreCase);
+            if (isChorus && chorusBlockIndex < 0) chorusBlockIndex = i;
+            var text = isChorus ? block["Refren:".Length..].TrimStart('\n', '\r', ' ') : block;
+            return (type: isChorus ? "c" : "v", text);
+        }).ToList();
+
+        // Add all verses to EditingVerses
+        var counters = new Dictionary<string, int>();
+        var verseItems = new List<VerseEditorItem>();
+        foreach (var (type, text) in parsed)
+        {
+            counters[type] = counters.GetValueOrDefault(type) + 1;
+            verseItems.Add(new VerseEditorItem { Type = type, Text = text, Number = counters[type] });
+        }
+        foreach (var item in verseItems) EditingVerses.Add(item);
+
+        // Build play order with auto-inserted chorus
+        if (chorusBlockIndex >= 0)
+        {
+            var chorusItem = verseItems[chorusBlockIndex];
+            var playOrder = new List<VerseEditorItem>();
+
+            // If chorus is first: [R, Z1, R, Z2, R, ...]
+            if (chorusBlockIndex == 0)
+                playOrder.Add(chorusItem);
+
+            // For each non-chorus verse, add it followed by chorus
+            foreach (var item in verseItems)
+            {
+                if (item == chorusItem) continue;
+                playOrder.Add(item);
+                playOrder.Add(chorusItem);
+            }
+
+            if (_editingSong != null)
+            {
+                var indices = playOrder.Select(p => verseItems.IndexOf(p)).ToList();
+                _editingSong.PlayOrderJson = System.Text.Json.JsonSerializer.Serialize(indices);
+            }
+        }
+
+        IsEditDirty = true;
+    }
+
     // ── Projekcja ─────────────────────────────────────────────────────────
 
     [ObservableProperty] private bool _screenBlanked = true;
