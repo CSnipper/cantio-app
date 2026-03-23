@@ -444,7 +444,7 @@
             <Setter Property="BorderBrush" Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="14,7"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -638,9 +638,9 @@
 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="380"/>
+                        <ColumnDefinition Width="400"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="380"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Col 0: ZWROTKI (slides list, full height) -->
@@ -648,6 +648,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <!-- Nagłówek: ZWROTKI + tytuł pieśni -->
@@ -697,7 +698,7 @@
                                         </Border>
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding Text, Converter={StaticResource StripTags}}"
-                                                   FontSize="18" LineHeight="24"
+                                                   FontSize="20" LineHeight="24"
                                                    TextWrapping="Wrap"
                                                    VerticalAlignment="Center"
                                                    Margin="14,12,12,12"/>
@@ -705,6 +706,104 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
+                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAŻ | ◀ | ▶ -->
+                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="0,0,5,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Tytuł pieśni + licznik slajdów / POKAŻ-WYGAŚ button -->
+                                <Grid Grid.Column="1" Margin="0,8">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- LIVE badge — dimmed when screen is blanked -->
+                                    <Border Grid.Column="0" Margin="0,0,0,5" Padding="15,5"
+                                            Background="#d44a4a22" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Opacity" Value="1"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                        <Setter Property="Opacity" Value="0.25"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="7" Height="7" Fill="#d44a4a" Margin="0,0,5,0"
+                                                    VerticalAlignment="Center"/>
+                                            <TextBlock Text="LIVE" FontSize="30" FontWeight="Bold"
+                                                    Foreground="#d44a4a"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <!-- POKAŻ / WYGAŚ -->
+                                    <Button Grid.Row="1" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="#252d3d"/>
+                                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                <Setter Property="BorderThickness" Value="0"/>
+                                                <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                                <Setter Property="FontSize" Value="30"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#2a3347"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                            <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Button>
+                                </Grid>
+
+                                <!-- ◀ Poprzedni slajd -->
+                                <Button Grid.Column="3" Content="◀"
+                                        Style="{StaticResource NavBtn}"
+                                        FontSize="40" Width="108" Height="108"
+                                        Command="{Binding PrevSlideCommand}"/>
+
+                                <!-- ▶ Następny slajd -->
+                                <Button Grid.Column="5" Content="▶"
+                                        Style="{StaticResource NavBtn}"
+                                        FontSize="40" Width="108" Height="108"
+                                        Command="{Binding NextSlideCommand}"/>
+                            </Grid>
+                        </Border>
                     </Grid>
 
                     <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podgląd middle, kontrolki bottom) -->
@@ -712,14 +811,13 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
                             <RowDefinition Height="Auto"/>   <!-- Row 1: Podgląd 16:9 -->
-                            <RowDefinition Height="Auto"/>   <!-- Row 2: Pasek kontrolny -->
                         </Grid.RowDefinitions>
 
                         <!-- Row 0: Kategorie (left) + Pieśni (right) -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="160"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- KATEGORIE -->
@@ -882,118 +980,6 @@
                                                                RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
                             </Viewbox>
                         </Border>
-
-                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAŻ | ◀ | ▶ -->
-                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- LIVE badge — dimmed when screen is blanked -->
-                                <Border Grid.Column="0" Margin="10,8" Padding="8,5"
-                                        Background="#d44a4a22" BorderBrush="#d44a4a55" BorderThickness="1"
-                                        CornerRadius="3" VerticalAlignment="Center">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Opacity" Value="1"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                    <Setter Property="Opacity" Value="0.25"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="7" Height="7" Fill="#d44a4a" Margin="0,0,5,0"
-                                                 VerticalAlignment="Center"/>
-                                        <TextBlock Text="LIVE" FontSize="10" FontWeight="Bold"
-                                                   Foreground="#d44a4a"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Tytuł pieśni + licznik slajdów / POKAŻ-WYGAŚ button -->
-                                <Grid Grid.Column="1" Margin="0,8">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- Tytuł + SlideInfo -->
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
-                                        <TextBlock Text="{Binding SelectedSong.Title}"
-                                                   Foreground="#e8eaf0" FontSize="12" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="240"/>
-                                        <TextBlock Text="{Binding SlideInfo}"
-                                                   Foreground="#c9a84c" FontSize="12" FontWeight="Bold"
-                                                   Margin="8,0,0,0"/>
-                                    </StackPanel>
-
-                                    <!-- POKAŻ / WYGAŚ -->
-                                    <Button Grid.Row="1" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Background" Value="#252d3d"/>
-                                                <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                <Setter Property="BorderThickness" Value="0"/>
-                                                <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-                                                <Setter Property="FontSize" Value="30"/>
-                                                <Setter Property="FontWeight" Value="Bold"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="{TemplateBinding Background}">
-                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#2a3347"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
-                                                        <Setter Property="Foreground" Value="#c9a84c"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <TextBlock VerticalAlignment="Center" TextAlignment="Center">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                            <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Button>
-                                </Grid>
-
-                                <!-- ◀ Poprzedni slajd -->
-                                <Button Grid.Column="2" Content="◀"
-                                        Style="{StaticResource NavBtn}"
-                                        FontSize="40" Width="108" Height="108"
-                                        Command="{Binding PrevSlideCommand}"/>
-
-                                <!-- ▶ Następny slajd -->
-                                <Button Grid.Column="3" Content="▶"
-                                        Style="{StaticResource NavBtn}"
-                                        FontSize="40" Width="108" Height="108"
-                                        Command="{Binding NextSlideCommand}"/>
-                            </Grid>
-                        </Border>
-
                     </Grid>
 
                     <!-- Col 2: ZESTAW -->
@@ -1327,9 +1313,10 @@
                                                   ItemsSource="{Binding SetlistGroups}"
                                                   Text="{Binding SetlistGroup, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="True"
+                                                  Foreground="#e8eaf0"
                                                   FontSize="16" Height="34"/>
                                         <TextBlock Text="{DynamicResource Placeholder.SetlistGroup}"
-                                                   Foreground="#555d70" FontSize="16"
+                                                   Foreground="#ffffff" FontSize="16"
                                                    Padding="7,3" IsHitTestVisible="False" VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -1384,7 +1371,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Section.Pinned}"
                                                FontFamily="{StaticResource HeaderFont}"
-                                               FontSize="9" Foreground="#3a4a65"
+                                               FontSize="16" Foreground="#FFFFFF"
                                                Margin="0,0,0,5"/>
                                     <ItemsControl ItemsSource="{Binding PinnedSetlists}">
                                         <ItemsControl.ItemsPanel>
