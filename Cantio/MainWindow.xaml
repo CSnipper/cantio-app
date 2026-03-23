@@ -962,24 +962,58 @@
                             </Grid>
                         </Grid>
 
-                        <!-- Row 1: Podgląd 16:9 -->
-                        <Border Grid.Row="1"
-                                Background="{Binding Projection.BackgroundBrush}"
-                                BorderBrush="#2a3347" BorderThickness="0,1,0,1"
-                                ClipToBounds="True"
-                                Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
-                                         Converter={StaticResource WidthToHeight}}">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
-                            </Border.Effect>
-                            <Viewbox Stretch="Uniform">
-                                <views:ProjectionView DataContext="{Binding Projection}"
-                                                      Width="{Binding DataContext.ProjectionScreenWidth,
-                                                              RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"
-                                                      Height="{Binding DataContext.ProjectionScreenHeight,
-                                                               RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
-                            </Viewbox>
-                        </Border>
+                        <!-- Row 1: Podgląd 16:9 + Przypięte -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="160" MinWidth="120" MaxWidth="200"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Podgląd 16:9 -->
+                            <Border Grid.Column="0"
+                                    Background="{Binding Projection.BackgroundBrush}"
+                                    BorderBrush="#2a3347" BorderThickness="0,1,0,1"
+                                    ClipToBounds="True"
+                                    Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
+                                             Converter={StaticResource WidthToHeight}}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
+                                </Border.Effect>
+                                <Viewbox Stretch="Uniform">
+                                    <views:ProjectionView DataContext="{Binding Projection}"
+                                                          Width="{Binding DataContext.ProjectionScreenWidth,
+                                                                  RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"
+                                                          Height="{Binding DataContext.ProjectionScreenHeight,
+                                                                   RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
+                                </Viewbox>
+                            </Border>
+
+                            <!-- Przypięte zestawy -->
+                            <Border Grid.Column="1" Background="#0d1018"
+                                    BorderBrush="#2a3347" BorderThickness="1,1,0,1" Padding="6,8">
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Top"
+                                               Text="{DynamicResource Section.Pinned}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="10" Foreground="#c9a84c" Margin="0,0,0,6"/>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsControl ItemsSource="{Binding PinnedSetlists}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="{Binding Name}"
+                                                            Margin="0,0,0,4"
+                                                            Command="{Binding DataContext.LoadPinnedSetlistCommand,
+                                                                RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource PinBtn}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
                     </Grid>
 
                     <!-- Col 2: ZESTAW -->
@@ -987,7 +1021,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
@@ -1366,35 +1399,8 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Przypięte zestawy — ostatni wiersz -->
-                            <Border Grid.Row="4" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="8">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Section.Pinned}"
-                                               FontFamily="{StaticResource HeaderFont}"
-                                               FontSize="16" Foreground="#FFFFFF"
-                                               Margin="0,0,0,5"/>
-                                    <ItemsControl ItemsSource="{Binding PinnedSetlists}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <UniformGrid Columns="2"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <ToggleButton Content="{Binding Name}"
-                                                              Style="{StaticResource PinBtn}"
-                                                              Margin="0,0,4,4"
-                                                              Command="{Binding DataContext.LoadPinnedSetlistCommand,
-                                                                  RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              CommandParameter="{Binding}"/>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
-
                             <!-- Panel edycji zwrotek -->
-                            <Grid Grid.Row="0" Grid.RowSpan="5" Panel.ZIndex="10"
+                            <Grid Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="10"
                                   Background="#1e2535"
                                   Visibility="{Binding IsInlineEditorOpen, Converter={StaticResource BoolToVis}}">
 
