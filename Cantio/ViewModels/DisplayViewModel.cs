@@ -19,6 +19,10 @@ public partial class DisplayViewModel : ObservableObject
 
     public ProjectionViewModel Projection => _projection;
 
+    // Dialog confirmation — set from code-behind to avoid MessageBox in VM
+    public Func<string, bool>? ConfirmRequested { get; set; }
+    private bool Confirm(string message) => ConfirmRequested?.Invoke(message) ?? false;
+
     public DisplayViewModel(DatabaseService db, ProjectionViewModel projection, ShortcutService shortcuts)
     {
         _db = db;
@@ -283,6 +287,84 @@ public partial class DisplayViewModel : ObservableObject
         EditableVerses = [];
     }
 
+    // ── Tryb edycji pieśni ────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNormalMode))]
+    private bool _isEditMode = false;
+
+    public bool IsNormalMode => !IsEditMode;
+
+    [ObservableProperty] private bool _isEditDirty = false;
+
+    // Edytowana pieśń
+    private Song? _editingSong;
+    [ObservableProperty] private string _editTitle = string.Empty;
+    [ObservableProperty] private string _editNumber = string.Empty;
+    [ObservableProperty] private Category? _editCategory;
+    [ObservableProperty] private ObservableCollection<VerseEditorItem> _editingVerses = [];
+
+    partial void OnEditTitleChanged(string v) => IsEditDirty = true;
+    partial void OnEditNumberChanged(string v) => IsEditDirty = true;
+    partial void OnEditCategoryChanged(Category? v) => IsEditDirty = true;
+
+    // Kategorie z inline edit (shared z song edit mode i display)
+    [ObservableProperty] private ObservableCollection<CategoryEditorItem> _categoryItems = [];
+    [ObservableProperty] private string _newCategoryName = string.Empty;
+
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        var name = NewCategoryName.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+        var cat = new Category
+        {
+            Name = name,
+            Number = Categories.Count > 0 ? Categories.Max(c => c.Number) + 1 : 1
+        };
+        await _db.SaveCategoryAsync(cat);
+        NewCategoryName = string.Empty;
+        await ReloadCategoriesForEditorAsync();
+    }
+
+    [RelayCommand]
+    private void StartEditCategory(CategoryEditorItem item)
+    {
+        foreach (var c in CategoryItems) if (c != item) c.IsEditing = false;
+        item.IsEditing = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveCategoryAsync(CategoryEditorItem item)
+    {
+        var name = item.EditName.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+        await _db.SaveCategoryAsync(new Category
+        {
+            Id = item.Id,
+            Name = name,
+            Number = item.EditNumber > 0 ? item.EditNumber : item.Number
+        });
+        item.Name = name;
+        item.Number = item.EditNumber > 0 ? item.EditNumber : item.Number;
+        item.IsEditing = false;
+        await ReloadCategoriesForEditorAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteCategoryAsync(CategoryEditorItem item)
+    {
+        if (!Confirm($"Usunąć kategorię \"{item.Name}\"?\nPieśni pozostaną bez kategorii.")) return;
+        await _db.DeleteCategoryAsync(item.Id);
+        await ReloadCategoriesForEditorAsync();
+    }
+
+    [RelayCommand]
+    private void CancelEditCategory(CategoryEditorItem item) => item.IsEditing = false;
+
+    // Delegates to LoadCategoriesAsync (no logic duplication)
+    private async Task ReloadCategoriesForEditorAsync() => await LoadCategoriesAsync();
+
     // ── Projekcja ─────────────────────────────────────────────────────────
 
     [ObservableProperty] private bool _screenBlanked = true;
@@ -494,6 +576,8 @@ public partial class DisplayViewModel : ObservableObject
     {
         var list = await _db.GetCategoriesAsync();
         Categories = new ObservableCollection<Category>(list);
+        CategoryItems = new ObservableCollection<CategoryEditorItem>(
+            list.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
         await LoadPinnedSetlistsAsync();
     }
 

@@ -113,6 +113,9 @@ public partial class MainWindow : Window
         _shortcutService = new ShortcutService();
 
         _vm = new DisplayViewModel(db, new ProjectionViewModel(), _shortcutService);
+        _vm.ConfirmRequested = msg =>
+            MessageBox.Show(msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
+            == MessageBoxResult.Yes;
         DataContext = _vm;
 
         _importVm = new ImportViewModel(db);
