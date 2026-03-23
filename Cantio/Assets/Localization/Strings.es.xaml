@@ -4,8 +4,6 @@
 
     <!-- Pestañas de navegación -->
     <sys:String x:Key="Tab.Show">PRESENTACIÓN</sys:String>
-    <sys:String x:Key="Tab.Songs">EDICIÓN</sys:String>
-    <sys:String x:Key="Tab.Sets">LISTAS</sys:String>
     <sys:String x:Key="Tab.Settings">AJUSTES</sys:String>
     <sys:String x:Key="Tab.Import">IMPORTAR</sys:String>
 
@@ -163,8 +161,6 @@
     <sys:String x:Key="Shortcuts.Blank">Mostrar / Oscurecer pantalla</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Cambio de pestañas</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Presentación</sys:String>
-    <sys:String x:Key="Shortcuts.TabSongs">Tab: Canciones</sys:String>
-    <sys:String x:Key="Shortcuts.TabSets">Tab: Listas</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ajustes</sys:String>
     <sys:String x:Key="Shortcuts.TabImport">Tab: Importar</sys:String>
     <sys:String x:Key="Shortcuts.Search">Búsqueda</sys:String>

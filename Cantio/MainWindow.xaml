@@ -1,4 +1,4 @@
-<Window x:Class="Cantio.MainWindow"
+﻿<Window x:Class="Cantio.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helpers="clr-namespace:Cantio.Helpers"
@@ -21,7 +21,7 @@
         <helpers:WidthToHeightConverter x:Key="WidthToHeight"/>
         <FontFamily x:Key="HeaderFont">/Assets/Fonts/#Grenze</FontFamily>
         
-        <!-- ── Ciemny ComboBox ────────────────────────────────────────────────── -->
+        <!-- â”€â”€ Ciemny ComboBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <ControlTemplate x:Key="DarkComboToggle" TargetType="ToggleButton">
             <Border x:Name="Bd"
                     Background="{TemplateBinding Background}"
@@ -109,7 +109,7 @@
             </Setter>
         </Style>
 
-        <!-- ── Ciemny TextBox ─────────────────────────────────────────────────── -->
+        <!-- â”€â”€ Ciemny TextBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="DarkTextBox" TargetType="TextBox">
             <Setter Property="Background"      Value="#1e2535"/>
             <Setter Property="Foreground"      Value="#e8eaf0"/>
@@ -141,7 +141,7 @@
             </Setter>
         </Style>
 
-        <!-- ── Ciemny Slider ─────────────────────────────────────────────────── -->
+        <!-- â”€â”€ Ciemny Slider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="DarkSlider" TargetType="Slider">
             <Setter Property="Template">
                 <Setter.Value>
@@ -188,7 +188,7 @@
             </Setter>
         </Style>
 
-        <!-- ── Ciemny CheckBox ───────────────────────────────────────────────── -->
+        <!-- â”€â”€ Ciemny CheckBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="DarkCheck" TargetType="CheckBox">
             <Setter Property="Foreground"  Value="#e8eaf0"/>
             <Setter Property="FontSize"    Value="13"/>
@@ -220,7 +220,7 @@
             </Setter>
         </Style>
 
-        <!-- ── Ciemny RadioButton ────────────────────────────────────────────── -->
+        <!-- â”€â”€ Ciemny RadioButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="DarkRadio" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#e8eaf0"/>
             <Setter Property="FontSize"   Value="13"/>
@@ -248,7 +248,7 @@
             </Setter>
         </Style>
 
-        <!-- ── ToggleButton (wyrównanie tekstu) ──────────────────────────────── -->
+        <!-- â”€â”€ ToggleButton (wyrĂłwnanie tekstu) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="AlignBtn" TargetType="ToggleButton">
             <Setter Property="Background"      Value="#1e2535"/>
             <Setter Property="Foreground"      Value="#959fb9"/>
@@ -280,7 +280,7 @@
             </Setter>
         </Style>
 
-        <!-- ── Zakładka ustawień (Czcionka/Kolor/itd.) ───────────────────────── -->
+        <!-- â”€â”€ ZakĹ‚adka ustawieĹ„ (Czcionka/Kolor/itd.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <Style x:Key="SettingsTab" TargetType="RadioButton">
             <Setter Property="Background"  Value="Transparent"/>
             <Setter Property="Foreground"  Value="#959fb9"/>
@@ -314,13 +314,13 @@
 
 
 
-        <!-- ── SCROLLBAR ── -->
+        <!-- â”€â”€ SCROLLBAR â”€â”€ -->
         <Style x:Key="SlimScrollViewer" TargetType="ScrollViewer">
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
         </Style>
 
-        <!-- ── TAB BUTTON ── -->
+        <!-- â”€â”€ TAB BUTTON â”€â”€ -->
         <Style x:Key="TabBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1,0,0,1"/>
@@ -357,7 +357,7 @@
             <Setter Property="BorderThickness" Value="1,0,0,3"/>
         </Style>
 
-        <!-- ── OUTLINE BUTTON ── -->
+        <!-- â”€â”€ OUTLINE BUTTON â”€â”€ -->
         <Style x:Key="OutlineBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -388,7 +388,7 @@
             </Setter>
         </Style>
 
-        <!-- ── RED BUTTON ── -->
+        <!-- â”€â”€ RED BUTTON â”€â”€ -->
         <Style x:Key="RedBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
             <Setter Property="Foreground" Value="#d44a4a"/>
             <Setter Property="Template">
@@ -411,7 +411,7 @@
             </Setter>
         </Style>
 
-        <!-- ── SMALL ICON BUTTON ── -->
+        <!-- â”€â”€ SMALL ICON BUTTON â”€â”€ -->
         <Style x:Key="SmallIconBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#959fb9"/>
@@ -434,7 +434,7 @@
             </Setter>
         </Style>
 
-        <!-- ── GOLD BUTTON ── -->
+        <!-- â”€â”€ GOLD BUTTON â”€â”€ -->
         <Style x:Key="GoldBtn" TargetType="Button">
             <Setter Property="Background" Value="#c9a84c"/>
             <Setter Property="Foreground" Value="#0f1117"/>
@@ -460,7 +460,7 @@
             </Setter>
         </Style>
 
-        <!-- ── PIN BUTTON ── -->
+        <!-- â”€â”€ PIN BUTTON â”€â”€ -->
         <Style x:Key="PinBtn" TargetType="ToggleButton">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -496,7 +496,7 @@
             </Setter>
         </Style>
 
-        <!-- ── NAV BUTTON ── -->
+        <!-- â”€â”€ NAV BUTTON â”€â”€ -->
         <Style x:Key="NavBtn" TargetType="Button">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#e8eaf0"/>
@@ -530,7 +530,7 @@
             </Setter>
         </Style>
 
-        <!-- ── SEARCH BOX ── -->
+        <!-- â”€â”€ SEARCH BOX â”€â”€ -->
         <Style x:Key="SearchBox" TargetType="TextBox">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#e8eaf0"/>
@@ -559,7 +559,7 @@
             </Setter>
         </Style>
 
-        <!-- ── SHARED LIST ITEM ── -->
+        <!-- â”€â”€ SHARED LIST ITEM â”€â”€ -->
         <Style x:Key="DarkListItem" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -611,7 +611,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════ TOP BAR ══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â• TOP BAR â•â•â•â•â•â•â•â•â•â• -->
         <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -630,7 +630,6 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="center">
                     <Button x:Name="TabShow"     Content="{DynamicResource Tab.Show}" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
-                    <Button x:Name="TabSongs"    Content="{DynamicResource Tab.Songs}"       Style="{StaticResource TabBtn}"       Height="56" Click="TabSongs_Click"/>
                     <Button x:Name="TabTemplate" Content="{DynamicResource Tab.Settings}"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
                     <Button x:Name="TabImport"     Content="{DynamicResource Tab.Import}"   Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1"/>
                 </StackPanel>
@@ -652,10 +651,10 @@
             </Grid>
         </Border>
 
-        <!-- ══════════ CONTENT ══════════ -->
+        <!-- â•â•â•â•â•â•â•â•â•â• CONTENT â•â•â•â•â•â•â•â•â•â• -->
         <Grid Grid.Row="1">
 
-            <!-- ── TAB: WYŚWIETLANIE ── -->
+            <!-- â”€â”€ TAB: WYĹšWIETLANIE â”€â”€ -->
             <Grid x:Name="PaneShow" Visibility="Visible">
 
                 <Grid>
@@ -673,7 +672,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Nagłówek: ZWROTKI + tytuł pieśni -->
+                        <!-- NagĹ‚Ăłwek: ZWROTKI + tytuĹ‚ pieĹ›ni -->
                         <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                 BorderThickness="0,0,1,1" Padding="14,11">
                             <Grid>
@@ -692,7 +691,7 @@
                             </Grid>
                         </Border>
 
-                        <!-- Lista slajdów -->
+                        <!-- Lista slajdĂłw -->
                         <ListBox Grid.Row="1"
                                  ItemsSource="{Binding SlideList}"
                                  SelectedIndex="{Binding CurrentSlideIndex}"
@@ -728,7 +727,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAŻ | ◀ | ▶ -->
+                        <!-- Row 2: Kontrolki â€” LIVE | TytuĹ‚+POKAĹ» | â—€ | â–¶ -->
                         <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="0,0,5,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -740,13 +739,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Tytuł pieśni + licznik slajdów / POKAŻ-WYGAŚ button -->
+                                <!-- TytuĹ‚ pieĹ›ni + licznik slajdĂłw / POKAĹ»-WYGAĹš button -->
                                 <Grid Grid.Column="1" Margin="0,8">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <!-- LIVE badge — dimmed when screen is blanked -->
+                                    <!-- LIVE badge â€” dimmed when screen is blanked -->
                                     <Border Grid.Column="0" Margin="0,0,0,5" Padding="15,5"
                                             Background="#d44a4a22" VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border.Style>
@@ -766,7 +765,7 @@
                                                     Foreground="#d44a4a"/>
                                         </StackPanel>
                                     </Border>
-                                    <!-- POKAŻ / WYGAŚ -->
+                                    <!-- POKAĹ» / WYGAĹš -->
                                     <Button Grid.Row="1" Command="{Binding ToggleBlankCommand}" Cursor="Hand">
                                         <Button.Style>
                                             <Style TargetType="Button">
@@ -813,14 +812,14 @@
                                     </Button>
                                 </Grid>
 
-                                <!-- ◀ Poprzedni slajd -->
-                                <Button Grid.Column="3" Content="◀"
+                                <!-- â—€ Poprzedni slajd -->
+                                <Button Grid.Column="3" Content="â—€"
                                         Style="{StaticResource NavBtn}"
                                         FontSize="40" Width="108" Height="108"
                                         Command="{Binding PrevSlideCommand}"/>
 
-                                <!-- ▶ Następny slajd -->
-                                <Button Grid.Column="5" Content="▶"
+                                <!-- â–¶ NastÄ™pny slajd -->
+                                <Button Grid.Column="5" Content="â–¶"
                                         Style="{StaticResource NavBtn}"
                                         FontSize="40" Width="108" Height="108"
                                         Command="{Binding NextSlideCommand}"/>
@@ -828,14 +827,14 @@
                         </Border>
                     </Grid>
 
-                    <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podgląd middle, kontrolki bottom) -->
+                    <!-- Col 1: ĹšRODKOWA (Kat+PieĹ›ni top, podglÄ…d middle, kontrolki bottom) -->
                     <Grid Grid.Column="1" Background="#0f1117">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
-                            <RowDefinition Height="Auto"/>   <!-- Row 1: Podgląd 16:9 -->
+                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + PieĹ›ni -->
+                            <RowDefinition Height="Auto"/>   <!-- Row 1: PodglÄ…d 16:9 -->
                         </Grid.RowDefinitions>
 
-                        <!-- Song Edit Mode overlay — covers entire Col 1 -->
+                        <!-- Song Edit Mode overlay â€” covers entire Col 1 -->
                         <Grid Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
                             <Grid.RowDefinitions>
@@ -845,26 +844,26 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Nagłówek: Wróć -->
+                            <!-- NagĹ‚Ăłwek: WrĂłÄ‡ -->
                             <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="0,0,0,1" Padding="8,6">
-                                <Button Content="← Wróć" Style="{StaticResource GoldBtn}"
+                                <Button Content="â† WrĂłÄ‡" Style="{StaticResource GoldBtn}"
                                         HorizontalAlignment="Left" Padding="12,6"
                                         Command="{Binding BackFromEditCommand}"/>
                             </Border>
 
-                            <!-- Metadane pieśni -->
+                            <!-- Metadane pieĹ›ni -->
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,0,1" Padding="10,8">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <!-- Tytuł -->
+                                    <!-- TytuĹ‚ -->
                                     <TextBox Grid.Row="0" Style="{StaticResource DarkTextBox}"
                                              Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="16" Height="36" Margin="0,0,0,6"
-                                             Tag="TYTUŁ"/>
+                                             Tag="TYTUĹ"/>
                                     <!-- Nr + Kategoria -->
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>
@@ -907,17 +906,17 @@
                                                                  MinHeight="50" FontSize="13" Padding="6,5"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
-                                                        <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="â†‘" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseUpCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Content="↓" Width="28" Height="28" Margin="0,0,0,2"
+                                                        <Button Content="â†“" Width="28" Height="28" Margin="0,0,0,2"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Command="{Binding DataContext.MoveEditorVerseDownCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Content="✕" Width="28" Height="28"
+                                                        <Button Content="âś•" Width="28" Height="28"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Foreground="#d44a4a"
                                                                 Command="{Binding DataContext.RemoveVerseFromEditorCommand,
@@ -929,7 +928,7 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <!-- Dodaj zwrotkę + Edytuj całość -->
+                                    <!-- Dodaj zwrotkÄ™ + Edytuj caĹ‚oĹ›Ä‡ -->
                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
                                         <Button Content="+ Zwrotka" Style="{StaticResource OutlineBtn}"
                                                 Margin="0,0,4,0" Padding="8,5"
@@ -944,13 +943,13 @@
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="b"/>
                                     </StackPanel>
-                                    <Button Content="✎ Edytuj całość" Style="{StaticResource OutlineBtn}"
+                                    <Button Content="âśŽ Edytuj caĹ‚oĹ›Ä‡" Style="{StaticResource OutlineBtn}"
                                             HorizontalAlignment="Left" Padding="10,6" Margin="0,0,0,4"
                                             Command="{Binding OpenPasteTextEditorCommand}"/>
                                 </StackPanel>
                             </ScrollViewer>
 
-                            <!-- Zapisz / Usuń -->
+                            <!-- Zapisz / UsuĹ„ -->
                             <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="0,1,0,0" Padding="8,8">
                                 <Grid>
@@ -968,7 +967,7 @@
                             </Border>
                         </Grid>
 
-                        <!-- Row 0: Kategorie (left) + Pieśni (right) -->
+                        <!-- Row 0: Kategorie (left) + PieĹ›ni (right) -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
@@ -1004,7 +1003,7 @@
                                 </Border>
                             </Grid>
 
-                            <!-- PIEŚNI -->
+                            <!-- PIEĹšNI -->
                             <Grid Grid.Column="1">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1036,7 +1035,7 @@
                                             <ColumnDefinition Width="30"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="20"
+                                        <TextBlock Grid.Column="0" Text="đź”Ť" Foreground="#959fb9" FontSize="20"
                                                    IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                         <TextBox Grid.Column="1" x:Name="SearchBoxShow"
                                                  Style="{StaticResource SearchBox}"
@@ -1093,7 +1092,7 @@
                                                         <Button.Template>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border Background="Transparent" Padding="4,2">
-                                                                    <TextBlock Text="✎" FontSize="11">
+                                                                    <TextBlock Text="âśŽ" FontSize="11">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock">
                                                                                 <Setter Property="Foreground" Value="Transparent"/>
@@ -1148,14 +1147,14 @@
                             </Grid>
                         </Grid>
 
-                        <!-- Row 1: Podgląd 16:9 + Przypięte -->
+                        <!-- Row 1: PodglÄ…d 16:9 + PrzypiÄ™te -->
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="160" MinWidth="120" MaxWidth="200"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Podgląd 16:9 -->
+                            <!-- PodglÄ…d 16:9 -->
                             <Border Grid.Column="0"
                                     Background="{Binding Projection.BackgroundBrush}"
                                     BorderBrush="#2a3347" BorderThickness="0,1,0,1"
@@ -1174,7 +1173,7 @@
                                 </Viewbox>
                             </Border>
 
-                            <!-- Przypięte zestawy -->
+                            <!-- PrzypiÄ™te zestawy -->
                             <Border Grid.Column="1" Background="#0d1018"
                                     BorderBrush="#2a3347" BorderThickness="1,1,0,1" Padding="6,8">
                                 <DockPanel>
@@ -1252,7 +1251,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Popup wyszukiwania zestawów -->
+                            <!-- Popup wyszukiwania zestawĂłw -->
                             <Popup Grid.Row="0"
                                    IsOpen="{Binding IsSetlistSearchOpen, Mode=TwoWay}"
                                    PlacementTarget="{Binding ElementName=BtnOpenSetlist}"
@@ -1365,7 +1364,7 @@
                                                         <DropShadowEffect Color="#c9a84c" ShadowDepth="0" BlurRadius="6"/>
                                                     </Ellipse.Effect>
                                                 </Ellipse>
-                                                <TextBlock Grid.Column="1" Text="⠿" Foreground="#959fb9"
+                                                <TextBlock Grid.Column="1" Text="â ż" Foreground="#959fb9"
                                                            FontSize="20" VerticalAlignment="Center" Padding="5,5,3,3"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding Position}"
                                                            FontSize="20" Foreground="#959fb9" 
@@ -1374,7 +1373,7 @@
                                                            TextWrapping="Wrap" VerticalAlignment="Center" 
                                                            HorizontalAlignment="Stretch"
                                                            FontSize="20" Padding="10"/>
-                                                <Button Grid.Column="4" Content="✏"
+                                                <Button Grid.Column="4" Content="âśŹ"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="16" Cursor="Hand"
@@ -1384,7 +1383,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent">
-                                                                <TextBlock Text="✏"
+                                                                <TextBlock Text="âśŹ"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
                                                                            FontSize="15"
@@ -1401,7 +1400,7 @@
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
-                                                <Button Grid.Column="5" Content="×"
+                                                <Button Grid.Column="5" Content="Ă—"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="20" Cursor="Hand"
@@ -1410,7 +1409,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="Transparent">
-                                                                <TextBlock Text="×"
+                                                                <TextBlock Text="Ă—"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center"
                                                                            FontSize="18"
@@ -1439,7 +1438,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="⏫" FontSize="16"
+                                    <Button Grid.Column="0" Content="âŹ«" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToTop}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1447,7 +1446,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="⏫" FontSize="16"
+                                                    <TextBlock Text="âŹ«" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1458,7 +1457,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="1" Content="🔼" FontSize="16"
+                                    <Button Grid.Column="1" Content="đź”Ľ" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Up}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1466,7 +1465,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="🔼" FontSize="16"
+                                                    <TextBlock Text="đź”Ľ" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1477,7 +1476,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="2" Content="🔽" FontSize="16"
+                                    <Button Grid.Column="2" Content="đź”˝" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Down}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1485,7 +1484,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="🔽" FontSize="16"
+                                                    <TextBlock Text="đź”˝" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1496,7 +1495,7 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
-                                    <Button Grid.Column="3" Content="⏬" FontSize="16"
+                                    <Button Grid.Column="3" Content="âŹ¬" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToBottom}"
                                             Background="Transparent" BorderThickness="0"
                                             Foreground="#959fb9" Height="36" Cursor="Hand"
@@ -1504,7 +1503,7 @@
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
-                                                    <TextBlock Text="⏬" FontSize="16"
+                                                    <TextBlock Text="âŹ¬" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -1597,7 +1596,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <!-- Nagłówek -->
+                                    <!-- NagĹ‚Ăłwek -->
                                     <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
                                             BorderThickness="0,0,0,1" Padding="12,10">
                                         <Grid>
@@ -1610,14 +1609,14 @@
                                                        Foreground="#e8eaf0"
                                                        TextTrimming="CharacterEllipsis"
                                                        VerticalAlignment="Center"/>
-                                            <Button Grid.Column="1" Content="×"
+                                            <Button Grid.Column="1" Content="Ă—"
                                                     Background="Transparent" BorderThickness="0"
                                                     Foreground="#959fb9" FontSize="20" Cursor="Hand"
                                                     Command="{Binding CancelInlineEditCommand}">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border Background="Transparent" Padding="8,4">
-                                                            <TextBlock Text="×" FontSize="20"
+                                                            <TextBlock Text="Ă—" FontSize="20"
                                                                        Foreground="{TemplateBinding Foreground}"/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -1656,12 +1655,12 @@
                                                                      Padding="8,6"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,0,0,0">
-                                                            <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
+                                                            <Button Content="â†‘" Width="28" Height="28" Margin="0,0,0,2"
                                                                     Style="{StaticResource SmallIconBtn}"
                                                                     Command="{Binding DataContext.MoveEditableVerseUpCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                     CommandParameter="{Binding}"/>
-                                                            <Button Content="↓" Width="28" Height="28"
+                                                            <Button Content="â†“" Width="28" Height="28"
                                                                     Style="{StaticResource SmallIconBtn}"
                                                                     Command="{Binding DataContext.MoveEditableVerseDownCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -1700,813 +1699,8 @@
 
             </Grid>
 
-            <!-- EDYCJA -->
-            <Grid x:Name="PaneSongs" Visibility="Collapsed" Background="#0f1117">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="320"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- ═══════════════════════════════════════
-                     LEWA: lista pieśni
-                ═══════════════════════════════════════ -->
-
-                <Grid Grid.Column="0" Background="#0f1117">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>   <!-- nagłówek KATEGORIE -->
-                        <RowDefinition Height="Auto"/>   <!-- lista kategorii -->
-                        <RowDefinition Height="Auto"/>   <!-- wiersz: dodaj nową kategorię -->
-                        <RowDefinition Height="Auto"/>   <!-- nagłówek PIEŚNI -->
-                        <RowDefinition Height="Auto"/>   <!-- szukaj -->
-                        <RowDefinition Height="*"/>      <!-- lista pieśni -->
-                    </Grid.RowDefinitions>
-
-                    <!-- NAGŁÓWEK: KATEGORIE + Dodaj nową -->
-                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="14,11">
-                        <TextBlock Text="{DynamicResource Section.Categories}"
-                                   FontFamily="{StaticResource HeaderFont}"
-                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
-                    </Border>
-
-                    <!-- POLE: nowa nazwa kategorii (widoczne zawsze — uproszczone UX) -->
-                    <Border Grid.Row="2" Background="#0f1117" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="8,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="6"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}"
-                                     Background="#1e2535" Foreground="#e8eaf0"
-                                     BorderBrush="#2a3347" BorderThickness="1"
-                                     FontSize="16" Padding="8,6" CaretBrush="#c9a84c">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Return" Command="{Binding AddCategoryCommand}"/>
-                                </TextBox.InputBindings>
-                            </TextBox>
-                            <TextBlock Grid.Column="0"
-                                       Text="{DynamicResource Placeholder.NewCategory}" Foreground="#4a5a7a" FontSize="16"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="10,0,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding NewCategoryName}" Value="">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-
-                            <Button Grid.Column="2" Content="{DynamicResource Btn.AddCategory}"
-                                    Style="{StaticResource OutlineBtn}" Padding="10,5"
-                                    Command="{Binding AddCategoryCommand}"/>
-                        </Grid>
-                    </Border>
-                   <!-- LISTA KATEGORII -->
-                    <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                        <ListBox ItemsSource="{Binding CategoryItems}"
-                                 Background="Transparent" BorderThickness="0"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 MaxHeight="200"
-                                 ItemContainerStyle="{StaticResource DarkListItemGold}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <!-- tryb normalny -->
-                                    <Grid>
-                                        <Grid Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="36"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="30"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- numer -->
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding Number}"
-                                                       Foreground="#4a5a7a"
-                                                       FontFamily="{StaticResource HeaderFont}"
-                                                       FontSize="14"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="0,10,0,10"/>
-
-                                            <!-- nazwa -->
-                                            <TextBlock Grid.Column="1"
-                                                       Text="{Binding Name}"
-                                                       Foreground="#e8eaf0" FontSize="16"
-                                                       VerticalAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Margin="0,10,4,10"/>
-
-                                            <!-- dyskietka (zapis/edycja) -->
-                                            <Button Grid.Column="2" VerticalAlignment="Center"
-                                                    Cursor="Hand"
-                                                    Command="{Binding DataContext.StartEditCategoryCommand,
-                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                    CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="Transparent" Padding="4">
-                                                            <TextBlock Text="✎" FontSize="18">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Foreground" Value="#3a4a65"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsMouseOver,
-                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
-                                                                                Value="True">
-                                                                                <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-
-                                            <!-- X (usuń) -->
-                                            <Button Grid.Column="3" VerticalAlignment="Center"
-                                                    Cursor="Hand"
-                                                    Command="{Binding DataContext.DeleteCategoryCommand,
-                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                    CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="Transparent" Padding="4">
-                                                            <TextBlock Text="✕" FontSize="16">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Foreground" Value="#3a4a65"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsMouseOver,
-                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
-                                                                                Value="True">
-                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-                                        </Grid>
-
-                                        <!-- tryb edycji inline -->
-                                        <Grid Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="36"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="30"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- numer (edytowalny) -->
-                                            <TextBox Grid.Column="0"
-                                                     Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
-                                                     helpers:NumericBox.IsEnabled="True"
-                                                     helpers:NumericBox.Min="1"
-                                                     helpers:NumericBox.Max="9999"
-                                                     Background="#1e2535" Foreground="#c9a84c"
-                                                     BorderBrush="#c9a84c" BorderThickness="1"
-                                                     FontFamily="{StaticResource HeaderFont}"
-                                                     FontSize="12" Padding="2,4"
-                                                     CaretBrush="#c9a84c"
-                                                     TextAlignment="Center"
-                                                     VerticalAlignment="Center"
-                                                     Margin="0,4,4,4"/>
-
-                                            <!-- TextBox edycji -->
-                                            <TextBox Grid.Column="1"
-                                                     Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="#1e2535" Foreground="#e8eaf0"
-                                                     BorderBrush="#c9a84c" BorderThickness="1"
-                                                     FontSize="16" Padding="6,4"
-                                                     CaretBrush="#c9a84c"
-                                                     VerticalAlignment="Center"
-                                                     Margin="0,4,4,4"/>
-
-                                            <!-- 💾 zapisz -->
-                                            <Button Grid.Column="2" VerticalAlignment="Center"
-                                                    Cursor="Hand"
-                                                    Command="{Binding DataContext.SaveCategoryCommand,
-                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                    CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="Transparent" Padding="4">
-                                                            <TextBlock Text="💾" FontSize="13">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsMouseOver,
-                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
-                                                                                Value="True">
-                                                                                <Setter Property="Foreground" Value="#e8c97a"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-
-                                            <!-- ✕ anuluj -->
-                                            <Button Grid.Column="3" VerticalAlignment="Center"
-                                                    Cursor="Hand"
-                                                    Command="{Binding DataContext.CancelEditCategoryCommand,
-                                                        RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                    CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="Transparent" Padding="4">
-                                                            <TextBlock Text="✕" FontSize="11">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Foreground" Value="#6a7a8a"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsMouseOver,
-                                                                                RelativeSource={RelativeSource AncestorType=Button}}"
-                                                                                Value="True">
-                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
-
-                    <!-- NAGŁÓWEK: PIEŚNI + Dodaj nową -->
-                    <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,1,1,1" Padding="14,0,8,0" Height="44">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="Light" Foreground="#c9a84c"
-                                       VerticalAlignment="Center"/>
-                            <Button Grid.Column="1" Content="{DynamicResource Btn.NewSong}"
-                                    Style="{StaticResource GoldBtn}" Padding="10,5"
-                                    Command="{Binding NewSongCommand}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- ══════════════════════════════════════
-                         SZUKAJ
-                    ══════════════════════════════════════ -->
-                    <Border Grid.Row="4" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,1,1" Padding="0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="18"
-                                       IsHitTestVisible="False" VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"/>
-                            <TextBox Grid.Column="1" x:Name="SearchBoxSongs"
-                                     Style="{StaticResource SearchBox}"
-                                     Padding="3" FontSize="20"
-                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                     PreviewKeyDown="SearchBoxSongs_PreviewKeyDown"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource Placeholder.SearchSongs}" Foreground="#959fb9" FontSize="20"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SearchText}" Value="">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsFocused, ElementName=SearchBoxSongs}" Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
-                    </Border>
-
-                    <!-- LISTA PIEŚNI -->
-                    <Border Grid.Row="5" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                        <ListBox x:Name="SongListSongs"
-                                 ItemsSource="{Binding FilteredSongs}"
-                                 SelectedItem="{Binding SelectedSongInList}"
-                                 Background="Transparent" BorderThickness="0"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 ItemContainerStyle="{StaticResource DarkListItem}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="40"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0"
-                                                   Text="{Binding Number, StringFormat='{}{0:D3}'}"
-                                                   Foreground="#959fb9"
-                                                   FontFamily="{StaticResource HeaderFont}"
-                                                   FontSize="10" VerticalAlignment="Center"
-                                                   Margin="11,12,0,12"/>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center"
-                                                    Margin="4,3,8,3">
-                                            <TextBlock Text="{Binding Title}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       FontSize="18" Foreground="#e8eaf0"/>
-                                            <TextBlock Text="{Binding Category.Name}"
-                                                       FontSize="14" Foreground="#959fb9"
-                                                       Margin="0,2,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
-                </Grid>
-
-
-                <!-- PRAWA: edytor -->
-                <Grid Grid.Column="1">
-
-                    <!-- Edytor — zawsze widoczny, treść zależy od IsEditing -->
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- INFORMACJE -->
-                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                    BorderThickness="0,0,0,1" Padding="20,14"
-                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="200"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="10"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Field.Title}"
-                               Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                               Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{DynamicResource Field.Number}"
-                               Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                               Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="0" Grid.Column="4" Text="{DynamicResource Field.Category}"
-                               Foreground="#959fb9" FontSize="10"
-                               FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                               Margin="0,0,0,5"/>
-
-                                <TextBox Grid.Row="2" Grid.Column="0"
-                             Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkTextBox}" FontSize="15"/>
-                                <TextBox Grid.Row="2" Grid.Column="2"
-                             Text="{Binding EditNumber, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkTextBox}"
-                             helpers:NumericBox.IsEnabled="True"
-                             helpers:NumericBox.Min="0"
-                             helpers:NumericBox.Max="9999"
-                             TextAlignment="Center"/>
-                                <ComboBox Grid.Row="2" Grid.Column="4"
-                              Style="{StaticResource DarkCombo}"
-                              ItemsSource="{Binding Categories}"
-                              SelectedItem="{Binding EditCategory}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}"/>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                            </Grid>
-                        </Border>
-
-                        <!-- ZWROTKI + KOLEJNOŚĆ -->
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="1"/>
-                                <ColumnDefinition Width="2*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- ZWROTKI -->
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-
-                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,0,1" Padding="14,10">
-                                    <TextBlock Text="{DynamicResource Section.Verses}"
-                                   FontFamily="{StaticResource HeaderFont}"
-                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
-                                </Border>
-
-                                <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,0,1" Padding="10,8"
-                            Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{DynamicResource VerseType.AddLabel}" Foreground="#959fb9" FontSize="12"
-                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <Button Content="{DynamicResource VerseType.Verse}" Style="{StaticResource OutlineBtn}"
-                                    Padding="10,5" Margin="0,0,6,0"
-                                    Command="{Binding AddVerseCommand}" CommandParameter="v"/>
-                                        <Button Content="{DynamicResource VerseType.Chorus}" Style="{StaticResource OutlineBtn}"
-                                    Padding="10,5" Margin="0,0,6,0"
-                                    Command="{Binding AddVerseCommand}" CommandParameter="c"/>
-                                        <Button Content="{DynamicResource VerseType.Bridge}" Style="{StaticResource OutlineBtn}"
-                                    Padding="10,5" Margin="0,0,16,0"
-                                    Command="{Binding AddVerseCommand}" CommandParameter="b"/>
-                                        <Button Content="{DynamicResource VerseType.EditAll}" Style="{StaticResource OutlineBtn}"
-                                    Padding="10,5"
-                                    Command="{Binding OpenPasteTextDialogCommand}"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Placeholder gdy brak pieśni — w kolumnie zwrotek -->
-                                <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                Panel.ZIndex="1">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEditing}" Value="False">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <TextBlock Text="♪" FontSize="48" Foreground="#2a3347"
-                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                    <TextBlock Text="{DynamicResource Msg.SelectSong}"
-                                   Foreground="#959fb9" FontSize="14"
-                                   FontFamily="{StaticResource HeaderFont}"/>
-                                </StackPanel>
-
-                                <!-- Lista zwrotek + TextBox do edycji -->
-                                <Grid Grid.Row="2"
-                          Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="64"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Miniaturki zwrotek -->
-                                    <Border Grid.Column="0" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Hidden">
-                                            <ItemsControl ItemsSource="{Binding Verses}" Margin="6,6,6,0">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,0,0,4">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="18"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <Button Grid.Column="0"
-                                                        Command="{Binding DataContext.SelectVerseCommand,
-                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Height="40" Cursor="Hand">
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button">
-                                                                        <Setter Property="Background" Value="#1e2535"/>
-                                                                        <Setter Property="BorderBrush" Value="#2a3347"/>
-                                                                        <Setter Property="BorderThickness" Value="1"/>
-                                                                        <Setter Property="Template">
-                                                                            <Setter.Value>
-                                                                                <ControlTemplate TargetType="Button">
-                                                                                    <Border Background="{TemplateBinding Background}"
-                                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                               >
-                                                                                        <TextBlock Text="{Binding Label, Mode=OneWay}"
-                                                                                       FontFamily="{StaticResource HeaderFont}"
-                                                                                       FontSize="14" FontWeight="Bold"
-                                                                                       HorizontalAlignment="Center"
-                                                                                       VerticalAlignment="Center">
-                                                                                            <TextBlock.Style>
-                                                                                                <Style TargetType="TextBlock">
-                                                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                                                                    <Style.Triggers>
-                                                                                                        <DataTrigger Binding="{Binding Type}" Value="c">
-                                                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                                                        </DataTrigger>
-                                                                                                        <DataTrigger Binding="{Binding Type}" Value="b">
-                                                                                                            <Setter Property="Foreground" Value="#4a9fd4"/>
-                                                                                                        </DataTrigger>
-                                                                                                    </Style.Triggers>
-                                                                                                </Style>
-                                                                                            </TextBlock.Style>
-                                                                                        </TextBlock>
-                                                                                    </Border>
-                                                                                </ControlTemplate>
-                                                                            </Setter.Value>
-                                                                        </Setter>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Value="True">
-                                                                                <DataTrigger.Binding>
-                                                                                    <MultiBinding Converter="{StaticResource IsEqual}">
-                                                                                        <Binding Path="DataContext.SelectedVerse"
-                                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
-                                                                                        <Binding/>
-                                                                                    </MultiBinding>
-                                                                                </DataTrigger.Binding>
-                                                                                <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                                                                <Setter Property="Background"  Value="#1a2540"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
-                                                            </Button>
-                                                            <Button Grid.Column="1" Content="×"
-                                                        Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="14"
-                                                        Cursor="Hand" VerticalAlignment="Center"
-                                                        Command="{Binding DataContext.RemoveVerseCommand,
-                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}">
-                                                                <Button.Template>
-                                                                    <ControlTemplate TargetType="Button">
-                                                                        <Border Background="Transparent">
-                                                                            <TextBlock Text="×" FontSize="14"
-                                                                           Foreground="{TemplateBinding Foreground}"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"/>
-                                                                        </Border>
-                                                                        <ControlTemplate.Triggers>
-                                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                                <Setter Property="Foreground" Value="#d44a4a"/>
-                                                                            </Trigger>
-                                                                        </ControlTemplate.Triggers>
-                                                                    </ControlTemplate>
-                                                                </Button.Template>
-                                                            </Button>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
-                                    </Border>
-
-                                    <!-- TextBox edycji tekstu zwrotki -->
-                                    <Grid Grid.Column="1">
-                                        <TextBox Text="{Binding SelectedVerseText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource DarkTextBox}"
-                                     AcceptsReturn="True" AcceptsTab="False"
-                                     TextWrapping="Wrap"
-                                     VerticalScrollBarVisibility="Auto"
-                                     FontSize="14" FontFamily="Consolas"
-                                     Background="#0f1117"
-                                     BorderThickness="0"
-                                     Padding="16"
-                                     PreviewKeyDown="VerseTextBox_PreviewKeyDown"/>
-                                        <TextBlock Text="{DynamicResource Msg.SelectVerse}"
-                                       Foreground="#959fb9" FontSize="13"
-                                       IsHitTestVisible="False"
-                                       VerticalAlignment="Top" HorizontalAlignment="Left"
-                                       Margin="16">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding SelectedVerse}" Value="{x:Null}">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-
-                            <!-- Separator -->
-                            <Border Grid.Column="1" Background="#2a3347"/>
-
-                            <!-- KOLEJNOŚĆ WYKONANIA -->
-                            <Grid Grid.Column="2">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="1"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,0,1" Padding="14,10">
-                                    <TextBlock Text="{DynamicResource Section.Setlist}"
-                                   FontFamily="{StaticResource HeaderFont}"
-                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
-                                </Border>
-
-                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Hidden" Padding="12,8">
-                                    <ItemsControl ItemsSource="{Binding PlayOrder}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="0,0,0,4" AllowDrop="True"
-                                                      MouseMove="PlayOrderItem_MouseMove"
-                                                      Drop="PlayOrderItem_Drop">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="28"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Background="#1e2535"
-                                                BorderBrush="#2a3347" BorderThickness="1"
-                                                Padding="12,8">
-                                                        <TextBlock VerticalAlignment="Center">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                                    <Setter Property="FontSize" Value="13"/>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                <Run Text="{Binding Label, Mode=OneWay}"
-                                                     FontFamily="{StaticResource HeaderFont}"
-                                                     FontWeight="Bold"/>
-                                                <Run Text=" — "/>
-                                                <Run Text="{Binding Type, Mode=OneWay}"
-                                                     Foreground="#959fb9" FontSize="11"/>
-                                                        </TextBlock>
-                                                    </Border>
-                                                    <Button Grid.Column="1" Content="×"
-                                                Background="Transparent" BorderThickness="0"
-                                                Foreground="#959fb9" FontSize="16"
-                                                Cursor="Hand" VerticalAlignment="Center"
-                                                HorizontalAlignment="Center"
-                                                Command="{Binding DataContext.RemoveFromPlayOrderCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                                        <Button.Template>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="Transparent">
-                                                                    <TextBlock Text="×" FontSize="16"
-                                                                   Foreground="{TemplateBinding Foreground}"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#d44a4a"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Button.Template>
-                                                    </Button>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-
-                                <Border Grid.Row="2" Background="#2a3347"/>
-
-                                <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,1,0,0" Padding="12,10">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Btn.AddToOrder}"
-                                       Foreground="#959fb9" FontSize="10"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                        <ItemsControl ItemsSource="{Binding Verses}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button Margin="0,0,6,6" Padding="12,7" Cursor="Hand"
-                                                Command="{Binding DataContext.AddToPlayOrderCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                                        <Button.Style>
-                                                            <Style TargetType="Button">
-                                                                <Setter Property="Background" Value="#1e2535"/>
-                                                                <Setter Property="BorderBrush" Value="#2a3347"/>
-                                                                <Setter Property="BorderThickness" Value="1"/>
-                                                                <Setter Property="Template">
-                                                                    <Setter.Value>
-                                                                        <ControlTemplate TargetType="Button">
-                                                                            <Border Background="{TemplateBinding Background}"
-                                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                                        Padding="{TemplateBinding Padding}">
-                                                                                <ContentPresenter HorizontalAlignment="Center"
-                                                                                      VerticalAlignment="Center"/>
-                                                                            </Border>
-                                                                            <ControlTemplate.Triggers>
-                                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                                    <Setter Property="Background" Value="#252d3d"/>
-                                                                                    <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                                                                </Trigger>
-                                                                            </ControlTemplate.Triggers>
-                                                                        </ControlTemplate>
-                                                                    </Setter.Value>
-                                                                </Setter>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Type}" Value="c">
-                                                                        <Setter Property="BorderBrush" Value="#4a5a30"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Type}" Value="b">
-                                                                        <Setter Property="BorderBrush" Value="#1a3a5a"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Button.Style>
-                                                        <TextBlock FontFamily="{StaticResource HeaderFont}"
-                                                       FontSize="13" FontWeight="Bold">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Type}" Value="c">
-                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding Type}" Value="b">
-                                                                            <Setter Property="Foreground" Value="#4a9fd4"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                <Run Text="{Binding Label, Mode=OneWay}"/>
-                                                        </TextBlock>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Grid>
-
-                        <!-- PRZYCISKI -->
-                        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
-                    BorderThickness="0,1,0,0" Padding="20,12"
-                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSong}"
-                            Style="{StaticResource GoldBtn}" Height="50" FontSize="28" Padding="0"
-                            Command="{Binding SaveSongCommand}"/>
-                                <Button Grid.Column="2" Content="{DynamicResource Btn.CancelSettings}"
-                            Style="{StaticResource OutlineBtn}" Height="50" Padding="20,0"
-                            Command="{Binding CancelEditCommand}"/>
-                                <Button Grid.Column="4" Content="{DynamicResource Btn.Delete}"
-                            Style="{StaticResource RedBtn}" Height="50" Padding="20,0"
-                            Command="{Binding DeleteSongCommand}"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Grid>
-            </Grid>
-
             <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
-                <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
+                <TextBlock Text="â° KATEGORIE â€” wkrĂłtce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
 
 
@@ -2518,13 +1712,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- LEWA: zakładki ustawień -->
+                <!-- LEWA: zakĹ‚adki ustawieĹ„ -->
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <!-- tab bar -->
                         <RowDefinition Height="*"/>
-                        <!-- treść zakładki -->
+                        <!-- treĹ›Ä‡ zakĹ‚adki -->
                         <RowDefinition Height="Auto"/>
                         <!-- przyciski -->
                     </Grid.RowDefinitions>
@@ -2544,15 +1738,15 @@
                              GroupName="SzablonTabs" x:Name="TabPozycja"/>
                             <RadioButton Content="{DynamicResource Settings.Shortcuts}" Style="{StaticResource SettingsTab}"
                              GroupName="SzablonTabs" x:Name="TabSkroty"/>
-                            <!-- TabTlo usunięty — tło scalone z Kolory -->
+                            <!-- TabTlo usuniÄ™ty â€” tĹ‚o scalone z Kolory -->
                             <RadioButton x:Name="TabTlo" Visibility="Collapsed" GroupName="SzablonTabs"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Treść zakładek -->
+                    <!-- TreĹ›Ä‡ zakĹ‚adek -->
                     <Grid Grid.Row="1">
 
-                        <!-- ── GŁÓWNE ── -->
+                        <!-- â”€â”€ GĹĂ“WNE â”€â”€ -->
                         <StackPanel Margin="20,16,20,0">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -2580,7 +1774,7 @@
                             </CheckBox>
                         </StackPanel>
 
-                        <!-- ── CZCIONKA ── -->
+                        <!-- â”€â”€ CZCIONKA â”€â”€ -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
                           Padding="20,16,20,0">
                             <ScrollViewer.Style>
@@ -2595,7 +1789,7 @@
                             </ScrollViewer.Style>
                             <StackPanel>
 
-                                <!-- Rozmiar stały -->
+                                <!-- Rozmiar staĹ‚y -->
                                 <TextBlock Text="{Binding FontSizeLabel}" Foreground="#959fb9" FontSize="16"
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
@@ -2638,7 +1832,7 @@
                                     </ComboBox.Text>
                                 </ComboBox>
 
-                                <!-- Styl + wyrównanie -->
+                                <!-- Styl + wyrĂłwnanie -->
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -2662,25 +1856,25 @@
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=left}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="left"
                                               ToolTip="{DynamicResource Tooltip.ToLeft}">
-                                                <TextBlock Text="⬅" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="â¬…" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}" Margin="0,0,4,0"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=center}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="center"
                                               ToolTip="{DynamicResource Settings.AlignCenter}">
-                                                <TextBlock Text="☰" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="â°" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                             <ToggleButton Style="{StaticResource AlignBtn}"
                                               IsChecked="{Binding TextAlign, Converter={StaticResource EnumBool}, ConverterParameter=right}"
                                               Command="{Binding SetTextAlignCommand}" CommandParameter="right"
                                               ToolTip="{DynamicResource Tooltip.ToRight}">
-                                                <TextBlock Text="➡" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                <TextBlock Text="âžˇ" FontSize="20" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
                                             </ToggleButton>
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Odstęp linii -->
+                                <!-- OdstÄ™p linii -->
                                 <TextBlock Text="{DynamicResource Settings.LineSpacing}" Foreground="#959fb9" FontSize="16"
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,8"/>
@@ -2695,7 +1889,7 @@
                                             Value="{Binding LineHeightMultiplier}" VerticalAlignment="Center"/>
                                     <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
                                             BorderThickness="1" Padding="6,4">
-                                        <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='×{0:F2}'}"
+                                        <TextBox Text="{Binding LineHeightMultiplier, UpdateSourceTrigger=PropertyChanged, StringFormat='Ă—{0:F2}'}"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Background="Transparent" BorderThickness="0"
                                                  Foreground="#9aa3b8" FontSize="16"
@@ -2793,7 +1987,7 @@
                            </StackPanel>
                         </ScrollViewer>
 
-                        <!-- ── KOLORY + TŁO ── -->
+                        <!-- â”€â”€ KOLORY + TĹO â”€â”€ -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
                                       Padding="20,16,20,0">
                             <ScrollViewer.Style>
@@ -2843,7 +2037,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
+                                <TextBlock Text="WĹ‚asny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
                                         ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickTextColorCommand}">
@@ -2859,7 +2053,7 @@
                              FontFamily="Consolas" FontSize="13"/>
                             </StackPanel>
 
-                            <!-- Cień -->
+                            <!-- CieĹ„ -->
                             <TextBlock Text="{DynamicResource Settings.Shadow}" Foreground="#959fb9" FontSize="16"
                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                            Margin="0,0,0,10"/>
@@ -2927,7 +2121,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                                <TextBlock Text="Własny:" Foreground="#959fb9" FontSize="16"
+                                <TextBlock Text="WĹ‚asny:" Foreground="#959fb9" FontSize="16"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <Button Width="32" Height="32" Margin="0,0,10,0" Cursor="Hand"
                                         ToolTip="{DynamicResource Btn.PickColor}" Command="{Binding PickBgColorCommand}">
@@ -2943,7 +2137,7 @@
                              FontFamily="Consolas" FontSize="13"/>
                             </StackPanel>
 
-                            <!-- ── GRADIENT ── -->
+                            <!-- â”€â”€ GRADIENT â”€â”€ -->
                             <StackPanel Margin="0,0,0,24">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                     <TextBlock Text="{DynamicResource Settings.BgGradient}" Foreground="#959fb9" FontSize="16"
@@ -3059,12 +2253,12 @@
                                             </Button.Style>
                                         </Button>
                                     </StackPanel>
-                                    <!-- Kąt — tylko dla liniowego -->
+                                    <!-- KÄ…t â€” tylko dla liniowego -->
                                     <StackPanel Visibility="{Binding IsLinearGradient, Converter={StaticResource BoolToVis}}">
                                         <TextBlock Text="{DynamicResource Settings.GradientAngle}" Foreground="#959fb9" FontSize="16" Margin="0,0,0,4"/>
                                         <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="360"
                                                 Value="{Binding GradientAngle}" TickFrequency="45"/>
-                                        <TextBlock Text="{Binding GradientAngle, StringFormat='{}{0:F0}°'}"
+                                        <TextBlock Text="{Binding GradientAngle, StringFormat='{}{0:F0}Â°'}"
                                                    Foreground="#9aa3b8" FontSize="14" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -3100,7 +2294,7 @@
                                 </Border>
                                 <Button Grid.Column="2" Content="{DynamicResource Btn.Browse}" Style="{StaticResource GoldBtn}"
                             Padding="12,8" Command="{Binding BrowseBackgroundCommand}"/>
-                                <Button Grid.Column="4" Content="✕" Style="{StaticResource RedBtn}"
+                                <Button Grid.Column="4" Content="âś•" Style="{StaticResource RedBtn}"
                             Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
                             </Grid>
                             <StackPanel Visibility="{Binding BackgroundImagePath, Converter={StaticResource BoolToVis}}">
@@ -3113,7 +2307,7 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <!-- ── FORMAT ── -->
+                        <!-- â”€â”€ FORMAT â”€â”€ -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
                                       Padding="20,16,20,0">
                             <ScrollViewer.Style>
@@ -3132,7 +2326,7 @@
                                            FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                            Margin="0,0,0,12"/>
 
-                                <!-- Nagłówek kolumn -->
+                                <!-- NagĹ‚Ăłwek kolumn -->
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90"/>
@@ -3153,7 +2347,7 @@
                                                ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
                                 </Grid>
 
-                                <!-- Lista tagów -->
+                                <!-- Lista tagĂłw -->
                                 <ItemsControl ItemsSource="{Binding TextTags}" Margin="0,0,0,10">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -3176,7 +2370,7 @@
                                                          Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
                                                          FontFamily="Consolas" FontSize="14" Padding="6,4"/>
-                                                <!-- Kolor — swatch -->
+                                                <!-- Kolor â€” swatch -->
                                                 <Button Grid.Column="2" Width="36" Height="34" Cursor="Hand"
                                                         ToolTip="{DynamicResource Btn.PickColor}"
                                                         Command="{Binding DataContext.PickTagColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -3208,7 +2402,7 @@
                                                 <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
                                                           VerticalAlignment="Center" HorizontalAlignment="Center"
                                                           Foreground="#e8eaf0"/>
-                                                <!-- Skrót klawiszowy -->
+                                                <!-- SkrĂłt klawiszowy -->
                                                 <TextBox Grid.Column="8"
                                                          Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
@@ -3216,8 +2410,8 @@
                                                          TextAlignment="Center"
                                                          ToolTip="{DynamicResource Settings.TagShortcutInput}"
                                                          helpers:KeyCaptureHelper.IsEnabled="True"/>
-                                                <!-- Usuń -->
-                                                <Button Grid.Column="10" Content="✕" Width="30" Height="30"
+                                                <!-- UsuĹ„ -->
+                                                <Button Grid.Column="10" Content="âś•" Width="30" Height="30"
                                                         Style="{StaticResource RedBtn}"
                                                         Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"
@@ -3233,7 +2427,7 @@
                                         Height="36" Padding="16,0" HorizontalAlignment="Left"
                                         FontSize="14" Margin="0,0,0,20"/>
 
-                                <!-- Podpowiedź składni -->
+                                <!-- PodpowiedĹş skĹ‚adni -->
                                 <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                                         Padding="12,10" Margin="0,0,0,8">
                                     <StackPanel>
@@ -3247,7 +2441,7 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <!-- ── EKRAN ── -->
+                        <!-- â”€â”€ EKRAN â”€â”€ -->
                         <StackPanel Margin="20,16,20,0">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -3303,7 +2497,7 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <!-- Język -->
+                            <!-- JÄ™zyk -->
                             <TextBlock Text="{DynamicResource Settings.Language}"
                                        Foreground="#959fb9" FontSize="16"
                                        FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
@@ -3315,13 +2509,13 @@
                                 <RadioButton Content="English" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
                                              IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=en}"
                                              Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
-                                <RadioButton Content="Español" Style="{StaticResource DarkRadio}"
+                                <RadioButton Content="EspaĂ±ol" Style="{StaticResource DarkRadio}"
                                              IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
                                              Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
                             </StackPanel>
                         </StackPanel>
 
-                        <!-- ── SKRÓTY ── -->
+                        <!-- â”€â”€ SKRĂ“TY â”€â”€ -->
                         <StackPanel x:Name="PaneShortcutsContent" Margin="20,16,20,16">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -3380,22 +2574,12 @@
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
 
-                            <!-- Zakładki -->
+                            <!-- ZakĹ‚adki -->
                             <TextBlock Text="{DynamicResource Shortcuts.Tabs}" Foreground="#959fb9" FontSize="13"
                                        Margin="0,16,0,10" FontFamily="{StaticResource BodyFont}"/>
                             <Grid Margin="0,0,0,12">
                                 <TextBlock Text="{DynamicResource Shortcuts.TabShow}" Style="{StaticResource ShortcutLabel}"/>
                                 <TextBox Text="{Binding TabShow, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ShortcutCapture}"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Shortcuts.TabSongs}" Style="{StaticResource ShortcutLabel}"/>
-                                <TextBox Text="{Binding TabSongs, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ShortcutCapture}"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Shortcuts.TabSets}" Style="{StaticResource ShortcutLabel}"/>
-                                <TextBox Text="{Binding TabSets, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ShortcutCapture}"/>
                             </Grid>
                             <Grid Margin="0,0,0,12">
@@ -3452,9 +2636,9 @@
                     </Border>
                 </Grid>
 
-                <!-- ════════════════════════════════════════════════════════════════
-                         PRAWA: podgląd 16:9
-                    ════════════════════════════════════════════════════════════════ -->
+                <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+                         PRAWA: podglÄ…d 16:9
+                    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
                 <Grid Grid.Column="1" Background="#0a0d14">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -3512,7 +2696,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
                         <StackPanel Margin="28,28,28,28">
 
-                            <!-- Nagłówek -->
+                            <!-- NagĹ‚Ăłwek -->
                             <TextBlock Text="{DynamicResource Import.Title}"
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="18" FontWeight="Regular"
@@ -3554,7 +2738,7 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Plik źródłowy -->
+                            <!-- Plik ĹşrĂłdĹ‚owy -->
                             <TextBlock Text="{DynamicResource Import.Source}"
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="20" FontWeight="Light"
@@ -3635,7 +2819,7 @@
                                 </StackPanel>
                             </Border>
                             
-                            <!-- Sekcja importu zestawów .osz — wkleić do PaneImport.xaml -->
+                            <!-- Sekcja importu zestawĂłw .osz â€” wkleiÄ‡ do PaneImport.xaml -->
                             <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
                                     Padding="10" Margin="0,0,0,16">
                                 <StackPanel>
@@ -3703,7 +2887,7 @@
                                 </Button.Style>
                             </Button>
 
-                            <!-- Pasek postępu -->
+                            <!-- Pasek postÄ™pu -->
                             <Border Margin="0,16,0,0"
                         Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
@@ -3738,7 +2922,7 @@
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="20" FontWeight="Light"
                            Foreground="#c9a84c" Margin="0,0,16,0"/>
-                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
+                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisĂłw)'}"
                            Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>

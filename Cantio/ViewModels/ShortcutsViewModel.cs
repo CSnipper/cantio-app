@@ -24,8 +24,6 @@ public partial class ShortcutsViewModel : ObservableObject
     [ObservableProperty] private string _songPrev    = string.Empty;
     [ObservableProperty] private string _blank       = string.Empty;
     [ObservableProperty] private string _tabShow     = string.Empty;
-    [ObservableProperty] private string _tabSongs    = string.Empty;
-    [ObservableProperty] private string _tabSets     = string.Empty;
     [ObservableProperty] private string _tabTemplate = string.Empty;
     [ObservableProperty] private string _tabImport   = string.Empty;
     [ObservableProperty] private string _searchOpen  = string.Empty;
@@ -39,8 +37,6 @@ public partial class ShortcutsViewModel : ObservableObject
         SongPrev    = _shortcuts.GetLabel(ShortcutService.SongPrev);
         Blank       = _shortcuts.GetLabel(ShortcutService.Blank);
         TabShow     = _shortcuts.GetLabel(ShortcutService.TabShow);
-        TabSongs    = _shortcuts.GetLabel(ShortcutService.TabSongs);
-        TabSets     = _shortcuts.GetLabel(ShortcutService.TabSets);
         TabTemplate = _shortcuts.GetLabel(ShortcutService.TabTemplate);
         TabImport   = _shortcuts.GetLabel(ShortcutService.TabImport);
         SearchOpen  = _shortcuts.GetLabel(ShortcutService.SearchOpen);
@@ -59,8 +55,6 @@ public partial class ShortcutsViewModel : ObservableObject
             (ShortcutService.SongPrev,    SongPrev),
             (ShortcutService.Blank,       Blank),
             (ShortcutService.TabShow,     TabShow),
-            (ShortcutService.TabSongs,    TabSongs),
-            (ShortcutService.TabSets,     TabSets),
             (ShortcutService.TabTemplate, TabTemplate),
             (ShortcutService.TabImport,   TabImport),
             (ShortcutService.SearchOpen,  SearchOpen),
@@ -83,8 +77,6 @@ public partial class ShortcutsViewModel : ObservableObject
         SongPrev    = ShortcutService.Defaults[ShortcutService.SongPrev];
         Blank       = ShortcutService.Defaults[ShortcutService.Blank];
         TabShow     = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabShow, string.Empty);
-        TabSongs    = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabSongs, string.Empty);
-        TabSets     = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabSets, string.Empty);
         TabTemplate = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabTemplate, string.Empty);
         TabImport   = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabImport, string.Empty);
         SearchOpen  = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.SearchOpen, string.Empty);

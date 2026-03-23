@@ -4,8 +4,6 @@
 
     <!-- Navigation tabs -->
     <sys:String x:Key="Tab.Show">DISPLAY</sys:String>
-    <sys:String x:Key="Tab.Songs">EDIT</sys:String>
-    <sys:String x:Key="Tab.Sets">SETS</sys:String>
     <sys:String x:Key="Tab.Settings">SETTINGS</sys:String>
     <sys:String x:Key="Tab.Import">IMPORT</sys:String>
 
@@ -163,8 +161,6 @@
     <sys:String x:Key="Shortcuts.Blank">Show / Blank screen</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Tab switching</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Display</sys:String>
-    <sys:String x:Key="Shortcuts.TabSongs">Tab: Songs</sys:String>
-    <sys:String x:Key="Shortcuts.TabSets">Tab: Sets</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Settings</sys:String>
     <sys:String x:Key="Shortcuts.TabImport">Tab: Import</sys:String>
     <sys:String x:Key="Shortcuts.Search">Search</sys:String>

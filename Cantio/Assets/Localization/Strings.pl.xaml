@@ -4,8 +4,6 @@
 
     <!-- Zakładki nawigacji -->
     <sys:String x:Key="Tab.Show">WYŚWIETLANIE</sys:String>
-    <sys:String x:Key="Tab.Songs">EDYCJA</sys:String>
-    <sys:String x:Key="Tab.Sets">ZESTAWY</sys:String>
     <sys:String x:Key="Tab.Settings">USTAWIENIA</sys:String>
     <sys:String x:Key="Tab.Import">IMPORT</sys:String>
 
@@ -165,8 +163,6 @@
     <sys:String x:Key="Shortcuts.Blank">Pokaż / Zaciemnij ekran</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Przełączanie zakładek</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Wyświetlanie</sys:String>
-    <sys:String x:Key="Shortcuts.TabSongs">Tab: Pieśni</sys:String>
-    <sys:String x:Key="Shortcuts.TabSets">Tab: Zestawy</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Szablon</sys:String>
     <sys:String x:Key="Shortcuts.TabImport">Tab: Import</sys:String>
     <sys:String x:Key="Shortcuts.Search">Wyszukiwarka</sys:String>

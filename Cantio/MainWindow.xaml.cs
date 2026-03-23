@@ -12,7 +12,6 @@ public partial class MainWindow : Window
     private readonly DisplayViewModel _vm;
     private readonly ImportViewModel _importVm;
     private readonly SzablonViewModel _szablonVm;
-    private readonly SongEditorViewModel _songEditorVm;
     private readonly ShortcutService _shortcutService;
     private readonly ShortcutsViewModel _shortcutsVm;
 
@@ -24,8 +23,6 @@ public partial class MainWindow : Window
             var mods = e.KeyboardDevice.Modifiers;
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabShow))
             { ShowPane(PaneShow, TabShow); e.Handled = true; return; }
-            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabSongs))
-            { ShowPane(PaneSongs, TabSongs); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabTemplate))
             { ShowPane(PaneTemplate, TabTemplate); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabImport))
@@ -47,16 +44,6 @@ public partial class MainWindow : Window
         {
             base.OnPreviewKeyDown(e);
             return;
-        }
-
-        if (e.Key == Key.Delete)
-        {
-            if (_activeTab == "songs" && _songEditorVm.EditingSong != null)
-            {
-                _songEditorVm.DeleteSongCommand.Execute(null);
-                e.Handled = true;
-                return;
-            }
         }
 
         _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
@@ -112,9 +99,6 @@ public partial class MainWindow : Window
         _importVm = new ImportViewModel(db);
         PaneImport.DataContext = _importVm;
 
-        _songEditorVm = new SongEditorViewModel(db);
-        PaneSongs.DataContext = _songEditorVm;
-
         _szablonVm = new SzablonViewModel(db, _vm.Projection);
         _szablonVm.Saved += () => _vm.RebuildSlides();
         PaneTemplate.DataContext = _szablonVm;
@@ -131,7 +115,6 @@ public partial class MainWindow : Window
     // ── Tab switching ──────────────────────────────────────────────────────────
 
     private void TabShow_Click(object sender, RoutedEventArgs e) => ShowPane(PaneShow, TabShow);
-    private void TabSongs_Click(object sender, RoutedEventArgs e) => ShowPane(PaneSongs, TabSongs);
     // private void TabCats_Click(object sender, RoutedEventArgs e) => ShowPane(PaneCats, TabCats);
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
@@ -140,7 +123,6 @@ public partial class MainWindow : Window
     {
         // Hide all panes
         PaneShow.Visibility = Visibility.Collapsed;
-        PaneSongs.Visibility = Visibility.Collapsed;
         // PaneCats.Visibility = Visibility.Collapsed;
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
@@ -155,39 +137,9 @@ public partial class MainWindow : Window
 
         // Track active tab
         _activeTab = pane == PaneShow      ? "show"
-            : pane == PaneSongs            ? "songs"
             : pane == PaneCats             ? "cats"
             : pane == PaneTemplate         ? "template"
             : "import";
-    }
-
-    private int _playOrderDragFromIndex = -1;
-
-    private void PlayOrderItem_MouseMove(object sender, MouseEventArgs e)
-    {
-        if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe)
-        {
-            if (fe.DataContext is VerseEditorItem item)
-            {
-                _playOrderDragFromIndex = _songEditorVm.PlayOrder.IndexOf(item);
-                if (_playOrderDragFromIndex >= 0)
-                    DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
-            }
-        }
-    }
-
-    private void PlayOrderItem_Drop(object sender, DragEventArgs e)
-    {
-        if (sender is FrameworkElement fe && fe.DataContext is VerseEditorItem target)
-        {
-            int toIndex = _songEditorVm.PlayOrder.IndexOf(target);
-            if (_playOrderDragFromIndex >= 0 && toIndex >= 0 && _playOrderDragFromIndex != toIndex)
-            {
-                _songEditorVm.PlayOrder.Move(_playOrderDragFromIndex, toIndex);
-                _songEditorVm.IsDirty = true;
-                _playOrderDragFromIndex = -1;
-            }
-        }
     }
 
     private string _activeTab = "show";
@@ -196,10 +148,6 @@ public partial class MainWindow : Window
     {
         switch (_activeTab)
         {
-            case "songs":
-                if (_songEditorVm.SaveSongCommand.CanExecute(null))
-                    _songEditorVm.SaveSongCommand.Execute(null);
-                break;
             case "template":
                 if (TabSkroty.IsChecked == true)
                 {
@@ -226,15 +174,6 @@ public partial class MainWindow : Window
         SongListShow.Focus();
         if (SongListShow.Items.Count > 0 && SongListShow.SelectedIndex < 0)
             SongListShow.SelectedIndex = 0;
-        e.Handled = true;
-    }
-
-    private void SearchBoxSongs_PreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key != Key.Down) return;
-        SongListSongs.Focus();
-        if (SongListSongs.Items.Count > 0 && SongListSongs.SelectedIndex < 0)
-            SongListSongs.SelectedIndex = 0;
         e.Handled = true;
     }
 

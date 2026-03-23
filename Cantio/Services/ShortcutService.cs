@@ -15,8 +15,6 @@ public class ShortcutService
     public const string SongPrev    = "song_prev";
     public const string Blank       = "blank";
     public const string TabShow     = "tab_show";
-    public const string TabSongs    = "tab_songs";
-    public const string TabSets     = "tab_sets";
     public const string TabTemplate = "tab_template";
     public const string TabImport   = "tab_import";
     public const string SearchOpen  = "search_open";
@@ -24,7 +22,7 @@ public class ShortcutService
     public static readonly IReadOnlyList<string> AllActions =
     [
         SlideNext, SlidePrev, SongNext, SongPrev, Blank,
-        TabShow, TabSongs, TabSets, TabTemplate, TabImport, SearchOpen
+        TabShow, TabTemplate, TabImport, SearchOpen
     ];
 
     private static readonly Dictionary<string, string> _defaults = new()
@@ -35,8 +33,6 @@ public class ShortcutService
         [SongPrev]    = "Up",
         [Blank]       = "Escape",
         [TabShow]     = string.Empty,
-        [TabSongs]    = string.Empty,
-        [TabSets]     = string.Empty,
         [TabTemplate] = string.Empty,
         [TabImport]   = string.Empty,
         [SearchOpen]  = string.Empty,
