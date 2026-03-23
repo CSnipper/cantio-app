@@ -710,7 +710,7 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task LoadPinnedSetlistAsync(Setlist setlist)
+    private async Task LoadPinnedSetlistAsync(Setlist setlist)
     {
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
         if (full == null) return;

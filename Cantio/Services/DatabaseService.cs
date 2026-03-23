@@ -150,15 +150,12 @@ public class DatabaseService
     public async Task SaveVerseOrderAsync(IEnumerable<(int id, int position)> order)
     {
         await using var db = new CantioDbContext();
-        foreach (var (id, position) in order)
-        {
-            var verse = await db.Verses.FindAsync(id);
-            if (verse != null)
-            {
-                verse.Position = position;
-                db.Verses.Update(verse);
-            }
-        }
+        var posMap = order.ToDictionary(o => o.id, o => o.position);
+        var verses = await db.Verses
+            .Where(v => posMap.Keys.Contains(v.Id))
+            .ToListAsync();
+        foreach (var v in verses)
+            if (posMap.TryGetValue(v.Id, out var pos)) v.Position = pos;
         await db.SaveChangesAsync();
     }
 
