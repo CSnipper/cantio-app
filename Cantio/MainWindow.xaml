@@ -411,6 +411,29 @@
             </Setter>
         </Style>
 
+        <!-- ── SMALL ICON BUTTON ── -->
+        <Style x:Key="SmallIconBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#959fb9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2a3347"/>
+                                <Setter Property="Foreground" Value="#e8eaf0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- ── GOLD BUTTON ── -->
         <Style x:Key="GoldBtn" TargetType="Button">
             <Setter Property="Background" Value="#c9a84c"/>
@@ -1452,18 +1475,36 @@
                                                       Margin="8,4">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Margin="0,6">
-                                                        <TextBlock Text="{Binding Label}"
-                                                                   FontSize="11" Foreground="#c9a84c"
-                                                                   Margin="0,0,0,3" FontWeight="SemiBold"/>
-                                                        <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Style="{StaticResource DarkTextBox}"
-                                                                 AcceptsReturn="True"
-                                                                 TextWrapping="Wrap"
-                                                                 MinHeight="60"
-                                                                 FontSize="14"
-                                                                 Padding="8,6"/>
-                                                    </StackPanel>
+                                                    <Grid Margin="0,6">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding Label}"
+                                                                       FontSize="11" Foreground="#c9a84c"
+                                                                       Margin="0,0,0,3" FontWeight="SemiBold"/>
+                                                            <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource DarkTextBox}"
+                                                                     AcceptsReturn="True"
+                                                                     TextWrapping="Wrap"
+                                                                     MinHeight="60"
+                                                                     FontSize="14"
+                                                                     Padding="8,6"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,0,0,0">
+                                                            <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
+                                                                    Style="{StaticResource SmallIconBtn}"
+                                                                    Command="{Binding DataContext.MoveEditableVerseUpCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                            <Button Content="↓" Width="28" Height="28"
+                                                                    Style="{StaticResource SmallIconBtn}"
+                                                                    Command="{Binding DataContext.MoveEditableVerseDownCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>

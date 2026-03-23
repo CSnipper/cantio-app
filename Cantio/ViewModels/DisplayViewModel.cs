@@ -26,6 +26,7 @@ public partial class DisplayViewModel : ObservableObject
         _shortcuts = shortcuts;
         _ = LoadCategoriesAsync();
         _ = LoadPinnedSetlistsAsync();
+        _ = LoadSetlistGroupsAsync();
     }
 
     public async Task InitializeAsync()
@@ -83,7 +84,7 @@ public partial class DisplayViewModel : ObservableObject
 
     partial void OnSelectedSongChanged(Song? value)
     {
-        if (value != null) _ = LoadVersesAsync(value.Id);
+        if (!_loadingVerses && value != null) _ = LoadVersesAsync(value.Id);
     }
 
     partial void OnSearchTextChanged(string value)
@@ -240,10 +241,37 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void MoveEditableVerseUp(EditableVerse verse)
+    {
+        var idx = EditableVerses.IndexOf(verse);
+        if (idx <= 0) return;
+        EditableVerses.Move(idx, idx - 1);
+    }
+
+    [RelayCommand]
+    private void MoveEditableVerseDown(EditableVerse verse)
+    {
+        var idx = EditableVerses.IndexOf(verse);
+        if (idx < 0 || idx >= EditableVerses.Count - 1) return;
+        EditableVerses.Move(idx, idx + 1);
+    }
+
+    [RelayCommand]
     private async Task SaveInlineEditAsync()
     {
         foreach (var ev in EditableVerses)
             await _db.SaveVerseTextAsync(ev.Id, ev.Text);
+
+        var order = EditableVerses.Select((ev, i) => (ev.Id, i));
+        await _db.SaveVerseOrderAsync(order);
+
+        // Refresh the song in the setlist item so changes are visible immediately
+        if (SelectedSetlistItem?.Song != null)
+        {
+            var refreshed = await _db.GetSongWithVersesAsync(SelectedSetlistItem.Song.Id);
+            if (refreshed != null) SelectedSetlistItem.Song = refreshed;
+        }
+
         IsInlineEditorOpen = false;
         RebuildSlides();
     }
@@ -264,6 +292,7 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private SetlistItem? _selectedSetlistItem;
 
     private bool _loadingFromSetlist;
+    private bool _loadingVerses;
 
     partial void OnSelectedSetlistItemChanged(SetlistItem? value)
     {
@@ -327,6 +356,7 @@ public partial class DisplayViewModel : ObservableObject
         else
             SetlistItems.Add(newItem);
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
+        LoadSongFromSetlist(newItem);
     }
 
     [RelayCommand]
@@ -486,8 +516,11 @@ public partial class DisplayViewModel : ObservableObject
 
     private async Task LoadVersesAsync(int songId, bool goToLast = false)
     {
+        _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
-        if (song == null) return;
+        if (song == null) { _loadingVerses = false; return; }
+        SelectedSong = song;
+        _loadingVerses = false;
 
         var baseVerses = song.Verses.OrderBy(v => v.Position).ToList();
         List<Verse> ordered = baseVerses;
