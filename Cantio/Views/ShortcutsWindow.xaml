@@ -1,0 +1,195 @@
+<Window x:Class="Cantio.Views.ShortcutsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:Cantio.Helpers"
+        Title="{DynamicResource Shortcuts.Title}"
+        Width="680" Height="580" MinWidth="500" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#0f1117"
+        Foreground="#e8eaf0"
+        ShowInTaskbar="False"
+        KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header + wyszukiwarka -->
+        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                BorderThickness="0,0,0,1" Padding="20,16">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource Shortcuts.Title}"
+                           FontFamily="{StaticResource HeaderFont}"
+                           FontSize="22" FontWeight="SemiBold"
+                           Foreground="#c9a84c" Margin="0,0,0,12"/>
+                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1">
+                    <Grid>
+                        <TextBox x:Name="SearchBox"
+                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent" BorderThickness="0"
+                                 Foreground="#e8eaf0" FontSize="16"
+                                 FontFamily="{StaticResource BodyFont}"
+                                 Padding="10,8"/>
+                        <TextBlock Text="{DynamicResource Shortcuts.SearchPlaceholder}"
+                                   Foreground="#4a5570" FontSize="16" Padding="12,8"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Lista skrótów -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden"
+                      Padding="0,4,0,4">
+            <ItemsControl ItemsSource="{Binding FilteredView}">
+                <ItemsControl.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <Border Padding="20,14,20,6" Margin="0,6,0,0">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="#c9a84c"/>
+                                </Border>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ItemsControl.GroupStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="20,5,20,5"
+                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="34"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                           Foreground="#e8eaf0" FontSize="16"
+                                           VerticalAlignment="Center"/>
+                                <TextBox Grid.Column="2"
+                                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                         Background="#1e2535" Foreground="#c9a84c"
+                                         BorderBrush="#2a3347" BorderThickness="1"
+                                         CaretBrush="#c9a84c"
+                                         FontFamily="Consolas" FontSize="15"
+                                         Padding="8,6" TextAlignment="Center"
+                                         Height="36" VerticalAlignment="Center"
+                                         helpers:KeyCaptureHelper.IsEnabled="True"/>
+                                <Button Grid.Column="4" Width="34" Height="34"
+                                        VerticalAlignment="Center"
+                                        Tag="{Binding}"
+                                        Click="ClearShortcut_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="Transparent">
+                                                <TextBlock Text="&#x2715;" FontSize="13"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#3a4a65"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsMouseOver,
+                                                                    RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                    Value="True">
+                                                                    <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Dolny pasek -->
+        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                BorderThickness="0,1,0,0" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Content="{DynamicResource Btn.ResetShortcuts}"
+                        Style="{StaticResource ActionBtn}"
+                        Background="Transparent" BorderBrush="#d44a4a"
+                        Foreground="#d44a4a" Padding="16,0"
+                        Click="Reset_Click"/>
+                <Button Grid.Column="2"
+                        Content="{DynamicResource Btn.SaveShortcuts}"
+                        Style="{StaticResource ActionBtn}"
+                        Background="#c9a84c" BorderBrush="#c9a84c"
+                        Foreground="#0f1117" FontWeight="Bold"
+                        Padding="24,0"
+                        Click="Save_Click"/>
+                <Button Grid.Column="4"
+                        Content="{DynamicResource Btn.CancelSettings}"
+                        Style="{StaticResource ActionBtn}"
+                        Background="Transparent" BorderBrush="#2a3347"
+                        Foreground="#959fb9" Padding="16,0"
+                        Click="Cancel_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

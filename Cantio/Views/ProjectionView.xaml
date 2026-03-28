@@ -13,8 +13,9 @@
                Stretch="UniformToFill"
                Opacity="{Binding BackgroundImageOpacity}"/>
 
-        <!-- Tekst -->
-        <TextBlock helpers:TextBlockHelper.FormattedText="{Binding SlideText}"
+        <!-- Tekst projekcji (refren / normalny slajd) -->
+        <TextBlock x:Name="MainTextBlock"
+                   helpers:TextBlockHelper.FormattedText="{Binding SlideText}"
                    helpers:TextBlockHelper.TagDefinitions="{Binding TextTags}"
                    VerticalAlignment="{Binding TextVerticalAlignment}"
                    Margin="{Binding TextMargin}"
@@ -33,8 +34,30 @@
             </TextBlock.Effect>
         </TextBlock>
 
-        <!-- Overlay pusty ekran -->
-        <Border Background="#000000"
+        <!-- Tekst operatora: zwrotka psalmu w podglądzie (ukryty domyślnie) -->
+        <TextBlock x:Name="OperatorTextBlock"
+                   Visibility="Collapsed"
+                   Text="{Binding OperatorSlideText}"
+                   VerticalAlignment="{Binding TextVerticalAlignment}"
+                   Margin="{Binding TextMargin}"
+                   FontFamily="{Binding FontFamily}"
+                   FontSize="{Binding OperatorFontSize}"
+                   FontWeight="{Binding FontWeight}"
+                   Foreground="{Binding TextBrush}"
+                   TextAlignment="{Binding TextAlignment}"
+                   TextWrapping="Wrap"
+                   helpers:TextBlockHelper.LineHeightMultiplier="{Binding LineHeightMultiplier}">
+            <TextBlock.Effect>
+                <DropShadowEffect Color="Black"
+                                  ShadowDepth="{Binding ShadowDepth}"
+                                  BlurRadius="{Binding ShadowBlur}"
+                                  Opacity="{Binding ShadowOpacity}"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- Overlay pusty ekran (ukryty w trybie podglądu operatora) -->
+        <Border x:Name="BlankOverlay"
+                Background="#000000"
                 Visibility="{Binding IsBlank, Converter={StaticResource BoolToVis}}"/>
     </Grid>
 </UserControl>

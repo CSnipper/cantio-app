@@ -375,6 +375,11 @@ SKILL.md
 
 # Wyniki buildu instalatora
 Installer/Output/
+Installer/publish/
 
 # Pliki publikacji — profile są w repo, ale output nie
 Cantio/bin/Publish/
+
+#Inne
+docs/
+.superpowers/

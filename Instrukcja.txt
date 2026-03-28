@@ -1,0 +1,572 @@
+================================================================================
+  CANTIO — INSTRUKCJA OBSŁUGI
+  Program do wyświetlania pieśni liturgicznych na projektorze
+================================================================================
+
+Wersja programu: 1.0.0
+Autor: CSnipper
+Repozytorium: https://github.com/CSnipper/cantio-app
+
+--------------------------------------------------------------------------------
+
+SPIS TREŚCI
+  1. Opis programu
+  2. Instalacja
+  3. Pierwsze uruchomienie
+  4. Zakładki programu
+     4.1  WYŚWIETLANIE
+     4.2  EDYCJA
+     4.3  ZESTAWY
+     4.4  USTAWIENIA
+     4.5  IMPORT
+  5. Skróty klawiaturowe
+  6. Konfiguracja skrótów
+  7. Import pieśni z innych programów
+  8. Podpowiedzi i wskazówki
+
+================================================================================
+  1. OPIS PROGRAMU
+================================================================================
+
+Cantio to program dla organisty lub kościelnego lektora, który umożliwia
+wyświetlanie tekstu pieśni liturgicznych na projektorze lub dodatkowym monitorze
+podczas nabożeństwa.
+
+Główne funkcje:
+  - Wyświetlanie tekstu pieśni na osobnym ekranie/projektorze w dużej czcionce
+  - Zarządzanie bazą pieśni (dodawanie, edycja, kategorie)
+  - Tworzenie zestawów pieśni na nabożeństwo
+  - Import z OpenLP i OpenSong
+  - Konfigurowalny wygląd (czcionka, kolory, tło, cień)
+  - Konfigurowalne skróty klawiaturowe
+  - Obsługa dotyku (przyciski dostosowane do ekranów dotykowych)
+  - Trzy języki interfejsu: polski, angielski, hiszpański
+
+================================================================================
+  2. INSTALACJA
+================================================================================
+
+Wymagania systemowe:
+  - Windows 10 lub nowszy (64-bit)
+  - Opcjonalnie: drugi monitor lub projektor (HDMI/VGA)
+
+Instalacja:
+  1. Uruchom plik CantioSetup-x.y.z.exe
+  2. Zatwierdź monit UAC (wymagane uprawnienia administratora)
+  3. Postępuj zgodnie z kreatorem:
+     - Kliknij Dalej
+     - Wybierz czy chcesz przykładową bazę pieśni czy pustą bazę
+     - Kliknij Instaluj
+     - Opcjonalnie zaznacz "Uruchom Cantio" na końcu
+
+Wybór bazy danych podczas instalacji:
+  [•] Przykładowa baza — gotowe pieśni dołączone do instalatora (zalecane)
+      Program zainstaluje przykładowy zestaw pieśni liturgicznych.
+      Możesz od razu zacząć korzystać z programu.
+
+  [ ] Pusta baza — zacznij od zera
+      Baza jest pusta. Pieśni trzeba dodać ręcznie lub zaimportować.
+
+Odinstalowanie:
+  Użyj opcji "Dodaj lub usuń programy" w ustawieniach systemu Windows.
+  Dane użytkownika (baza pieśni) NIE są usuwane przy odinstalowaniu.
+  Znajdują się w: %LocalAppData%\Cantio\cantio.db
+
+================================================================================
+  3. PIERWSZE URUCHOMIENIE
+================================================================================
+
+Po pierwszym uruchomieniu:
+
+1. Podłącz projektor lub drugi monitor do komputera.
+2. W zakładce USTAWIENIA → Ekran wybierz właściwy ekran projekcji.
+   Przykład: "Ekran 2  1920×1080"
+3. Kliknij "Zapisz ustawienia".
+4. Przejdź do zakładki WYŚWIETLANIE.
+5. Wybierz kategorię z listy po lewej stronie.
+6. Wybierz pieśń z listy.
+7. Kliknij na zwrotkę, którą chcesz wyświetlić — pojawi się na projektorze.
+
+Okno projekcji (na projektorze) pojawia się automatycznie po uruchomieniu.
+Możesz je przeciągnąć na właściwy monitor lub wybrać go w ustawieniach.
+
+Program zapamiętuje pozycję i rozmiar okna głównego po zamknięciu
+i przywraca je przy kolejnym uruchomieniu. Jeśli monitor, na którym
+było okno, nie jest już podłączony, program wyśrodkuje się na ekranie głównym.
+
+================================================================================
+  4. ZAKŁADKI PROGRAMU
+================================================================================
+
+Program podzielony jest na 5 zakładek w górnym pasku:
+WYŚWIETLANIE | EDYCJA | ZESTAWY | USTAWIENIA | IMPORT
+
+Do każdej zakładki można przejść myszą lub skrótem klawiaturowym
+(patrz sekcja 6 — Konfiguracja skrótów).
+
+------------------------------------------------------------------------
+4.1  WYŚWIETLANIE
+------------------------------------------------------------------------
+
+To główna zakładka podczas nabożeństwa. Podzielona na trzy kolumny.
+
+LEWA KOLUMNA — Wybór pieśni
+  - Lista kategorii pieśni (np. Adwent, Wielkanoc, Różaniec...)
+  - Kliknij kategorię, aby zobaczyć jej pieśni
+  - Pole wyszukiwania — wpisz fragment tytułu lub numer
+    (strzałka w dół z pola wyszukiwania przenosi fokus na listę)
+
+ŚRODKOWA KOLUMNA — Zwrotki
+  - Lista zwrotek wybranej pieśni
+  - Typy zwrotek: Zwrotka, Refren, Bridge
+  - Kliknij zwrotkę, aby wyświetlić ją na projektorze
+  - Długie zwrotki dzielone są automatycznie na wiele slajdów
+
+PRAWA KOLUMNA — Podgląd i Zestaw
+
+  Podgląd ekranu (górna część):
+    - Miniatura tego, co aktualnie widzi projektor
+    - Strzałki ◄ ► do przechodzenia między slajdami
+    - Przycisk WYGAŚ / POKAŻ — ukrywa i przywraca tekst na projektorze
+      bez utraty bieżącej pozycji (przydatne podczas modlitwy)
+
+  Zestaw (dolna część):
+    - Lista pieśni na bieżące nabożeństwo (kolejność wykonania)
+    - Przycisk "⊞ Otwórz" — otwiera okno wyszukiwania zestawów
+      (znajdź i załaduj zapisany zestaw)
+    - Kliknij pieśń w zestawie, aby ją wybrać i od razu wyświetlić
+    - Przyciski ⏫ 🔼 🔽 ⏬ — zmiana kolejności pieśni w zestawie
+    - Przycisk ✕ przy pieśni — usuwa ją z zestawu
+    - Przycisk ✎ — edycja tekstu zwrotki bezpośrednio (inline)
+    - Dodawanie do zestawu: zaznacz pieśń w lewej kolumnie,
+      kliknij "DODAJ DO KOLEJNOŚCI" lub przeciągnij ją
+
+  Zapisywanie zestawu:
+    - Nad polem nazwy znajduje się pole grupy (opcjonalne) — pozwala
+      przypisać zestaw do grupy (np. "Niedziela", "Środa")
+    - Przycisk ZAPISZ ZESTAW zapisuje bieżący zestaw do biblioteki
+    - Jeśli zestaw był wcześniej załadowany z biblioteki, pojawi się
+      pytanie: "Tak" = nadpisz istniejący zestaw, "Dodaj nowy" = zapisz
+      jako nowy zestaw, "Nie" = anuluj
+    - Możesz wpisać nazwę zestawu (np. "Niedziela 16.03.2026")
+    - Jeśli nie wpiszesz nazwy, zostanie użyta data i godzina
+    - Ctrl+S na zakładce Wyświetlanie = zapisz zestaw
+
+  Wyszukiwarka zestawów (popup):
+    - Kliknij "⊞ Otwórz" lub użyj skrótu (patrz sekcja 6)
+    - Wpisz fragment nazwy zestawu
+    - Kliknij "Otwórz" — zastępuje bieżący zestaw
+    - Kliknij "Dołącz" — dodaje pieśni na koniec bieżącego zestawu
+    - Kliknij poza popup — zamyka bez zmian
+
+------------------------------------------------------------------------
+4.2  EDYCJA
+------------------------------------------------------------------------
+
+Zakładka do zarządzania bazą pieśni.
+
+LEWA KOLUMNA — Kategorie i lista pieśni
+
+  Kategorie:
+    - Kliknij kategorię, aby filtrować pieśni
+    - Kliknij "✎" przy kategorii, aby ją edytować (nazwa, numer)
+    - Kliknij "+" aby dodać nową kategorię
+    - Kliknij "✕" aby usunąć kategorię (pieśni nie są kasowane)
+
+  Pieśni:
+    - Pole wyszukiwania — filtruje po tytule i numerze
+    - Kliknij pieśń, aby otworzyć w edytorze po prawej
+    - Przycisk NOWA PIEŚŃ — tworzy pustą pieśń
+
+PRAWA KOLUMNA — Edytor pieśni
+
+  Nagłówek pieśni:
+    - Tytuł (wymagane)
+    - Numer / Nr (opcjonalnie, np. numer w śpiewniku)
+    - Kategoria (lista rozwijana)
+
+  Zwrotki:
+    - Lista zwrotek z etykietami (Zwrotka 1, Refren, Bridge itp.)
+    - Kliknij zwrotkę, aby edytować jej tekst w polu poniżej
+    - Przycisk "Dodaj: + Zwrotka / + Refren / + Bridge"
+      — dodaje nową zwrotkę odpowiedniego typu
+    - Kliknij etykietę zwrotki (np. "1", "R", "B"), aby zmienić jej typ:
+      Zwrotka → Refren → Bridge → Zwrotka (cyklicznie)
+    - Kliknij "✕" przy zwrotce, aby ją usunąć
+    - Kliknij "✎ Edytuj całość" — otwiera dialog do wklejenia
+      całego tekstu pieśni (każda zwrotka oddzielona pustą linią)
+      Opcja "Psalm — nie wstawiaj refrenu automatycznie":
+        Zaznacz, gdy wklejasz psalm z już wstawionymi refrenami.
+        Program zachowa tekst dokładnie tak, jak go wklejono —
+        bez automatycznego dodawania refrenu po każdej zwrotce.
+
+  Automatyczne wstawianie refrenu:
+    Gdy pieśń ma refren, program domyślnie wstawia go automatycznie
+    po każdej zwrotce podczas wyświetlania (bez zmian w bazie danych).
+    Dla psalmów responsoryjnych lub pieśni z własnym układem użyj
+    opcji "Psalm — nie wstawiaj refrenu automatycznie" w "Edytuj całość".
+
+  Kolejność wykonania:
+    - Drag & drop zwrotek, aby zmienić kolejność wyświetlania
+    - Można dodać tę samą zwrotkę wielokrotnie
+      (np. Refren po Zwrotce 1, Zwrotce 2 i Zwrotce 3)
+
+  Formatowanie tekstu:
+    Możesz używać tagów formatowania w tekście zwrotek:
+      {b}tekst{/b}   — pogrubienie
+      {i}tekst{/i}   — kursywa
+      {u}tekst{/u}   — podkreślenie
+      {tag}tekst{/tag} — kolor/styl zdefiniowany w Ustawieniach → Kolory
+
+    Skrót w edytorze: Ctrl+klawisz (skrót przypisany do tagu w ustawieniach)
+
+  Przyciski akcji:
+    - ZAPISZ PIEŚŃ — zapisuje do bazy danych (lub Ctrl+S)
+    - ANULUJ — porzuca niezapisane zmiany
+    - USUŃ — usuwa pieśń (prosi o potwierdzenie)
+    - Czerwona gwiazdka (★) — sygnalizuje niezapisane zmiany
+
+------------------------------------------------------------------------
+4.3  ZESTAWY
+------------------------------------------------------------------------
+
+Zakładka do zarządzania biblioteką zestawów (planów nabożeństw).
+
+LEWA KOLUMNA — Grupy i zestawy
+
+  Grupy:
+    - Przyciski szybkiego filtrowania (np. "Niedziela", "Ślub", "Pogrzeb")
+    - Przycisk "WSZYSTKIE" — pokazuje wszystkie zestawy
+    - Pole + przycisk — dodaj nową grupę
+    - Kliknij "✕" przy grupie, aby ją usunąć
+
+  Lista zestawów:
+    - Wszystkie zapisane zestawy
+    - Pole wyszukiwania — filtruje po nazwie
+    - Kliknij zestaw, aby zobaczyć jego zawartość po prawej
+    - Przycisk PRZYPNIJ / ODEPNIJ — przypina/odpina zestaw do szybkiego
+      dostępu; gdy zestaw jest przypięty, przycisk zmienia się na ODEPNIJ
+    - Przycisk "▶ WYŚWIETLAJ" — ładuje zestaw na zakładkę Wyświetlanie
+    - Przycisk USUŃ ZESTAW — kasuje zestaw (prosi o potwierdzenie)
+
+  Przypięte zestawy:
+    - Wyświetlane na górze listy z ikoną 📌
+    - Łatwy dostęp do najczęściej używanych zestawów
+
+PRAWA KOLUMNA — Edytor zestawu
+
+  Po wybraniu zestawu po lewej:
+    - Lista pieśni w kolejności wykonania
+    - Drag & drop — zmiana kolejności
+    - Przycisk ⧉ — klonuje pieśń (wstawia kopię poniżej)
+    - Przycisk ✕ — usuwa pieśń z zestawu
+    - ZAPISZ KOLEJNOŚĆ — zapisuje zmiany (lub Ctrl+S)
+    - Przenoszenie do grupy: przycisk "Przenieś do:" przy zestawie
+
+------------------------------------------------------------------------
+4.4  USTAWIENIA
+------------------------------------------------------------------------
+
+Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
+
+  GŁÓWNE | EKRAN | CZCIONKA | KOLORY | POZYCJA | SKRÓTY
+
+-- Główne --
+  - Ładuj ostatnio otwarty zestaw przy starcie:
+    Jeśli zaznaczone, program automatycznie ładuje ostatnio używany
+    zestaw do zakładki WYŚWIETLANIE przy każdym uruchomieniu.
+
+  - Automatyczne dopasowanie rozmiaru czcionki:
+    Jeśli zaznaczone, program powiększa czcionkę tak, żeby tekst slajdu
+    wypełniał jak największą część ekranu. Rozmiar czcionki ustawiony
+    w zakładce Czcionka staje się wówczas minimalnym rozmiarem — nigdy
+    nie zostanie zmniejszony poniżej tej wartości.
+    Jeśli odznaczone, używany jest zawsze dokładnie ten rozmiar co w
+    ustawieniach (tryb statyczny).
+
+  - Kategoria psalmu responsoryjnego:
+    Wskaż kategorię, w której przechowujesz psalmy responsoryjne.
+    Gdy załadujesz pieśń z tej kategorii, automatycznie włączy się
+    tryb psalm (patrz sekcja 8 — Tryb psalm).
+    Ustaw "(brak)", aby wyłączyć tę funkcję.
+
+-- Ekran --
+  - Wybierz monitor/projektor z listy
+  - Lista wyświetla wszystkie podłączone ekrany z rozdzielczością
+    Przykład: "Ekran 2  1920×1080"
+  - Wybierz ten, na którym ma pojawiać się tekst pieśni
+
+-- Czcionka --
+  - Rodzina czcionki: wybierz z listy czcionek systemowych
+  - Rozmiar czcionki: suwak (w pikselach)
+    Gdy włączone jest Automatyczne dopasowanie (Główne), jest to
+    minimalny rozmiar. Obok suwaka widoczna jest etykieta z aktualnie
+    wyliczonym rozmiarem dla bieżącego slajdu.
+  - Pogrubienie: checkbox
+  - Wyrównanie poziome: Wyśrodkuj / Lewo / Prawo
+  - Odstęp między wierszami: suwak (mnożnik rozmiaru czcionki)
+  - Marginesy: wartości poziome i pionowe (w pikselach)
+  - Wyrównanie pionowe: Góra / Środek / Dół
+
+-- Kolory --
+
+  Kolor tekstu:
+    - Przycisk "Wybierz kolor" — otwiera picker kolorów
+    - Predefiniowane kolory: biały, kremowy, żółty, złoty, jasnoniebieski
+    - Pole hex (#ffffff)
+
+  Cień tekstu:
+    - Włącz/wyłącz cień
+    - Rozmycie: suwak
+    - Głębokość: suwak
+    - Przezroczystość: suwak
+
+  Kolor tła:
+    - Picker koloru i predefiniowane kolory (czarny, granatowy itp.)
+
+  Gradient tła:
+    - Włącz/wyłącz gradient
+    - Typ: Liniowy lub Radialny
+    - Kolor 1 i Kolor 2: osobne pickery
+    - Kąt (°): dla gradientu liniowego
+
+  Obraz tła:
+    - Przycisk PRZEGLĄDAJ — wybierz plik JPG/PNG/BMP
+    - Przycisk ✕ — usuń obraz
+    - Suwak krycia obrazu (0–100%)
+    - Można łączyć z kolorem/gradientem tła
+
+  Tagi formatowania:
+    - "+" — dodaj nowy tag
+    - Nazwa tagu (np. "verse", "title")
+    - Kolor tagu
+    - Skrót klawiaturowy (Ctrl+klawisz w edytorze zwrotek)
+    - Użycie w tekście: {nazwa}tekst{/nazwa}
+
+-- Skróty --
+
+  Patrz sekcja 6 — Konfiguracja skrótów.
+
+Przyciski na dole zakładki Ustawienia:
+  - ZAPISZ USTAWIENIA — zapisuje i natychmiast stosuje zmiany
+    (przebudowuje slajdy na projektorze)
+  - RESETUJ — przywraca domyślne ustawienia fabryczne
+
+Ctrl+S na zakładce Ustawienia:
+  - W podzakładce Skróty: zapisuje skróty
+  - W pozostałych: zapisuje ustawienia szablonu
+
+------------------------------------------------------------------------
+4.5  IMPORT
+------------------------------------------------------------------------
+
+Importowanie pieśni z innych programów.
+
+Obsługiwane formaty:
+  [•] OpenLP SQLite    — plik bazy danych .sqlite z programu OpenLP
+  [ ] OpenLP XML       — plik XML w formacie OpenLyrics
+  [ ] OpenSong Folder  — katalog z plikami XML OpenSong
+  [ ] OpenSong XML     — plik XML w formacie OpenSong
+
+Kroki importu:
+  1. Wybierz format (radio button)
+  2. Kliknij PRZEGLĄDAJ i wskaż plik lub katalog
+  3. Opcje:
+       [✓] Importuj kategorie — tworzy nowe kategorie jeśli nie istnieją
+       [ ] Nadpisuj istniejące — zastępuje pieśni o tym samym numerze
+  4. Kliknij PODGLĄD — sprawdź ile pieśni zostanie zaimportowanych
+  5. Kliknij IMPORTUJ — uruchom import
+  6. Obserwuj log importu z wynikami
+
+Import zestawów OpenLP (.osz):
+  - Osobna sekcja na dole zakładki Import
+  - Plik .osz to plik ZIP z zestawami z OpenLP
+  - Wybierz grupę docelową z listy (lub "bez grupy")
+  - Kliknij IMPORTUJ OSZ — wybierz jeden lub więcej plików .osz
+  - Zestawy pojawią się w zakładce ZESTAWY
+
+Log importu:
+  - ✓  — zaimportowano pomyślnie (zielony)
+  - •  — pominięto (szary, np. pieśń już istnieje)
+  - ✗  — błąd (czerwony)
+
+================================================================================
+  5. SKRÓTY KLAWIATUROWE
+================================================================================
+
+DOMYŚLNE SKRÓTY (można zmienić w Ustawienia → Skróty):
+
+  Prawy strzałek   — następny slajd
+  Lewy strzałek    — poprzedni slajd
+  Strzałka w dół   — następna pieśń w zestawie
+  Strzałka w górę  — poprzednia pieśń w zestawie
+  Escape           — wygaś / pokaż ekran (blank)
+  Spacja           — następny slajd (zawsze aktywna, nieusuwalna)
+  Home             — skocz do pierwszego slajdu (zawsze aktywna)
+
+STAŁE SKRÓTY (niekonfigurowalne):
+  Ctrl+S           — zapisz (zależnie od aktywnej zakładki)
+  Strzałka w dół   — z pola wyszukiwania → przejście na listę wyników
+
+DOMYŚLNE SKRÓTY ZAKŁADEK (domyślnie niezapisane, do skonfigurowania):
+  Wszystkie zakładki i wyszukiwarka zestawów można przypisać do
+  dowolnych klawiszy w Ustawienia → Skróty.
+
+UWAGA: Skróty nawigacji projekcji (slajdy, pieśni, blank) działają zawsze,
+       niezależnie od tego, który element interfejsu ma fokus.
+       Wyjątek: gdy kursor jest w polu tekstowym (edycja pieśni),
+       skróty nawigacji nie są aktywne — Ctrl+S działa zawsze.
+       Alt+F4 zamyka program.
+
+================================================================================
+  6. KONFIGURACJA SKRÓTÓW
+================================================================================
+
+W zakładce USTAWIENIA → podzakładka SKRÓTY możesz zmienić
+wszystkie skróty klawiaturowe.
+
+Jak zmienić skrót:
+  1. Kliknij pole tekstowe obok akcji, którą chcesz zmienić
+  2. Naciśnij nowy klawisz lub kombinację (np. Ctrl+F, F5, PageDown)
+  3. Pole wyświetli nazwę klawisza (np. "Ctrl+F", "F5", "PageDown")
+  4. Aby wyczyścić skrót: naciśnij Escape, Backspace lub Delete
+  5. Kliknij "Zapisz skróty" lub Ctrl+S
+
+Zasady:
+  - Klawisze liter (A–Z) automatycznie dostają prefiks Ctrl+
+    (np. naciśnięcie "F" daje skrót "Ctrl+F")
+  - Klawisze numeryczne, funkcyjne (F1–F12), strzałki, PageUp/Down
+    mogą być używane bez modyfikatora
+  - Skrót może być pusty — akcja wtedy niedostępna z klawiatury
+  - Przycisk "Przywróć domyślne" resetuje do wartości fabrycznych
+
+Przykładowa konfiguracja dla pilota:
+  Następny slajd  → PageDown
+  Poprzedni slajd → PageUp
+  Następna pieśń  → Ctrl+PageDown
+  Poprzednia pieśń → Ctrl+PageUp
+  Blank           → Ctrl+B
+
+================================================================================
+  7. IMPORT PIEŚNI Z INNYCH PROGRAMÓW
+================================================================================
+
+-- Z OpenLP --
+
+OpenLP SQLite:
+  1. Znajdź bazę danych OpenLP:
+     Windows: %AppData%\openlp\Data\songs\songs.sqlite
+  2. W Cantio: IMPORT → OpenLP (sqlite) → PRZEGLĄDAJ → wybierz plik
+  3. PODGLĄD, potem IMPORTUJ
+
+OpenLP XML / OpenLyrics:
+  1. W OpenLP: Plik → Eksportuj pieśni → OpenLyrics
+  2. W Cantio: IMPORT → OpenLP (xml) → PRZEGLĄDAJ → wybierz plik/katalog
+
+-- Z OpenSong --
+
+  1. Wskaż katalog z plikami OpenSong lub plik XML
+  2. IMPORT → OpenSong (folder) lub OpenSong (xml)
+
+-- Zestawy z OpenLP (.osz) --
+
+  1. W OpenLP: Plik → Eksportuj → lista nabożeństwa (.osz)
+  2. W Cantio: IMPORT → sekcja "Zestawy OpenLP (.osz)"
+  3. Wybierz grupę docelową
+  4. Kliknij IMPORTUJ OSZ i wskaż plik(i)
+
+================================================================================
+  8. PODPOWIEDZI I WSKAZÓWKI
+================================================================================
+
+Płynne prowadzenie nabożeństwa:
+  - Przygotuj zestaw przed nabożeństwem w zakładce ZESTAWY
+  - Załaduj zestaw do Wyświetlania przez przycisk ▶ WYŚWIETLAJ
+  - Podczas nabożeństwa przełączaj pieśni strzałkami (góra/dół)
+    i slajdy strzałkami (lewo/prawo) lub prawym klawiszem
+
+Szybki dostęp do zestawów:
+  - Przypnij często używane zestawy (przycisk 📌 w ZESTAWY)
+  - Będą widoczne na górze listy
+
+Automatyczne ładowanie zestawu przy starcie:
+  - W Ustawienia → Główne włącz "Ładuj ostatnio otwarty zestaw przy starcie"
+  - Program zapamięta ostatnio używany zestaw i załaduje go automatycznie
+    przy każdym uruchomieniu
+  - Zestaw jest zapisywany przy każdym załadowaniu (przycisk ▶ WYŚWIETLAJ,
+    wyszukiwarka zestawów) — nie wymaga ręcznego zapisu
+
+Automatyczne dopasowanie czcionki:
+  - W Ustawienia → Główne włącz "Automatyczne dopasowanie rozmiaru czcionki"
+  - Program powiększa czcionkę tak, żeby tekst zajmował jak najwięcej
+    miejsca na ekranie — przydatne gdy różne zwrotki mają różną długość
+  - Rozmiar w Ustawienia → Czcionka staje się minimalnym rozmiarem
+  - Wyłącz, gdy chcesz stały rozmiar czcionki na wszystkich slajdach
+
+Blank screen (zaciemnienie):
+  - Użyj przycisku WYGAŚ lub klawisza Escape
+  - Projektor pokazuje ciemny ekran — przydatne podczas kazania,
+    komunii lub modlitwy, gdy tekst nie jest potrzebny
+  - Naciśnij ponownie, aby przywrócić poprzedni slajd
+
+Podział na slajdy:
+  - Program automatycznie dzieli długie zwrotki na kilka slajdów
+  - Podział zależy od rozmiaru czcionki i rozdzielczości projektora
+  - Preferowane miejsca podziału (w kolejności):
+      Enter (nowa linia) → . → , → ; → : → spacja
+  - Jeśli chcesz ręcznie kontrolować podział, użyj pustej linii
+    w tekście zwrotki jako miejsca podziału
+  - Lista slajdów pokazuje etykiety zwrotek: 1, 2, 3 dla zwrotek,
+    R dla refrenu, B dla bridge (R2, B2 gdy jest ich kilka)
+
+Nawigacja między pieśniami:
+  - Cofnięcie slajdu na pierwszym slajdzie pieśni przechodzi do
+    ostatniego slajdu poprzedniej pieśni w zestawie
+  - Lista slajdów automatycznie scrolluje do bieżącego slajdu
+
+Formatowanie tekstu:
+  - W edytorze zwrotek możesz wyróżnić słowa kolorem
+  - Przykład: {b}Alleluja{/b} pogrubia słowo
+  - Zdefiniuj własne tagi w Ustawienia → Kolory → Tagi formatowania
+  - Przypisz skrót Ctrl+klawisz do tagu — zaznacz tekst i użyj skrótu
+
+Tryb psalm (psalm responsoryjny):
+  - Gdy załadujesz pieśń z kategorii psalmu (skonfigurowanej w Ustawieniach
+    → Główne), tryb psalm włącza się automatycznie.
+  - Na projektorze wyświetlany jest wyłącznie refren (R) — przez cały czas
+    trwania psalmu, niezależnie od tego, którą zwrotkę widzi operator.
+  - Operator w podglądzie widzi aktualnie czytaną zwrotkę.
+  - Gdy operator przejdzie do kolejnego refrenu (R), projektor zaktualizuje
+    wyświetlany tekst.
+  - Tryb psalm wyłącza się automatycznie po załadowaniu pieśni
+    z innej kategorii.
+  - Zalecany przepływ pracy:
+      1. Ustaw "Kategoria psalmu responsoryjnego" w Ustawieniach
+      2. Zapisz psalmy w tej kategorii
+      3. Podczas liturgii załaduj psalm — tryb włączy się automatycznie
+      4. Nawiguj strzałkami przez zwrotki — projektor trzyma refren
+      5. Kliknij slajd R, gdy schola/lud ma zaśpiewać refren
+
+Języki interfejsu:
+  - Ustawienia → Ekran → na dole: lista rozwijana Język
+  - Dostępne: Polski, English, Español
+  - Zmiana działa natychmiast
+
+Praca bez projektora (wersja treningowa):
+  - Program działa normalnie bez drugiego monitora
+  - Okno projekcji pojawia się na głównym ekranie
+  - Podgląd w prawej kolumnie Wyświetlania zawsze jest aktywny
+
+Kopia zapasowa danych:
+  - Baza danych: %LocalAppData%\Cantio\cantio.db
+  - Skopiuj ten plik, aby zrobić kopię zapasową wszystkich pieśni i zestawów
+  - Wklej go z powrotem w to samo miejsce, aby przywrócić dane
+
+================================================================================
+  KONTAKT I POMOC
+================================================================================
+
+Zgłaszanie błędów i propozycje:
+  https://github.com/CSnipper/cantio-app/issues
+
+================================================================================

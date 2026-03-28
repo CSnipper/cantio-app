@@ -28,13 +28,11 @@ namespace Cantio.Views
             Width = area.Width;
             Height = area.Height;
 
-            // Wymuś pełny ekran po pozycjonowaniu
+            // Wymuś pozycję po pozycjonowaniu (Width/Height ustawiane przez DisplayViewModel po odczycie właściwego DPI)
             Dispatcher.BeginInvoke(() =>
             {
                 Left = area.Left;
                 Top = area.Top;
-                Width = area.Width;
-                Height = area.Height;
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 

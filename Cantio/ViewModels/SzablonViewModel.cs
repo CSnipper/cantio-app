@@ -129,7 +129,10 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private string _selectedLanguage = "pl";
 
     partial void OnSelectedLanguageChanged(string value)
-        => LocalizationManager.SetLanguage(value);
+    {
+        LocalizationManager.SetLanguage(value);
+        OnPropertyChanged(nameof(FontSizeLabel));
+    }
 
     [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
 
@@ -289,6 +292,9 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("bg_gradient_angle", GradientAngle.ToString());
 
         await _db.SaveSettingAsync("language", SelectedLanguage);
+        await _db.SaveSettingAsync("load_last_setlist", LoadLastSetlistOnStartup ? "1" : "0");
+        await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
+        await _db.SaveSettingAsync("psalm_category_id", (SelectedPsalmCategory?.Id ?? 0).ToString());
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
@@ -307,8 +313,25 @@ public partial class SzablonViewModel : ObservableObject
         GradientEnabled = false; GradientType = "linear"; GradientColor1 = "#000000"; GradientColor2 = "#1a1a2e"; GradientAngle = 180;
         TextPosition = "center";
         TextMarginH = 80; TextMarginV = 60;
+        FontAutoFit = true;
         await SaveAsync();
     }
+
+    // ── Ogólne ────────────────────────────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
+    private bool _fontAutoFit = true;
+
+    public string FontSizeLabel => FontAutoFit
+        ? (Application.Current.TryFindResource("Settings.FontSizeMin") as string ?? "Rozmiar minimalny")
+        : (Application.Current.TryFindResource("Settings.FontSize") as string ?? "Rozmiar czcionki");
+
+    [ObservableProperty]
+    private bool _loadLastSetlistOnStartup;
+
+    [ObservableProperty] private ObservableCollection<Category> _psalmCategories = [];
+    [ObservableProperty] private Category? _selectedPsalmCategory;
 
     // ── Load ──────────────────────────────────────────────────────────────
 
@@ -345,15 +368,28 @@ public partial class SzablonViewModel : ObservableObject
             : Screens.Count > 1 ? Screens[1] : Screens.FirstOrDefault();
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
+
+        var loadLast = await _db.GetSettingAsync("load_last_setlist");
+        LoadLastSetlistOnStartup = loadLast == "1";
+        FontAutoFit = s.FontAutoFit;
+
+        var allCategories = await _db.GetCategoriesAsync();
+        var noneCategory = new Category { Id = 0, Name = "(brak)" };
+        PsalmCategories = new ObservableCollection<Category>(
+            new[] { noneCategory }.Concat(allCategories.OrderBy(c => c.Number))
+        );
+        SelectedPsalmCategory = PsalmCategories.FirstOrDefault(c => c.Id == s.PsalmCategoryId) ?? noneCategory;
     }
 
     private void LoadScreens()
     {
+        var screenWord  = Application.Current.TryFindResource("Settings.Screen")  as string ?? "Screen";
+        var primaryWord = Application.Current.TryFindResource("Settings.ScreenPrimary") as string ?? "(primary)";
         Screens = Screen.AllScreens
             .Select((s, i) => new ScreenOption
             {
                 Index = i,
-                Label = $"Ekran {i + 1}{(s.Primary ? " (główny)" : "")}  {(int)s.WpfBounds.Width}×{(int)s.WpfBounds.Height}"
+                Label = $"{screenWord} {i + 1}{(s.Primary ? $" {primaryWord}" : "")}  {(int)s.WpfBounds.Width}×{(int)s.WpfBounds.Height}"
             }).ToList();
     }
 

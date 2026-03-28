@@ -147,6 +147,18 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task SaveVerseOrderAsync(IEnumerable<(int id, int position)> order)
+    {
+        await using var db = new CantioDbContext();
+        var posMap = order.ToDictionary(o => o.id, o => o.position);
+        var verses = await db.Verses
+            .Where(v => posMap.Keys.Contains(v.Id))
+            .ToListAsync();
+        foreach (var v in verses)
+            if (posMap.TryGetValue(v.Id, out var pos)) v.Position = pos;
+        await db.SaveChangesAsync();
+    }
+
     // ── Zestawy ───────────────────────────────────────────────────────────
 
     public async Task<List<Setlist>> GetSetlistsAsync()
@@ -155,6 +167,13 @@ public class DatabaseService
         return await db.Setlists.AsNoTracking()
             .OrderByDescending(sl => sl.CreatedAt)
             .ToListAsync();
+    }
+
+    public async Task<Setlist?> GetSetlistAsync(int setlistId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Setlists.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == setlistId);
     }
 
     public async Task<List<Setlist>> GetPinnedSetlistsAsync()
@@ -218,12 +237,19 @@ public class DatabaseService
         {
             item.SetlistId = setlistId;
             item.Id = 0;
+            item.Song = null;
         }
         db.SetlistItems.AddRange(items);
         await db.SaveChangesAsync();
     }
 
     // ── Ustawienia ────────────────────────────────────────────────────────
+
+    public string? GetSettingSync(string key)
+    {
+        using var db = new CantioDbContext();
+        return db.Settings.AsNoTracking().FirstOrDefault(a => a.Key == key)?.Value;
+    }
 
     public async Task<string?> GetSettingAsync(string key)
     {
@@ -301,6 +327,8 @@ public class DatabaseService
             GradientColor2 = Get("bg_gradient_color2", "#1a1a2e", v => v),
             GradientAngle = Get("bg_gradient_angle", 180.0, v => double.TryParse(v, out var d) ? d : 180),
             TextTags = GetTextTags(),
+            FontAutoFit = Get("font_auto_fit", true, v => v == "true"),
+            PsalmCategoryId = Get("psalm_category_id", 0, v => int.TryParse(v, out var id) ? id : 0),
         };
     }
 }

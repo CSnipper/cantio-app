@@ -4,33 +4,33 @@
 
     <!-- Pestañas de navegación -->
     <sys:String x:Key="Tab.Show">PRESENTACIÓN</sys:String>
-    <sys:String x:Key="Tab.Songs">EDICIÓN</sys:String>
-    <sys:String x:Key="Tab.Sets">LISTAS</sys:String>
     <sys:String x:Key="Tab.Settings">AJUSTES</sys:String>
-    <sys:String x:Key="Tab.Import">IMPORTAR</sys:String>
+    <sys:String x:Key="Tab.Import">APARIENCIA</sys:String>
 
     <!-- Estado -->
-    <sys:String x:Key="Live.Label">EN VIVO</sys:String>
+    <sys:String x:Key="Live.Label">PROYECCIÓN ACTIVA</sys:String>
 
     <!-- Secciones -->
     <sys:String x:Key="Section.Categories">CATEGORÍAS</sys:String>
     <sys:String x:Key="Section.Songs">CANCIONES</sys:String>
     <sys:String x:Key="Section.Verses">ESTROFAS</sys:String>
     <sys:String x:Key="Section.ScreenPreview">VISTA PREVIA</sys:String>
-    <sys:String x:Key="Section.NowShowing">MOSTRANDO</sys:String>
     <sys:String x:Key="Section.Setlist">ORDEN DE CANCIONES</sys:String>
     <sys:String x:Key="Section.Groups">GRUPOS</sys:String>
     <sys:String x:Key="Section.AllSets">TODAS LAS LISTAS</sys:String>
 
     <!-- Botones -->
+    <sys:String x:Key="Btn.Back">← Volver</sys:String>
+    <sys:String x:Key="Btn.Cancel">Cancelar</sys:String>
     <sys:String x:Key="Btn.Blank">OCULTAR</sys:String>
     <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ MOSTRAR</sys:String>
     <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
+    <sys:String x:Key="Btn.UnpinSetlist">DESFIJAR</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
-    <sys:String x:Key="Btn.SaveOrder">GUARDAR ORDEN</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ CATEGORÍA</sys:String>
     <sys:String x:Key="Btn.NewSong">NUEVA CANCIÓN</sys:String>
@@ -46,10 +46,18 @@
     <sys:String x:Key="Btn.SaveSettings">GUARDAR CONFIGURACIÓN</sys:String>
     <sys:String x:Key="Btn.ResetSettings">RESTABLECER</sys:String>
     <sys:String x:Key="Btn.PickColor">Seleccionar color</sys:String>
+    <sys:String x:Key="Btn.OpenSet">⊞ Abrir</sys:String>
+    <sys:String x:Key="Btn.Open">Abrir</sys:String>
+    <sys:String x:Key="Btn.Append">Añadir</sys:String>
+    <sys:String x:Key="Btn.Save">Guardar</sys:String>
+    <sys:String x:Key="Btn.Preview">VISTA PREVIA</sys:String>
+    <sys:String x:Key="Btn.ResetShortcuts">Restablecer</sys:String>
+    <sys:String x:Key="Btn.SaveShortcuts">Guardar atajos</sys:String>
 
     <!-- Marcadores de posición -->
     <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nombre de categoría...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistGroup">Grupo (opcional)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nombre de la lista (opcional)...</sys:String>
 
     <!-- Campos del formulario -->
@@ -63,6 +71,10 @@
     <sys:String x:Key="VerseType.Chorus">+ Coro</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Puente</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Editar todo</sys:String>
+    <sys:String x:Key="PasteText.Title">Editar todo</sys:String>
+    <sys:String x:Key="PasteText.Hint">Edita el texto del canto. Las líneas vacías separan las estrofas.</sys:String>
+    <sys:String x:Key="PasteText.OkBtn">OK — guardar estrofas</sys:String>
+    <sys:String x:Key="PasteText.PsalmCheck">Salmo — no insertar coro automáticamente</sys:String>
 
     <!-- Mensajes -->
     <sys:String x:Key="Msg.SelectSong">Seleccionar una canción</sys:String>
@@ -87,10 +99,21 @@
     <sys:String x:Key="Settings.Colors">Colores</sys:String>
     <sys:String x:Key="Settings.Background">Fondo</sys:String>
     <sys:String x:Key="Settings.Format">Formato</sys:String>
+    <sys:String x:Key="Settings.Main">General</sys:String>
+    <sys:String x:Key="Settings.LoadLastSetlist">Cargar último repertorio al iniciar</sys:String>
+    <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
+    <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
+    <sys:String x:Key="Settings.SectionFont">FUENTE</sys:String>
+    <sys:String x:Key="Settings.SectionColors">COLORES</sys:String>
+    <sys:String x:Key="Settings.SectionPreview">VISTA PREVIA</sys:String>
+    <sys:String x:Key="Settings.Custom">Personalizado:</sys:String>
     <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
+    <sys:String x:Key="Settings.Shortcuts">Atajos</sys:String>
 
     <!-- Configuración — fuente -->
     <sys:String x:Key="Settings.FontSize">Tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.FontSizeMin">Tamaño mínimo</sys:String>
     <sys:String x:Key="Settings.FontFamily">Familia tipográfica</sys:String>
     <sys:String x:Key="Settings.Bold">Negrita</sys:String>
     <sys:String x:Key="Settings.Alignment">Alineación</sys:String>
@@ -135,9 +158,35 @@
 
     <!-- Configuración — pantalla -->
     <sys:String x:Key="Settings.ScreenLabel">Pantalla de proyección</sys:String>
+    <sys:String x:Key="Settings.ScreenPrimary">(principal)</sys:String>
+
+    <!-- Configuración — imagen de fondo -->
+    <sys:String x:Key="Settings.NoImage">Sin imagen</sys:String>
 
     <!-- Configuración — idioma -->
     <sys:String x:Key="Settings.Language">Idioma</sys:String>
+
+    <!-- Atajos de teclado -->
+    <sys:String x:Key="Shortcuts.Title">Atajos de teclado</sys:String>
+    <sys:String x:Key="Shortcuts.SearchPlaceholder">Buscar acción...</sys:String>
+    <sys:String x:Key="Btn.OpenShortcuts">ATAJOS DE TECLADO</sys:String>
+    <sys:String x:Key="Shortcuts.Navigation">Navegación</sys:String>
+    <sys:String x:Key="Shortcuts.SlideNext">Diapositiva siguiente</sys:String>
+    <sys:String x:Key="Shortcuts.SlidePrev">Diapositiva anterior</sys:String>
+    <sys:String x:Key="Shortcuts.SongNext">Siguiente canción</sys:String>
+    <sys:String x:Key="Shortcuts.SongPrev">Canción anterior</sys:String>
+    <sys:String x:Key="Shortcuts.Blank">Mostrar / Oscurecer pantalla</sys:String>
+    <sys:String x:Key="Shortcuts.Tabs">Cambio de pestañas</sys:String>
+    <sys:String x:Key="Shortcuts.TabShow">Tab: Presentación</sys:String>
+    <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ajustes</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Apariencia</sys:String>
+    <sys:String x:Key="Shortcuts.Search">Búsqueda</sys:String>
+    <sys:String x:Key="Shortcuts.SearchOpen">Abrir búsqueda de lista</sys:String>
+    <sys:String x:Key="Shortcuts.SongSearch">Ir a búsqueda de canciones</sys:String>
+
+    <!-- Pestaña Presentación — lista -->
+    <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
+    <sys:String x:Key="Section.Pinned">FIJADOS</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>
@@ -147,5 +196,10 @@
     <sys:String x:Key="Import.Overwrite">Sobrescribir canciones existentes</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
     <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
+    <sys:String x:Key="Import.NoGroup">(sin grupo)</sys:String>
+    <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
+    <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
+    <sys:String x:Key="Import.OszDialogTitle">Seleccionar listas OpenLP (.osz)</sys:String>
+    <sys:String x:Key="Import.OszDialogFilter">Listas OpenLP (*.osz)|*.osz</sys:String>
 
 </ResourceDictionary>

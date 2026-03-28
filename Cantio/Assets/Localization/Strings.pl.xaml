@@ -4,35 +4,36 @@
 
     <!-- Zakładki nawigacji -->
     <sys:String x:Key="Tab.Show">WYŚWIETLANIE</sys:String>
-    <sys:String x:Key="Tab.Songs">EDYCJA</sys:String>
-    <sys:String x:Key="Tab.Sets">ZESTAWY</sys:String>
     <sys:String x:Key="Tab.Settings">USTAWIENIA</sys:String>
-    <sys:String x:Key="Tab.Import">IMPORT</sys:String>
+    <sys:String x:Key="Tab.Import">WYGLĄD</sys:String>
 
     <!-- Status -->
-    <sys:String x:Key="Live.Label">NA ŻYWO</sys:String>
+    <sys:String x:Key="Live.Label">TRWA PROJEKCJA</sys:String>
 
     <!-- Sekcje -->
     <sys:String x:Key="Section.Categories">KATEGORIE</sys:String>
     <sys:String x:Key="Section.Songs">PIEŚNI</sys:String>
     <sys:String x:Key="Section.Verses">ZWROTKI</sys:String>
     <sys:String x:Key="Section.ScreenPreview">PODGLĄD EKRANU</sys:String>
-    <sys:String x:Key="Section.NowShowing">TERAZ WYŚWIETLANE</sys:String>
     <sys:String x:Key="Section.Setlist">KOLEJNOŚĆ WYKONANIA</sys:String>
     <sys:String x:Key="Section.Groups">GRUPY</sys:String>
     <sys:String x:Key="Section.AllSets">WSZYSTKIE ZESTAWY</sys:String>
 
     <!-- Przyciski -->
+    <sys:String x:Key="Btn.Back">← Wróć</sys:String>
+    <sys:String x:Key="Btn.Cancel">Anuluj</sys:String>
     <sys:String x:Key="Btn.Blank">WYGAŚ</sys:String>
     <sys:String x:Key="Btn.ShowText">POKAŻ</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clear">WYCZYŚĆ</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PRZYPNIJ</sys:String>
+    <sys:String x:Key="Btn.UnpinSetlist">ODEPNIJ</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
-    <sys:String x:Key="Btn.SaveOrder">ZAPISZ KOLEJNOŚĆ</sys:String>
+    <sys:String x:Key="Btn.SaveOrder">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clone">Klonuj zestaw</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ KATEGORIA</sys:String>
+    <sys:String x:Key="Btn.ManageGroups">Zarządzanie grupami</sys:String>
     <sys:String x:Key="Btn.NewSong">NOWA PIEŚŃ</sys:String>
     <sys:String x:Key="Btn.AddToOrder">DODAJ DO KOLEJNOŚCI</sys:String>
     <sys:String x:Key="Btn.SaveSong">ZAPISZ PIEŚŃ</sys:String>
@@ -46,10 +47,18 @@
     <sys:String x:Key="Btn.SaveSettings">ZAPISZ USTAWIENIA</sys:String>
     <sys:String x:Key="Btn.ResetSettings">RESETUJ</sys:String>
     <sys:String x:Key="Btn.PickColor">Wybierz kolor</sys:String>
+    <sys:String x:Key="Btn.OpenSet">⊞ Otwórz</sys:String>
+    <sys:String x:Key="Btn.Open">Otwórz</sys:String>
+    <sys:String x:Key="Btn.Append">Dołącz</sys:String>
+    <sys:String x:Key="Btn.Save">Zapisz</sys:String>
+    <sys:String x:Key="Btn.Preview">PODGLĄD</sys:String>
+    <sys:String x:Key="Btn.ResetShortcuts">Przywróć domyślne</sys:String>
+    <sys:String x:Key="Btn.SaveShortcuts">Zapisz skróty</sys:String>
 
     <!-- Placeholdery -->
     <sys:String x:Key="Placeholder.SearchSongs">Szukaj pieśni...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nazwa kategorii...</sys:String>
+    <sys:String x:Key="Placeholder.SetlistGroup">Grupa (opcjonalnie)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nazwa zestawu (opcjonalna)...</sys:String>
 
     <!-- Pola formularza -->
@@ -59,10 +68,15 @@
 
     <!-- Typy zwrotek -->
     <sys:String x:Key="VerseType.AddLabel">Dodaj:</sys:String>
+
     <sys:String x:Key="VerseType.Verse">+ Zwrotka</sys:String>
     <sys:String x:Key="VerseType.Chorus">+ Refren</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Edytuj całość</sys:String>
+    <sys:String x:Key="PasteText.Title">Edytuj całość</sys:String>
+    <sys:String x:Key="PasteText.Hint">Edytuj tekst pieśni. Puste linie rozdzielają zwrotki.</sys:String>
+    <sys:String x:Key="PasteText.OkBtn">OK — zapisz zwrotki</sys:String>
+    <sys:String x:Key="PasteText.PsalmCheck">Psalm — nie wstawiaj refrenu automatycznie</sys:String>
 
     <!-- Komunikaty -->
     <sys:String x:Key="Msg.SelectSong">Wybierz pieśń z listy</sys:String>
@@ -87,10 +101,21 @@
     <sys:String x:Key="Settings.Colors">Kolory</sys:String>
     <sys:String x:Key="Settings.Background">Tło</sys:String>
     <sys:String x:Key="Settings.Format">Format</sys:String>
+    <sys:String x:Key="Settings.Main">Główne</sys:String>
+    <sys:String x:Key="Settings.LoadLastSetlist">Ładuj ostatnio otwarty zestaw przy starcie</sys:String>
+    <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
+    <sys:String x:Key="Settings.PsalmCategory">Kategoria psalmu responsoryjnego</sys:String>
+    <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>
+    <sys:String x:Key="Settings.SectionFont">CZCIONKA</sys:String>
+    <sys:String x:Key="Settings.SectionColors">KOLORY</sys:String>
+    <sys:String x:Key="Settings.SectionPreview">PODGLĄD</sys:String>
+    <sys:String x:Key="Settings.Custom">Własny:</sys:String>
     <sys:String x:Key="Settings.Screen">Ekran</sys:String>
+    <sys:String x:Key="Settings.Shortcuts">Skróty</sys:String>
 
     <!-- Ustawienia — czcionka -->
     <sys:String x:Key="Settings.FontSize">Rozmiar czcionki</sys:String>
+    <sys:String x:Key="Settings.FontSizeMin">Rozmiar minimalny</sys:String>
     <sys:String x:Key="Settings.FontFamily">Rodzina czcionki</sys:String>
     <sys:String x:Key="Settings.Bold">Pogrubienie</sys:String>
     <sys:String x:Key="Settings.Alignment">Wyrównanie</sys:String>
@@ -135,9 +160,35 @@
 
     <!-- Ustawienia — ekran -->
     <sys:String x:Key="Settings.ScreenLabel">Ekran projekcji</sys:String>
+    <sys:String x:Key="Settings.ScreenPrimary">(główny)</sys:String>
+
+    <!-- Ustawienia — tło obrazu -->
+    <sys:String x:Key="Settings.NoImage">Brak obrazu</sys:String>
 
     <!-- Ustawienia — język -->
     <sys:String x:Key="Settings.Language">Język</sys:String>
+
+    <!-- Skróty klawiaturowe -->
+    <sys:String x:Key="Shortcuts.Title">Skróty klawiaturowe</sys:String>
+    <sys:String x:Key="Shortcuts.SearchPlaceholder">Szukaj akcji...</sys:String>
+    <sys:String x:Key="Btn.OpenShortcuts">SKRÓTY KLAWIATUROWE</sys:String>
+    <sys:String x:Key="Shortcuts.Navigation">Nawigacja</sys:String>
+    <sys:String x:Key="Shortcuts.SlideNext">Następny slajd</sys:String>
+    <sys:String x:Key="Shortcuts.SlidePrev">Poprzedni slajd</sys:String>
+    <sys:String x:Key="Shortcuts.SongNext">Następna pieśń</sys:String>
+    <sys:String x:Key="Shortcuts.SongPrev">Poprzednia pieśń</sys:String>
+    <sys:String x:Key="Shortcuts.Blank">Pokaż / Zaciemnij ekran</sys:String>
+    <sys:String x:Key="Shortcuts.Tabs">Przełączanie zakładek</sys:String>
+    <sys:String x:Key="Shortcuts.TabShow">Tab: Wyświetlanie</sys:String>
+    <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ustawienia</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Wygląd</sys:String>
+    <sys:String x:Key="Shortcuts.Search">Wyszukiwarka</sys:String>
+    <sys:String x:Key="Shortcuts.SearchOpen">Otwórz wyszukiwarkę zestawu</sys:String>
+    <sys:String x:Key="Shortcuts.SongSearch">Skocz do wyszukiwarki pieśni</sys:String>
+
+    <!-- Zakładka Wyświetlanie — zestaw -->
+    <sys:String x:Key="Section.CurrentSet">ZESTAW</sys:String>
+    <sys:String x:Key="Section.Pinned">PRZYPIĘTE</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Import pieśni</sys:String>
@@ -147,5 +198,10 @@
     <sys:String x:Key="Import.Overwrite">Nadpisuj istniejące pieśni</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Zastępuje tekst pieśni jeśli już istnieje</sys:String>
     <sys:String x:Key="Import.Log">LOG IMPORTU</sys:String>
+    <sys:String x:Key="Import.NoGroup">(bez grupy)</sys:String>
+    <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
+    <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
+    <sys:String x:Key="Import.OszDialogTitle">Wybierz zestawy OpenLP (.osz)</sys:String>
+    <sys:String x:Key="Import.OszDialogFilter">OpenLP Zestawy (*.osz)|*.osz</sys:String>
 
 </ResourceDictionary>

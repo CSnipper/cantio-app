@@ -27,8 +27,18 @@ public static class ListBoxAutoScrollBehavior
     private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox lb || lb.SelectedItem == null) return;
-        lb.UpdateLayout();
-        var container = lb.ItemContainerGenerator.ContainerFromItem(lb.SelectedItem) as FrameworkElement;
-        container?.BringIntoView();
+
+        int idx = lb.SelectedIndex;
+        lb.ScrollIntoView(lb.Items[idx]);
+
+        if (idx + 1 < lb.Items.Count)
+        {
+            lb.Dispatcher.InvokeAsync(() =>
+            {
+                // Wykonaj look-ahead tylko jeśli zaznaczenie nie zmieniło się od czasu zaplanowania
+                if (lb.SelectedIndex == idx && idx + 1 < lb.Items.Count)
+                    lb.ScrollIntoView(lb.Items[idx + 1]);
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }
     }
 }

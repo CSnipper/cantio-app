@@ -1,3 +1,7 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Data;
 using Cantio.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,84 +13,90 @@ public partial class ShortcutsViewModel : ObservableObject
     private readonly DatabaseService _db;
     private readonly ShortcutService _shortcuts;
 
+    public ObservableCollection<ShortcutItem> Items { get; } = [];
+    public ICollectionView FilteredView { get; }
+
+    [ObservableProperty] private string _searchQuery = string.Empty;
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        var q = value.Trim().ToLowerInvariant();
+        foreach (var item in Items)
+            item.IsVisible = string.IsNullOrEmpty(q)
+                || item.Name.ToLowerInvariant().Contains(q);
+        FilteredView.Refresh();
+    }
+
     public ShortcutsViewModel(DatabaseService db, ShortcutService shortcuts)
     {
         _db = db;
         _shortcuts = shortcuts;
+
+        var cvs = new CollectionViewSource { Source = Items };
+        cvs.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ShortcutItem.Category)));
+        cvs.Filter += (_, e) => { e.Accepted = ((ShortcutItem)e.Item).IsVisible; };
+        FilteredView = cvs.View;
+
+        BuildItems();
         _ = LoadAsync();
     }
 
-    // ── Shortcut labels (bound to KeyCapture TextBoxes) ────────────────────
+    private static string Loc(string key)
+        => Application.Current.TryFindResource(key) is string s ? s : key;
 
-    [ObservableProperty] private string _slideNext   = string.Empty;
-    [ObservableProperty] private string _slidePrev   = string.Empty;
-    [ObservableProperty] private string _songNext    = string.Empty;
-    [ObservableProperty] private string _songPrev    = string.Empty;
-    [ObservableProperty] private string _blank       = string.Empty;
-    [ObservableProperty] private string _tabShow     = string.Empty;
-    [ObservableProperty] private string _tabSongs    = string.Empty;
-    [ObservableProperty] private string _tabSets     = string.Empty;
-    [ObservableProperty] private string _tabTemplate = string.Empty;
-    [ObservableProperty] private string _tabImport   = string.Empty;
-    [ObservableProperty] private string _searchOpen  = string.Empty;
+    private void BuildItems()
+    {
+        var nav    = Loc("Shortcuts.Navigation");
+        var tabs   = Loc("Shortcuts.Tabs");
+        var search = Loc("Shortcuts.Search");
+
+        var defs = new (string actionId, string nameKey, string category)[]
+        {
+            (ShortcutService.SlideNext,   "Shortcuts.SlideNext",   nav),
+            (ShortcutService.SlidePrev,   "Shortcuts.SlidePrev",   nav),
+            (ShortcutService.SongNext,    "Shortcuts.SongNext",    nav),
+            (ShortcutService.SongPrev,    "Shortcuts.SongPrev",    nav),
+            (ShortcutService.Blank,       "Shortcuts.Blank",       nav),
+            (ShortcutService.TabShow,     "Shortcuts.TabShow",     tabs),
+            (ShortcutService.TabTemplate, "Shortcuts.TabTemplate", tabs),
+            (ShortcutService.TabImport,   "Shortcuts.TabImport",   tabs),
+            (ShortcutService.SearchOpen,  "Shortcuts.SearchOpen",  search),
+            (ShortcutService.SongSearch,  "Shortcuts.SongSearch",  search),
+        };
+
+        Items.Clear();
+        foreach (var (actionId, nameKey, category) in defs)
+            Items.Add(new ShortcutItem { ActionId = actionId, Name = Loc(nameKey), Category = category });
+    }
 
     private async Task LoadAsync()
     {
         await _shortcuts.LoadWithLabelsAsync(_db);
-        SlideNext   = _shortcuts.GetLabel(ShortcutService.SlideNext);
-        SlidePrev   = _shortcuts.GetLabel(ShortcutService.SlidePrev);
-        SongNext    = _shortcuts.GetLabel(ShortcutService.SongNext);
-        SongPrev    = _shortcuts.GetLabel(ShortcutService.SongPrev);
-        Blank       = _shortcuts.GetLabel(ShortcutService.Blank);
-        TabShow     = _shortcuts.GetLabel(ShortcutService.TabShow);
-        TabSongs    = _shortcuts.GetLabel(ShortcutService.TabSongs);
-        TabSets     = _shortcuts.GetLabel(ShortcutService.TabSets);
-        TabTemplate = _shortcuts.GetLabel(ShortcutService.TabTemplate);
-        TabImport   = _shortcuts.GetLabel(ShortcutService.TabImport);
-        SearchOpen  = _shortcuts.GetLabel(ShortcutService.SearchOpen);
+        ReloadFromService();
     }
 
-    // ── Save ──────────────────────────────────────────────────────────────
+    /// <summary>Przywraca wartości z ostatnio zapisanego stanu (bez DB).</summary>
+    public void ReloadFromService()
+    {
+        foreach (var item in Items)
+            item.Value = _shortcuts.GetLabel(item.ActionId);
+        SearchQuery = string.Empty;
+    }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        var pairs = new[]
+        foreach (var item in Items)
         {
-            (ShortcutService.SlideNext,   SlideNext),
-            (ShortcutService.SlidePrev,   SlidePrev),
-            (ShortcutService.SongNext,    SongNext),
-            (ShortcutService.SongPrev,    SongPrev),
-            (ShortcutService.Blank,       Blank),
-            (ShortcutService.TabShow,     TabShow),
-            (ShortcutService.TabSongs,    TabSongs),
-            (ShortcutService.TabSets,     TabSets),
-            (ShortcutService.TabTemplate, TabTemplate),
-            (ShortcutService.TabImport,   TabImport),
-            (ShortcutService.SearchOpen,  SearchOpen),
-        };
-        foreach (var (actionId, label) in pairs)
-        {
-            await _db.SaveSettingAsync($"shortcut_{actionId}", label);
-            _shortcuts.SetLabel(actionId, label);
+            await _db.SaveSettingAsync($"shortcut_{item.ActionId}", item.Value);
+            _shortcuts.SetLabel(item.ActionId, item.Value);
         }
     }
-
-    // ── Reset to defaults ─────────────────────────────────────────────────
 
     [RelayCommand]
     private void Reset()
     {
-        SlideNext   = ShortcutService.Defaults[ShortcutService.SlideNext];
-        SlidePrev   = ShortcutService.Defaults[ShortcutService.SlidePrev];
-        SongNext    = ShortcutService.Defaults[ShortcutService.SongNext];
-        SongPrev    = ShortcutService.Defaults[ShortcutService.SongPrev];
-        Blank       = ShortcutService.Defaults[ShortcutService.Blank];
-        TabShow     = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabShow, string.Empty);
-        TabSongs    = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabSongs, string.Empty);
-        TabSets     = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabSets, string.Empty);
-        TabTemplate = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabTemplate, string.Empty);
-        TabImport   = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.TabImport, string.Empty);
-        SearchOpen  = ShortcutService.Defaults.GetValueOrDefault(ShortcutService.SearchOpen, string.Empty);
+        foreach (var item in Items)
+            item.Value = ShortcutService.Defaults.GetValueOrDefault(item.ActionId, string.Empty);
     }
 }

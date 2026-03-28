@@ -1,9 +1,12 @@
 using Cantio.Models;
 using Cantio.Services;
 using Cantio.ViewModels;
+using Cantio.Views;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Cantio;
 
@@ -12,29 +15,50 @@ public partial class MainWindow : Window
     private readonly DisplayViewModel _vm;
     private readonly ImportViewModel _importVm;
     private readonly SzablonViewModel _szablonVm;
-    private readonly SongEditorViewModel _songEditorVm;
-    private readonly SetlistViewModel _setlistVm;
     private readonly ShortcutService _shortcutService;
     private readonly ShortcutsViewModel _shortcutsVm;
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
+        // Alt+F4 — nie przechwytuj, pozwól WPF zamknąć okno
+        if (e.Key == Key.System && e.SystemKey == Key.F4
+            && e.KeyboardDevice.Modifiers == ModifierKeys.Alt)
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
+        var mods = e.KeyboardDevice.Modifiers;
+
+        // SongSearch działa również gdy fokus jest na TextBox (jak Ctrl+F)
+        if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.SongSearch))
+        {
+            ShowPane(PaneShow, TabShow);
+            SearchBoxShow.Focus();
+            SearchBoxShow.SelectAll();
+            e.Handled = true;
+            return;
+        }
+
         // Configured tab / search shortcuts (skip when focus is on text input)
         if (e.OriginalSource is not TextBox && e.OriginalSource is not RichTextBox)
         {
-            var mods = e.KeyboardDevice.Modifiers;
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabShow))
             { ShowPane(PaneShow, TabShow); e.Handled = true; return; }
-            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabSongs))
-            { ShowPane(PaneSongs, TabSongs); e.Handled = true; return; }
-            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabSets))
-            { ShowPane(PaneSets, TabSets); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabTemplate))
             { ShowPane(PaneTemplate, TabTemplate); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.TabImport))
             { ShowPane(PaneImport, TabImport); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.SearchOpen))
             { _vm.OpenSetlistSearchCommand.Execute(null); e.Handled = true; return; }
+        }
+
+        // F1 → otwórz popup skrótów klawiaturowych
+        if (e.Key == Key.F1 && e.OriginalSource is not TextBox)
+        {
+            OpenShortcutsPopup();
+            e.Handled = true;
+            return;
         }
 
         // Ctrl+S → zapisz zależnie od aktywnej zakładki (działa też gdy fokus jest na TextBox)
@@ -52,26 +76,66 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (e.Key == Key.Delete)
-        {
-            if (_activeTab == "sets" && _setlistVm.SelectedSetlist != null)
-            {
-                _setlistVm.DeleteSetlistCommand.Execute(null);
-                e.Handled = true;
-                return;
-            }
-            if (_activeTab == "songs" && _songEditorVm.EditingSong != null)
-            {
-                _songEditorVm.DeleteSongCommand.Execute(null);
-                e.Handled = true;
-                return;
-            }
-        }
-
+        // Skróty projekcji działają zawsze — niezależnie od fokusu listy pieśni
         _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
         e.Handled = true;
         base.OnPreviewKeyDown(e);
     }
+
+    // ── Drag & drop kategorii ──────────────────────────────────────────────
+
+    private CategoryEditorItem? _draggedCategory;
+    private Point? _categoryDragStart;
+
+    private void CategoryItem_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed) { _categoryDragStart = null; return; }
+
+        var pos = e.GetPosition(null);
+        if (_categoryDragStart == null) { _categoryDragStart = pos; return; }
+
+        if (Math.Abs(pos.X - _categoryDragStart.Value.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(pos.Y - _categoryDragStart.Value.Y) < SystemParameters.MinimumVerticalDragDistance) return;
+
+        if (sender is FrameworkElement fe && fe.DataContext is CategoryEditorItem item && !item.IsEditing)
+        {
+            _categoryDragStart = null;
+            _draggedCategory = item;
+            DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
+        }
+    }
+
+    private void CategoryList_Drop(object sender, DragEventArgs e)
+    {
+        if (_draggedCategory == null) return;
+        var target = GetCategoryItemAtPoint(CategoryListBox, e.GetPosition(CategoryListBox));
+        if (target != null && target != _draggedCategory)
+        {
+            var items = _vm.CategoryItems;
+            int from = items.IndexOf(_draggedCategory);
+            int to = items.IndexOf(target);
+            if (from >= 0 && to >= 0)
+            {
+                items.Move(from, to);
+                _ = _vm.SaveCategoryOrderAsync();
+            }
+        }
+        _draggedCategory = null;
+    }
+
+    private static CategoryEditorItem? GetCategoryItemAtPoint(ListBox lb, Point pt)
+    {
+        var element = lb.InputHitTest(pt) as UIElement;
+        while (element != null)
+        {
+            if (lb.ItemContainerGenerator.ItemFromContainer(element) is CategoryEditorItem item)
+                return item;
+            element = VisualTreeHelper.GetParent(element) as UIElement;
+        }
+        return null;
+    }
+
+    // ── Drag & drop listy zestawu ──────────────────────────────────────────
 
     private int _dragFromIndex = -1;
 
@@ -113,42 +177,99 @@ public partial class MainWindow : Window
         _shortcutService = new ShortcutService();
 
         _vm = new DisplayViewModel(db, new ProjectionViewModel(), _shortcutService);
+        _vm.ConfirmRequested = msg =>
+            MessageBox.Show(msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
+            == MessageBoxResult.Yes;
         DataContext = _vm;
 
         _importVm = new ImportViewModel(db);
-        PaneImport.DataContext = _importVm;
-
-        _songEditorVm = new SongEditorViewModel(db);
-        PaneSongs.DataContext = _songEditorVm;
-
-        _setlistVm = new SetlistViewModel(db);
-        PaneSets.DataContext = _setlistVm;
 
         _szablonVm = new SzablonViewModel(db, _vm.Projection);
         _szablonVm.Saved += () => _vm.RebuildSlides();
         PaneTemplate.DataContext = _szablonVm;
+        PaneImport.DataContext = _szablonVm;
+        ImportColumn.DataContext = _importVm;
+        ImportLogColumn.DataContext = _importVm;
 
         _shortcutsVm = new ShortcutsViewModel(db, _shortcutService);
-        PaneShortcutsContent.DataContext = _shortcutsVm;
 
-        _importVm.SetlistsImported += async () => await _setlistVm.LoadAsync();
-        _setlistVm.PinnedChanged += async () => await _vm.LoadPinnedSetlistsAsync();
-        _setlistVm.LoadForDisplayRequested += setlist =>
+        _importVm.SetlistsImported += async () => await _vm.LoadPinnedSetlistsAsync();
+
+        Loaded += async (_, _) =>
         {
-            _ = _vm.LoadPinnedSetlistAsync(setlist);
-            ShowPane(PaneShow, TabShow);
+            await _vm.InitializeAsync();
+            RestoreWindowPosition();
         };
-
-        Loaded += async (_, _) => await _vm.InitializeAsync();
+        Closing += (_, _) => SaveWindowPosition();
         KeyDown += _vm.OnKeyDown;
+    }
+
+    // ── Pozycja okna ──────────────────────────────────────────────────────────
+
+    private void SaveWindowPosition()
+    {
+        if (WindowState == WindowState.Minimized) return;
+        _ = _db.SaveSettingAsync("window_maximized", (WindowState == WindowState.Maximized).ToString());
+        if (WindowState == WindowState.Normal)
+        {
+            _ = _db.SaveSettingAsync("window_left",   Left.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            _ = _db.SaveSettingAsync("window_top",    Top.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            _ = _db.SaveSettingAsync("window_width",  Width.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            _ = _db.SaveSettingAsync("window_height", Height.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+
+    private void RestoreWindowPosition()
+    {
+        var leftStr   = _db.GetSettingSync("window_left");
+        var topStr    = _db.GetSettingSync("window_top");
+        var widthStr  = _db.GetSettingSync("window_width");
+        var heightStr = _db.GetSettingSync("window_height");
+        var maxStr    = _db.GetSettingSync("window_maximized");
+
+        if (double.TryParse(leftStr,   System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double left)
+         && double.TryParse(topStr,    System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double top)
+         && double.TryParse(widthStr,  System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double width)
+         && double.TryParse(heightStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double height))
+        {
+            // Sprawdź czy pozycja jest wciąż na którymś z ekranów
+            var screens = WpfScreenHelper.Screen.AllScreens;
+            bool onScreen = screens.Any(s => s.WorkingArea.Contains(new System.Windows.Point(left + 50, top + 50)));
+            if (onScreen)
+            {
+                Left   = left;
+                Top    = top;
+                Width  = width;
+                Height = height;
+            }
+            else
+            {
+                // Ekran zniknął — wyśrodkuj na ekranie głównym
+                var primary = WpfScreenHelper.Screen.PrimaryScreen;
+                Left = primary.WorkingArea.Left + (primary.WorkingArea.Width - width) / 2;
+                Top  = primary.WorkingArea.Top  + (primary.WorkingArea.Height - height) / 2;
+                Width  = width;
+                Height = height;
+            }
+        }
+        else
+        {
+            // Pierwsze uruchomienie — wyśrodkuj
+            var primary = WpfScreenHelper.Screen.PrimaryScreen;
+            Width  = 1280;
+            Height = 720;
+            Left = primary.WorkingArea.Left + (primary.WorkingArea.Width - Width) / 2;
+            Top  = primary.WorkingArea.Top  + (primary.WorkingArea.Height - Height) / 2;
+        }
+
+        if (maxStr == "True")
+            WindowState = WindowState.Maximized;
     }
 
     // ── Tab switching ──────────────────────────────────────────────────────────
 
     private void TabShow_Click(object sender, RoutedEventArgs e) => ShowPane(PaneShow, TabShow);
-    private void TabSongs_Click(object sender, RoutedEventArgs e) => ShowPane(PaneSongs, TabSongs);
     // private void TabCats_Click(object sender, RoutedEventArgs e) => ShowPane(PaneCats, TabCats);
-    private void TabSets_Click(object sender, RoutedEventArgs e) => ShowPane(PaneSets, TabSets);
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
 
@@ -156,9 +277,7 @@ public partial class MainWindow : Window
     {
         // Hide all panes
         PaneShow.Visibility = Visibility.Collapsed;
-        PaneSongs.Visibility = Visibility.Collapsed;
         // PaneCats.Visibility = Visibility.Collapsed;
-        PaneSets.Visibility = Visibility.Collapsed;
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
 
@@ -172,39 +291,9 @@ public partial class MainWindow : Window
 
         // Track active tab
         _activeTab = pane == PaneShow      ? "show"
-            : pane == PaneSongs            ? "songs"
             : pane == PaneCats             ? "cats"
-            : pane == PaneSets             ? "sets"
             : pane == PaneTemplate         ? "template"
             : "import";
-    }
-
-    private int _setsEditorDragFromIndex = -1;
-
-    private void SetlistEditorItem_MouseMove(object sender, MouseEventArgs e)
-    {
-        if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement fe)
-        {
-            if (fe.DataContext is SetlistItem item)
-            {
-                _setsEditorDragFromIndex = _setlistVm.Items.IndexOf(item);
-                if (_setsEditorDragFromIndex >= 0)
-                    DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
-            }
-        }
-    }
-
-    private void SetlistEditorItem_Drop(object sender, DragEventArgs e)
-    {
-        if (sender is FrameworkElement fe && fe.DataContext is SetlistItem target)
-        {
-            int toIndex = _setlistVm.Items.IndexOf(target);
-            if (_setsEditorDragFromIndex >= 0 && toIndex >= 0 && _setsEditorDragFromIndex != toIndex)
-            {
-                _setlistVm.Items.Move(_setsEditorDragFromIndex, toIndex);
-                _setsEditorDragFromIndex = -1;
-            }
-        }
     }
 
     private string _activeTab = "show";
@@ -213,21 +302,14 @@ public partial class MainWindow : Window
     {
         switch (_activeTab)
         {
-            case "songs":
-                if (_songEditorVm.SaveSongCommand.CanExecute(null))
-                    _songEditorVm.SaveSongCommand.Execute(null);
-                break;
-            case "sets":
-                if (_setlistVm.SaveItemsCommand.CanExecute(null))
-                    _setlistVm.SaveItemsCommand.Execute(null);
-                break;
             case "template":
-                if (TabSkroty.IsChecked == true)
-                {
-                    if (_shortcutsVm.SaveCommand.CanExecute(null))
-                        _shortcutsVm.SaveCommand.Execute(null);
-                }
-                else if (_szablonVm.SaveCommand.CanExecute(null))
+                if (_szablonVm.SaveCommand.CanExecute(null))
+                    _szablonVm.SaveCommand.Execute(null);
+                if (_shortcutsVm.SaveCommand.CanExecute(null))
+                    _shortcutsVm.SaveCommand.Execute(null);
+                break;
+            case "import":
+                if (_szablonVm.SaveCommand.CanExecute(null))
                     _szablonVm.SaveCommand.Execute(null);
                 break;
             case "show":
@@ -250,21 +332,34 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void SearchBoxSongs_PreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key != Key.Down) return;
-        SongListSongs.Focus();
-        if (SongListSongs.Items.Count > 0 && SongListSongs.SelectedIndex < 0)
-            SongListSongs.SelectedIndex = 0;
-        e.Handled = true;
-    }
-
     // ── Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek) ──────────
 
     private void VerseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) return;
         if (sender is not TextBox tb) return;
+
+        // Tab / Shift+Tab: przejście między polami zwrotek (pomijaj przyciski ↑↓)
+        if (e.Key == Key.Tab)
+        {
+            bool backward = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
+            var itemsControl = FindVisualParent<ItemsControl>(tb);
+            if (itemsControl != null)
+            {
+                var boxes = FindVisualChildren<TextBox>(itemsControl).ToList();
+                int idx = boxes.IndexOf(tb);
+                int next = backward ? idx - 1 : idx + 1;
+                if (next >= 0 && next < boxes.Count)
+                {
+                    boxes[next].Focus();
+                    e.Handled = true;
+                    return;
+                }
+            }
+            return;
+        }
+
+        // Ctrl+klawisz: wstaw tag formatowania
+        if (!Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) return;
 
         var keyLabel = Helpers.KeyCaptureHelper.KeyToLabel(e.Key);
         var tag = _szablonVm.TextTags.FirstOrDefault(t =>
@@ -273,6 +368,67 @@ public partial class MainWindow : Window
 
         e.Handled = true;
         InsertTagAroundSelection(tb, tag.Name);
+    }
+
+    // Potrójny klik: zaznacz cały akapit (do najbliższych \n)
+    private void VerseTextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 3 || sender is not TextBox tb) return;
+
+        var pos = tb.GetCharacterIndexFromPoint(e.GetPosition(tb), true);
+        if (pos < 0) return;
+
+        var text = tb.Text;
+        int start = pos > 0 ? text.LastIndexOf('\n', pos - 1) + 1 : 0;
+        int end = text.IndexOf('\n', pos);
+        if (end < 0) end = text.Length;
+
+        Dispatcher.InvokeAsync(() => tb.Select(start, end - start));
+        e.Handled = true;
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        var parent = VisualTreeHelper.GetParent(child);
+        while (parent != null)
+        {
+            if (parent is T t) return t;
+            parent = VisualTreeHelper.GetParent(parent);
+        }
+        return null;
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(root);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is T t) yield return t;
+            foreach (var desc in FindVisualChildren<T>(child)) yield return desc;
+        }
+    }
+
+    private void OpenShortcuts_Click(object sender, RoutedEventArgs e) => OpenShortcutsPopup();
+
+    private void OpenShortcutsPopup()
+    {
+        var win = new ShortcutsWindow(_shortcutsVm, this);
+        win.ShowDialog();
+    }
+
+    private void SaveAllSettings_Click(object sender, RoutedEventArgs e)
+    {
+        if (_szablonVm.SaveCommand.CanExecute(null))
+            _szablonVm.SaveCommand.Execute(null);
+        if (_shortcutsVm.SaveCommand.CanExecute(null))
+            _shortcutsVm.SaveCommand.Execute(null);
+    }
+
+    private void SaveWyglad_Click(object sender, RoutedEventArgs e)
+    {
+        if (_szablonVm.SaveCommand.CanExecute(null))
+            _szablonVm.SaveCommand.Execute(null);
     }
 
     private static void InsertTagAroundSelection(TextBox tb, string tagName)

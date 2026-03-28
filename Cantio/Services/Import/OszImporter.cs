@@ -92,7 +92,6 @@ public class OszImporter
             if (item.Type != "songs") continue; // pomijamy obrazy, prezentacje itp.
 
             var song = await FindOrImportSongAsync(item);
-            MessageBox.Show($"Item: {item.Title}, Type: {item.Type}, Song: {song?.Id}");
             if (song == null) continue;
 
             setlistItems.Add(new SetlistItem
@@ -103,16 +102,15 @@ public class OszImporter
                 Type = "song"
             });
         }
+
         try
         {
             await _db.SaveSetlistItemsAsync(setlist.Id, setlistItems);
-            MessageBox.Show($"Zapisano OK, count={setlistItems.Count}");
-        }
-        catch (Exception ex)
+
+        }        catch (Exception ex)
         {
             MessageBox.Show($"Błąd SaveSetlistItems: {ex.Message}\n{ex.InnerException?.Message}");
         }
-
     }
 
     private async Task<Song?> FindOrImportSongAsync(OsjServiceItem item)
