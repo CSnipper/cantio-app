@@ -18,6 +18,7 @@ public class SlideLayoutSettings
     public double MarginH { get; set; } = 80;
     public double MarginV { get; set; } = 60;
     public bool AutoFit { get; set; } = true;
+    public bool ForceSingleSlide { get; set; } = false; // psalm mode: nigdy nie dziel, auto-fit bez minimum
 }
 
 public class Slide
@@ -27,6 +28,8 @@ public class Slide
     public int VerseIndex { get; set; }
     public int PartIndex { get; set; }
     public string Label { get; set; } = string.Empty;
+    public string VerseType { get; set; } = string.Empty; // "v", "c", "b"
+    public bool IsChorusSlide => VerseType == "c";
 }
 
 public static class SlideLayoutService
@@ -57,8 +60,11 @@ public static class SlideLayoutService
 
     public static List<string> SplitVerse(string text, SlideLayoutSettings settings)
     {
-        // 8% bufor bezpieczeństwa — FormattedText może zaniżać wysokość vs TextBlock
-        var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
+        if (settings.ForceSingleSlide)
+            return [text.Trim()];
+
+        // 10% bufor bezpieczeństwa — off-tree TextBlock może mierzyć niżej niż renderuje (zawijanie, zaokrąglenie pikseli)
+        var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.90;
 
         text = text.Trim();
         if (MeasureTextHeight(text, settings) <= availableH)
@@ -111,9 +117,9 @@ public static class SlideLayoutService
 
         // Krok 2: podział wewnątrz tekstu po . > , > spacja
         // Używany gdy brak \n lub gdy nawet jedna linia nie mieści się sama.
-        foreach (char breakChar in new[] { '.', ',', ' ' })
+        foreach (char breakChar in new[] { '.', ',', ';', ':', ' ' })
         {
-            bool includeChar = breakChar is '.' or ',';
+            bool includeChar = breakChar is '.' or ',' or ';' or ':';
             for (int pos = text.Length - 1; pos > 0; pos--)
             {
                 if (text[pos] != breakChar) continue;
@@ -167,12 +173,12 @@ public static class SlideLayoutService
     /// </summary>
     public static double ComputeFitFontSize(string slideText, SlideLayoutSettings settings)
     {
-        if (!settings.AutoFit)
+        if (!settings.AutoFit && !settings.ForceSingleSlide)
             return settings.FontSize;
 
-        double availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.92;
+        double availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.85;
         double availableW = settings.SlideWidth - 2 * settings.MarginH;
-        double minFs = settings.FontSize;
+        double minFs = settings.ForceSingleSlide ? 1.0 : settings.FontSize;
         double lo = minFs;
         double hi = availableH / settings.LineHeightMultiplier;
         if (hi < lo) hi = lo;

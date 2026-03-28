@@ -240,8 +240,8 @@ public partial class ImportViewModel : ObservableObject
     {
         var dialog = new OpenFileDialog
             {
-                Title = "Wybierz zestawy OpenLP (.osz)",
-                Filter = "OpenLP Zestawy (*.osz)|*.osz",
+                Title = Application.Current.FindResource("Import.OszDialogTitle") as string,
+                Filter = Application.Current.FindResource("Import.OszDialogFilter") as string,
                 Multiselect = true
             };
             if (dialog.ShowDialog() != true) return;

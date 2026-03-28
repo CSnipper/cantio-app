@@ -27,4 +27,5 @@ public class DisplaySettings
     public double GradientAngle { get; set; } = 180;
     public List<TextFormatTag> TextTags { get; set; } = [];
     public bool FontAutoFit { get; set; } = true;
+    public int PsalmCategoryId { get; set; } = 0; // 0 = wyłączone
 }

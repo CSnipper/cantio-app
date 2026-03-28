@@ -5,10 +5,10 @@
     <!-- Pestañas de navegación -->
     <sys:String x:Key="Tab.Show">PRESENTACIÓN</sys:String>
     <sys:String x:Key="Tab.Settings">AJUSTES</sys:String>
-    <sys:String x:Key="Tab.Import">IMPORTAR</sys:String>
+    <sys:String x:Key="Tab.Import">APARIENCIA</sys:String>
 
     <!-- Estado -->
-    <sys:String x:Key="Live.Label">EN VIVO</sys:String>
+    <sys:String x:Key="Live.Label">PROYECCIÓN ACTIVA</sys:String>
 
     <!-- Secciones -->
     <sys:String x:Key="Section.Categories">CATEGORÍAS</sys:String>
@@ -20,6 +20,8 @@
     <sys:String x:Key="Section.AllSets">TODAS LAS LISTAS</sys:String>
 
     <!-- Botones -->
+    <sys:String x:Key="Btn.Back">← Volver</sys:String>
+    <sys:String x:Key="Btn.Cancel">Cancelar</sys:String>
     <sys:String x:Key="Btn.Blank">OCULTAR</sys:String>
     <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
@@ -69,6 +71,10 @@
     <sys:String x:Key="VerseType.Chorus">+ Coro</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Puente</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Editar todo</sys:String>
+    <sys:String x:Key="PasteText.Title">Editar todo</sys:String>
+    <sys:String x:Key="PasteText.Hint">Edita el texto del canto. Las líneas vacías separan las estrofas.</sys:String>
+    <sys:String x:Key="PasteText.OkBtn">OK — guardar estrofas</sys:String>
+    <sys:String x:Key="PasteText.PsalmCheck">Salmo — no insertar coro automáticamente</sys:String>
 
     <!-- Mensajes -->
     <sys:String x:Key="Msg.SelectSong">Seleccionar una canción</sys:String>
@@ -95,11 +101,19 @@
     <sys:String x:Key="Settings.Format">Formato</sys:String>
     <sys:String x:Key="Settings.Main">General</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Cargar último repertorio al iniciar</sys:String>
+    <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
+    <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
+    <sys:String x:Key="Settings.SectionFont">FUENTE</sys:String>
+    <sys:String x:Key="Settings.SectionColors">COLORES</sys:String>
+    <sys:String x:Key="Settings.SectionPreview">VISTA PREVIA</sys:String>
+    <sys:String x:Key="Settings.Custom">Personalizado:</sys:String>
     <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Atajos</sys:String>
 
     <!-- Configuración — fuente -->
     <sys:String x:Key="Settings.FontSize">Tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.FontSizeMin">Tamaño mínimo</sys:String>
     <sys:String x:Key="Settings.FontFamily">Familia tipográfica</sys:String>
     <sys:String x:Key="Settings.Bold">Negrita</sys:String>
     <sys:String x:Key="Settings.Alignment">Alineación</sys:String>
@@ -153,6 +167,9 @@
     <sys:String x:Key="Settings.Language">Idioma</sys:String>
 
     <!-- Atajos de teclado -->
+    <sys:String x:Key="Shortcuts.Title">Atajos de teclado</sys:String>
+    <sys:String x:Key="Shortcuts.SearchPlaceholder">Buscar acción...</sys:String>
+    <sys:String x:Key="Btn.OpenShortcuts">ATAJOS DE TECLADO</sys:String>
     <sys:String x:Key="Shortcuts.Navigation">Navegación</sys:String>
     <sys:String x:Key="Shortcuts.SlideNext">Diapositiva siguiente</sys:String>
     <sys:String x:Key="Shortcuts.SlidePrev">Diapositiva anterior</sys:String>
@@ -162,9 +179,10 @@
     <sys:String x:Key="Shortcuts.Tabs">Cambio de pestañas</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Presentación</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ajustes</sys:String>
-    <sys:String x:Key="Shortcuts.TabImport">Tab: Importar</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Apariencia</sys:String>
     <sys:String x:Key="Shortcuts.Search">Búsqueda</sys:String>
     <sys:String x:Key="Shortcuts.SearchOpen">Abrir búsqueda de lista</sys:String>
+    <sys:String x:Key="Shortcuts.SongSearch">Ir a búsqueda de canciones</sys:String>
 
     <!-- Pestaña Presentación — lista -->
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
@@ -179,5 +197,9 @@
     <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
     <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
     <sys:String x:Key="Import.NoGroup">(sin grupo)</sys:String>
+    <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
+    <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
+    <sys:String x:Key="Import.OszDialogTitle">Seleccionar listas OpenLP (.osz)</sys:String>
+    <sys:String x:Key="Import.OszDialogFilter">Listas OpenLP (*.osz)|*.osz</sys:String>
 
 </ResourceDictionary>

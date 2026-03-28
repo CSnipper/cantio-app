@@ -294,6 +294,7 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("language", SelectedLanguage);
         await _db.SaveSettingAsync("load_last_setlist", LoadLastSetlistOnStartup ? "1" : "0");
         await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
+        await _db.SaveSettingAsync("psalm_category_id", (SelectedPsalmCategory?.Id ?? 0).ToString());
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
@@ -328,6 +329,9 @@ public partial class SzablonViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _loadLastSetlistOnStartup;
+
+    [ObservableProperty] private ObservableCollection<Category> _psalmCategories = [];
+    [ObservableProperty] private Category? _selectedPsalmCategory;
 
     // ── Load ──────────────────────────────────────────────────────────────
 
@@ -368,6 +372,13 @@ public partial class SzablonViewModel : ObservableObject
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";
         FontAutoFit = s.FontAutoFit;
+
+        var allCategories = await _db.GetCategoriesAsync();
+        var noneCategory = new Category { Id = 0, Name = "(brak)" };
+        PsalmCategories = new ObservableCollection<Category>(
+            new[] { noneCategory }.Concat(allCategories.OrderBy(c => c.Number))
+        );
+        SelectedPsalmCategory = PsalmCategories.FirstOrDefault(c => c.Id == s.PsalmCategoryId) ?? noneCategory;
     }
 
     private void LoadScreens()

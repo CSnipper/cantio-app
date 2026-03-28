@@ -90,6 +90,10 @@ Po pierwszym uruchomieniu:
 Okno projekcji (na projektorze) pojawia się automatycznie po uruchomieniu.
 Możesz je przeciągnąć na właściwy monitor lub wybrać go w ustawieniach.
 
+Program zapamiętuje pozycję i rozmiar okna głównego po zamknięciu
+i przywraca je przy kolejnym uruchomieniu. Jeśli monitor, na którym
+było okno, nie jest już podłączony, program wyśrodkuje się na ekranie głównym.
+
 ================================================================================
   4. ZAKŁADKI PROGRAMU
 ================================================================================
@@ -186,10 +190,21 @@ PRAWA KOLUMNA — Edytor pieśni
     - Kliknij zwrotkę, aby edytować jej tekst w polu poniżej
     - Przycisk "Dodaj: + Zwrotka / + Refren / + Bridge"
       — dodaje nową zwrotkę odpowiedniego typu
-    - Kliknij etykietę zwrotki, aby zmienić jej typ
+    - Kliknij etykietę zwrotki (np. "1", "R", "B"), aby zmienić jej typ:
+      Zwrotka → Refren → Bridge → Zwrotka (cyklicznie)
     - Kliknij "✕" przy zwrotce, aby ją usunąć
     - Kliknij "✎ Edytuj całość" — otwiera dialog do wklejenia
       całego tekstu pieśni (każda zwrotka oddzielona pustą linią)
+      Opcja "Psalm — nie wstawiaj refrenu automatycznie":
+        Zaznacz, gdy wklejasz psalm z już wstawionymi refrenami.
+        Program zachowa tekst dokładnie tak, jak go wklejono —
+        bez automatycznego dodawania refrenu po każdej zwrotce.
+
+  Automatyczne wstawianie refrenu:
+    Gdy pieśń ma refren, program domyślnie wstawia go automatycznie
+    po każdej zwrotce podczas wyświetlania (bez zmian w bazie danych).
+    Dla psalmów responsoryjnych lub pieśni z własnym układem użyj
+    opcji "Psalm — nie wstawiaj refrenu automatycznie" w "Edytuj całość".
 
   Kolejność wykonania:
     - Drag & drop zwrotek, aby zmienić kolejność wyświetlania
@@ -268,6 +283,12 @@ Konfiguracja wyglądu projekcji. Podzielona na podzakładki:
     nie zostanie zmniejszony poniżej tej wartości.
     Jeśli odznaczone, używany jest zawsze dokładnie ten rozmiar co w
     ustawieniach (tryb statyczny).
+
+  - Kategoria psalmu responsoryjnego:
+    Wskaż kategorię, w której przechowujesz psalmy responsoryjne.
+    Gdy załadujesz pieśń z tej kategorii, automatycznie włączy się
+    tryb psalm (patrz sekcja 8 — Tryb psalm).
+    Ustaw "(brak)", aby wyłączyć tę funkcję.
 
 -- Ekran --
   - Wybierz monitor/projektor z listy
@@ -391,8 +412,11 @@ DOMYŚLNE SKRÓTY ZAKŁADEK (domyślnie niezapisane, do skonfigurowania):
   Wszystkie zakładki i wyszukiwarka zestawów można przypisać do
   dowolnych klawiszy w Ustawienia → Skróty.
 
-UWAGA: Skróty działają kiedy fokus NIE jest na polu tekstowym.
-       Wyjątek: Ctrl+S działa zawsze.
+UWAGA: Skróty nawigacji projekcji (slajdy, pieśni, blank) działają zawsze,
+       niezależnie od tego, który element interfejsu ma fokus.
+       Wyjątek: gdy kursor jest w polu tekstowym (edycja pieśni),
+       skróty nawigacji nie są aktywne — Ctrl+S działa zawsze.
+       Alt+F4 zamyka program.
 
 ================================================================================
   6. KONFIGURACJA SKRÓTÓW
@@ -488,6 +512,8 @@ Blank screen (zaciemnienie):
 Podział na slajdy:
   - Program automatycznie dzieli długie zwrotki na kilka slajdów
   - Podział zależy od rozmiaru czcionki i rozdzielczości projektora
+  - Preferowane miejsca podziału (w kolejności):
+      Enter (nowa linia) → . → , → ; → : → spacja
   - Jeśli chcesz ręcznie kontrolować podział, użyj pustej linii
     w tekście zwrotki jako miejsca podziału
   - Lista slajdów pokazuje etykiety zwrotek: 1, 2, 3 dla zwrotek,
@@ -503,6 +529,23 @@ Formatowanie tekstu:
   - Przykład: {b}Alleluja{/b} pogrubia słowo
   - Zdefiniuj własne tagi w Ustawienia → Kolory → Tagi formatowania
   - Przypisz skrót Ctrl+klawisz do tagu — zaznacz tekst i użyj skrótu
+
+Tryb psalm (psalm responsoryjny):
+  - Gdy załadujesz pieśń z kategorii psalmu (skonfigurowanej w Ustawieniach
+    → Główne), tryb psalm włącza się automatycznie.
+  - Na projektorze wyświetlany jest wyłącznie refren (R) — przez cały czas
+    trwania psalmu, niezależnie od tego, którą zwrotkę widzi operator.
+  - Operator w podglądzie widzi aktualnie czytaną zwrotkę.
+  - Gdy operator przejdzie do kolejnego refrenu (R), projektor zaktualizuje
+    wyświetlany tekst.
+  - Tryb psalm wyłącza się automatycznie po załadowaniu pieśni
+    z innej kategorii.
+  - Zalecany przepływ pracy:
+      1. Ustaw "Kategoria psalmu responsoryjnego" w Ustawieniach
+      2. Zapisz psalmy w tej kategorii
+      3. Podczas liturgii załaduj psalm — tryb włączy się automatycznie
+      4. Nawiguj strzałkami przez zwrotki — projektor trzyma refren
+      5. Kliknij slajd R, gdy schola/lud ma zaśpiewać refren
 
 Języki interfejsu:
   - Ustawienia → Ekran → na dole: lista rozwijana Język

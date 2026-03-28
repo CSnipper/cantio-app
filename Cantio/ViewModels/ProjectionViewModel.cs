@@ -33,19 +33,38 @@ public partial class ProjectionViewModel : ObservableObject
     public double DisplayLineHeight => Math.Max(1, FontSize * LineHeightMultiplier);
     partial void OnFontSizeChanged(double value) => OnPropertyChanged(nameof(DisplayLineHeight));
 
+    // ── Operator override (psalm mode: verse shown in preview, refrain on projector) ──
+    [ObservableProperty] private string _operatorSlideText = string.Empty;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(OperatorDisplayLineHeight))]
+    private double _operatorFontSize = 40;
+    [ObservableProperty] private bool _isOperatorOverride = false;
+    public double OperatorDisplayLineHeight => Math.Max(1, OperatorFontSize * LineHeightMultiplier);
+
+    public void SetOperatorSlide(Slide slide)
+    {
+        OperatorSlideText = slide.Text;
+        OperatorFontSize = slide.FontSize;
+        IsOperatorOverride = true;
+    }
+
+    public void ClearOperatorSlide()
+    {
+        IsOperatorOverride = false;
+    }
+
     // ── API ───────────────────────────────────────────────────────────────
     public void SetSlide(Slide slide)
     {
         _pendingSlide = slide;
-        if (!IsBlank)
-            ApplyPendingSlide();
+        ApplyPendingSlide(); // zawsze aktualizuj — overlay w ProjectionView zakrywa gdy IsBlank=true
     }
 
     public void SetBlanked(bool blanked)
     {
         IsBlank = blanked;
         if (!blanked)
-            ApplyPendingSlide();
+            ApplyPendingSlide(); // odświeżenie na wypadek gdyby slide zmienił się gdy był blank
     }
 
     private void ApplyPendingSlide()

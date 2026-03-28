@@ -102,16 +102,15 @@ public class OszImporter
                 Type = "song"
             });
         }
+
         try
         {
             await _db.SaveSetlistItemsAsync(setlist.Id, setlistItems);
-            MessageBox.Show($"Import OK, count={setlistItems.Count}");
-        }
-        catch (Exception ex)
+
+        }        catch (Exception ex)
         {
             MessageBox.Show($"Błąd SaveSetlistItems: {ex.Message}\n{ex.InnerException?.Message}");
         }
-
     }
 
     private async Task<Song?> FindOrImportSongAsync(OsjServiceItem item)

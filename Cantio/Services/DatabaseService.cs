@@ -245,6 +245,12 @@ public class DatabaseService
 
     // ── Ustawienia ────────────────────────────────────────────────────────
 
+    public string? GetSettingSync(string key)
+    {
+        using var db = new CantioDbContext();
+        return db.Settings.AsNoTracking().FirstOrDefault(a => a.Key == key)?.Value;
+    }
+
     public async Task<string?> GetSettingAsync(string key)
     {
         await using var db = new CantioDbContext();
@@ -322,6 +328,7 @@ public class DatabaseService
             GradientAngle = Get("bg_gradient_angle", 180.0, v => double.TryParse(v, out var d) ? d : 180),
             TextTags = GetTextTags(),
             FontAutoFit = Get("font_auto_fit", true, v => v == "true"),
+            PsalmCategoryId = Get("psalm_category_id", 0, v => int.TryParse(v, out var id) ? id : 0),
         };
     }
 }

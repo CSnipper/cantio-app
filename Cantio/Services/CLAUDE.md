@@ -46,6 +46,9 @@ Dzieli tekst pieśni na slajdy które mieszczą się na ekranie projekcji.
 - Mierzy wysokość tekstu przez `FormattedText`
 - Rozmiar czcionki z ustawień to MINIMUM — jeśli tekst nie mieści się w jednym slajdzie, dziel dalej
 - Po zmianie ustawień szablonu: wywołaj `DisplayViewModel.RebuildSlides()`
+- `SlideLayoutSettings.ForceSingleSlide = true` — wyłącza dzielenie; cała zwrotka to jeden slajd, min. czcionka = 1px (używane w psalm mode)
+- `Slide.VerseType` — "v", "c", "b"; `Slide.IsChorusSlide` = `VerseType == "c"`
+- `PsalmCategoryId` w `DisplaySettings` (klucz `psalm_category_id` w tabeli settings); 0 = wyłączone
 
 ## Import — ILyricsImporter
 

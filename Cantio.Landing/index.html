@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cantio — Pieśni liturgiczne na projektorze</title>
+  <link rel="icon" href="cantio.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cantio.css" />
+</head>
+<body>
+
+<!-- ─────────── HEADER ─────────── -->
+<header>
+  <a href="#" class="brand">
+    <img src="cantio.ico" alt="Cantio" style="height:1.6em; width:auto; image-rendering: auto;"> Cantio
+  </a>
+  <nav>
+    <a href="#features">Funkcje</a>
+    <a href="#display">Wyświetlanie</a>
+    <a href="#quick-edit">Szybka edycja</a>
+    <a href="#wyglad">Wygląd</a>
+    <a href="#install">Instalacja</a>
+    <a href="https://github.com/CSnipper/cantio-app">GitHub</a>
+    <a href="instrukcja.html">Instrukcja</a>
+  </nav>
+  <a href="https://github.com/CSnipper/cantio-app/releases" class="btn btn-primary header-download">
+    ↓ Pobierz
+  </a>
+  <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">☰</button>
+</header>
+
+<!-- Mobile menu -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMenu()"></div>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#features" onclick="closeMenu()">Funkcje</a>
+  <a href="#display" onclick="closeMenu()">Wyświetlanie</a>
+  <a href="#quick-edit" onclick="closeMenu()">Szybka edycja</a>
+  <a href="#wyglad" onclick="closeMenu()">Wygląd</a>
+  <a href="#install" onclick="closeMenu()">Instalacja</a>
+  <a href="https://github.com/CSnipper/cantio-app" onclick="closeMenu()">GitHub</a>
+  <a href="instrukcja.html" onclick="closeMenu()">Instrukcja</a>
+  <a href="https://github.com/CSnipper/cantio-app/releases" class="btn btn-primary mobile-menu-download" onclick="closeMenu()">↓ Pobierz za darmo</a>
+</nav>
+
+<!-- ─────────── HERO ─────────── -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-cross"></div>
+
+  <p class="hero-eyebrow fade-up">Program dla organisty i kantora</p>
+
+  <h1 class="fade-up delay-1">
+    Pieśni liturgiczne<br /><span>na projektorze</span>
+  </h1>
+
+  <p class="hero-sub fade-up delay-2">
+    Cantio pozwala wyświetlać tekst pieśni na drugim monitorze lub projektorze podczas nabożeństwa — szybko, spokojnie i bez rozpraszania. Cały interfejs zaprojektowany z myślą o obsłudze dotykowej.
+  </p>
+
+  <div class="hero-actions fade-up delay-3">
+    <a href="https://github.com/CSnipper/cantio-app/releases" class="btn btn-primary">↓ Pobierz za darmo</a>
+    <a href="https://github.com/CSnipper/cantio-app" class="btn btn-outline">GitHub →</a>
+  </div>
+
+  <div class="hero-screenshot fade-up delay-4">
+    <div class="screenshot-frame">
+      <img src="main.png" alt="Cantio — widok główny zakładka Pokaż">
+    </div>
+    <div class="screenshot-fade"></div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── FEATURES ─────────── -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Możliwości</p>
+      <h2>Wszystko, czego potrzebuje organista</h2>
+      <p>Zaprojektowane z myślą o pracy podczas nabożeństwa — minimum kliknięć, maksimum skupienia.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <span class="feature-icon">🖥️</span>
+        <h3>Osobny ekran projekcji</h3>
+        <p>Tekst pieśni wyświetla się na projektorze lub drugim monitorze w dużej, czytelnej czcionce. Sterowanie odbywa się na komputerze organisty — bez ingerencji w obraz dla wiernych.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">✏️</span>
+        <h3>Szybka edycja w miejscu</h3>
+        <p>Zmień tekst dowolnej zwrotki bez opuszczania widoku sterowania. Panel szybkiej edycji otwiera się w miejscu podglądu — zapisujesz Ctrl+S i jesteś gotowy.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">👆</span>
+        <h3>Obsługa dotykowa</h3>
+        <p>Wszystkie elementy interfejsu — przyciski, listy, suwaki, edytor — mają odpowiedni rozmiar i odstępy do wygodnej obsługi palcem na tablecie lub ekranie dotykowym.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">📋</span>
+        <h3>Zestawy nabożeństw</h3>
+        <p>Przygotuj kolejność pieśni przed nabożeństwem i załaduj jednym kliknięciem z popupu zestawów. Zapisuj, grupuj i przypinaj ulubione zestawy.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🎨</span>
+        <h3>Wygląd projektora</h3>
+        <p>Osobna sekcja wyglądu: czcionka z auto-fit, kolory, gradient, własna grafika tła, cień tekstu. Zmiany widać na żywo bez wychodzenia z zakładki Pokaż.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">📥</span>
+        <h3>Import z OpenLP i OpenSong</h3>
+        <p>Importuj bazę pieśni z OpenLP (SQLite, XML) lub OpenSong bezpośrednio z Ustawień. Przeniesienie danych z zestawami .osz zajmuje kilka sekund.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 1 — Pokaż ─────────── -->
+<section id="display">
+  <div class="container">
+    <div class="showcase">
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="main.png" alt="Zakładka Pokaż" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>main.png</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-text">
+        <p class="section-label">Zakładka Pokaż</p>
+        <h2>Sterowanie podczas nabożeństwa</h2>
+        <p>Trzy kolumny: lista kategorii i pieśni po lewej, zwrotki w środku (z etykietami 1 / 2 / R / B), podgląd projektora i zestaw po prawej. Kliknij zwrotkę — pojawia się na projektorze.</p>
+        <p>Długie zwrotki dzielone są automatycznie na kilka slajdów z zachowaniem czytelności. Przycisk <strong>WYGAŚ</strong> zaciemnia projektor bez utraty pozycji w pieśni.</p>
+        <p>Wszystkie elementy interfejsu mają odpowiedni rozmiar i odstępy — Cantio wygodnie obsługuje się palcem na tablecie lub ekranie dotykowym.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 2 — Szybka edycja ─────────── -->
+<section id="quick-edit">
+  <div class="container">
+    <div class="showcase reverse">
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="szybka-edycja.png" alt="Szybka edycja" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>szybka-edycja.png</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-text">
+        <p class="section-label">Szybka edycja</p>
+        <h2>Edytuj w miejscu, bez przerywania</h2>
+        <p>Kliknij ikonę ołówka przy pieśni w zestawie — panel szybkiej edycji otwiera się w miejscu podglądu. Zmieniasz tekst każdej zwrotki, zmieniasz kolejność, zapisujesz Ctrl+S.</p>
+        <p>Nie tracisz pozycji w zestawie, nie zmieniasz widoku. Poprawka literówki lub wklejenie brakującej zwrotki zajmuje kilka sekund.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 3 — Edytor pieśni ─────────── -->
+<section>
+  <div class="container">
+    <div class="showcase reverse">
+
+      <div class="showcase-text">
+        <p class="section-label">Edytor pieśni</p>
+        <h2>Baza pieśni pod kontrolą</h2>
+        <p>Dodawaj i edytuj pieśni bezpośrednio w programie. Przypisz do kategorii (Adwent, Wielkanoc, Różaniec…), nadaj numer ze śpiewnika, ustaw kolejność zwrotek przeciągając je myszą.</p>
+        <p>Zwrotki mają czytelne etykiety: 1, 2, R (refren), B (bridge). Wklej cały tekst pieśni naraz — program sam podzieli go na zwrotki po pustych liniach.</p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="edycja.png" alt="Edytor pieśni" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>edycja.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 4 — Automatyczny refren ─────────── -->
+<section id="refren">
+  <div class="container">
+    <div class="showcase">
+
+      <div class="showcase-text">
+        <p class="section-label">Edytor pieśni</p>
+        <h2>Refren wstawiany automatycznie</h2>
+        <p>Wklej cały tekst pieśni — Cantio sam rozpoznaje refren oznaczony nagłówkiem „Refren:" i układa kolejność wykonania. Schemat R–Z1–R–Z2–R powstaje bez żadnej ręcznej interwencji.</p>
+        <p>Kolejność zwrotek możesz zawsze zmienić przeciągając je myszą. Przy psalmach automatykę wyłącza się jednym kliknięciem — refreny zostają dokładnie tam, gdzie je wpisałeś.</p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="refren.png" alt="Automatyczny refren" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>refren.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 5 — Psalmy responsoryjne ─────────── -->
+<section id="psalmy">
+  <div class="container">
+    <div class="showcase reverse">
+
+      <div class="showcase-text">
+        <p class="section-label">Psalmy i aklamacje</p>
+        <h2>Refren na ekranie, zwrotka w podglądzie</h2>
+        <p>Dla organisty, który wykonuje psalm jest specjalny tryb. Wskaż w ustawieniach kategorię psalmów responsoryjnych — Cantio automatycznie włącza specjalny tryb po załadowaniu pieśni. Na projektorze przez cały czas widoczny jest refren.</p>
+        <p>Organista nawiguje po zwrotkach we własnym podglądzie operatora, nie przerywając wyświetlania refrenu wiernym. Tryb działa tak samo dla aklamacji.</p>
+        <p>Zwrotka refrenu jest także załadowana w całości na ekran, pomijając ustawienie wielkości czcionki. Aby ułatwić śpiew organiście.</p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="psalm.png" alt="Tryb psalm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>psalm.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 6 — Popup zestawów ─────────── -->
+<section>
+  <div class="container">
+    <div class="showcase">
+
+      <div class="showcase-text">
+        <p class="section-label">Zestawy</p>
+        <h2>Plan nabożeństwa gotowy z wyprzedzeniem</h2>
+        <p>Ułóż kolejność pieśni przed nabożeństwem, zapisz zestaw z nazwą i otwórz jednym kliknięciem z popupu. Zestawy można grupować, przypinać i przeszukiwać po nazwie.</p>
+        <p>Przy otwieraniu zestawu wybierasz co zrobić z aktualną listą: <strong>zastąpić ją</strong> nowym zestawem albo <strong>dołączyć pieśni na koniec</strong> — przydatne gdy nabożeństwo składa się z kilku części.</p>
+        <p>Popup otwiera się skrótem klawiszowym lub przyciskiem w zakładce Pokaż — bez zmiany widoku sterowania. Obsługa importu zestawów z OpenLP (<code>.osz</code>).</p>
+      </div>
+
+      <div class="showcase-img" style="display:flex; gap:1em; align-items:flex-start; justify-content:center;">
+        <div class="screenshot-frame">
+          <img src="zestawy.png" alt="Lista zestawów" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>zestawy.png</span>
+          </div>
+        </div>
+        <div class="screenshot-frame">
+          <img src="zestawy-szukaj.png" alt="Wyszukiwanie zestawów" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>zestawy-szukaj.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 5 — Ustawienia ─────────── -->
+<section id="settings-showcase">
+  <div class="container">
+    <div class="showcase reverse">
+
+      <div class="showcase-text">
+        <p class="section-label">Ustawienia</p>
+        <h2>Wszystko w jednym miejscu</h2>
+        <p>Ekran projekcji, język interfejsu, czcionka z automatycznym dopasowaniem rozmiaru, własne tagi formatowania tekstu — wszystko na jednej stronie ustawień.</p>
+        <p>Tu znajdziesz też Import — przenieś całą bazę pieśni z OpenLP (SQLite, XML) lub OpenSong w kilka sekund. Obsługiwane formaty:
+          <span style="color:var(--gold); font-size:0.88em;">OpenLP SQLite · OpenLP XML · OpenSong · Zestawy .osz</span>
+        </p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="ustawienia.png" alt="Ustawienia" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>ustawienia.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SHOWCASE 6 — Wygląd ─────────── -->
+<section id="wyglad">
+  <div class="container">
+    <div class="showcase">
+
+      <div class="showcase-text">
+        <p class="section-label">Wygląd</p>
+        <h2>Projektor wygląda tak, jak chcesz</h2>
+        <p>Osobna sekcja wyglądu daje pełną kontrolę nad tym, co widzą wierni: kolor tła, gradient liniowy lub radialny, własna grafika w tle z regulacją krycia, cień tekstu.</p>
+        <p>Czcionka, rozmiar z automatycznym dopasowaniem do długości zwrotki, interlinię, wyrównanie — zmiany widać na żywo w podglądzie bez konieczności wychodzenia z zakładki Pokaż.</p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="wyglad.png" alt="Wygląd projektora" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>wyglad.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── SKRÓTY ─────────── -->
+<section>
+  <div class="container">
+    <div class="showcase">
+
+      <div class="showcase-text">
+        <p class="section-label">Klawiatura</p>
+        <h2>Prowadź nabożeństwo bez myszki</h2>
+        <p>Wszystkie kluczowe akcje mają skróty klawiaturowe. Świetnie współpracują z pilotem prezentacyjnym (PageDown / PageUp) — a jeśli wolisz dotyk, cały interfejs jest na to gotowy.</p>
+
+        <div class="shortcuts-grid" style="margin-top: 1.5em; max-width: 100%;">
+          <div class="shortcut-row">
+            <span class="shortcut-label">Następny slajd</span>
+            <span class="kbd"><kbd>→</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Poprzedni slajd</span>
+            <span class="kbd"><kbd>←</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Następna pieśń</span>
+            <span class="kbd"><kbd>↓</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Poprzednia pieśń</span>
+            <span class="kbd"><kbd>↑</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Wygaś / Pokaż ekran</span>
+            <span class="kbd"><kbd>Esc</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Szukaj pieśni</span>
+            <span class="kbd"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Popup zestawów</span>
+            <span class="kbd"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-label">Zapisz</span>
+            <span class="kbd"><kbd>Ctrl</kbd>+<kbd>S</kbd></span>
+          </div>
+        </div>
+
+        <p style="margin-top:1.2em; font-size:0.85em; color:var(--text-muted);">
+          Wszystkie skróty można zmienić w osobnym popupie skrótów.
+        </p>
+      </div>
+
+      <div class="showcase-img">
+        <div class="screenshot-frame">
+          <img src="skroty.png" alt="Popup skrótów klawiaturowych" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="img-placeholder" style="display:none">
+            <span class="ph-icon">📷</span>
+            <span>skroty.png</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── INSTALACJA ─────────── -->
+<section id="install">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Instalacja</p>
+      <h2>Gotowy w 3 minuty</h2>
+      <p>Windows 10 lub nowszy, 64-bit. Opcjonalnie drugi monitor lub projektor.</p>
+    </div>
+
+    <div class="install-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Pobierz instalator</h3>
+          <p>Pobierz najnowszy plik <code>CantioSetup-x.y.z.exe</code> z GitHub Releases.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Uruchom i zainstaluj</h3>
+          <p>Zatwierdź monit UAC, wybierz czy chcesz przykładową bazę pieśni (zalecane) czy pustą — i kliknij Instaluj.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Wybierz ekran projekcji</h3>
+          <p>W zakładce Ustawienia → Ekran wskaż projektor lub drugi monitor i zapisz ustawienia.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Zacznij wyświetlać</h3>
+          <p>Wybierz kategorię, kliknij pieśń, kliknij zwrotkę — pojawia się na projektorze. Gotowe.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ─────────── CTA ─────────── -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="ornament">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <h2>Pobierz Cantio za darmo</h2>
+      <p>Darmowy program open-source dla każdej parafii, wspólnoty i organisty.</p>
+
+      <a href="https://github.com/CSnipper/cantio-app/releases" class="btn btn-primary" style="font-size:0.9em; padding: 0.85rem 2.5em;">
+        ↓ Pobierz najnowszą wersję
+      </a>
+
+      <div class="download-info">
+        <span class="dl-meta">Windows 10 / 11 (64-bit)</span>
+        <span class="dl-meta">Bezpłatny · open-source</span>
+        <span class="dl-meta">Polski · English · Українська</span>
+        <span class="dl-meta">Instalator ~50 MB</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer>
+  <a href="#" class="footer-brand">
+    <img src="cantio.ico" alt="Cantio" style="height:1.1em; width:auto; vertical-align:middle; margin-right:0.4em;">Cantio
+  </a>
+  <div class="footer-links">
+    <a href="instrukcja.html">Instrukcja</a>
+    <a href="https://github.com/CSnipper/cantio-app">GitHub</a>
+    <a href="https://github.com/CSnipper/cantio-app/issues">Zgłoś błąd</a>
+    <a href="https://github.com/CSnipper/cantio-app/releases">Releases</a>
+  </div>
+  <span class="footer-copy">Autor: CSnipper · v1.0</span>
+</footer>
+
+
+<script>
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('open');
+}
+</script>
+</body>
+</html>

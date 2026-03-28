@@ -5,10 +5,10 @@
     <!-- Navigation tabs -->
     <sys:String x:Key="Tab.Show">DISPLAY</sys:String>
     <sys:String x:Key="Tab.Settings">SETTINGS</sys:String>
-    <sys:String x:Key="Tab.Import">IMPORT</sys:String>
+    <sys:String x:Key="Tab.Import">APPEARANCE</sys:String>
 
     <!-- Status -->
-    <sys:String x:Key="Live.Label">LIVE</sys:String>
+    <sys:String x:Key="Live.Label">PROJECTION ACTIVE</sys:String>
 
     <!-- Sections -->
     <sys:String x:Key="Section.Categories">CATEGORIES</sys:String>
@@ -20,6 +20,8 @@
     <sys:String x:Key="Section.AllSets">ALL SETS</sys:String>
 
     <!-- Buttons -->
+    <sys:String x:Key="Btn.Back">← Back</sys:String>
+    <sys:String x:Key="Btn.Cancel">Cancel</sys:String>
     <sys:String x:Key="Btn.Blank">BLANK</sys:String>
     <sys:String x:Key="Btn.ShowText">SHOW</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">SAVE SET</sys:String>
@@ -31,6 +33,7 @@
     <sys:String x:Key="Btn.SaveOrder">SAVE SET</sys:String>
     <sys:String x:Key="Btn.Clone">Clone set</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ CATEGORY</sys:String>
+    <sys:String x:Key="Btn.ManageGroups">Manage groups</sys:String>
     <sys:String x:Key="Btn.NewSong">NEW SONG</sys:String>
     <sys:String x:Key="Btn.AddToOrder">ADD TO ORDER</sys:String>
     <sys:String x:Key="Btn.SaveSong">SAVE SONG</sys:String>
@@ -69,6 +72,10 @@
     <sys:String x:Key="VerseType.Chorus">+ Chorus</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Edit all</sys:String>
+    <sys:String x:Key="PasteText.Title">Edit all</sys:String>
+    <sys:String x:Key="PasteText.Hint">Edit song text. Empty lines separate verses.</sys:String>
+    <sys:String x:Key="PasteText.OkBtn">OK — save verses</sys:String>
+    <sys:String x:Key="PasteText.PsalmCheck">Psalm — do not auto-insert chorus</sys:String>
 
     <!-- Messages -->
     <sys:String x:Key="Msg.SelectSong">Select a song from the list</sys:String>
@@ -95,11 +102,19 @@
     <sys:String x:Key="Settings.Format">Format</sys:String>
     <sys:String x:Key="Settings.Main">General</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Load last opened setlist on startup</sys:String>
+    <sys:String x:Key="Settings.FontAutoFit">Automatic font size fitting</sys:String>
+    <sys:String x:Key="Settings.PsalmCategory">Responsorial psalm category</sys:String>
+    <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
+    <sys:String x:Key="Settings.SectionFont">FONT</sys:String>
+    <sys:String x:Key="Settings.SectionColors">COLORS</sys:String>
+    <sys:String x:Key="Settings.SectionPreview">PREVIEW</sys:String>
+    <sys:String x:Key="Settings.Custom">Custom:</sys:String>
     <sys:String x:Key="Settings.Screen">Screen</sys:String>
     <sys:String x:Key="Settings.Shortcuts">Shortcuts</sys:String>
 
     <!-- Settings — font -->
     <sys:String x:Key="Settings.FontSize">Font size</sys:String>
+    <sys:String x:Key="Settings.FontSizeMin">Minimum size</sys:String>
     <sys:String x:Key="Settings.FontFamily">Font family</sys:String>
     <sys:String x:Key="Settings.Bold">Bold</sys:String>
     <sys:String x:Key="Settings.Alignment">Alignment</sys:String>
@@ -153,6 +168,9 @@
     <sys:String x:Key="Settings.Language">Language</sys:String>
 
     <!-- Keyboard shortcuts -->
+    <sys:String x:Key="Shortcuts.Title">Keyboard Shortcuts</sys:String>
+    <sys:String x:Key="Shortcuts.SearchPlaceholder">Search actions...</sys:String>
+    <sys:String x:Key="Btn.OpenShortcuts">KEYBOARD SHORTCUTS</sys:String>
     <sys:String x:Key="Shortcuts.Navigation">Navigation</sys:String>
     <sys:String x:Key="Shortcuts.SlideNext">Next slide</sys:String>
     <sys:String x:Key="Shortcuts.SlidePrev">Previous slide</sys:String>
@@ -162,9 +180,10 @@
     <sys:String x:Key="Shortcuts.Tabs">Tab switching</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Display</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Settings</sys:String>
-    <sys:String x:Key="Shortcuts.TabImport">Tab: Import</sys:String>
+    <sys:String x:Key="Shortcuts.TabImport">Tab: Appearance</sys:String>
     <sys:String x:Key="Shortcuts.Search">Search</sys:String>
     <sys:String x:Key="Shortcuts.SearchOpen">Open set search</sys:String>
+    <sys:String x:Key="Shortcuts.SongSearch">Focus song search</sys:String>
 
     <!-- Display tab — setlist -->
     <sys:String x:Key="Section.CurrentSet">SET</sys:String>
@@ -179,5 +198,9 @@
     <sys:String x:Key="Import.OverwriteTip">Replaces song text if it already exists</sys:String>
     <sys:String x:Key="Import.Log">IMPORT LOG</sys:String>
     <sys:String x:Key="Import.NoGroup">(no group)</sys:String>
+    <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
+    <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
+    <sys:String x:Key="Import.OszDialogTitle">Select OpenLP sets (.osz)</sys:String>
+    <sys:String x:Key="Import.OszDialogFilter">OpenLP Sets (*.osz)|*.osz</sys:String>
 
 </ResourceDictionary>

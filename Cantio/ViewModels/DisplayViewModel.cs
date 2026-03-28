@@ -64,11 +64,18 @@ public partial class DisplayViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<Category> _categories = [];
     [ObservableProperty] private Category? _selectedCategory;
-
+    [ObservableProperty] private CategoryEditorItem? _selectedCategoryItem;
 
     partial void OnSelectedCategoryChanged(Category? value)
     {
         if (value != null) _ = LoadSongsAsync(value.Id);
+    }
+
+    partial void OnSelectedCategoryItemChanged(CategoryEditorItem? value)
+    {
+        if (value == null || value.IsEditing || value.Id == 0) return;
+        var cat = Categories.FirstOrDefault(c => c.Id == value.Id);
+        if (cat != null) SelectedCategory = cat;
     }
 
     // ── Pieśni ────────────────────────────────────────────────────────────
@@ -80,15 +87,29 @@ public partial class DisplayViewModel : ObservableObject
 
     [ObservableProperty] private Verse? _selectedVerse;
 
+    [ObservableProperty] private bool _isPsalmMode = false;
+    [ObservableProperty] private Slide? _projectedSlide;
+
     partial void OnCurrentSlideIndexChanged(int value)
     {
-        if (value >= 0 && value < _slides.Count)
-            _projection.SetSlide(_slides[value]);
+        if (value < 0 || value >= _slides.Count) return;
+        var slide = _slides[value];
+        if (IsPsalmMode && slide.VerseType != "c")
+        {
+            // Psalm verse: pokaż w podglądzie operatora, projektor trzyma refren
+            _projection.SetOperatorSlide(slide);
+        }
+        else
+        {
+            _projection.ClearOperatorSlide();
+            ProjectedSlide = slide;
+            _projection.SetSlide(slide);
+        }
     }
 
     partial void OnSelectedSongChanged(Song? value)
     {
-        if (!_loadingVerses && value != null) _ = LoadVersesAsync(value.Id);
+        // Ładowanie tylko na jawne polecenie (dwuklik / ikona oka), nie na samo zaznaczenie
     }
 
     partial void OnSearchTextChanged(string value)
@@ -164,6 +185,7 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private string _setlistGroup = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
+    [ObservableProperty] private bool _isCurrentSetlistPinned;
 
     // ── Wyszukiwarka zestawów ─────────────────────────────────────────────
 
@@ -360,10 +382,49 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CancelEditCategory(CategoryEditorItem item) => item.IsEditing = false;
+    private void AddNewCategoryInline()
+    {
+        foreach (var c in CategoryItems) c.IsEditing = false;
+        var item = new CategoryEditorItem
+        {
+            Id = 0,
+            Number = 0,
+            IsEditing = true
+        };
+        CategoryItems.Insert(0, item);
+        SelectedCategoryItem = item;
+    }
 
-    // Delegates to LoadCategoriesAsync (no logic duplication)
-    private async Task ReloadCategoriesForEditorAsync() => await LoadCategoriesAsync();
+    [RelayCommand]
+    private void CancelEditCategory(CategoryEditorItem item)
+    {
+        if (item.Id == 0)
+            CategoryItems.Remove(item);
+        else
+            item.IsEditing = false;
+    }
+
+    public async Task SaveCategoryOrderAsync()
+    {
+        for (int i = 0; i < CategoryItems.Count; i++)
+        {
+            var item = CategoryItems[i];
+            item.Number = i + 1;
+            await _db.SaveCategoryAsync(new Category { Id = item.Id, Name = item.Name, Number = i + 1 });
+        }
+        Categories = new ObservableCollection<Category>(await _db.GetCategoriesAsync());
+    }
+
+    private async Task ReloadCategoriesForEditorAsync()
+    {
+        var prevId = SelectedCategoryItem?.Id ?? 0;
+        await LoadCategoriesAsync();
+        if (prevId > 0)
+        {
+            var restored = CategoryItems.FirstOrDefault(c => c.Id == prevId);
+            if (restored != null) SelectedCategoryItem = restored;
+        }
+    }
 
     [RelayCommand]
     private void NewSong()
@@ -496,12 +557,14 @@ public partial class DisplayViewModel : ObservableObject
     private void OpenPasteTextEditor()
     {
         var currentText = string.Join("\n\n", EditingVerses.Select(v => v.Text));
-        var dlg = new PasteTextWindow(currentText) { Owner = Application.Current.MainWindow };
+        var psalmCatId = _db.GetSettings().PsalmCategoryId;
+        bool currentIsPsalm = psalmCatId > 0 && (EditCategory?.Id ?? 0) == psalmCatId;
+        var dlg = new PasteTextWindow(currentText, currentIsPsalm) { Owner = Application.Current.MainWindow };
         if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.ResultText))
-            ParseAndApplyText(dlg.ResultText);
+            ParseAndApplyText(dlg.ResultText, dlg.IsPsalm);
     }
 
-    private void ParseAndApplyText(string rawText)
+    private void ParseAndApplyText(string rawText, bool isPsalm = false)
     {
         var blocks = rawText.Split(["\n\n", "\r\n\r\n"], StringSplitOptions.RemoveEmptyEntries)
                             .Select(b => b.Trim())
@@ -529,8 +592,8 @@ public partial class DisplayViewModel : ObservableObject
         }
         foreach (var item in verseItems) EditingVerses.Add(item);
 
-        // Build play order with auto-inserted chorus
-        if (chorusBlockIndex >= 0)
+        // Build play order with auto-inserted chorus — pomiń dla psalmów (refren już w tekście)
+        if (!isPsalm && chorusBlockIndex >= 0)
         {
             var chorusItem = verseItems[chorusBlockIndex];
             var playOrder = new List<VerseEditorItem>();
@@ -570,7 +633,7 @@ public partial class DisplayViewModel : ObservableObject
 
     partial void OnSelectedSetlistItemChanged(SetlistItem? value)
     {
-        if (!_loadingFromSetlist && value != null) LoadSongFromSetlist(value);
+        // Ładowanie tylko na jawne polecenie (dwuklik / ikona oka), nie na samo zaznaczenie
     }
 
     // ── Commands ──────────────────────────────────────────────────────────
@@ -641,6 +704,12 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void DisplaySetlistItem(SetlistItem item) => LoadSongFromSetlist(item);
+
+    [RelayCommand]
+    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id);
+
+    [RelayCommand]
     private async Task SaveSetlistAsync()
     {
         var name = string.IsNullOrEmpty(SetlistName.Trim())
@@ -685,6 +754,8 @@ public partial class DisplayViewModel : ObservableObject
         await _db.SaveSetlistItemsAsync(setlist.Id, BuildItems());
         _loadedSetlistId = setlist.Id;
         _loadedSetlistName = setlist.Name;
+        IsCurrentSetlistPinned = false;
+        TogglePinSetlistCommand.NotifyCanExecuteChanged();
         SetlistName = string.Empty;
         SetlistGroup = string.Empty;
     }
@@ -707,7 +778,21 @@ public partial class DisplayViewModel : ObservableObject
         SetlistGroup = string.Empty;
         _loadedSetlistId = 0;
         _loadedSetlistName = string.Empty;
+        IsCurrentSetlistPinned = false;
     }
+
+    [RelayCommand(CanExecute = nameof(CanTogglePin))]
+    private async Task TogglePinSetlist()
+    {
+        var setlist = await _db.GetSetlistAsync(_loadedSetlistId);
+        if (setlist == null) return;
+        setlist.IsPinned = !setlist.IsPinned;
+        await _db.SaveSetlistAsync(setlist);
+        IsCurrentSetlistPinned = setlist.IsPinned;
+        await LoadPinnedSetlistsAsync();
+    }
+
+    private bool CanTogglePin() => _loadedSetlistId > 0;
 
     [RelayCommand]
     private async Task LoadPinnedSetlistAsync(Setlist setlist)
@@ -720,6 +805,8 @@ public partial class DisplayViewModel : ObservableObject
         SetlistItems = new ObservableCollection<SetlistItem>(full.Items);
         SetlistName = full.Name;
         SetlistGroup = full.Group ?? string.Empty;
+        IsCurrentSetlistPinned = full.IsPinned;
+        TogglePinSetlistCommand.NotifyCanExecuteChanged();
         await LoadSetlistGroupsAsync();
         if (SetlistItems.Count > 0) LoadSongFromSetlist(SetlistItems[0]);
     }
@@ -734,6 +821,66 @@ public partial class DisplayViewModel : ObservableObject
                         .OrderBy(g => g)
                         .ToList();
         SetlistGroups = new ObservableCollection<string>(groups);
+        GroupItems = new ObservableCollection<GroupEditorItem>(
+            groups.Select(g => new GroupEditorItem { OriginalName = g }));
+    }
+
+    // ── Zarządzanie grupami zestawów ──────────────────────────────────────
+
+    [ObservableProperty] private ObservableCollection<GroupEditorItem> _groupItems = [];
+    [ObservableProperty] private bool _isGroupPopupOpen = false;
+
+    [RelayCommand]
+    private void OpenGroupPopup() => IsGroupPopupOpen = true;
+
+    [RelayCommand]
+    private void AddNewGroupInline()
+    {
+        foreach (var g in GroupItems) g.IsEditing = false;
+        GroupItems.Insert(0, new GroupEditorItem { OriginalName = string.Empty, IsEditing = true });
+    }
+
+    [RelayCommand]
+    private void StartEditGroup(GroupEditorItem item)
+    {
+        foreach (var g in GroupItems) if (g != item) g.IsEditing = false;
+        item.IsEditing = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveGroupAsync(GroupEditorItem item)
+    {
+        var name = item.EditName.Trim();
+        if (string.IsNullOrEmpty(name)) { GroupItems.Remove(item); return; }
+        item.OriginalName = name;
+        item.IsEditing = false;
+        await PersistGroupsAsync();
+        await LoadSetlistGroupsAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteGroupAsync(GroupEditorItem item)
+    {
+        GroupItems.Remove(item);
+        await PersistGroupsAsync();
+        await LoadSetlistGroupsAsync();
+    }
+
+    [RelayCommand]
+    private void CancelEditGroup(GroupEditorItem item)
+    {
+        if (string.IsNullOrEmpty(item.OriginalName))
+            GroupItems.Remove(item);
+        else
+            item.IsEditing = false;
+    }
+
+    private async Task PersistGroupsAsync()
+    {
+        var csv = string.Join(",", GroupItems
+            .Where(g => !string.IsNullOrEmpty(g.OriginalName))
+            .Select(g => g.OriginalName));
+        await _db.SaveSettingAsync("setlist_groups", csv);
     }
 
     // ── Klawiatura ────────────────────────────────────────────────────────
@@ -812,6 +959,10 @@ public partial class DisplayViewModel : ObservableObject
             catch { }
         }
 
+        var psalmCategoryId = _db.GetSettings().PsalmCategoryId;
+        IsPsalmMode = psalmCategoryId > 0 && song.CategoryId == psalmCategoryId;
+        ProjectedSlide = null;
+
         Verses = new ObservableCollection<Verse>(ordered);
         RebuildSlides();
         if (_slides.Count > 0)
@@ -824,6 +975,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         int prevIndex = CurrentSlideIndex;
         var settings = BuildLayoutSettings();
+        if (IsPsalmMode) settings.ForceSingleSlide = true;
         var texts = Verses.Select(v => v.Text).ToList();
         _slides = SlideLayoutService.BuildSlides(texts, settings);
 
@@ -839,8 +991,12 @@ public partial class DisplayViewModel : ObservableObject
             };
         }).ToArray();
         foreach (var slide in _slides)
+        {
             if (slide.VerseIndex >= 0 && slide.VerseIndex < verseLabels.Length)
                 slide.Label = verseLabels[slide.VerseIndex];
+            if (slide.VerseIndex >= 0 && slide.VerseIndex < Verses.Count)
+                slide.VerseType = Verses[slide.VerseIndex].Type;
+        }
 
         SlideList = new ObservableCollection<Slide>(_slides);
         CurrentSlideIndex = -1;
@@ -852,9 +1008,7 @@ public partial class DisplayViewModel : ObservableObject
     private void GoToSlide(int index)
     {
         if (index < 0 || index >= _slides.Count) return;
-        CurrentSlideIndex = index;
-        if (!ScreenBlanked)
-            _projection.SetSlide(_slides[index]);
+        CurrentSlideIndex = index; // OnCurrentSlideIndexChanged obsługuje projekcję
     }
 
     private void LoadSongFromSetlist(SetlistItem item, bool goToLast = false)

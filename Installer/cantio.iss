@@ -1,5 +1,5 @@
 ; Cantio — Inno Setup installer script
-; Build with: iscc cantio.iss /DAppVersion=1.0.0
+; Build with: iscc cantio.iss /DAppVersion=1.0
 ; Or use build-installer.ps1 which passes the version automatically.
 
 #ifndef AppVersion
