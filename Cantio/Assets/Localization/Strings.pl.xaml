@@ -6,6 +6,17 @@
     <sys:String x:Key="Tab.Show">WYŚWIETLANIE</sys:String>
     <sys:String x:Key="Tab.Settings">USTAWIENIA</sys:String>
     <sys:String x:Key="Tab.Import">WYGLĄD</sys:String>
+    <sys:String x:Key="Tab.About">O PROGRAMIE</sys:String>
+    <sys:String x:Key="Tab.Support">WESPRZYJ</sys:String>
+
+    <!-- O programie -->
+    <sys:String x:Key="About.Subtitle">Program do wyświetlania pieśni na projektorze</sys:String>
+    <sys:String x:Key="About.Version">Wersja</sys:String>
+    <sys:String x:Key="About.Author">Autor</sys:String>
+    <sys:String x:Key="About.CheckUpdate">Sprawdź aktualizacje</sys:String>
+    <sys:String x:Key="About.Checking">Sprawdzanie...</sys:String>
+    <sys:String x:Key="About.UpdateAvailable">Dostępna aktualizacja:</sys:String>
+    <sys:String x:Key="About.DownloadUpdate">Pobierz aktualizację</sys:String>
 
     <!-- Status -->
     <sys:String x:Key="Live.Label">TRWA PROJEKCJA</sys:String>

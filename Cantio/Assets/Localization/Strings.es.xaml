@@ -6,6 +6,17 @@
     <sys:String x:Key="Tab.Show">PRESENTACIÓN</sys:String>
     <sys:String x:Key="Tab.Settings">AJUSTES</sys:String>
     <sys:String x:Key="Tab.Import">APARIENCIA</sys:String>
+    <sys:String x:Key="Tab.About">ACERCA DE</sys:String>
+    <sys:String x:Key="Tab.Support">APOYAR</sys:String>
+
+    <!-- Acerca de -->
+    <sys:String x:Key="About.Subtitle">Software de proyección de canciones</sys:String>
+    <sys:String x:Key="About.Version">Versión</sys:String>
+    <sys:String x:Key="About.Author">Autor</sys:String>
+    <sys:String x:Key="About.CheckUpdate">Buscar actualizaciones</sys:String>
+    <sys:String x:Key="About.Checking">Comprobando...</sys:String>
+    <sys:String x:Key="About.UpdateAvailable">Actualización disponible:</sys:String>
+    <sys:String x:Key="About.DownloadUpdate">Descargar actualización</sys:String>
 
     <!-- Estado -->
     <sys:String x:Key="Live.Label">PROYECCIÓN ACTIVA</sys:String>

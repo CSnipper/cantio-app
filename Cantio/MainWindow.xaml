@@ -14,6 +14,7 @@
     <Window.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+        <helpers:InverseBoolConverter x:Key="InverseBool"/>
         <helpers:EnumToBoolConverter x:Key="EnumBool"/>
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
@@ -644,9 +645,36 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
-                    <Button x:Name="TabShow"     Content="{DynamicResource Tab.Show}" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click"/>
-                    <Button x:Name="TabTemplate" Content="{DynamicResource Tab.Settings}"     Style="{StaticResource TabBtn}"       Height="56" Click="TabTemplate_Click"/>
-                    <Button x:Name="TabImport"     Content="{DynamicResource Tab.Import}"   Style="{StaticResource TabBtn}"       Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1"/>
+                    <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Click="TabTemplate_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Click="TabAbout_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Click="TabSupport_Click" BorderThickness="1,0,1,1">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -3144,6 +3172,87 @@
                 </Border>
 
             </Grid>
+
+            <!-- ── TAB: O PROGRAMIE ── -->
+            <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="#0f1117">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="420">
+
+                    <!-- Nazwa -->
+                    <TextBlock Text="Cantio" FontFamily="{StaticResource HeaderFont}" FontSize="56"
+                               Foreground="#c9a84c" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource About.Subtitle}"
+                               Foreground="#8a8e9e" FontSize="14" HorizontalAlignment="Center"
+                               Margin="0,4,0,28"/>
+
+                    <!-- Wersja + sprawdź aktualizacje -->
+                    <Border Background="#181b24" CornerRadius="6" Padding="16,14" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Foreground="#e8eaf0" FontSize="14">
+                                    <Run Text="{DynamicResource About.Version}"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding AppVersion, Mode=OneWay}" FontWeight="Bold" Foreground="#c9a84c"/>
+                                </TextBlock>
+                                <TextBlock FontSize="12" Margin="0,5,0,0"
+                                           Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
+                                    <Run Text="{DynamicResource About.UpdateAvailable}" Foreground="#f0b040"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding LatestVersion}" Foreground="#f0b040" FontWeight="Bold"/>
+                                </TextBlock>
+                                <TextBlock FontSize="12" Foreground="#8a8e9e" Margin="0,5,0,0"
+                                           Visibility="{Binding IsCheckingUpdate, Converter={StaticResource BoolToVis}}"
+                                           Text="{DynamicResource About.Checking}"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Style="{StaticResource OutlineBtn}"
+                                    Content="{DynamicResource About.CheckUpdate}"
+                                    Padding="10,6" VerticalAlignment="Center"
+                                    Command="{Binding CheckForUpdateCommand}"
+                                    IsEnabled="{Binding IsCheckingUpdate, Converter={StaticResource InverseBool}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Autor -->
+                    <Border Background="#181b24" CornerRadius="6" Padding="16,14" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.Author}"
+                                       Foreground="#8a8e9e" FontSize="11" FontWeight="Bold"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock Text="Marek Wojtaszek"
+                                       Foreground="#e8eaf0" FontSize="16"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Strona -->
+                    <Button Style="{StaticResource OutlineBtn}" HorizontalAlignment="Stretch"
+                            Height="44" Margin="0,0,0,8"
+                            Command="{Binding OpenWebsiteCommand}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                       VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="cantio.app" FontSize="15" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Pobierz aktualizację (tylko gdy dostępna) -->
+                    <Button Style="{StaticResource GoldBtn}" HorizontalAlignment="Stretch"
+                            Height="44"
+                            Command="{Binding OpenLatestReleaseCommand}"
+                            Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                       VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource About.DownloadUpdate}" FontSize="15"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+            </Grid>
+
         </Grid>
     </Grid>
 </Window>

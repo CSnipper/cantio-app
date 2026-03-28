@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     private readonly SzablonViewModel _szablonVm;
     private readonly ShortcutService _shortcutService;
     private readonly ShortcutsViewModel _shortcutsVm;
+    private readonly AboutViewModel _aboutVm = new();
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
@@ -195,10 +196,14 @@ public partial class MainWindow : Window
 
         _importVm.SetlistsImported += async () => await _vm.LoadPinnedSetlistsAsync();
 
+        PaneAbout.DataContext = _aboutVm;
+
         Loaded += async (_, _) =>
         {
             await _vm.InitializeAsync();
             RestoreWindowPosition();
+            // Sprawdź aktualizacje w tle po starcie
+            _ = _aboutVm.CheckForUpdateCommand.ExecuteAsync(null);
         };
         Closing += (_, _) => SaveWindowPosition();
         KeyDown += _vm.OnKeyDown;
@@ -269,17 +274,21 @@ public partial class MainWindow : Window
     // ── Tab switching ──────────────────────────────────────────────────────────
 
     private void TabShow_Click(object sender, RoutedEventArgs e) => ShowPane(PaneShow, TabShow);
-    // private void TabCats_Click(object sender, RoutedEventArgs e) => ShowPane(PaneCats, TabCats);
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
+    private void TabAbout_Click(object sender, RoutedEventArgs e) => ShowPane(PaneAbout, TabAbout);
+    private void TabSupport_Click(object sender, RoutedEventArgs e) =>
+        System.Diagnostics.Process.Start(
+            new System.Diagnostics.ProcessStartInfo("https://buycoffee.to/marekwojtaszek")
+                { UseShellExecute = true });
 
     private void ShowPane(UIElement pane, Button activeTab)
     {
         // Hide all panes
         PaneShow.Visibility = Visibility.Collapsed;
-        // PaneCats.Visibility = Visibility.Collapsed;
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
+        PaneAbout.Visibility = Visibility.Collapsed;
 
         // Reset all tab styles
         foreach (Button btn in TabBar.Children)
@@ -291,8 +300,8 @@ public partial class MainWindow : Window
 
         // Track active tab
         _activeTab = pane == PaneShow      ? "show"
-            : pane == PaneCats             ? "cats"
             : pane == PaneTemplate         ? "template"
+            : pane == PaneAbout            ? "about"
             : "import";
     }
 

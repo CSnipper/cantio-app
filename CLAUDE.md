@@ -96,6 +96,11 @@ dotnet ef database update --project Cantio
 - `MessageBox.Show` w kodzie produkcyjnym — tylko debug
 - Blazor / MAUI / WinForms — projekt jest WPF
 - Edycji plików `Strings.*.xaml` przez PowerShell — wstawia garbled encoding dla polskich znaków i łamie build błędem MC3000; używaj wyłącznie Edit tool
+- `Run.Text` w XAML domyślnie binduje TwoWay — dla read-only właściwości zawsze dodaj `Mode=OneWay`, inaczej app crashuje przy starcie z błędem "nie może działać dla właściwości tylko do odczytu"
+
+### Konwertery i ikony
+- `InverseBoolConverter` (bool→bool) w `Cantio/Helpers/BoolToVisConverter.cs`, klucz `{StaticResource InverseBool}` — używaj do `IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"`
+- Ikony zakładek: zmień `Content="{DynamicResource ...}"` na StackPanel z `<TextBlock FontFamily="Segoe MDL2 Assets"/>` + `<TextBlock FontFamily="{StaticResource HeaderFont}"/>` — styl TabBtn/TabBtnActive działa bez zmian
 
 ### Wzorce UI — kategorie i grupy
 - Kategorie edytowane inline w lewej kolumnie (nie w edytorze pieśni); `CategoryEditorItem` w `CategoryItems`; drag & drop przez `CategoryItem_MouseMove`/`CategoryList_Drop` w code-behind; nowa kategoria pojawia się na początku listy z `IsEditing=true`

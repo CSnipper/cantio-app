@@ -6,6 +6,17 @@
     <sys:String x:Key="Tab.Show">DISPLAY</sys:String>
     <sys:String x:Key="Tab.Settings">SETTINGS</sys:String>
     <sys:String x:Key="Tab.Import">APPEARANCE</sys:String>
+    <sys:String x:Key="Tab.About">ABOUT</sys:String>
+    <sys:String x:Key="Tab.Support">SUPPORT</sys:String>
+
+    <!-- About -->
+    <sys:String x:Key="About.Subtitle">Song projection software</sys:String>
+    <sys:String x:Key="About.Version">Version</sys:String>
+    <sys:String x:Key="About.Author">Author</sys:String>
+    <sys:String x:Key="About.CheckUpdate">Check for updates</sys:String>
+    <sys:String x:Key="About.Checking">Checking...</sys:String>
+    <sys:String x:Key="About.UpdateAvailable">Update available:</sys:String>
+    <sys:String x:Key="About.DownloadUpdate">Download update</sys:String>
 
     <!-- Status -->
     <sys:String x:Key="Live.Label">PROJECTION ACTIVE</sys:String>
