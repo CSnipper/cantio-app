@@ -34,6 +34,10 @@
     <sys:String x:Key="Btn.Clone">Klonuj zestaw</sys:String>
     <sys:String x:Key="Btn.AddCategory">+ KATEGORIA</sys:String>
     <sys:String x:Key="Btn.ManageGroups">Zarządzanie grupami</sys:String>
+    <sys:String x:Key="Editor.PlayOrder">KOLEJNOŚĆ ODTWARZANIA</sys:String>
+    <sys:String x:Key="Editor.PlayOrder.Rebuild">Odbuduj</sys:String>
+    <sys:String x:Key="Editor.PlayOrder.Clear">Wyczyść</sys:String>
+    <sys:String x:Key="Editor.PlayOrder.Add">+ Dodaj</sys:String>
     <sys:String x:Key="Btn.NewSong">NOWA PIEŚŃ</sys:String>
     <sys:String x:Key="Btn.AddToOrder">DODAJ DO KOLEJNOŚCI</sys:String>
     <sys:String x:Key="Btn.SaveSong">ZAPISZ PIEŚŃ</sys:String>

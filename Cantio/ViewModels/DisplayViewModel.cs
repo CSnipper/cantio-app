@@ -325,6 +325,8 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private string _editNumber = string.Empty;
     [ObservableProperty] private Category? _editCategory;
     [ObservableProperty] private ObservableCollection<VerseEditorItem> _editingVerses = [];
+    [ObservableProperty] private ObservableCollection<PlayOrderEntry> _editPlayOrder = [];
+    [ObservableProperty] private VerseEditorItem? _selectedPlayOrderAddVerse;
 
     partial void OnEditTitleChanged(string v) => IsEditDirty = true;
     partial void OnEditNumberChanged(string v) => IsEditDirty = true;
@@ -434,6 +436,7 @@ public partial class DisplayViewModel : ObservableObject
         EditNumber = string.Empty;
         EditCategory = Categories.FirstOrDefault();
         EditingVerses.Clear();
+        EditPlayOrder.Clear();
         AddVerseToEditor("v");
         IsEditDirty = false;
         IsEditMode = true;
@@ -447,6 +450,7 @@ public partial class DisplayViewModel : ObservableObject
         EditNumber = song.Number > 0 ? song.Number.ToString() : string.Empty;
         EditCategory = Categories.FirstOrDefault(c => c.Id == song.CategoryId);
         EditingVerses.Clear();
+        EditPlayOrder.Clear();
         var full = await _db.GetSongWithVersesAsync(song.Id);
         if (full != null)
         {
@@ -457,7 +461,25 @@ public partial class DisplayViewModel : ObservableObject
                 counters[v.Type] = counters.GetValueOrDefault(v.Type) + 1;
                 EditingVerses.Add(new VerseEditorItem { Type = v.Type, Text = v.Text, Number = counters[v.Type] });
             }
+
+            if (!string.IsNullOrEmpty(full.PlayOrderJson))
+            {
+                try
+                {
+                    var indices = JsonSerializer.Deserialize<List<int>>(full.PlayOrderJson) ?? [];
+                    foreach (var idx in indices.Where(i => i >= 0 && i < EditingVerses.Count))
+                        EditPlayOrder.Add(new PlayOrderEntry { Verse = EditingVerses[idx] });
+                }
+                catch { /* ignore malformed JSON */ }
+            }
+            else
+            {
+                // Brak PlayOrderJson — inicjalizuj naturalną kolejnością
+                foreach (var v in EditingVerses)
+                    EditPlayOrder.Add(new PlayOrderEntry { Verse = v });
+            }
         }
+        SelectedPlayOrderAddVerse = EditingVerses.FirstOrDefault();
         IsEditDirty = false;
         IsEditMode = true;
     }
@@ -487,6 +509,14 @@ public partial class DisplayViewModel : ObservableObject
             Position = pos++,
             SongId = _editingSong.Id
         }).ToList();
+
+        // Zapisz kolejność odtwarzania
+        var verseList = EditingVerses.ToList();
+        var playIndices = EditPlayOrder.Select(e => verseList.IndexOf(e.Verse)).Where(i => i >= 0).ToList();
+        _editingSong.PlayOrderJson = playIndices.Count > 0
+            ? JsonSerializer.Serialize(playIndices)
+            : null;
+
         await _db.SaveSongAsync(_editingSong);
         await LoadCategoriesAsync();
         if (SelectedCategory != null)
@@ -553,6 +583,71 @@ public partial class DisplayViewModel : ObservableObject
         }
     }
 
+    // ── Kolejność odtwarzania (PlayOrder) ─────────────────────────────────
+
+    [RelayCommand]
+    private void MovePlayOrderUp(PlayOrderEntry entry)
+    {
+        var idx = EditPlayOrder.IndexOf(entry);
+        if (idx <= 0) return;
+        EditPlayOrder.Move(idx, idx - 1);
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void MovePlayOrderDown(PlayOrderEntry entry)
+    {
+        var idx = EditPlayOrder.IndexOf(entry);
+        if (idx < 0 || idx >= EditPlayOrder.Count - 1) return;
+        EditPlayOrder.Move(idx, idx + 1);
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void RemoveFromPlayOrder(PlayOrderEntry entry)
+    {
+        EditPlayOrder.Remove(entry);
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void AddVerseToPlayOrder()
+    {
+        if (SelectedPlayOrderAddVerse == null) return;
+        EditPlayOrder.Add(new PlayOrderEntry { Verse = SelectedPlayOrderAddVerse });
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void RebuildPlayOrderAuto()
+    {
+        EditPlayOrder.Clear();
+        var verses = EditingVerses.ToList();
+        var chorus = verses.FirstOrDefault(v => v.Type == "c");
+        if (chorus == null)
+        {
+            foreach (var v in verses) EditPlayOrder.Add(new PlayOrderEntry { Verse = v });
+            IsEditDirty = true;
+            return;
+        }
+        if (verses.IndexOf(chorus) == 0) EditPlayOrder.Add(new PlayOrderEntry { Verse = chorus });
+        foreach (var v in verses)
+        {
+            if (v == chorus) continue;
+            EditPlayOrder.Add(new PlayOrderEntry { Verse = v });
+            EditPlayOrder.Add(new PlayOrderEntry { Verse = chorus });
+        }
+        IsEditDirty = true;
+    }
+
+    [RelayCommand]
+    private void ClearPlayOrder()
+    {
+        EditPlayOrder.Clear();
+        foreach (var v in EditingVerses) EditPlayOrder.Add(new PlayOrderEntry { Verse = v });
+        IsEditDirty = true;
+    }
+
     [RelayCommand]
     private void OpenPasteTextEditor()
     {
@@ -610,13 +705,19 @@ public partial class DisplayViewModel : ObservableObject
                 playOrder.Add(chorusItem);
             }
 
-            if (_editingSong != null)
-            {
-                var indices = playOrder.Select(p => verseItems.IndexOf(p)).ToList();
-                _editingSong.PlayOrderJson = System.Text.Json.JsonSerializer.Serialize(indices);
-            }
+            EditPlayOrder.Clear();
+            foreach (var item in playOrder)
+                EditPlayOrder.Add(new PlayOrderEntry { Verse = item });
+        }
+        else
+        {
+            // Psalm lub brak refrenu — kolejność = naturalna
+            EditPlayOrder.Clear();
+            foreach (var item in verseItems)
+                EditPlayOrder.Add(new PlayOrderEntry { Verse = item });
         }
 
+        SelectedPlayOrderAddVerse = EditingVerses.FirstOrDefault();
         IsEditDirty = true;
     }
 
@@ -1039,6 +1140,11 @@ public partial class DisplayViewModel : ObservableObject
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
 
+        // Jeden monitor — zminimalizuj okno projekcji żeby nie przykrywało aplikacji.
+        // Użytkownik może je przywrócić z paska zadań lub podłączyć projektor i zmienić ustawienie ekranu.
+        if (screens.Count == 1)
+            _projectionWindow.WindowState = System.Windows.WindowState.Minimized;
+
         // Czekaj na Background — niższy priorytet niż Loaded (6), więc wykona się po wszystkich Loaded callbackach
         // Dzięki temu odczytujemy DPI już po tym, jak okno zostało ustabilizowane na docelowym monitorze
         await _projectionWindow.Dispatcher.InvokeAsync(
@@ -1093,4 +1199,10 @@ public partial class DisplayViewModel : ObservableObject
             AutoFit = s.FontAutoFit
         };
     }
+}
+
+public class PlayOrderEntry
+{
+    public VerseEditorItem Verse { get; set; } = null!;
+    public string Label => Verse.Label;
 }
