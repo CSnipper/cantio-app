@@ -87,6 +87,7 @@
     <sys:String x:Key="VerseType.Chorus">+ Chorus</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
     <sys:String x:Key="VerseType.Private">+ Private</sys:String>
+    <sys:String x:Key="VerseType.Image">🖼 Image</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Edit all</sys:String>
     <sys:String x:Key="PasteText.Title">Edit all</sys:String>
     <sys:String x:Key="PasteText.Hint">Edit song text. Empty lines separate verses.</sys:String>
@@ -119,6 +120,19 @@
     <sys:String x:Key="Settings.Format">Format</sys:String>
     <sys:String x:Key="Settings.Main">General</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Load last opened setlist on startup</sys:String>
+    <sys:String x:Key="Settings.RunOnStartup">Run on system startup</sys:String>
+    <sys:String x:Key="Settings.SectionDatabase">DATABASE</sys:String>
+    <sys:String x:Key="Settings.BackupDb">Database backup</sys:String>
+    <sys:String x:Key="Settings.RestoreDb">Restore database</sys:String>
+    <sys:String x:Key="Settings.ClearDb">Clear database</sys:String>
+    <sys:String x:Key="Settings.ExportZip">Export ZIP</sys:String>
+    <sys:String x:Key="Settings.ImportZip">Import ZIP</sys:String>
+    <sys:String x:Key="Msg.ClearDbConfirm">Delete all songs, verses and setlists? Settings will be kept.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbConfirm">Replace the current database with the selected file? The app will restart.</sys:String>
+    <sys:String x:Key="Msg.ImportZipConfirm">Replace database and images with data from ZIP? The app will restart.</sys:String>
+    <sys:String x:Key="About.InstallUpdate">Install update</sys:String>
+    <sys:String x:Key="About.Downloading">Downloading...</sys:String>
+    <sys:String x:Key="About.Changelog">What's new:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Automatic font size fitting</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Responsorial psalm category</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>

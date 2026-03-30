@@ -1,3 +1,4 @@
+using Cantio.Helpers;
 using Cantio.Models;
 using Cantio.Services;
 using Cantio.Views;
@@ -95,6 +96,13 @@ public partial class DisplayViewModel : ObservableObject
     {
         if (value < 0 || value >= _slides.Count) return;
         var slide = _slides[value];
+        if (slide.IsImageSlide)
+        {
+            _projection.ClearOperatorSlide();
+            ProjectedSlide = slide;
+            _projection.SetImageSlide(slide.ImagePath!);
+            return;
+        }
         if ((IsPsalmMode && slide.VerseType != "c") || slide.VerseType == "p")
         {
             // Psalm verse / prywatna zwrotka: pokaż w podglądzie operatora, projektor trzyma poprzedni slajd
@@ -261,9 +269,10 @@ public partial class DisplayViewModel : ObservableObject
                 {
                     "c" => counts[v.Type] == 1 ? "Refren" : $"Refren {counts[v.Type]}",
                     "b" => counts[v.Type] == 1 ? "Bridge" : $"Bridge {counts[v.Type]}",
+                    "img" => "Obrazek",
                     _ => $"Zwrotka {counts[v.Type]}"
                 };
-                return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text };
+                return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text, ImagePath = v.ImagePath };
             }));
         IsInlineEditorOpen = true;
     }
@@ -288,7 +297,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task SaveInlineEditAsync()
     {
         foreach (var ev in EditableVerses)
-            await _db.SaveVerseTextAsync(ev.Id, ev.Text);
+            await _db.SaveVerseTextAsync(ev.Id, ev.Text, ev.ImagePath);
 
         var order = EditableVerses.Select((ev, i) => (ev.Id, i));
         await _db.SaveVerseOrderAsync(order);
@@ -468,7 +477,7 @@ public partial class DisplayViewModel : ObservableObject
             foreach (var v in items)
             {
                 counters[v.Type] = counters.GetValueOrDefault(v.Type) + 1;
-                EditingVerses.Add(new VerseEditorItem { Type = v.Type, Text = v.Text, Number = counters[v.Type] });
+                EditingVerses.Add(new VerseEditorItem { Type = v.Type, Text = v.Text, Number = counters[v.Type], ImagePath = v.ImagePath });
             }
 
             if (!string.IsNullOrEmpty(full.PlayOrderJson))
@@ -515,6 +524,7 @@ public partial class DisplayViewModel : ObservableObject
         {
             Type = v.Type,
             Text = v.Text,
+            ImagePath = v.ImagePath,
             Position = pos++,
             SongId = _editingSong.Id
         }).ToList();
@@ -550,14 +560,16 @@ public partial class DisplayViewModel : ObservableObject
     private void AddVerseToEditor(string type)
     {
         int number = EditingVerses.Count(v => v.Type == type) + 1;
-        EditingVerses.Add(new VerseEditorItem { Type = type, Number = number });
+        var item = new VerseEditorItem { Type = type, Number = number };
+        EditingVerses.Add(item);
+        EditPlayOrder.Add(new PlayOrderEntry { Verse = item });
         IsEditDirty = true;
     }
 
     [RelayCommand]
     private void RemoveVerseFromEditor(VerseEditorItem verse)
     {
-        if (!string.IsNullOrWhiteSpace(verse.Text) && !Confirm("Usunąć tę zwrotkę?"))
+        if (verse.Type != "img" && !string.IsNullOrWhiteSpace(verse.Text) && !Confirm("Usunąć tę zwrotkę?"))
             return;
         EditingVerses.Remove(verse);
         RenumberEditorVerses();
@@ -890,7 +902,7 @@ public partial class DisplayViewModel : ObservableObject
             Filter = "Obrazki (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|Wszystkie pliki (*.*)|*.*"
         };
         if (dlg.ShowDialog() != true) return;
-        var newItem = new SetlistItem { ImagePath = dlg.FileName, Type = "image" };
+        var newItem = new SetlistItem { ImagePath = ImageStorage.Import(dlg.FileName), Type = "image" };
         var idx = SelectedSetlistItem != null ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
         if (idx >= 0) SetlistItems.Insert(idx + 1, newItem);
         else SetlistItems.Add(newItem);
@@ -1131,6 +1143,11 @@ public partial class DisplayViewModel : ObservableObject
             var psalmSlides = new List<Slide>();
             for (int vi = 0; vi < Verses.Count; vi++)
             {
+                if (Verses[vi].Type == "img")
+                {
+                    psalmSlides.Add(new Slide { VerseIndex = vi, PartIndex = 0, ImagePath = Verses[vi].ImagePath });
+                    continue;
+                }
                 var s = Verses[vi].Type == "c" ? chorusSettings : verseSettings;
                 var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
                 for (int pi = 0; pi < parts.Count; pi++)
@@ -1144,7 +1161,7 @@ public partial class DisplayViewModel : ObservableObject
             }
             // Wyrównaj czcionkę zwrotek psalmu (refreny mają AutoFit=false → settings.FontSize)
             var verseFonts = psalmSlides
-                .Where(s => Verses[s.VerseIndex].Type != "c")
+                .Where(s => !s.IsImageSlide && Verses[s.VerseIndex].Type != "c")
                 .Select(s => s.FontSize)
                 .ToList();
             if (verseFonts.Count > 1)
@@ -1172,6 +1189,11 @@ public partial class DisplayViewModel : ObservableObject
             var privateSlides = new List<Slide>();
             for (int vi = 0; vi < Verses.Count; vi++)
             {
+                if (Verses[vi].Type == "img")
+                {
+                    allSlides.Add(new Slide { VerseIndex = vi, PartIndex = 0, ImagePath = Verses[vi].ImagePath });
+                    continue;
+                }
                 var isPrivate = Verses[vi].Type == "p";
                 var s = isPrivate ? privateSettings : settings;
                 var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
@@ -1189,11 +1211,11 @@ public partial class DisplayViewModel : ObservableObject
                     else normalSlides.Add(slide);
                 }
             }
-            // Normalizuj czcionkę w każdej grupie osobno
-            if (normalSlides.Count > 1)
+            // Normalizuj czcionkę w każdej grupie osobno (pomijaj slajdy-obrazki)
+            if (normalSlides.Count(s => !s.IsImageSlide) > 1)
             {
-                double u = normalSlides.Min(s => s.FontSize);
-                foreach (var sl in normalSlides) sl.FontSize = u;
+                double u = normalSlides.Where(s => !s.IsImageSlide).Min(s => s.FontSize);
+                foreach (var sl in normalSlides.Where(s => !s.IsImageSlide)) sl.FontSize = u;
             }
             if (privateSlides.Count > 1)
             {
@@ -1212,6 +1234,7 @@ public partial class DisplayViewModel : ObservableObject
                 "c" => typeCounts[v.Type] == 1 ? "R" : $"R{typeCounts[v.Type]}",
                 "b" => typeCounts[v.Type] == 1 ? "B" : $"B{typeCounts[v.Type]}",
                 "p" => typeCounts[v.Type] == 1 ? "P" : $"P{typeCounts[v.Type]}",
+                "img" => "🖼",
                 _ => typeCounts[v.Type].ToString()
             };
         }).ToArray();
@@ -1304,7 +1327,7 @@ public partial class DisplayViewModel : ObservableObject
         // Przebuduj slajdy z poprawnymi wymiarami ekranu (AutoFit używa ProjectionScreenWidth/Height)
         RebuildSlides();
 
-        Application.Current.MainWindow.Focus();
+        Application.Current.MainWindow.Activate();
         _projection.ApplySettings(_db.GetSettings());
         _projection.SetBlanked(ScreenBlanked);
         if (CurrentSlideIndex >= 0 && CurrentSlideIndex < _slides.Count)

@@ -88,6 +88,7 @@
     <sys:String x:Key="VerseType.Chorus">+ Refren</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
     <sys:String x:Key="VerseType.Private">+ Prywatna</sys:String>
+    <sys:String x:Key="VerseType.Image">🖼 Obrazek</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Edytuj całość</sys:String>
     <sys:String x:Key="PasteText.Title">Edytuj całość</sys:String>
     <sys:String x:Key="PasteText.Hint">Edytuj tekst pieśni. Puste linie rozdzielają zwrotki.</sys:String>
@@ -120,6 +121,19 @@
     <sys:String x:Key="Settings.Format">Format</sys:String>
     <sys:String x:Key="Settings.Main">Główne</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Ładuj ostatnio otwarty zestaw przy starcie</sys:String>
+    <sys:String x:Key="Settings.RunOnStartup">Uruchamiaj przy starcie systemu</sys:String>
+    <sys:String x:Key="Settings.SectionDatabase">BAZA DANYCH</sys:String>
+    <sys:String x:Key="Settings.BackupDb">Backup bazy</sys:String>
+    <sys:String x:Key="Settings.RestoreDb">Przywróć bazę</sys:String>
+    <sys:String x:Key="Settings.ClearDb">Wyczyść bazę</sys:String>
+    <sys:String x:Key="Settings.ExportZip">Eksportuj ZIP</sys:String>
+    <sys:String x:Key="Settings.ImportZip">Importuj ZIP</sys:String>
+    <sys:String x:Key="Msg.ClearDbConfirm">Usunąć wszystkie pieśni, zwrotki i zestawy? Ustawienia zostaną zachowane.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbConfirm">Zastąpić obecną bazę danych wybranym plikiem? Aplikacja zostanie zrestartowana.</sys:String>
+    <sys:String x:Key="Msg.ImportZipConfirm">Zastąpić bazę danych i obrazki danymi z pliku ZIP? Aplikacja zostanie zrestartowana.</sys:String>
+    <sys:String x:Key="About.InstallUpdate">Zainstaluj aktualizację</sys:String>
+    <sys:String x:Key="About.Downloading">Pobieranie...</sys:String>
+    <sys:String x:Key="About.Changelog">Co nowego:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Kategoria psalmu responsoryjnego</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>

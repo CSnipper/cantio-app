@@ -122,13 +122,14 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    public async Task SaveVerseTextAsync(int verseId, string newText)
+    public async Task SaveVerseTextAsync(int verseId, string newText, string? imagePath = null)
     {
         await using var db = new CantioDbContext();
         var verse = await db.Verses.FindAsync(verseId);
         if (verse != null)
         {
             verse.Text = newText;
+            verse.ImagePath = imagePath;
             await db.SaveChangesAsync();
         }
     }
@@ -243,6 +244,17 @@ public class DatabaseService
             item.Song = null;
         }
         db.SetlistItems.AddRange(items);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ClearAllDataAsync()
+    {
+        await using var db = new CantioDbContext();
+        db.SetlistItems.RemoveRange(db.SetlistItems);
+        db.Setlists.RemoveRange(db.Setlists);
+        db.Verses.RemoveRange(db.Verses);
+        db.Songs.RemoveRange(db.Songs);
+        db.Categories.RemoveRange(db.Categories);
         await db.SaveChangesAsync();
     }
 

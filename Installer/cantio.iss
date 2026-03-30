@@ -29,7 +29,9 @@ WizardStyle=modern
 DisableProgramGroupPage=yes
 
 [Languages]
-Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"
+Name: "polish";  MessagesFile: "compiler:Languages\Polish.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Files]
 ; Application binaries (self-contained publish output)
@@ -43,11 +45,24 @@ Source: "..\Cantio.db"; DestDir: "{app}"; DestName: "cantio.db"; \
 Name: "{group}\{#AppName}";       Filename: "{app}\{#AppExeName}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
+[Dirs]
+Name: "{localappdata}\Cantio"
+
 [Tasks]
 Name: "desktopicon"; \
       Description: "Utwórz skrót na &Pulpicie"; \
       GroupDescription: "Dodatkowe ikony:"; \
       Flags: checkedonce
+Name: "autostart"; \
+      Description: "Uruchamiaj Cantio przy starcie systemu"; \
+      GroupDescription: "Autostart:"; \
+      Flags: unchecked
+
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
+      ValueType: string; ValueName: "Cantio"; \
+      ValueData: """{app}\{#AppExeName}"""; \
+      Tasks: autostart; Flags: uninsdeletevalue
 
 [Run]
 Filename: "{app}\{#AppExeName}"; \
@@ -111,4 +126,19 @@ end;
 function ShouldInstallDb: Boolean;
 begin
   Result := ShouldInstallSampleDb and not DbAlreadyExists;
+end;
+
+{ Write initial_lang.cfg so the app uses the installer language on first run }
+procedure DeinitializeSetup;
+var
+  LangCode: string;
+  LangFile: string;
+begin
+  case ActiveLanguage of
+    'english': LangCode := 'en';
+    'spanish': LangCode := 'es';
+  else LangCode := 'pl';
+  end;
+  LangFile := ExpandConstant('{localappdata}\Cantio\initial_lang.cfg');
+  SaveStringToFile(LangFile, LangCode, False);
 end;

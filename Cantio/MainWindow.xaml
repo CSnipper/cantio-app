@@ -770,12 +770,41 @@
                                                 </TextBlock.Style>
                                             </TextBlock>
                                         </Border>
+                                        <!-- Tekst zwrotki (ukryty dla obrazków) -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding Text, Converter={StaticResource StripTags}}"
                                                    FontSize="20" LineHeight="24"
                                                    TextWrapping="Wrap"
                                                    VerticalAlignment="Center"
-                                                   Margin="14,12,12,12"/>
+                                                   Margin="14,12,12,12">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsImageSlide}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <!-- Nazwa pliku obrazka (widoczna tylko dla IsImageSlide) -->
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding ImagePath, Converter={StaticResource FileName}}"
+                                                   FontSize="18" LineHeight="22"
+                                                   FontStyle="Italic" Foreground="#888"
+                                                   VerticalAlignment="Center"
+                                                   Margin="14,12,12,12">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsImageSlide}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         <!-- Złoty lewy pasek = slajd aktualnie na projektorze -->
                                         <Border Grid.Column="0" Grid.ColumnSpan="2"
                                                 BorderThickness="3,0,0,0" IsHitTestVisible="False">
@@ -954,15 +983,47 @@
                                                         <TextBlock Text="{Binding Label}"
                                                                    FontSize="16" Foreground="#c9a84c"
                                                                    Margin="0,0,0,2" FontWeight="SemiBold"/>
+                                                        <!-- TextBox — ukryty dla zwrotek typu "img" -->
                                                         <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Style="{StaticResource DarkTextBox}"
                                                                  AcceptsReturn="True" TextWrapping="Wrap"
                                                                  MinHeight="50" FontSize="18" Padding="6,5"
                                                                  PreviewKeyDown="VerseTextBox_PreviewKeyDown"
-                                                                 PreviewMouseLeftButtonDown="VerseTextBox_PreviewMouseLeftButtonDown"/>
+                                                                 PreviewMouseLeftButtonDown="VerseTextBox_PreviewMouseLeftButtonDown">
+                                                            <TextBox.Style>
+                                                                <Style TargetType="TextBox" BasedOn="{StaticResource DarkTextBox}">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBox.Style>
+                                                        </TextBox>
+                                                        <!-- Panel obrazka — widoczny tylko dla Type="img" -->
+                                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+                                                            <TextBlock Text="{Binding ImageFileName}"
+                                                                       FontSize="16" Foreground="#9aa3b8"
+                                                                       FontStyle="Italic"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,8,0"/>
+                                                            <Button Content="📁" Width="36" Height="36"
+                                                                    Style="{StaticResource SmallIconBtn}"
+                                                                    Command="{Binding BrowseImageCommand}"
+                                                                    ToolTip="Wybierz plik obrazka"/>
+                                                        </StackPanel>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
-                                                        <!-- Zmień typ zwrotki (v → c → b → v) -->
+                                                        <!-- Zmień typ zwrotki (v → c → b → v), ukryty dla obrazków -->
                                                         <Button Width="28" Height="28" Margin="0,0,0,6"
                                                                 Command="{Binding CycleTypeCommand}"
                                                                 ToolTip="Zmień typ: Zwrotka / Refren / Bridge">
@@ -978,6 +1039,9 @@
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding Type}" Value="p">
                                                                             <Setter Property="Foreground" Value="#4aad6f"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -1021,9 +1085,13 @@
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="b"/>
                                         <Button Content="{DynamicResource VerseType.Private}" Style="{StaticResource OutlineBtn}"
-                                                Padding="8,5"
+                                                Margin="0,0,4,0" Padding="8,5"
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="p"/>
+                                        <Button Content="{DynamicResource VerseType.Image}" Style="{StaticResource OutlineBtn}"
+                                                Padding="8,5"
+                                                Command="{Binding AddVerseToEditorCommand}"
+                                                CommandParameter="img"/>
                                     </StackPanel>
                                     <Button Content="{DynamicResource VerseType.EditAll}" Style="{StaticResource OutlineBtn}"
                                             HorizontalAlignment="Left" Padding="10,6" Margin="0,0,0,4"
@@ -2116,14 +2184,38 @@
                                                                        FontSize="11" Foreground="#c9a84c"
                                                                        Margin="0,0,0,3" FontWeight="SemiBold"/>
                                                             <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Style="{StaticResource DarkTextBox}"
                                                                      AcceptsReturn="True"
                                                                      TextWrapping="Wrap"
                                                                      MinHeight="60"
                                                                      FontSize="14"
                                                                      Padding="8,6"
                                                                      PreviewKeyDown="VerseTextBox_PreviewKeyDown"
-                                                                     PreviewMouseLeftButtonDown="VerseTextBox_PreviewMouseLeftButtonDown"/>
+                                                                     PreviewMouseLeftButtonDown="VerseTextBox_PreviewMouseLeftButtonDown">
+                                                                <TextBox.Style>
+                                                                    <Style TargetType="TextBox" BasedOn="{StaticResource DarkTextBox}">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBox.Style>
+                                                            </TextBox>
+                                                            <!-- Podgląd obrazka (tylko odczyt w inline edytorze) -->
+                                                            <TextBlock FontSize="14" FontStyle="Italic" Foreground="#9aa3b8"
+                                                                       Padding="8,6">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                                <Run Text="🖼 " /><Run Text="{Binding ImagePath, Converter={StaticResource FileName}, Mode=OneWay}"/>
+                                                            </TextBlock>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,0,0,0">
                                                             <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
@@ -2201,6 +2293,10 @@
                                       Style="{StaticResource DarkCheck}">
                                 <TextBlock Text="{DynamicResource Settings.LoadLastSetlist}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
+                            <CheckBox IsChecked="{Binding RunOnStartup}"
+                                      Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
+                                <TextBlock Text="{DynamicResource Settings.RunOnStartup}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
+                            </CheckBox>
                             <CheckBox IsChecked="{Binding FontAutoFit}"
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.FontAutoFit}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
@@ -2218,6 +2314,30 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
+
+                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
+
+                            <TextBlock Text="{DynamicResource Settings.SectionDatabase}" FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Button Content="{DynamicResource Settings.BackupDb}" Style="{StaticResource OutlineBtn}"
+                                        Padding="10,6" Margin="0,0,6,0"
+                                        Command="{Binding BackupDatabaseCommand}"/>
+                                <Button Content="{DynamicResource Settings.RestoreDb}" Style="{StaticResource OutlineBtn}"
+                                        Padding="10,6" Margin="0,0,6,0"
+                                        Command="{Binding RestoreDatabaseCommand}"/>
+                                <Button Content="{DynamicResource Settings.ClearDb}" Style="{StaticResource RedBtn}"
+                                        Padding="10,6"
+                                        Command="{Binding ClearDatabaseCommand}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                <Button Content="{DynamicResource Settings.ExportZip}" Style="{StaticResource OutlineBtn}"
+                                        Padding="10,6" Margin="0,0,6,0"
+                                        Command="{Binding ExportZipCommand}"/>
+                                <Button Content="{DynamicResource Settings.ImportZip}" Style="{StaticResource OutlineBtn}"
+                                        Padding="10,6"
+                                        Command="{Binding ImportZipCommand}"/>
+                            </StackPanel>
 
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
 
@@ -3345,18 +3465,47 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Pobierz aktualizację (tylko gdy dostępna) -->
+                    <!-- Changelog (tylko gdy dostępna aktualizacja i są release notes) -->
+                    <Border Background="#181b24" CornerRadius="6" Padding="14,12" Margin="0,0,0,8"
+                            Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.Changelog}"
+                                       Foreground="#8a8e9e" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto">
+                                <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap"
+                                           FontSize="12" Foreground="#9aa3b8" LineHeight="18"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Zainstaluj aktualizację (tylko gdy dostępna) -->
                     <Button Style="{StaticResource GoldBtn}" HorizontalAlignment="Stretch"
-                            Height="44"
-                            Command="{Binding OpenLatestReleaseCommand}"
+                            Height="44" Margin="0,0,0,6"
+                            Command="{Binding DownloadAndInstallCommand}"
+                            IsEnabled="{Binding IsDownloading, Converter={StaticResource InverseBool}}"
                             Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16"
                                        VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource About.DownloadUpdate}" FontSize="15"
-                                       VerticalAlignment="Center"/>
+                            <TextBlock FontSize="15" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{DynamicResource About.InstallUpdate}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDownloading}" Value="True">
+                                                <Setter Property="Text" Value="{DynamicResource About.Downloading}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Button>
+                    <!-- Pasek postępu pobierania -->
+                    <ProgressBar Value="{Binding DownloadProgress}" Maximum="100"
+                                 Height="6" Margin="0,0,0,8"
+                                 Foreground="#c9a84c" Background="#2a3347"
+                                 Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"/>
 
                 </StackPanel>
             </Grid>

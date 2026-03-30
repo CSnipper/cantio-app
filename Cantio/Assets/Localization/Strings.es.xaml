@@ -87,6 +87,7 @@
     <sys:String x:Key="VerseType.Chorus">+ Coro</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Puente</sys:String>
     <sys:String x:Key="VerseType.Private">+ Privada</sys:String>
+    <sys:String x:Key="VerseType.Image">🖼 Imagen</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Editar todo</sys:String>
     <sys:String x:Key="PasteText.Title">Editar todo</sys:String>
     <sys:String x:Key="PasteText.Hint">Edita el texto del canto. Las líneas vacías separan las estrofas.</sys:String>
@@ -119,6 +120,19 @@
     <sys:String x:Key="Settings.Format">Formato</sys:String>
     <sys:String x:Key="Settings.Main">General</sys:String>
     <sys:String x:Key="Settings.LoadLastSetlist">Cargar último repertorio al iniciar</sys:String>
+    <sys:String x:Key="Settings.RunOnStartup">Ejecutar al inicio del sistema</sys:String>
+    <sys:String x:Key="Settings.SectionDatabase">BASE DE DATOS</sys:String>
+    <sys:String x:Key="Settings.BackupDb">Copia de seguridad</sys:String>
+    <sys:String x:Key="Settings.RestoreDb">Restaurar base de datos</sys:String>
+    <sys:String x:Key="Settings.ClearDb">Limpiar base de datos</sys:String>
+    <sys:String x:Key="Settings.ExportZip">Exportar ZIP</sys:String>
+    <sys:String x:Key="Settings.ImportZip">Importar ZIP</sys:String>
+    <sys:String x:Key="Msg.ClearDbConfirm">¿Eliminar todas las canciones, estrofas y listas? La configuración se mantendrá.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbConfirm">¿Reemplazar la base de datos actual con el archivo seleccionado? La aplicación se reiniciará.</sys:String>
+    <sys:String x:Key="Msg.ImportZipConfirm">¿Reemplazar base de datos e imágenes con datos del ZIP? La aplicación se reiniciará.</sys:String>
+    <sys:String x:Key="About.InstallUpdate">Instalar actualización</sys:String>
+    <sys:String x:Key="About.Downloading">Descargando...</sys:String>
+    <sys:String x:Key="About.Changelog">Novedades:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>

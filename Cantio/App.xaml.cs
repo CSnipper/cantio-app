@@ -28,7 +28,14 @@ public partial class App : Application
                 await ctx.Database.MigrateAsync();
 
             var db = new DatabaseService();
-            var lang = db.GetSettingAsync("language").Result ?? "pl";
+            var lang = db.GetSettingAsync("language").Result;
+            if (lang == null)
+            {
+                var cfgFile = Path.Combine(dbFolder, "initial_lang.cfg");
+                if (File.Exists(cfgFile))
+                    lang = File.ReadAllText(cfgFile).Trim();
+                lang ??= "pl";
+            }
             LocalizationManager.SetLanguage(lang);
             var window = new MainWindow(db);
             window.Show();

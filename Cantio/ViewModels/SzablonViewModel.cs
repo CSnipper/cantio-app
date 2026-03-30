@@ -4,10 +4,15 @@ using Cantio.Services;
 using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Windows;
 using System.Windows.Media;
 using WpfScreenHelper;
+using WinReg = Microsoft.Win32.Registry;
 
 namespace Cantio.ViewModels;
 
@@ -323,6 +328,112 @@ public partial class SzablonViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
     private bool _fontAutoFit = true;
 
+    // Autostart
+
+    private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+
+    [ObservableProperty] private bool _runOnStartup;
+
+    partial void OnRunOnStartupChanged(bool value)
+    {
+        using var key = WinReg.CurrentUser.OpenSubKey(RunKey, writable: true);
+        if (key == null) return;
+        if (value) key.SetValue("Cantio", $"\"{Environment.ProcessPath}\"");
+        else key.DeleteValue("Cantio", throwOnMissingValue: false);
+    }
+
+    // Baza danych
+
+    private static string DbPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "Cantio", "cantio.db");
+
+    private static string AppDataFolder => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
+
+    [RelayCommand]
+    private void BackupDatabase()
+    {
+        var dlg = new SaveFileDialog
+        {
+            Title = LocalizationManager.Get("Settings.BackupDb"),
+            Filter = "SQLite (*.db)|*.db",
+            FileName = $"cantio_backup_{DateTime.Now:yyyyMMdd_HHmm}.db"
+        };
+        if (dlg.ShowDialog() != true) return;
+        File.Copy(DbPath, dlg.FileName, overwrite: true);
+    }
+
+    [RelayCommand]
+    private void RestoreDatabase()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title = LocalizationManager.Get("Settings.RestoreDb"),
+            Filter = "SQLite (*.db)|*.db"
+        };
+        if (dlg.ShowDialog() != true) return;
+        if (MessageBox.Show(LocalizationManager.Get("Msg.RestoreDbConfirm"), "Cantio",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        File.Copy(dlg.FileName, DbPath, overwrite: true);
+        RestartApp();
+    }
+
+    [RelayCommand]
+    private async Task ClearDatabaseAsync()
+    {
+        if (MessageBox.Show(LocalizationManager.Get("Msg.ClearDbConfirm"), "Cantio",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        await _db.ClearAllDataAsync();
+        Saved?.Invoke();
+    }
+
+    [RelayCommand]
+    private void ExportZip()
+    {
+        var dlg = new SaveFileDialog
+        {
+            Title = LocalizationManager.Get("Settings.ExportZip"),
+            Filter = "ZIP (*.zip)|*.zip",
+            FileName = $"cantio_export_{DateTime.Now:yyyyMMdd_HHmm}.zip"
+        };
+        if (dlg.ShowDialog() != true) return;
+        if (File.Exists(dlg.FileName)) File.Delete(dlg.FileName);
+        using var zip = ZipFile.Open(dlg.FileName, ZipArchiveMode.Create);
+        zip.CreateEntryFromFile(DbPath, "cantio.db");
+        var imagesDir = Path.Combine(AppDataFolder, "images");
+        if (Directory.Exists(imagesDir))
+            foreach (var f in Directory.EnumerateFiles(imagesDir))
+                zip.CreateEntryFromFile(f, "images/" + Path.GetFileName(f));
+    }
+
+    [RelayCommand]
+    private void ImportZip()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title = LocalizationManager.Get("Settings.ImportZip"),
+            Filter = "ZIP (*.zip)|*.zip"
+        };
+        if (dlg.ShowDialog() != true) return;
+        if (MessageBox.Show(LocalizationManager.Get("Msg.ImportZipConfirm"), "Cantio",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        using (var zip = ZipFile.OpenRead(dlg.FileName))
+            foreach (var entry in zip.Entries)
+            {
+                var dest = Path.Combine(AppDataFolder, entry.FullName.Replace('/', Path.DirectorySeparatorChar));
+                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                entry.ExtractToFile(dest, overwrite: true);
+            }
+        RestartApp();
+    }
+
+    private static void RestartApp()
+    {
+        Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
+        Application.Current.Shutdown();
+    }
+
     public string FontSizeLabel => FontAutoFit
         ? (Application.Current.TryFindResource("Settings.FontSizeMin") as string ?? "Rozmiar minimalny")
         : (Application.Current.TryFindResource("Settings.FontSize") as string ?? "Rozmiar czcionki");
@@ -368,6 +479,7 @@ public partial class SzablonViewModel : ObservableObject
             : Screens.Count > 1 ? Screens[1] : Screens.FirstOrDefault();
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
+        RunOnStartup = WinReg.CurrentUser.OpenSubKey(RunKey)?.GetValue("Cantio") != null;
 
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";

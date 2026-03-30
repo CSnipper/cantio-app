@@ -29,6 +29,8 @@ public class Slide
     public int PartIndex { get; set; }
     public string Label { get; set; } = string.Empty;
     public string VerseType { get; set; } = string.Empty; // "v", "c", "b"
+    public string? ImagePath { get; set; }
+    public bool IsImageSlide => !string.IsNullOrEmpty(ImagePath);
     public bool IsChorusSlide => VerseType == "c";
     public bool IsPrivateSlide => VerseType == "p";
 }

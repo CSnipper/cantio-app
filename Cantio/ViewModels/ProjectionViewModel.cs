@@ -1,3 +1,4 @@
+using Cantio.Helpers;
 using Cantio.Models;
 using Cantio.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -69,7 +70,7 @@ public partial class ProjectionViewModel : ObservableObject
     public void SetImageSlide(string path)
     {
         _pendingSlide = null;
-        _pendingImagePath = path;
+        _pendingImagePath = ImageStorage.Resolve(path);
         ApplyPendingImage();
     }
 
