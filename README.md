@@ -1,5 +1,4 @@
-<img width="1916" height="1128" alt="image" src="https://github.com/user-attachments/assets/ba8ed303-b830-4b4c-8ca2-6875da646033" />
-
+![Cantio](main.png)
 
 # Cantio
 
@@ -20,10 +19,13 @@ Cantio to natywna aplikacja Windows do wyświetlania tekstu pieśni na ekranie p
 - Automatyczny podział długich zwrotek na slajdy
 - Automatyczne dopasowanie rozmiaru czcionki do ekranu
 - Zestawy pieśni na nabożeństwo z grupowaniem i przeciąganiem
+- **Obrazki w zestawie** — dodaj grafikę między pieśniami, wyświetla się pełnoekranowo
 - Edytor pieśni z kategoriami i typami zwrotek (zwrotka, refren, bridge)
+- Szybka edycja inline — bez opuszczania widoku sterowania, z natychmiastowym odświeżeniem projektora
+- Tryb psalm — projektor wyświetla refren, kantor widzi zwrotkę w podglądzie
 - Szablon projekcji — czcionka, kolory, tło, gradient, cień, marginesy
 - Tagi formatowania tekstu z własną definicją i skrótami klawiaturowymi
-- Import z OpenLP, OpenSong, OSZ
+- Import z OpenLP (SQLite, XML), OpenSong, OSZ
 - Wielojęzyczny interfejs: Polski / English / Español
 - Obsługa wielu monitorów
 - Konfigurowalny zestaw skrótów klawiaturowych
@@ -40,26 +42,15 @@ Podczas instalacji możesz wybrać czy chcesz zainstalować przykładową bazę 
 
 ### Układ interfejsu
 
-Okno główne podzielone jest na trzy kolumny:
-
 | Kolumna | Zawartość |
 |---|---|
 | **Lewa** | Lista slajdów bieżącej pieśni + kontrolki (LIVE, Pokaż/Wygaś, ◀ ▶) |
 | **Środkowa** | Kategorie i pieśni (góra) + miniatura podglądu (dół) |
-| **Prawa** | Magazynek — zestaw pieśni na nabożeństwo |
-
-### Wczytywanie pieśni
-
-- **Pojedyncze kliknięcie** — zaznacza pieśń / pozycję w zestawie (bez wpływu na projekcję)
-- **Dwukrotne kliknięcie** lub **ikona 👁** — wczytuje pieśń i pokazuje ją w podglądzie
-- Po wczytaniu miniatura podglądu natychmiast pokazuje treść slajdu
-- **Przycisk „Pokaż"** — wysyła bieżący slajd na projektor i włącza tryb LIVE
+| **Prawa** | Zestaw pieśni na nabożeństwo |
 
 ### Obsługa klawiatury
 
 Skróty nawigacyjne są **konfigurowalne** w zakładce Ustawienia → Skróty.
-
-Wartości domyślne:
 
 | Klawisz | Akcja |
 |---|---|
@@ -67,44 +58,23 @@ Wartości domyślne:
 | `←` | Poprzedni slajd |
 | `↑` / `↓` | Poprzednia / następna pieśń w zestawie |
 | `Home` | Pierwszy slajd |
-| `Esc` | Wygaś / Pokaż ekran (toggle LIVE) |
+| `Esc` | Wygaś / Pokaż ekran |
 | `Ctrl+F` | Skocz do wyszukiwarki pieśni |
-
-Pozostałe konfigurowalne skróty: otwieranie wyszukiwarki zestawów, przełączanie zakładek.
-
-### Zestaw pieśni (magazynek)
-
-- Dodaj pieśń przyciskiem `+` na liście pieśni
-- Zmień kolejność przeciągając pozycje w zestawie
-- Edytuj tytuł inline przyciskiem ✏
-- Usuń pozycję przyciskiem ×
-- Zapisz zestaw (`Ctrl+S`) — możliwość nadpisania istniejącego lub zapisu jako nowy
-- Zestawy grupuj w kolekcje (np. „Niedziela", „Środa")
-- Przypnij często używane zestawy do panelu szybkiego dostępu
-
-### Edytor pieśni
-
-- Nowa pieśń: przycisk `+ NOWA PIEŚŃ` w nagłówku listy
-- Edycja: ikona ✎ na liście lub bezpośrednio z zestawu (ikona ✏)
-- Typy zwrotek: zwrotka (1, 2, 3…), refren (R), bridge (B)
-- Zmiana kolejności zwrotek przeciąganiem
-- Własna kolejność wykonania (drag & drop w trybie edycji zestawu)
-- `Ctrl+S` — zapisz
 
 ### Budowanie ze źródeł
 
-```bash
+\`\`\`bash
 # Wymagania: .NET 10 SDK
 git clone https://github.com/CSnipper/cantio-app.git
 cd cantio-app
 dotnet run --project Cantio
-```
+\`\`\`
 
 Budowanie instalatora (wymaga Inno Setup 6):
-```bash
+\`\`\`bash
 cd Installer
 powershell -ExecutionPolicy Bypass -File build-installer.ps1
-```
+\`\`\`
 
 ---
 
@@ -120,10 +90,13 @@ Cantio is a native Windows application for displaying song lyrics on a projector
 - Automatic splitting of long verses into slides
 - Automatic font size fitting to screen dimensions
 - Song sets for services with group management and drag & drop reordering
+- **Images in set** — insert graphics between songs, displayed full-screen on the projector
 - Song editor with categories and verse types (verse, chorus, bridge)
+- Quick inline editor — edit without leaving the display view, projector updates instantly on save
+- Psalm mode — projector shows the chorus, cantor sees the current verse in the preview
 - Projection template — font, colors, background, gradient, shadow, margins
 - Custom format tags with keyboard shortcuts
-- Import from OpenLP, OpenSong, OSZ
+- Import from OpenLP (SQLite, XML), OpenSong, OSZ
 - Multilingual UI: Polski / English / Español
 - Multi-monitor support
 - Fully configurable keyboard shortcuts
@@ -140,26 +113,15 @@ During installation you can choose between a sample song database or an empty on
 
 ### Interface layout
 
-The main window is divided into three columns:
-
 | Column | Content |
 |---|---|
 | **Left** | Slide list for the current song + controls (LIVE, Show/Blank, ◀ ▶) |
 | **Center** | Categories and songs (top) + slide preview thumbnail (bottom) |
 | **Right** | Set list — songs queued for the service |
 
-### Loading songs
-
-- **Single click** — selects a song / set item (no effect on projection)
-- **Double-click** or **👁 icon** — loads the song and shows it in the preview
-- After loading, the preview thumbnail immediately shows the slide content
-- **"Show" button** — sends the current slide to the projector and activates LIVE mode
-
 ### Keyboard shortcuts
 
 Navigation shortcuts are **configurable** in Settings → Shortcuts.
-
-Default values:
 
 | Key | Action |
 |---|---|
@@ -167,44 +129,23 @@ Default values:
 | `←` | Previous slide |
 | `↑` / `↓` | Previous / next song in set |
 | `Home` | First slide |
-| `Esc` | Blank / Show screen (toggle LIVE) |
+| `Esc` | Blank / Show screen |
 | `Ctrl+F` | Focus song search box |
-
-Other configurable shortcuts: open set search, switch tabs.
-
-### Song set
-
-- Add a song using the `+` button on the song list
-- Reorder by dragging items in the set list
-- Edit title inline with the ✏ button
-- Remove with the × button
-- Save the set (`Ctrl+S`) — overwrite existing or save as new
-- Organise sets into groups (e.g. "Sunday", "Wednesday")
-- Pin frequently used sets to the quick-access panel
-
-### Song editor
-
-- New song: `+ NEW SONG` button in the list header
-- Edit: ✎ icon on the list or ✏ directly from the set
-- Verse types: verse (1, 2, 3…), chorus (R), bridge (B)
-- Reorder verses by dragging
-- Custom playback order (drag & drop in set edit mode)
-- `Ctrl+S` — save
 
 ### Building from source
 
-```bash
+\`\`\`bash
 # Requires: .NET 10 SDK
 git clone https://github.com/CSnipper/cantio-app.git
 cd cantio-app
 dotnet run --project Cantio
-```
+\`\`\`
 
 Building the installer (requires Inno Setup 6):
-```bash
+\`\`\`bash
 cd Installer
 powershell -ExecutionPolicy Bypass -File build-installer.ps1
-```
+\`\`\`
 
 ---
 
