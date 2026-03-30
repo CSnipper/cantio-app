@@ -1298,7 +1298,7 @@ public partial class DisplayViewModel : ObservableObject
         ProjectionScreenHeight = target.WpfBounds.Height;
 
         _projectionWindow = new ProjectionWindow(_projection);
-        _projectionWindow.Owner = Application.Current.MainWindow;
+        _projectionWindow.ShowInTaskbar = false;
         _projectionWindow.Closed += (_, _) => _projectionWindow = null;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();

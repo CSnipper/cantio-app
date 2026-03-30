@@ -305,7 +305,10 @@ public partial class ImportViewModel : ObservableObject
 
 // Helper classes
 
-public record CategoryOption(int? Id, string Name);
+public record CategoryOption(int? Id, string Name)
+{
+    public override string ToString() => Name;
+}
 
 public record LogEntry(string Type, string Message)
 {

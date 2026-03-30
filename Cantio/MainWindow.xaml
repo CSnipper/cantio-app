@@ -2275,15 +2275,15 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="370"/>
-                    <ColumnDefinition Width="370"/>
+                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="400"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="0"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- COL 1: Ogólne + Ekran + Tagi -->
                 <Border Grid.Row="0" Grid.Column="0" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="24,24,24,24">
 
                             <TextBlock Text="{DynamicResource Settings.SectionGeneral}" FontFamily="{StaticResource HeaderFont}"
@@ -2413,7 +2413,7 @@
 
                 <!-- COL 2: Tagi formatowania -->
                 <Border Grid.Row="0" Grid.Column="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="24,24,24,24">
 
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
@@ -2846,7 +2846,7 @@
 
                 <!-- COL 1: Czcionka -->
                 <Border Grid.Row="0" Grid.Column="0" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                   Padding="24,24,24,0">
                         <StackPanel>
 
@@ -3048,7 +3048,7 @@
 
                 <!-- COL 2: Kolory -->
                 <Border Grid.Row="0" Grid.Column="1">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                   Padding="24,24,24,0">
                         <StackPanel>
 
