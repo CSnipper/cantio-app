@@ -363,23 +363,27 @@ MigrationBackup/
 FodyWeavers.xsd
 # ── Cantio — project-specific ────────────────────────────────────────────────
 
-# Claude Code — pamięć i konfiguracja (nie dla repozytorium)
+# Narzędzia AI i konfiguracja lokalna
 .claude/
+.serena/
+.superpowers/
 SKILL.md
 
-# Skrypty tymczasowe
+# Strona landing — osobne repo
+Cantio.Landing/
+
+# Skrypty tymczasowe i pliki pomocnicze
 *.py
-
-# Pliki backup
 *.bak
+songs.sqlite
 
-# Wyniki buildu instalatora
+# Wyniki buildu instalatora i wersja portable
 Installer/Output/
 Installer/publish/
+Installer/portable/
 
 # Pliki publikacji — profile są w repo, ale output nie
 Cantio/bin/Publish/
 
-#Inne
+# Dokumentacja lokalna
 docs/
-.superpowers/
