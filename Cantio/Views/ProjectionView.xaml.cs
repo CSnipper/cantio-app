@@ -33,16 +33,19 @@ public partial class ProjectionView : UserControl
 
     private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(ProjectionViewModel.IsOperatorOverride) or nameof(ProjectionViewModel.IsBlank))
+        if (e.PropertyName is nameof(ProjectionViewModel.IsOperatorOverride)
+                           or nameof(ProjectionViewModel.IsBlank)
+                           or nameof(ProjectionViewModel.IsImageSlide))
             SyncOperatorVisibility();
     }
 
     private void SyncOperatorVisibility()
     {
         if (MainTextBlock == null || OperatorTextBlock == null || BlankOverlay == null) return;
+        bool isImageSlide = _vm?.IsImageSlide ?? false;
         bool showOperator = IsPreviewMode && (_vm?.IsOperatorOverride ?? false);
-        MainTextBlock.Visibility = showOperator ? Visibility.Collapsed : Visibility.Visible;
-        OperatorTextBlock.Visibility = showOperator ? Visibility.Visible : Visibility.Collapsed;
+        MainTextBlock.Visibility     = (showOperator || isImageSlide) ? Visibility.Collapsed : Visibility.Visible;
+        OperatorTextBlock.Visibility = (showOperator && !isImageSlide) ? Visibility.Visible   : Visibility.Collapsed;
         if (IsPreviewMode)
             BlankOverlay.Visibility = Visibility.Collapsed;
     }

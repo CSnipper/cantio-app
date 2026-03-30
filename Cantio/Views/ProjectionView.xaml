@@ -55,6 +55,16 @@
             </TextBlock.Effect>
         </TextBlock>
 
+        <!-- Slajd obrazkowy — pełnoekranowy obraz z zestawu (nad tekstem, pod blankiem) -->
+        <Border Background="Black"
+                Visibility="{Binding IsImageSlide, Converter={StaticResource BoolToVis}}">
+            <Image x:Name="ImageSlideElement"
+                   Source="{Binding ImageSlidePath}"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+        </Border>
+
         <!-- Overlay pusty ekran (ukryty w trybie podglądu operatora) -->
         <Border x:Name="BlankOverlay"
                 Background="#000000"

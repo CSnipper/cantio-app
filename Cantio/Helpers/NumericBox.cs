@@ -11,7 +11,7 @@ namespace Cantio.Helpers;
 /// </summary>
 public static class NumericBox
 {
-    // ── IsEnabled ────────────────────────────────────────────────────────
+    // IsEnabled
 
     public static readonly DependencyProperty IsEnabledProperty =
         DependencyProperty.RegisterAttached(
@@ -21,7 +21,7 @@ public static class NumericBox
     public static bool GetIsEnabled(TextBox tb) => (bool)tb.GetValue(IsEnabledProperty);
     public static void SetIsEnabled(TextBox tb, bool value) => tb.SetValue(IsEnabledProperty, value);
 
-    // ── Step ─────────────────────────────────────────────────────────────
+    // Step
 
     public static readonly DependencyProperty StepProperty =
         DependencyProperty.RegisterAttached(
@@ -31,7 +31,7 @@ public static class NumericBox
     public static double GetStep(TextBox tb) => (double)tb.GetValue(StepProperty);
     public static void SetStep(TextBox tb, double value) => tb.SetValue(StepProperty, value);
 
-    // ── Min ──────────────────────────────────────────────────────────────
+    // Min
 
     public static readonly DependencyProperty MinProperty =
         DependencyProperty.RegisterAttached(
@@ -41,7 +41,7 @@ public static class NumericBox
     public static double GetMin(TextBox tb) => (double)tb.GetValue(MinProperty);
     public static void SetMin(TextBox tb, double value) => tb.SetValue(MinProperty, value);
 
-    // ── Max ──────────────────────────────────────────────────────────────
+    // Max
 
     public static readonly DependencyProperty MaxProperty =
         DependencyProperty.RegisterAttached(
@@ -51,7 +51,7 @@ public static class NumericBox
     public static double GetMax(TextBox tb) => (double)tb.GetValue(MaxProperty);
     public static void SetMax(TextBox tb, double value) => tb.SetValue(MaxProperty, value);
 
-    // ── Decimals ─────────────────────────────────────────────────────────
+    // Decimals
 
     public static readonly DependencyProperty DecimalsProperty =
         DependencyProperty.RegisterAttached(
@@ -61,7 +61,7 @@ public static class NumericBox
     public static int GetDecimals(TextBox tb) => (int)tb.GetValue(DecimalsProperty);
     public static void SetDecimals(TextBox tb, int value) => tb.SetValue(DecimalsProperty, value);
 
-    // ── Hooks ────────────────────────────────────────────────────────────
+    // Hooks
 
     private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {

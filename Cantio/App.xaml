@@ -15,6 +15,7 @@
         <helpers:EnumToBoolConverter        x:Key="EnumBool"/>
         <helpers:IsEqualConverter x:Key="IsEqual"/>
         <helpers:HexToColorConverter        x:Key="HexToColor"/>
+        <helpers:FileNameConverter          x:Key="FileName"/>
 
         <FontFamily x:Key="HeaderFont">pack://application:,,,/Assets/Fonts/#Grenze</FontFamily>
         <FontFamily x:Key="BodyFont">pack://application:,,,/Assets/Fonts/#Lato</FontFamily>

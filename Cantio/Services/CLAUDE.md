@@ -62,3 +62,12 @@ Obsługiwane formaty:
 - `OszImporter` — ZIP z `.osj` (JSON) → OpenLyrics XML
 
 OSZ flow: `.osz` → `ZipFile` → `.osj` (szukaj pierwszego, nie tylko `service_data.osj`) → JSON → `header.xml_version` = OpenLyrics XML
+
+### OpenLP SQLite — schemat (pułapki)
+- Tabele: `songs`, `song_books`, `songs_songbooks` — NIE `songs_song`, `songs_book`, `songs_song_books`
+- Relacja: `songs_songbooks.songbook_id` (nie `book_id`), `entry` to VARCHAR (nie int)
+- `song_books` nie ma kolumny `book_number`
+- Sprawdzaj istnienie tabel przez `sqlite_master` przed zapytaniem (`TableExistsAsync`)
+
+### OpenSong — pliki bez rozszerzenia
+- OpenSong zapisuje pliki XML **bez rozszerzenia** — filtr w OpenFileDialog musi uwzględniać `*.*` lub `*` obok `*.xml`

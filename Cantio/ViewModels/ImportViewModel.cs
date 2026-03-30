@@ -1,3 +1,4 @@
+using Cantio.Models;
 using Cantio.Services;
 using Cantio.Services.Import;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,9 +19,10 @@ public partial class ImportViewModel : ObservableObject
     {
         _db = db;
         _ = LoadOszGroupsAsync();
+        _ = LoadCategoriesAsync();
     }
 
-    // ── Format ────────────────────────────────────────────────────────────
+    // Format
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOpenLPSqlite))]
@@ -52,7 +54,7 @@ public partial class ImportViewModel : ObservableObject
         LogEntries.Clear();
     }
 
-    // ── Ścieżka ───────────────────────────────────────────────────────────
+    // Ścieżka
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(PreviewCommand))]
@@ -68,31 +70,33 @@ public partial class ImportViewModel : ObservableObject
             ImportFormat.OpenSongXml => "Nie wybrano pliku/folderu...",
             _ => "Nie wybrano..."
         }
-        : FilePath;
+        : Directory.Exists(FilePath)
+            ? Path.GetFileName(FilePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+            : Path.GetFileName(FilePath);
 
-    // ── Opcje ─────────────────────────────────────────────────────────────
+    // Opcje
 
     [ObservableProperty] private bool _overwriteExisting = false;
     [ObservableProperty] private bool _importCategories = true;
 
-    // ── Podgląd ───────────────────────────────────────────────────────────
+    // Podgląd
 
     [ObservableProperty] private string _previewText = string.Empty;
     [ObservableProperty] private bool _previewReady = false;
 
-    // ── Postęp ────────────────────────────────────────────────────────────
+    // Postęp
 
     [ObservableProperty] private bool _isImporting = false;
     [ObservableProperty] private int _progressValue = 0;
     [ObservableProperty] private int _progressMax = 100;
     [ObservableProperty] private string _progressText = string.Empty;
 
-    // ── Log ───────────────────────────────────────────────────────────────
+    // Log
 
     [ObservableProperty]
     private ObservableCollection<LogEntry> _logEntries = [];
 
-    // ── Commands ──────────────────────────────────────────────────────────
+    // Commands
 
     [RelayCommand]
     private void Browse()
@@ -112,9 +116,7 @@ public partial class ImportViewModel : ObservableObject
                 }
 
             case ImportFormat.OpenLPXml:
-                BrowseXmlOrFolder(
-                    "OpenLyrics XML (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*",
-                    "Wybierz folder z plikami OpenLyrics XML");
+                BrowseXmlOrFolder("OpenLyrics XML (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*");
                 break;
 
             case ImportFormat.OpenSongFolder:
@@ -130,9 +132,7 @@ public partial class ImportViewModel : ObservableObject
                 }
 
             case ImportFormat.OpenSongXml:
-                BrowseXmlOrFolder(
-                    "OpenSong XML (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*",
-                    "Wybierz folder z plikami OpenSong XML");
+                BrowseXmlOrFolder("Pliki OpenSong (bez rozszerzenia)|*|Pliki XML (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*");
                 break;
         }
 
@@ -183,7 +183,8 @@ public partial class ImportViewModel : ObservableObject
             var options = new ImportOptions
             {
                 OverwriteExisting = OverwriteExisting,
-                ImportCategories = ImportCategories
+                ImportCategories = ImportCategories,
+                FallbackCategoryId = FallbackCategory?.Id
             };
 
             var progress = new Progress<ImportProgress>(p =>
@@ -211,7 +212,26 @@ public partial class ImportViewModel : ObservableObject
         }
     }
 
-    // ── OSZ Import ────────────────────────────────────────────────────────
+    // Kategoria domyślna (fallback gdy plik nie zawiera info o kategorii)
+
+    [ObservableProperty] private ObservableCollection<CategoryOption> _categoriesForImport = [];
+    [ObservableProperty] private CategoryOption? _fallbackCategory;
+
+    private async Task LoadCategoriesAsync()
+    {
+        var cats = await _db.GetCategoriesAsync();
+        var autoLabel = Application.Current.TryFindResource("Import.FallbackCategoryAuto") as string ?? "(z pliku / domyślna)";
+        var options = new ObservableCollection<CategoryOption>
+        {
+            new CategoryOption(null, autoLabel)
+        };
+        foreach (var c in cats.OrderBy(c => c.Name))
+            options.Add(new CategoryOption(c.Id, c.Name));
+        CategoriesForImport = options;
+        FallbackCategory = options[0];
+    }
+
+    // OSZ Import
 
     [ObservableProperty] private ObservableCollection<string> _oszGroups = [];
     [ObservableProperty] private string _oszSelectedGroup = string.Empty;
@@ -265,21 +285,15 @@ public partial class ImportViewModel : ObservableObject
     }
    
 
-    private void BrowseXmlOrFolder(string fileFilter, string folderTitle)
+    private void BrowseXmlOrFolder(string fileFilter)
     {
         var dlg = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Wybierz plik XML lub anuluj i wybierz folder",
+            Title = "Wybierz plik",
             Filter = fileFilter
         };
         if (dlg.ShowDialog() == true)
             FilePath = dlg.FileName;
-        else
-        {
-            using var folderDlg = new CommonOpenFileDialog { Title = folderTitle, IsFolderPicker = true };
-            if (folderDlg.ShowDialog() == CommonFileDialogResult.Ok)
-                FilePath = folderDlg.FileName;
-        }
     }
 
     private void AddLog(string type, string message)
@@ -289,7 +303,9 @@ public partial class ImportViewModel : ObservableObject
     }
 }
 
-// ── Helper classes ─────────────────────────────────────────────────────────────
+// Helper classes
+
+public record CategoryOption(int? Id, string Name);
 
 public record LogEntry(string Type, string Message)
 {

@@ -3,6 +3,7 @@ using Cantio.Services;
 using Cantio.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Windows;
@@ -60,7 +61,7 @@ public partial class DisplayViewModel : ObservableObject
         _projection.SetBlanked(ScreenBlanked);
     }
 
-    // ── Kategorie ─────────────────────────────────────────────────────────
+    // Kategorie
 
     [ObservableProperty] private ObservableCollection<Category> _categories = [];
     [ObservableProperty] private Category? _selectedCategory;
@@ -78,7 +79,7 @@ public partial class DisplayViewModel : ObservableObject
         if (cat != null) SelectedCategory = cat;
     }
 
-    // ── Pieśni ────────────────────────────────────────────────────────────
+    // Pieśni
 
     [ObservableProperty] private ObservableCollection<Song> _songs = [];
     [ObservableProperty] private Song? _selectedSong;
@@ -94,9 +95,9 @@ public partial class DisplayViewModel : ObservableObject
     {
         if (value < 0 || value >= _slides.Count) return;
         var slide = _slides[value];
-        if (IsPsalmMode && slide.VerseType != "c")
+        if ((IsPsalmMode && slide.VerseType != "c") || slide.VerseType == "p")
         {
-            // Psalm verse: pokaż w podglądzie operatora, projektor trzyma refren
+            // Psalm verse / prywatna zwrotka: pokaż w podglądzie operatora, projektor trzyma poprzedni slajd
             _projection.SetOperatorSlide(slide);
         }
         else
@@ -153,7 +154,7 @@ public partial class DisplayViewModel : ObservableObject
         SetlistItems.Move(idx, SetlistItems.Count - 1);
     }
 
-    // ── Zwrotki / Slajdy ──────────────────────────────────────────────────
+    // Zwrotki / Slajdy
 
     [ObservableProperty] private ObservableCollection<Verse> _verses = [];
 
@@ -175,7 +176,7 @@ public partial class DisplayViewModel : ObservableObject
     public bool CanGoPrev => CurrentSlideIndex > 0;
     public bool CanGoNext => CurrentSlideIndex < _slides.Count - 1;
 
-    // ── Zestaw ────────────────────────────────────────────────────────────
+    // Zestaw
 
     private int _loadedSetlistId;
     private string _loadedSetlistName = string.Empty;
@@ -187,7 +188,7 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
     [ObservableProperty] private bool _isCurrentSetlistPinned;
 
-    // ── Wyszukiwarka zestawów ─────────────────────────────────────────────
+    // Wyszukiwarka zestawów
 
     [ObservableProperty] private bool _isSetlistSearchOpen;
     [ObservableProperty] private string _setlistSearchText = string.Empty;
@@ -232,7 +233,7 @@ public partial class DisplayViewModel : ObservableObject
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
     }
 
-    // ── Edytor zwrotek inline ─────────────────────────────────────────────
+    // Edytor zwrotek inline
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanOpenInlineEditor))]
@@ -246,7 +247,8 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenInlineEditorAsync(SetlistItem item)
     {
-        var song = await _db.GetSongWithVersesAsync(item.SongId);
+        if (!item.SongId.HasValue) return;
+        var song = await _db.GetSongWithVersesAsync(item.SongId.Value);
         if (song == null) return;
         InlineEditorTitle = song.Title;
         var verses = song.Verses.OrderBy(v => v.Position).ToList();
@@ -291,6 +293,8 @@ public partial class DisplayViewModel : ObservableObject
         var order = EditableVerses.Select((ev, i) => (ev.Id, i));
         await _db.SaveVerseOrderAsync(order);
 
+        var editedSongId = SelectedSetlistItem?.SongId;
+
         // Refresh the song in the setlist item so changes are visible immediately
         if (SelectedSetlistItem?.Song != null)
         {
@@ -299,7 +303,12 @@ public partial class DisplayViewModel : ObservableObject
         }
 
         IsInlineEditorOpen = false;
-        RebuildSlides();
+
+        // Jeśli edytowana pieśń jest aktualnie wyświetlana — przeładuj z DB zachowując pozycję slajdu
+        if (editedSongId.HasValue && SelectedSong?.Id == editedSongId.Value)
+            await LoadVersesAsync(editedSongId.Value, restoreSlide: CurrentSlideIndex);
+        else
+            RebuildSlides();
     }
 
     [RelayCommand]
@@ -309,7 +318,7 @@ public partial class DisplayViewModel : ObservableObject
         EditableVerses = [];
     }
 
-    // ── Tryb edycji pieśni ────────────────────────────────────────────────────
+    // Tryb edycji pieśni
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNormalMode))]
@@ -583,7 +592,7 @@ public partial class DisplayViewModel : ObservableObject
         }
     }
 
-    // ── Kolejność odtwarzania (PlayOrder) ─────────────────────────────────
+    // Kolejność odtwarzania (PlayOrder)
 
     [RelayCommand]
     private void MovePlayOrderUp(PlayOrderEntry entry)
@@ -721,7 +730,7 @@ public partial class DisplayViewModel : ObservableObject
         IsEditDirty = true;
     }
 
-    // ── Projekcja ─────────────────────────────────────────────────────────
+    // Projekcja
 
     [ObservableProperty] private bool _screenBlanked = true;
     [ObservableProperty] private double _projectionScreenWidth = 1920;
@@ -737,7 +746,7 @@ public partial class DisplayViewModel : ObservableObject
         // Ładowanie tylko na jawne polecenie (dwuklik / ikona oka), nie na samo zaznaczenie
     }
 
-    // ── Commands ──────────────────────────────────────────────────────────
+    // Commands
 
     [RelayCommand]
     private void ShowVerseSlide(Verse verse)
@@ -808,7 +817,7 @@ public partial class DisplayViewModel : ObservableObject
     private void DisplaySetlistItem(SetlistItem item) => LoadSongFromSetlist(item);
 
     [RelayCommand]
-    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id);
+    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id, restoreSlide: CurrentSlideIndex);
 
     [RelayCommand]
     private async Task SaveSetlistAsync()
@@ -866,10 +875,28 @@ public partial class DisplayViewModel : ObservableObject
         SetlistItems.Select((item, i) => new SetlistItem
         {
             SongId = item.SongId,
+            ImagePath = item.ImagePath,
             Position = i + 1,
             Type = item.Type,
             SelectedVerses = item.SelectedVerses
         }).ToList();
+
+    [RelayCommand]
+    private void AddImageToSetlist()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title = "Wybierz obrazek",
+            Filter = "Obrazki (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|Wszystkie pliki (*.*)|*.*"
+        };
+        if (dlg.ShowDialog() != true) return;
+        var newItem = new SetlistItem { ImagePath = dlg.FileName, Type = "image" };
+        var idx = SelectedSetlistItem != null ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
+        if (idx >= 0) SetlistItems.Insert(idx + 1, newItem);
+        else SetlistItems.Add(newItem);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
+        LoadSongFromSetlist(newItem);
+    }
 
     [RelayCommand]
     private void ClearSetlist()
@@ -926,7 +953,7 @@ public partial class DisplayViewModel : ObservableObject
             groups.Select(g => new GroupEditorItem { OriginalName = g }));
     }
 
-    // ── Zarządzanie grupami zestawów ──────────────────────────────────────
+    // Zarządzanie grupami zestawów
 
     [ObservableProperty] private ObservableCollection<GroupEditorItem> _groupItems = [];
     [ObservableProperty] private bool _isGroupPopupOpen = false;
@@ -984,7 +1011,7 @@ public partial class DisplayViewModel : ObservableObject
         await _db.SaveSettingAsync("setlist_groups", csv);
     }
 
-    // ── Klawiatura ────────────────────────────────────────────────────────
+    // Klawiatura
 
     public void HandleKey(Key key, ModifierKeys modifiers)
     {
@@ -1010,7 +1037,7 @@ public partial class DisplayViewModel : ObservableObject
         { GoToSlide(0); return; }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    // Helpers
 
     private async Task LoadCategoriesAsync()
     {
@@ -1038,7 +1065,7 @@ public partial class DisplayViewModel : ObservableObject
         Songs = new ObservableCollection<Song>(list);
     }
 
-    private async Task LoadVersesAsync(int songId, bool goToLast = false)
+    private async Task LoadVersesAsync(int songId, bool goToLast = false, int restoreSlide = -1)
     {
         _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
@@ -1067,7 +1094,12 @@ public partial class DisplayViewModel : ObservableObject
         Verses = new ObservableCollection<Verse>(ordered);
         RebuildSlides();
         if (_slides.Count > 0)
-            GoToSlide(goToLast ? _slides.Count - 1 : 0);
+        {
+            if (restoreSlide >= 0)
+                GoToSlide(Math.Min(restoreSlide, _slides.Count - 1));
+            else
+                GoToSlide(goToLast ? _slides.Count - 1 : 0);
+        }
     }
 
     [ObservableProperty] private ObservableCollection<Slide> _slideList = [];
@@ -1076,9 +1108,100 @@ public partial class DisplayViewModel : ObservableObject
     {
         int prevIndex = CurrentSlideIndex;
         var settings = BuildLayoutSettings();
-        if (IsPsalmMode) settings.ForceSingleSlide = true;
-        var texts = Verses.Select(v => v.Text).ToList();
-        _slides = SlideLayoutService.BuildSlides(texts, settings);
+        if (IsPsalmMode)
+        {
+            // Zwrotki psalmu: ForceSingleSlide + auto-fit (cały tekst na jednym slajdzie)
+            // Refren psalmu: stały rozmiar czcionki z ustawień (AutoFit=false, ForceSingleSlide=false)
+            var verseSettings = new SlideLayoutSettings
+            {
+                FontFamily = settings.FontFamily, FontBold = settings.FontBold,
+                FontSize = settings.FontSize, LineHeightMultiplier = settings.LineHeightMultiplier,
+                SlideWidth = settings.SlideWidth, SlideHeight = settings.SlideHeight,
+                MarginH = settings.MarginH, MarginV = settings.MarginV,
+                ForceSingleSlide = true, AutoFit = settings.AutoFit
+            };
+            var chorusSettings = new SlideLayoutSettings
+            {
+                FontFamily = settings.FontFamily, FontBold = settings.FontBold,
+                FontSize = settings.FontSize, LineHeightMultiplier = settings.LineHeightMultiplier,
+                SlideWidth = settings.SlideWidth, SlideHeight = settings.SlideHeight,
+                MarginH = settings.MarginH, MarginV = settings.MarginV,
+                ForceSingleSlide = false, AutoFit = false
+            };
+            var psalmSlides = new List<Slide>();
+            for (int vi = 0; vi < Verses.Count; vi++)
+            {
+                var s = Verses[vi].Type == "c" ? chorusSettings : verseSettings;
+                var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
+                for (int pi = 0; pi < parts.Count; pi++)
+                    psalmSlides.Add(new Slide
+                    {
+                        Text = parts[pi],
+                        FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                        VerseIndex = vi,
+                        PartIndex = pi
+                    });
+            }
+            // Wyrównaj czcionkę zwrotek psalmu (refreny mają AutoFit=false → settings.FontSize)
+            var verseFonts = psalmSlides
+                .Where(s => Verses[s.VerseIndex].Type != "c")
+                .Select(s => s.FontSize)
+                .ToList();
+            if (verseFonts.Count > 1)
+            {
+                double unifiedVerseFont = verseFonts.Min();
+                foreach (var slide in psalmSlides.Where(s => Verses[s.VerseIndex].Type != "c"))
+                    slide.FontSize = unifiedVerseFont;
+            }
+
+            _slides = psalmSlides;
+        }
+        else
+        {
+            // Buduj per-verse: typ "p" (prywatna) dostaje ForceSingleSlide=true
+            var privateSettings = new SlideLayoutSettings
+            {
+                FontFamily = settings.FontFamily, FontBold = settings.FontBold,
+                FontSize = settings.FontSize, LineHeightMultiplier = settings.LineHeightMultiplier,
+                SlideWidth = settings.SlideWidth, SlideHeight = settings.SlideHeight,
+                MarginH = settings.MarginH, MarginV = settings.MarginV,
+                ForceSingleSlide = true, AutoFit = settings.AutoFit
+            };
+            var allSlides = new List<Slide>();
+            var normalSlides = new List<Slide>();
+            var privateSlides = new List<Slide>();
+            for (int vi = 0; vi < Verses.Count; vi++)
+            {
+                var isPrivate = Verses[vi].Type == "p";
+                var s = isPrivate ? privateSettings : settings;
+                var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
+                for (int pi = 0; pi < parts.Count; pi++)
+                {
+                    var slide = new Slide
+                    {
+                        Text = parts[pi],
+                        FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                        VerseIndex = vi,
+                        PartIndex = pi
+                    };
+                    allSlides.Add(slide);
+                    if (isPrivate) privateSlides.Add(slide);
+                    else normalSlides.Add(slide);
+                }
+            }
+            // Normalizuj czcionkę w każdej grupie osobno
+            if (normalSlides.Count > 1)
+            {
+                double u = normalSlides.Min(s => s.FontSize);
+                foreach (var sl in normalSlides) sl.FontSize = u;
+            }
+            if (privateSlides.Count > 1)
+            {
+                double u = privateSlides.Min(s => s.FontSize);
+                foreach (var sl in privateSlides) sl.FontSize = u;
+            }
+            _slides = allSlides;
+        }
 
         var typeCounts = new Dictionary<string, int>();
         var verseLabels = Verses.Select(v =>
@@ -1088,6 +1211,7 @@ public partial class DisplayViewModel : ObservableObject
             {
                 "c" => typeCounts[v.Type] == 1 ? "R" : $"R{typeCounts[v.Type]}",
                 "b" => typeCounts[v.Type] == 1 ? "B" : $"B{typeCounts[v.Type]}",
+                "p" => typeCounts[v.Type] == 1 ? "P" : $"P{typeCounts[v.Type]}",
                 _ => typeCounts[v.Type].ToString()
             };
         }).ToArray();
@@ -1114,11 +1238,27 @@ public partial class DisplayViewModel : ObservableObject
 
     private void LoadSongFromSetlist(SetlistItem item, bool goToLast = false)
     {
-        if (item.SongId == 0) return;
+        if (item.IsImageItem)
+        {
+            SelectedSetlistItem = item;
+            LoadImageFromSetlist(item);
+            return;
+        }
+        if (!item.SongId.HasValue) return;
+        bool sameSong = SelectedSong?.Id == item.SongId.Value;
         _loadingFromSetlist = true;
         SelectedSetlistItem = item;
         _loadingFromSetlist = false;
-        _ = LoadVersesAsync(item.SongId, goToLast);
+        _ = LoadVersesAsync(item.SongId.Value, goToLast, restoreSlide: sameSong ? CurrentSlideIndex : -1);
+    }
+
+    private void LoadImageFromSetlist(SetlistItem item)
+    {
+        Verses.Clear();
+        _slides.Clear();
+        SlideList = new ObservableCollection<Slide>();
+        _projection.ClearOperatorSlide();
+        _projection.SetImageSlide(item.ImagePath!);
     }
 
     private async Task OpenProjectionWindowAsync()

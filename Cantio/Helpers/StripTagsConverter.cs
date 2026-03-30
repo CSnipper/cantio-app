@@ -11,7 +11,11 @@ public partial class StripTagsConverter : IValueConverter
     private static partial Regex TagPattern();
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is string s ? TagPattern().Replace(s, string.Empty) : value;
+        => value is string s
+            ? TagPattern().Replace(s, string.Empty)
+                          .Replace("\r\n", "\r")
+                          .Replace("\n", "\r")
+            : value;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();

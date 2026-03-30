@@ -16,7 +16,7 @@ public class OpenSongImporter : ILyricsImporter
 
     public string FormatName => "OpenSong";
 
-    // ── Podgląd ───────────────────────────────────────────────────────────
+    // Podgląd
 
     public async Task<ImportPreview> GetPreviewAsync()
     {
@@ -30,7 +30,7 @@ public class OpenSongImporter : ILyricsImporter
         });
     }
 
-    // ── Import ────────────────────────────────────────────────────────────
+    // Import
 
     public async Task<ImportResult> ImportAsync(
         DatabaseService db,
@@ -104,19 +104,23 @@ public class OpenSongImporter : ILyricsImporter
                     continue;
                 }
 
-                // kategoria = folder nadrzędny
+                // kategoria = folder nadrzędny (null = plik w katalogu głównym)
                 var categoryName = GetCategoryForFile(file);
-                var categoryId = await GetOrCreateCategoryAsync(categoryName);
-
-                if (categoryId == null)
+                int songCategoryId;
+                if (categoryName == null && options.FallbackCategoryId.HasValue)
                 {
-                    result.Skipped++;
-                    continue;
+                    songCategoryId = options.FallbackCategoryId.Value;
+                }
+                else
+                {
+                    var resolved = await GetOrCreateCategoryAsync(categoryName ?? "OpenSong");
+                    if (resolved == null) { result.Skipped++; continue; }
+                    songCategoryId = resolved.Value;
                 }
 
-                song.CategoryId = categoryId.Value;
+                song.CategoryId = songCategoryId;
 
-                var existing = await db.GetSongByTitleAsync(song.Title, categoryId.Value);
+                var existing = await db.GetSongByTitleAsync(song.Title, songCategoryId);
                 if (existing != null && !options.OverwriteExisting)
                 {
                     result.Skipped++;
@@ -153,7 +157,7 @@ public class OpenSongImporter : ILyricsImporter
         return result;
     }
 
-    // ── Parsowanie pliku OpenSong ─────────────────────────────────────────
+    // Parsowanie pliku OpenSong
 
     private static Song? ParseSongFile(string path)
     {
@@ -276,7 +280,7 @@ public class OpenSongImporter : ILyricsImporter
         return verses;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    // Helpers
 
     private List<string> GetSongFiles()
     {
@@ -296,20 +300,19 @@ public class OpenSongImporter : ILyricsImporter
         return new List<string>();
     }
 
-    private string GetCategoryForFile(string filePath)
+    // null = plik w katalogu głównym, brak kategorii w pliku → użyj FallbackCategoryId
+    private string? GetCategoryForFile(string filePath)
     {
-        // jeśli plik jest bezpośrednio w wybranym folderze → "OpenSong"
-        // jeśli jest w podfolderze → nazwa podfolderu = kategoria
         var dir = Path.GetDirectoryName(filePath) ?? string.Empty;
         var baseName = Path.GetFileName(dir);
 
         if (string.IsNullOrEmpty(baseName)
             || dir.Equals(_sourcePath, StringComparison.OrdinalIgnoreCase))
-            return "OpenSong";
+            return null;
 
         return baseName;
     }
 
     private HashSet<string> GetCategoryNames(List<string> files)
-        => files.Select(GetCategoryForFile).ToHashSet();
+        => files.Select(f => GetCategoryForFile(f) ?? "—").ToHashSet();
 }

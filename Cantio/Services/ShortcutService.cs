@@ -8,7 +8,7 @@ namespace Cantio.Services;
 /// </summary>
 public class ShortcutService
 {
-    // ── Action ID constants ────────────────────────────────────────────────
+    // Action ID constants
     public const string SlideNext   = "slide_next";
     public const string SlidePrev   = "slide_prev";
     public const string SongNext    = "song_next";
@@ -46,7 +46,7 @@ public class ShortcutService
     private Dictionary<string, (Key key, ModifierKeys mods)> _map = new();
     private Dictionary<string, string> _rawLabels = new();
 
-    // ── Loading ────────────────────────────────────────────────────────────
+    // Loading
 
     public async Task LoadWithLabelsAsync(DatabaseService db)
     {
@@ -74,7 +74,7 @@ public class ShortcutService
             _map[actionId] = ParseLabel(label);
     }
 
-    // ── Matching ───────────────────────────────────────────────────────────
+    // Matching
 
     public bool IsMatch(Key key, ModifierKeys modifiers, string actionId)
     {
@@ -82,7 +82,7 @@ public class ShortcutService
         return key == expected.key && modifiers == expected.mods;
     }
 
-    // ── Label ↔ Key conversion ─────────────────────────────────────────────
+    // Label ↔ Key conversion
 
     /// <summary>Converts a captured key+modifiers to a display label like "Ctrl+F" or "Escape".</summary>
     public static string KeyComboToLabel(Key key, ModifierKeys modifiers)

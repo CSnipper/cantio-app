@@ -86,6 +86,7 @@
     <sys:String x:Key="VerseType.Verse">+ Estrofa</sys:String>
     <sys:String x:Key="VerseType.Chorus">+ Coro</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Puente</sys:String>
+    <sys:String x:Key="VerseType.Private">+ Privada</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Editar todo</sys:String>
     <sys:String x:Key="PasteText.Title">Editar todo</sys:String>
     <sys:String x:Key="PasteText.Hint">Edita el texto del canto. Las líneas vacías separan las estrofas.</sys:String>
@@ -107,6 +108,7 @@
     <sys:String x:Key="Tooltip.Up">Arriba</sys:String>
     <sys:String x:Key="Tooltip.Down">Abajo</sys:String>
     <sys:String x:Key="Tooltip.ToBottom">Mover al final</sys:String>
+    <sys:String x:Key="Setlist.AddImage">Añadir imagen</sys:String>
     <sys:String x:Key="Tooltip.ToLeft">Izquierda</sys:String>
     <sys:String x:Key="Tooltip.ToRight">Derecha</sys:String>
 
@@ -211,6 +213,10 @@
     <sys:String x:Key="Import.ImportCategoriesTip">Crea nuevas categorías si no existen</sys:String>
     <sys:String x:Key="Import.Overwrite">Sobrescribir canciones existentes</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
+    <sys:String x:Key="Import.Options">OPCIONES</sys:String>
+    <sys:String x:Key="Import.FallbackCategory">Categoría predeterminada</sys:String>
+    <sys:String x:Key="Import.FallbackCategoryAuto">(del archivo / predeterminada)</sys:String>
+    <sys:String x:Key="Import.FallbackCategoryTip">Para canciones sin categoría en el archivo</sys:String>
     <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
     <sys:String x:Key="Import.NoGroup">(sin grupo)</sys:String>
     <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>

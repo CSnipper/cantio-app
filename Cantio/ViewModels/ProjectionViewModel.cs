@@ -9,6 +9,11 @@ namespace Cantio.ViewModels;
 public partial class ProjectionViewModel : ObservableObject
 {
     private Slide? _pendingSlide;
+    private string? _pendingImagePath;
+
+    // Slajd obrazkowy (pełnoekranowy obraz w zestawie)
+    [ObservableProperty] private bool _isImageSlide = false;
+    [ObservableProperty] private string? _imageSlidePath;
 
     [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
     [ObservableProperty] private string _slideText = string.Empty;
@@ -33,7 +38,7 @@ public partial class ProjectionViewModel : ObservableObject
     public double DisplayLineHeight => Math.Max(1, FontSize * LineHeightMultiplier);
     partial void OnFontSizeChanged(double value) => OnPropertyChanged(nameof(DisplayLineHeight));
 
-    // ── Operator override (psalm mode: verse shown in preview, refrain on projector) ──
+    // Operator override (psalm mode: verse shown in preview, refrain on projector)
     [ObservableProperty] private string _operatorSlideText = string.Empty;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(OperatorDisplayLineHeight))]
@@ -53,18 +58,44 @@ public partial class ProjectionViewModel : ObservableObject
         IsOperatorOverride = false;
     }
 
-    // ── API ───────────────────────────────────────────────────────────────
+    // API
     public void SetSlide(Slide slide)
     {
+        ClearImageSlide();
         _pendingSlide = slide;
-        ApplyPendingSlide(); // zawsze aktualizuj — overlay w ProjectionView zakrywa gdy IsBlank=true
+        ApplyPendingSlide();
+    }
+
+    public void SetImageSlide(string path)
+    {
+        _pendingSlide = null;
+        _pendingImagePath = path;
+        ApplyPendingImage();
+    }
+
+    public void ClearImageSlide()
+    {
+        _pendingImagePath = null;
+        IsImageSlide = false;
+        ImageSlidePath = null;
+    }
+
+    private void ApplyPendingImage()
+    {
+        if (_pendingImagePath == null) return;
+        IsImageSlide = true;
+        ImageSlidePath = _pendingImagePath;
+        SlideText = string.Empty;
     }
 
     public void SetBlanked(bool blanked)
     {
         IsBlank = blanked;
         if (!blanked)
-            ApplyPendingSlide(); // odświeżenie na wypadek gdyby slide zmienił się gdy był blank
+        {
+            if (_pendingImagePath != null) ApplyPendingImage();
+            else ApplyPendingSlide();
+        }
     }
 
     private void ApplyPendingSlide()

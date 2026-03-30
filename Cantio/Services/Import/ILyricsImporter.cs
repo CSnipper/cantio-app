@@ -1,6 +1,6 @@
 namespace Cantio.Services.Import;
 
-// ── Wynik importu ──────────────────────────────────────────────────────────────
+// Wynik importu
 
 public class ImportResult
 {
@@ -9,7 +9,7 @@ public class ImportResult
     public int Errors { get; set; }
 }
 
-// ── Postęp ─────────────────────────────────────────────────────────────────────
+// Postęp
 
 public class ImportProgress
 {
@@ -19,15 +19,21 @@ public class ImportProgress
     public bool IsError { get; set; }
 }
 
-// ── Opcje ──────────────────────────────────────────────────────────────────────
+// Opcje
 
 public class ImportOptions
 {
     public bool OverwriteExisting { get; set; } = false;
     public bool ImportCategories { get; set; } = true;
+
+    /// <summary>
+    /// Id kategorii użytej gdy plik nie zawiera informacji o kategorii.
+    /// null = użyj domyślnej nazwy importera ("OpenLP", "OpenSong" itp.)
+    /// </summary>
+    public int? FallbackCategoryId { get; set; } = null;
 }
 
-// ── Podgląd ────────────────────────────────────────────────────────────────────
+// Podgląd
 
 public class ImportPreview
 {
@@ -36,7 +42,7 @@ public class ImportPreview
     public string Summary => $"Znaleziono: {Categories} kategorii, {Songs} pieśni";
 }
 
-// ── Format ─────────────────────────────────────────────────────────────────────
+// Format
 
 public enum ImportFormat
 {
@@ -46,7 +52,7 @@ public enum ImportFormat
     OpenSongXml
 }
 
-// ── Fabryka ────────────────────────────────────────────────────────────────────
+// Fabryka
 
 public static class ImporterFactory
 {
@@ -54,14 +60,14 @@ public static class ImporterFactory
         => format switch
         {
             ImportFormat.OpenLPSqlite => new OpenLpImporter(path),
-            ImportFormat.OpenLPXml => throw new NotImplementedException("OpenLP XML importer is not yet implemented"),
+            ImportFormat.OpenLPXml => new OpenLpXmlImporter(path),
             ImportFormat.OpenSongFolder => new OpenSongImporter(path),
             ImportFormat.OpenSongXml => new OpenSongImporter(path),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 }
 
-// ── Interfejs ──────────────────────────────────────────────────────────────────
+// Interfejs
 
 public interface ILyricsImporter
 {

@@ -86,6 +86,7 @@
     <sys:String x:Key="VerseType.Verse">+ Verse</sys:String>
     <sys:String x:Key="VerseType.Chorus">+ Chorus</sys:String>
     <sys:String x:Key="VerseType.Bridge">+ Bridge</sys:String>
+    <sys:String x:Key="VerseType.Private">+ Private</sys:String>
     <sys:String x:Key="VerseType.EditAll">✎ Edit all</sys:String>
     <sys:String x:Key="PasteText.Title">Edit all</sys:String>
     <sys:String x:Key="PasteText.Hint">Edit song text. Empty lines separate verses.</sys:String>
@@ -107,6 +108,7 @@
     <sys:String x:Key="Tooltip.Up">Up</sys:String>
     <sys:String x:Key="Tooltip.Down">Down</sys:String>
     <sys:String x:Key="Tooltip.ToBottom">Move to bottom</sys:String>
+    <sys:String x:Key="Setlist.AddImage">Add image</sys:String>
     <sys:String x:Key="Tooltip.ToLeft">Left</sys:String>
     <sys:String x:Key="Tooltip.ToRight">Right</sys:String>
 
@@ -211,6 +213,10 @@
     <sys:String x:Key="Import.ImportCategoriesTip">Creates new categories if they don't exist</sys:String>
     <sys:String x:Key="Import.Overwrite">Overwrite existing songs</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Replaces song text if it already exists</sys:String>
+    <sys:String x:Key="Import.Options">OPTIONS</sys:String>
+    <sys:String x:Key="Import.FallbackCategory">Default category</sys:String>
+    <sys:String x:Key="Import.FallbackCategoryAuto">(from file / default)</sys:String>
+    <sys:String x:Key="Import.FallbackCategoryTip">For songs without a category in the file</sys:String>
     <sys:String x:Key="Import.Log">IMPORT LOG</sys:String>
     <sys:String x:Key="Import.NoGroup">(no group)</sys:String>
     <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>

@@ -10,7 +10,7 @@ namespace Cantio.Helpers
 {
     public static class TextBlockHelper
     {
-        // ── FormattedText Attached Property ───────────────────────────────
+        // FormattedText Attached Property
         public static readonly DependencyProperty FormattedTextProperty =
             DependencyProperty.RegisterAttached(
                 "FormattedText",
@@ -24,7 +24,7 @@ namespace Cantio.Helpers
         public static string GetFormattedText(TextBlock tb)
             => (string)tb.GetValue(FormattedTextProperty);
 
-        // ── LineHeightMultiplier Attached Property ────────────────────────
+        // LineHeightMultiplier Attached Property
         // Zamiast bindować TextBlock.LineHeight bezpośrednio, TextBlockHelper
         // ustawia go po każdym Rebuild na: maxRunFontSize * lhm.
         // Dzięki temu LineHeight jest zawsze spójne z faktycznym rozmiarem runów,
@@ -42,7 +42,7 @@ namespace Cantio.Helpers
         public static double GetLineHeightMultiplier(TextBlock tb)
             => (double)tb.GetValue(LineHeightMultiplierProperty);
 
-        // ── TagDefinitions Attached Property ──────────────────────────────
+        // TagDefinitions Attached Property
         public static readonly DependencyProperty TagDefinitionsProperty =
             DependencyProperty.RegisterAttached(
                 "TagDefinitions",
@@ -56,7 +56,7 @@ namespace Cantio.Helpers
         public static IEnumerable<TextFormatTag> GetTagDefinitions(TextBlock tb)
             => (IEnumerable<TextFormatTag>)tb.GetValue(TagDefinitionsProperty);
 
-        // ── Predefiniowane tagi OpenLP ─────────────────────────────────────
+        // Predefiniowane tagi OpenLP
         // Kolory (webkit-text-fill-color)
         private static readonly Dictionary<string, Action<Run>> BuiltInTags = new()
         {
@@ -76,11 +76,11 @@ namespace Cantio.Helpers
             { "sub",    r => r.BaselineAlignment = BaselineAlignment.Subscript },
         };
 
-        // ── Tagi definiowane przez użytkownika (rozszerzalne z kodu/ustawień) ──
+        // Tagi definiowane przez użytkownika (rozszerzalne z kodu/ustawień)
         // Użycie: TextBlockHelper.CustomTags["mytag"] = r => r.Foreground = Brushes.Cyan;
         public static readonly Dictionary<string, Action<Run>> CustomTags = new();
 
-        // ── Helpers do budowania akcji z TextFormatTag ────────────────────
+        // Helpers do budowania akcji z TextFormatTag
         public static Action<Run> BuildTagAction(TextFormatTag tag)
         {
             return run =>
@@ -106,7 +106,7 @@ namespace Cantio.Helpers
             }
         }
 
-        // ── Zmiana wartości ────────────────────────────────────────────────
+        // Zmiana wartości
         private static void OnFormattedTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not TextBlock tb) return;
@@ -160,7 +160,7 @@ namespace Cantio.Helpers
             tb.LineHeight = Math.Max(1, maxRunFs * lhm);
         }
 
-        // ── Parser ─────────────────────────────────────────────────────────
+        // Parser
         private static void ParseInlines(TextBlock tb, string text, Dictionary<string, Action<Run>> rules)
         {
             // regex dopasowuje {tag} i {/tag} dla wszystkich znanych tagów
@@ -172,6 +172,8 @@ namespace Cantio.Helpers
 
             // stos aktywnych formatowań (ostatni otwierający jest na górze)
             var stack = new Stack<string>();
+            // czy poprzedni token tekstowy kończył się \n (przed kolejnym tokenem, np. tagiem)
+            bool trailingNewline = false;
 
             foreach (var token in tokens)
             {
@@ -206,15 +208,20 @@ namespace Cantio.Helpers
                 }
 
                 // zwykły tekst — podziel po \n i wstaw LineBreak między częściami
-                var parts = token.Split('\n');
-                bool needBreak = false;
+                // Normalizacja \r\n → \n (WPF TextBox wstawia \r\n, Run renderuje \r jako dodatkowy separator)
+                var normalizedToken = token.Replace("\r\n", "\n").Replace("\r", "\n");
+                var parts = normalizedToken.Split('\n');
+                // dziedzicz \n z końca poprzedniego tokenu (np. tekst kończył się \n, a następny token to {tag})
+                bool needBreak = trailingNewline;
+                trailingNewline = false;
+
                 foreach (var part in parts)
                 {
+                    if (string.IsNullOrEmpty(part)) continue;
+
                     if (needBreak)
                         tb.Inlines.Add(new LineBreak());
                     needBreak = true;
-
-                    if (string.IsNullOrEmpty(part)) continue;
 
                     var run = new Run(part)
                     {
@@ -232,6 +239,10 @@ namespace Cantio.Helpers
 
                     tb.Inlines.Add(run);
                 }
+
+                // jeśli token kończył się \n (ostatnia część jest pusta), zapamiętaj dla kolejnego tokenu
+                if (parts.Length > 1 && string.IsNullOrEmpty(parts[^1]) && tb.Inlines.Count > 0)
+                    trailingNewline = true;
             }
         }
     }

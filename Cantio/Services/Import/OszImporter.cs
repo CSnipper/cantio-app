@@ -228,7 +228,7 @@ public class OszImporter
         return result.Trim();
     }
 
-    // ── JSON parser ───────────────────────────────────────────────────────
+    // JSON parser
 
     private static List<OsjServiceItem> ParseOsj(string json)
     {

@@ -20,10 +20,11 @@ public class OpenLpImporter : ILyricsImporter
         await using var conn = new SqliteConnection($"Data Source={_sourcePath};Mode=ReadOnly");
         await conn.OpenAsync();
 
+        bool hasBooks = await TableExistsAsync(conn, "song_books");
         return new ImportPreview
         {
-            Categories = await CountAsync(conn, "SELECT COUNT(*) FROM songs_book"),
-            Songs = await CountAsync(conn, "SELECT COUNT(*) FROM songs_song")
+            Categories = hasBooks ? await CountAsync(conn, "SELECT COUNT(*) FROM song_books") : 0,
+            Songs = await CountAsync(conn, "SELECT COUNT(*) FROM songs")
         };
     }
 
@@ -33,6 +34,15 @@ public class OpenLpImporter : ILyricsImporter
         cmd.CommandText = sql;
         var result = await cmd.ExecuteScalarAsync();
         return result is long l ? (int)l : 0;
+    }
+
+    private static async Task<bool> TableExistsAsync(SqliteConnection conn, string tableName)
+    {
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@name";
+        cmd.Parameters.AddWithValue("@name", tableName);
+        var result = await cmd.ExecuteScalarAsync();
+        return result is long l && l > 0;
     }
 
     public async Task<ImportResult> ImportAsync(
@@ -45,42 +55,68 @@ public class OpenLpImporter : ILyricsImporter
         await using var conn = new SqliteConnection($"Data Source={_sourcePath};Mode=ReadOnly");
         await conn.OpenAsync();
 
-        var openLpCategories = await LoadCategoriesAsync(conn);
+        bool hasBooks = await TableExistsAsync(conn, "song_books");
         var existingCategories = await db.GetCategoriesAsync();
         var categoryMap = new Dictionary<int, int>();
+        int fallbackCategoryId = 0;
 
-        int total = openLpCategories.Count;
-        int current = 0;
-
-        foreach (var (openLpId, number, name) in openLpCategories)
+        if (hasBooks)
         {
-            current++;
-            progress?.Report(new ImportProgress { Total = total, Current = current, Message = $"Kategoria: {name}" });
-
-            var existing = existingCategories.FirstOrDefault(c => c.Name == name);
-            if (existing != null)
-                categoryMap[openLpId] = existing.Id;
-            else if (options.ImportCategories)
+            var openLpCategories = await LoadCategoriesAsync(conn);
+            int total0 = openLpCategories.Count;
+            int current0 = 0;
+            foreach (var (openLpId, name) in openLpCategories)
             {
-                var newCat = new Category { Number = number, Name = name };
-                await db.SaveCategoryAsync(newCat);
-                categoryMap[openLpId] = newCat.Id;
+                current0++;
+                progress?.Report(new ImportProgress { Total = total0, Current = current0, Message = $"Kategoria: {name}" });
+                var existing = existingCategories.FirstOrDefault(c => c.Name == name);
+                if (existing != null)
+                    categoryMap[openLpId] = existing.Id;
+                else if (options.ImportCategories)
+                {
+                    var newCat = new Category { Number = 0, Name = name };
+                    await db.SaveCategoryAsync(newCat);
+                    categoryMap[openLpId] = newCat.Id;
+                }
+            }
+        }
+        else if (options.ImportCategories)
+        {
+            const string fallbackName = "OpenLP";
+            var existing = existingCategories.FirstOrDefault(c => c.Name == fallbackName);
+            if (existing != null)
+            {
+                fallbackCategoryId = existing.Id;
+            }
+            else
+            {
+                var fallbackCat = new Category { Number = 0, Name = fallbackName };
+                await db.SaveCategoryAsync(fallbackCat);
+                fallbackCategoryId = fallbackCat.Id;
             }
         }
 
-        var songs = await LoadSongsAsync(conn);
-        total = songs.Count;
-        current = 0;
+        var songs = await LoadSongsAsync(conn, hasBooks);
+        int total = songs.Count;
+        int current = 0;
 
         foreach (var (openLpBookId, number, title, lyricsXml) in songs)
         {
             current++;
             progress?.Report(new ImportProgress { Total = total, Current = current, Message = $"Pieśń: {title}" });
 
-            if (!categoryMap.TryGetValue(openLpBookId, out int categoryId))
+            int categoryId;
+            if (hasBooks)
             {
-                result.Skipped++;
-                continue;
+                if (!categoryMap.TryGetValue(openLpBookId, out categoryId))
+                {
+                    result.Skipped++;
+                    continue;
+                }
+            }
+            else
+            {
+                categoryId = fallbackCategoryId;
             }
 
             var existing = await db.GetSongByTitleAsync(title, categoryId);
@@ -109,29 +145,41 @@ public class OpenLpImporter : ILyricsImporter
         return result;
     }
 
-    private static async Task<List<(int id, int number, string name)>> LoadCategoriesAsync(SqliteConnection conn)
+    private static async Task<List<(int id, string name)>> LoadCategoriesAsync(SqliteConnection conn)
     {
-        var list = new List<(int, int, string)>();
+        var list = new List<(int, string)>();
         await using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, book_number, name FROM songs_book ORDER BY book_number";
+        cmd.CommandText = "SELECT id, name FROM song_books ORDER BY name";
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
-            list.Add((reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2)));
+            list.Add((reader.GetInt32(0), reader.GetString(1)));
         return list;
     }
 
-    private static async Task<List<(int bookId, int number, string title, string lyrics)>> LoadSongsAsync(SqliteConnection conn)
+    private static async Task<List<(int bookId, int number, string title, string lyrics)>> LoadSongsAsync(SqliteConnection conn, bool hasBooks)
     {
         var list = new List<(int, int, string, string)>();
         await using var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            SELECT ssb.book_id, ssb.entry, ss.title, ss.lyrics
-            FROM songs_song ss
-            JOIN songs_song_books ssb ON ssb.song_id = ss.id
-            ORDER BY ssb.book_id, ssb.entry";
+        if (hasBooks)
+        {
+            cmd.CommandText = @"
+                SELECT ssb.songbook_id, ssb.entry, s.title, s.lyrics
+                FROM songs s
+                JOIN songs_songbooks ssb ON ssb.song_id = s.id
+                ORDER BY ssb.songbook_id, ssb.entry";
+        }
+        else
+        {
+            cmd.CommandText = "SELECT id, 0, title, lyrics FROM songs ORDER BY title";
+        }
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
-            list.Add((reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3)));
+        {
+            int bookId = reader.GetInt32(0);
+            // entry to VARCHAR (np. "123" lub "A1") — wyciągamy numer jeśli możliwe
+            int number = int.TryParse(reader.GetString(1), out var n) ? n : 0;
+            list.Add((bookId, number, reader.GetString(2), reader.GetString(3)));
+        }
         return list;
     }
 

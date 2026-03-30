@@ -83,7 +83,7 @@ public partial class MainWindow : Window
         base.OnPreviewKeyDown(e);
     }
 
-    // ── Drag & drop kategorii ──────────────────────────────────────────────
+    // Drag & drop kategorii
 
     private CategoryEditorItem? _draggedCategory;
     private Point? _categoryDragStart;
@@ -136,7 +136,7 @@ public partial class MainWindow : Window
         return null;
     }
 
-    // ── Drag & drop listy zestawu ──────────────────────────────────────────
+    // Drag & drop listy zestawu
 
     private int _dragFromIndex = -1;
 
@@ -209,7 +209,7 @@ public partial class MainWindow : Window
         KeyDown += _vm.OnKeyDown;
     }
 
-    // ── Pozycja okna ──────────────────────────────────────────────────────────
+    // Pozycja okna
 
     private void SaveWindowPosition()
     {
@@ -271,7 +271,7 @@ public partial class MainWindow : Window
             WindowState = WindowState.Maximized;
     }
 
-    // ── Tab switching ──────────────────────────────────────────────────────────
+    // Tab switching
 
     private void TabShow_Click(object sender, RoutedEventArgs e) => ShowPane(PaneShow, TabShow);
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
@@ -330,7 +330,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ── Nawigacja strzałką w dół z pola wyszukiwania na listę ─────────────────
+    // Nawigacja strzałką w dół z pola wyszukiwania na listę
 
     private void SearchBoxShow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -341,7 +341,7 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    // ── Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek) ──────────
+    // Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek)
 
     private void VerseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {

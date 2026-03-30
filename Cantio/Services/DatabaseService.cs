@@ -6,7 +6,7 @@ namespace Cantio.Services;
 
 public class DatabaseService
 {
-    // ── Kategorie ─────────────────────────────────────────────────────────
+    // Kategorie
 
     public async Task<List<Category>> GetCategoriesAsync()
     {
@@ -29,7 +29,7 @@ public class DatabaseService
         if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
     }
 
-    // ── Pieśni ────────────────────────────────────────────────────────────
+    // Pieśni
 
     public async Task<List<Song>> GetSongsByCategoryAsync(int categoryId)
     {
@@ -115,8 +115,11 @@ public class DatabaseService
     public async Task DeleteSongAsync(int songId)
     {
         await using var db = new CantioDbContext();
+        var items = db.SetlistItems.Where(i => i.SongId == songId);
+        db.SetlistItems.RemoveRange(items);
         var song = await db.Songs.FindAsync(songId);
-        if (song is not null) { db.Songs.Remove(song); await db.SaveChangesAsync(); }
+        if (song is not null) db.Songs.Remove(song);
+        await db.SaveChangesAsync();
     }
 
     public async Task SaveVerseTextAsync(int verseId, string newText)
@@ -159,7 +162,7 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    // ── Zestawy ───────────────────────────────────────────────────────────
+    // Zestawy
 
     public async Task<List<Setlist>> GetSetlistsAsync()
     {
@@ -243,7 +246,7 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    // ── Ustawienia ────────────────────────────────────────────────────────
+    // Ustawienia
 
     public string? GetSettingSync(string key)
     {
@@ -267,7 +270,7 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    // ── Tagi formatowania ─────────────────────────────────────────────────
+    // Tagi formatowania
 
     private static List<TextFormatTag> GetDefaultTags() =>
     [

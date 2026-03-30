@@ -756,9 +756,19 @@
                                             <TextBlock Text="{Binding Label}"
                                                        FontFamily="{StaticResource BodyFont}"
                                                        FontSize="20"
-                                                       Foreground="#c9a84c"
                                                        HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsPrivateSlide}" Value="True">
+                                                                <Setter Property="Foreground" Value="#4aad6f"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
                                         </Border>
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding Text, Converter={StaticResource StripTags}}"
@@ -966,6 +976,9 @@
                                                                         <DataTrigger Binding="{Binding Type}" Value="b">
                                                                             <Setter Property="Foreground" Value="#7a9abf"/>
                                                                         </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="p">
+                                                                            <Setter Property="Foreground" Value="#4aad6f"/>
+                                                                        </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </Button.Style>
@@ -1004,9 +1017,13 @@
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="c"/>
                                         <Button Content="{DynamicResource VerseType.Bridge}" Style="{StaticResource OutlineBtn}"
-                                                Padding="8,5"
+                                                Margin="0,0,4,0" Padding="8,5"
                                                 Command="{Binding AddVerseToEditorCommand}"
                                                 CommandParameter="b"/>
+                                        <Button Content="{DynamicResource VerseType.Private}" Style="{StaticResource OutlineBtn}"
+                                                Padding="8,5"
+                                                Command="{Binding AddVerseToEditorCommand}"
+                                                CommandParameter="p"/>
                                     </StackPanel>
                                     <Button Content="{DynamicResource VerseType.EditAll}" Style="{StaticResource OutlineBtn}"
                                             HorizontalAlignment="Left" Padding="10,6" Margin="0,0,0,4"
@@ -1661,14 +1678,30 @@
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
-                                                <TextBlock Grid.Column="1" Text="{Binding Song.Title}"
-                                                           TextWrapping="Wrap" VerticalAlignment="Center" 
-                                                           HorizontalAlignment="Stretch"
-                                                           FontSize="20" Padding="10"/>
+                                                <Grid Grid.Column="1">
+                                                    <!-- Song item: tytuł -->
+                                                    <TextBlock Text="{Binding Song.Title}"
+                                                               TextWrapping="Wrap" VerticalAlignment="Center"
+                                                               HorizontalAlignment="Stretch"
+                                                               FontSize="20" Padding="10"
+                                                               Visibility="{Binding IsImageItem, Converter={StaticResource InverseBoolToVis}}"/>
+                                                    <!-- Image item: miniatura + nazwa pliku -->
+                                                    <StackPanel Orientation="Horizontal"
+                                                                VerticalAlignment="Center"
+                                                                Margin="6,0"
+                                                                Visibility="{Binding IsImageItem, Converter={StaticResource BoolToVis}}">
+                                                        <Image Source="{Binding ImagePath}" Width="48" Height="32"
+                                                               Stretch="Uniform" Margin="0,0,8,0" SnapsToDevicePixels="True"/>
+                                                        <TextBlock Text="{Binding ImagePath, Converter={StaticResource FileName}}"
+                                                                   VerticalAlignment="Center" FontSize="18"
+                                                                   Foreground="#9aa3b8" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </Grid>
                                                 <Button Grid.Column="2" Content="✏"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                        Visibility="{Binding IsImageItem, Converter={StaticResource InverseBoolToVis}}"
                                                         IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         Command="{Binding DataContext.OpenInlineEditorCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}">
@@ -1725,6 +1758,7 @@
                                     BorderThickness="1,1,0,0" Padding="6,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -1796,6 +1830,25 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}">
                                                     <TextBlock Text="⏬" FontSize="16"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <Button Grid.Column="4" FontSize="16"
+                                            ToolTip="{DynamicResource Setlist.AddImage}"
+                                            Background="Transparent" BorderThickness="0"
+                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Command="{Binding AddImageToSetlistCommand}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}">
+                                                    <TextBlock Text="🖼" FontSize="16"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -2132,8 +2185,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="370"/>
                     <ColumnDefinition Width="370"/>
-                    <ColumnDefinition Width="370"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="0"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- COL 1: Ogólne + Ekran + Tagi -->
@@ -2353,142 +2406,194 @@
                     </ScrollViewer>
                 </Border>
                 <!-- COL 3: Import -->
-                <Border x:Name="ImportColumn" Grid.Row="0" Grid.Column="2" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
-                        <StackPanel Margin="24,24,24,24">
+                <Border x:Name="ImportColumn" Grid.Row="0" Grid.Column="2" BorderBrush="#2a3347" BorderThickness="0,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Kontrolki importu -->
+                        <StackPanel Grid.Row="0" Margin="24,24,24,16">
 
                             <TextBlock Text="{DynamicResource Import.Title}"
                                        FontFamily="{StaticResource HeaderFont}"
                                        FontSize="20" FontWeight="SemiBold"
-                                       Foreground="#c9a84c" Margin="0,0,0,20"/>
+                                       Foreground="#c9a84c" Margin="0,0,0,16"/>
 
-                            <TextBlock Text="{DynamicResource Settings.Format}"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="Light"
-                                       Foreground="#c9a84c" Margin="0,0,0,8"/>
-                            <StackPanel Margin="0,0,0,24">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <RadioButton Content="{DynamicResource Import.OpenLPSqlite}"
-                                                 IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
-                                                 Command="{Binding SelectFormatCommand}"
-                                                 CommandParameter="OpenLPSqlite"
-                                                 Foreground="#e8eaf0" FontSize="16"
-                                                 Margin="0,0,20,0"/>
-                                    <RadioButton Content="{DynamicResource Import.OpenLPXml}"
-                                                 IsChecked="{Binding IsOpenLPXml, Mode=OneWay}"
-                                                 Command="{Binding SelectFormatCommand}"
-                                                 CommandParameter="OpenLPXml"
-                                                 Foreground="#e8eaf0" FontSize="16"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <RadioButton Content="OpenSong (folder)"
-                                                 IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
-                                                 Command="{Binding SelectFormatCommand}"
-                                                 CommandParameter="OpenSongFolder"
-                                                 Foreground="#e8eaf0" FontSize="16"
-                                                 Margin="0,0,20,0"/>
-                                    <RadioButton Content="OpenSong (xml)"
-                                                 IsChecked="{Binding IsOpenSongXml, Mode=OneWay}"
-                                                 Command="{Binding SelectFormatCommand}"
-                                                 CommandParameter="OpenSongXml"
-                                                 Foreground="#e8eaf0" FontSize="16"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <TextBlock Text="{DynamicResource Import.Source}"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="Light"
-                                       Foreground="#c9a84c" Margin="0,0,0,8"/>
-                            <Grid Margin="0,0,0,20">
+                            <!-- Format + Plik źródłowy obok siebie -->
+                            <Grid Margin="0,0,0,16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
-                                        BorderThickness="1,1,0,1" Padding="12,10">
-                                    <TextBlock Text="{Binding FilePath}"
-                                               Foreground="#e8eaf0" FontSize="12"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding FilePath}" Value="">
-                                                        <Setter Property="Text" Value="Nie wybrano pliku..."/>
-                                                        <Setter Property="Foreground" Value="#959fb9"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Border>
-                                <Button Grid.Column="1" Content="{DynamicResource Btn.Browse}"
-                                        Style="{StaticResource GoldBtn}"
-                                        Padding="16,10"
-                                        Command="{Binding BrowseCommand}">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="#c9a84c" BorderThickness="1"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#e8c97a"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+
+                                <!-- Format -->
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource Settings.Format}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="14" FontWeight="Light"
+                                               Foreground="#c9a84c" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <RadioButton Content="{DynamicResource Import.OpenLPSqlite}"
+                                                     IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
+                                                     Command="{Binding SelectFormatCommand}"
+                                                     CommandParameter="OpenLPSqlite"
+                                                     Foreground="#e8eaf0" FontSize="14"
+                                                     Margin="0,0,12,0"/>
+                                        <RadioButton Content="{DynamicResource Import.OpenLPXml}"
+                                                     IsChecked="{Binding IsOpenLPXml, Mode=OneWay}"
+                                                     Command="{Binding SelectFormatCommand}"
+                                                     CommandParameter="OpenLPXml"
+                                                     Foreground="#e8eaf0" FontSize="14"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Content="OpenSong (folder)"
+                                                     IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
+                                                     Command="{Binding SelectFormatCommand}"
+                                                     CommandParameter="OpenSongFolder"
+                                                     Foreground="#e8eaf0" FontSize="14"
+                                                     Margin="0,0,12,0"/>
+                                        <RadioButton Content="OpenSong (xml)"
+                                                     IsChecked="{Binding IsOpenSongXml, Mode=OneWay}"
+                                                     Command="{Binding SelectFormatCommand}"
+                                                     CommandParameter="OpenSongXml"
+                                                     Foreground="#e8eaf0" FontSize="14"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Plik źródłowy -->
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource Import.Source}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="14" FontWeight="Light"
+                                               Foreground="#c9a84c" Margin="0,0,0,8"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
+                                                BorderThickness="1,1,0,1" Padding="10,8">
+                                            <TextBlock Text="{Binding FilePathLabel}"
+                                                       Foreground="#e8eaf0" FontSize="13"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding FilePath}" Value="">
+                                                                <Setter Property="Foreground" Value="#959fb9"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <Button Grid.Column="1" Content="{DynamicResource Btn.Browse}"
+                                                Style="{StaticResource GoldBtn}"
+                                                Padding="14,8"
+                                                Command="{Binding BrowseCommand}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="#c9a84c" BorderThickness="1"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#e8c97a"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
                             </Grid>
 
-                            <TextBlock Text="{DynamicResource Settings.GradientOptions}"
+                            <!-- Opcje -->
+                            <TextBlock Text="{DynamicResource Import.Options}"
                                        FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="Light"
-                                       Foreground="#c9a84c" Margin="0,0,0,12"/>
+                                       FontSize="14" FontWeight="Light"
+                                       Foreground="#c9a84c" Margin="0,0,0,8"/>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
+                                        BorderThickness="1" Padding="14,10">
+                                    <StackPanel>
+                                        <CheckBox IsChecked="{Binding ImportCategories}"
+                                                  Foreground="#e8eaf0" FontSize="15"
+                                                  Margin="0,0,0,3">
+                                            <TextBlock Text="{DynamicResource Import.ImportCategories}" Foreground="#e8eaf0" FontSize="15"/>
+                                        </CheckBox>
+                                        <TextBlock Text="{DynamicResource Import.ImportCategoriesTip}"
+                                                   Foreground="#959fb9" FontSize="12" Margin="22,0,0,0"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
+                                        BorderThickness="1" Padding="14,10">
+                                    <StackPanel>
+                                        <CheckBox IsChecked="{Binding OverwriteExisting}"
+                                                  Foreground="#e8eaf0" FontSize="15"
+                                                  Margin="0,0,0,3">
+                                            <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="#e8eaf0" FontSize="15"/>
+                                        </CheckBox>
+                                        <TextBlock Text="{DynamicResource Import.OverwriteTip}"
+                                                   Foreground="#959fb9" FontSize="12" Margin="22,0,0,0"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
 
-                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="16,12" Margin="0,0,0,8">
-                                <StackPanel>
-                                    <CheckBox IsChecked="{Binding ImportCategories}"
-                                              Foreground="#e8eaf0" FontSize="16"
-                                              Margin="0,0,0,4">
-                                        <TextBlock Text="{DynamicResource Import.ImportCategories}" Foreground="#e8eaf0" FontSize="16"/>
-                                    </CheckBox>
-                                    <TextBlock Text="{DynamicResource Import.ImportCategoriesTip}"
-                                               Foreground="#959fb9" FontSize="14" Margin="22,0,0,0"/>
-                                </StackPanel>
+                            <!-- Kategoria domyślna -->
+                            <Border Background="#1e2535" BorderBrush="#2a3347"
+                                    BorderThickness="1" Padding="14,10" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="{DynamicResource Import.FallbackCategory}"
+                                                   Foreground="#e8eaf0" FontSize="15"/>
+                                        <TextBlock Text="{DynamicResource Import.FallbackCategoryTip}"
+                                                   Foreground="#959fb9" FontSize="12"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <ComboBox Grid.Column="1"
+                                              Style="{StaticResource DarkCombo}"
+                                              ItemsSource="{Binding CategoriesForImport}"
+                                              SelectedItem="{Binding FallbackCategory}"
+                                              DisplayMemberPath="Name"
+                                              Height="38" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
 
-                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="16,12" Margin="0,0,0,28">
-                                <StackPanel>
-                                    <CheckBox IsChecked="{Binding OverwriteExisting}"
-                                              Foreground="#e8eaf0" FontSize="16"
-                                              Margin="0,0,0,4">
-                                        <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="#e8eaf0" FontSize="16"/>
-                                    </CheckBox>
-                                    <TextBlock Text="{DynamicResource Import.OverwriteTip}"
-                                               Foreground="#959fb9" FontSize="14" Margin="22,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-
+                            <!-- Import z OSZ (3 kolumny) -->
                             <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="10" Margin="0,0,0,16">
+                                    Padding="14,12" Margin="0,0,0,16">
                                 <StackPanel>
                                     <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
                                                FontFamily="{StaticResource HeaderFont}"
-                                               FontSize="18" FontWeight="Light"
-                                               Foreground="#c9a84c" Margin="0,0,0,14"/>
-                                    <Grid Margin="0,0,0,12">
+                                               FontSize="14" FontWeight="Light"
+                                               Foreground="#c9a84c" Margin="0,0,0,10"/>
+                                    <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{DynamicResource Groups.Target}"
-                                                   Foreground="#8899aa" FontSize="16"
-                                                   VerticalAlignment="Center"/>
+                                                   Foreground="#8899aa" FontSize="15"
+                                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox Grid.Column="1"
                                                   Style="{StaticResource DarkCombo}"
                                                   ItemsSource="{Binding OszGroups}"
@@ -2499,26 +2604,27 @@
                                                 </DataTemplate>
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
+                                        <Button Grid.Column="2" Content="{DynamicResource Btn.ImportOsz}"
+                                                Style="{StaticResource GoldBtn}"
+                                                Height="36" Padding="14,0" Margin="8,0,0,0"
+                                                Command="{Binding ImportOszCommand}"/>
                                     </Grid>
-                                    <Button Content="{DynamicResource Btn.ImportOsz}"
-                                            Style="{StaticResource GoldBtn}"
-                                            Height="50" FontSize="20"
-                                            Command="{Binding ImportOszCommand}"/>
                                     <TextBlock Text="{Binding OszStatus}"
-                                               Foreground="#8899aa" FontSize="16"
-                                               Margin="0,10,0,0" TextWrapping="Wrap"
-                                               Visibility="{Binding OszStatus,
-                                                   Converter={StaticResource BoolToVis}}"/>
+                                               Foreground="#8899aa" FontSize="14"
+                                               Margin="0,8,0,0" TextWrapping="Wrap"
+                                               Visibility="{Binding OszStatus, Converter={StaticResource BoolToVis}}"/>
                                 </StackPanel>
                             </Border>
 
+                            <!-- Podgląd -->
                             <Button Content="{DynamicResource Btn.Preview}"
                                     Style="{StaticResource OutlineBtn}"
-                                    Height="40" Margin="0,0,0,10"
+                                    Height="44" Margin="0,0,0,8"
                                     Command="{Binding PreviewCommand}"/>
 
+                            <!-- Importuj -->
                             <Button Content="{DynamicResource Btn.Import}"
-                                    Height="50" FontSize="30" Padding="0"
+                                    Height="54" FontSize="28" Padding="0"
                                     Command="{Binding ImportCommand}"
                                     IsEnabled="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
                                 <Button.Style>
@@ -2533,7 +2639,7 @@
                                 </Button.Style>
                             </Button>
 
-                            <Border Margin="0,16,0,0"
+                            <Border Margin="0,10,0,0"
                                     Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
                                 <StackPanel>
                                     <TextBlock Text="{Binding ProgressText}"
@@ -2542,57 +2648,59 @@
                                                Margin="0,0,0,6"/>
                                     <ProgressBar Value="{Binding ProgressValue}"
                                                  Maximum="{Binding ProgressMax}"
-                                                 Height="6"
-                                                 Background="#1e2535"
-                                                 Foreground="#c9a84c"
-                                                 BorderThickness="0"/>
+                                                 Height="6" Background="#1e2535"
+                                                 Foreground="#c9a84c" BorderThickness="0"/>
                                 </StackPanel>
                             </Border>
 
                         </StackPanel>
-                    </ScrollViewer>
+
+                        <!-- Log -->
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    BorderThickness="0,1,0,1" Padding="24,10">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Import.Log}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="14" FontWeight="Light"
+                                               Foreground="#c9a84c" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
+                                               Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          Padding="24,12">
+                                <ItemsControl ItemsSource="{Binding LogEntries}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="18"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Icon}"
+                                                           Foreground="{Binding Color}" FontSize="12"
+                                                           VerticalAlignment="Top"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Message}"
+                                                           Foreground="{Binding Color}" FontSize="12"
+                                                           TextWrapping="Wrap" LineHeight="18"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+
+                    </Grid>
                 </Border>
 
-                <!-- COL 4: Log -->
-                <Grid x:Name="ImportLogColumn" Grid.Row="0" Grid.Column="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
-                            BorderThickness="0,0,0,1" Padding="20,13">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{DynamicResource Import.Log}"
-                                       FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="Light"
-                                       Foreground="#c9a84c" Margin="0,0,16,0"/>
-                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
-                                       Foreground="#959fb9" FontSize="11" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Hidden"
-                                  Padding="20,12">
-                        <ItemsControl ItemsSource="{Binding LogEntries}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,0,0,4">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="18"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Icon}"
-                                                   Foreground="{Binding Color}" FontSize="12"
-                                                   VerticalAlignment="Top"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Message}"
-                                                   Foreground="{Binding Color}" FontSize="12"
-                                                   TextWrapping="Wrap" LineHeight="18"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
+                <!-- placeholder dla DataContext (unused) -->
+                <Grid x:Name="ImportLogColumn" Grid.Row="0" Grid.Column="3" Visibility="Collapsed"/>
 
                 <!-- Shared Save Bar -->
                 <Border Grid.Row="1" Grid.ColumnSpan="4" BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="20,14">
@@ -3173,7 +3281,7 @@
 
             </Grid>
 
-            <!-- ── TAB: O PROGRAMIE ── -->
+            <!-- TAB: O PROGRAMIE -->
             <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="#0f1117">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="420">
 

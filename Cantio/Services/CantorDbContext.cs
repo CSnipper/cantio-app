@@ -52,11 +52,12 @@ public class CantioDbContext : DbContext
             .HasForeignKey(i => i.SetlistId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Song → SetlistItems (1:N)
+        // Song → SetlistItems (1:N, opcjonalne — obrazki nie mają SongId)
         modelBuilder.Entity<SetlistItem>()
             .HasOne(i => i.Song)
             .WithMany(s => s.SetlistItems)
             .HasForeignKey(i => i.SongId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Setlist: PinPosition ograniczone do 1–4

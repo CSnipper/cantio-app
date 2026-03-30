@@ -32,7 +32,7 @@ public partial class ColorPickerWindow : Window
         UpdateAll();
     }
 
-    // ── SV canvas ─────────────────────────────────────────────────────────
+    // SV canvas
 
     private void SvGrid_MouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -59,7 +59,7 @@ public partial class ColorPickerWindow : Window
         UpdateAll();
     }
 
-    // ── Hue bar ───────────────────────────────────────────────────────────
+    // Hue bar
 
     private void HueBar_MouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -85,7 +85,7 @@ public partial class ColorPickerWindow : Window
         UpdateAll();
     }
 
-    // ── Hex input ─────────────────────────────────────────────────────────
+    // Hex input
 
     private void HexBox_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -103,12 +103,12 @@ public partial class ColorPickerWindow : Window
         }
     }
 
-    // ── Buttons ───────────────────────────────────────────────────────────
+    // Buttons
 
     private void Ok_Click(object sender, RoutedEventArgs e) => DialogResult = true;
     private void Cancel_Click(object sender, RoutedEventArgs e) => DialogResult = false;
 
-    // ── Update helpers ────────────────────────────────────────────────────
+    // Update helpers
 
     private void UpdateAll()
     {
@@ -138,7 +138,7 @@ public partial class ColorPickerWindow : Window
         PreviewNew.Background = new SolidColorBrush(SelectedColor);
     }
 
-    // ── HSV ↔ RGB ─────────────────────────────────────────────────────────
+    // HSV ↔ RGB
 
     private static Color HsvToColor(double h, double s, double v)
     {

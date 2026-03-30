@@ -91,6 +91,8 @@ dotnet ef database update --project Cantio
 - Spacja jest twardym aliasem dla `SlideNext` (piloty zdalne) — zdefiniowana w `HandleKey`, nie w ShortcutService
 
 ### Czego unikać
+- `DeleteSongAsync` bez wcześniejszego usunięcia `SetlistItem` → FK Restrict crashuje; zawsze `RemoveRange` SetlistItems przed usunięciem pieśni
+- `ParseInlines` w TextBlockHelper: WPF TextBox wstawia `\r\n`, Run renderuje `\r` jako separator linii → puste linie w projekcji; tekst musi być normalizowany `\r\n→\n` przed Split
 - `UseWindowsForms=true` — konflikty namespace
 - `WindowState.Maximized` po ustawieniu `Left`/`Top` — użyj `Normal` + jawne wymiary
 - `MessageBox.Show` w kodzie produkcyjnym — tylko debug

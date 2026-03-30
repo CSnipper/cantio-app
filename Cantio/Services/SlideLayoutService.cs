@@ -30,6 +30,7 @@ public class Slide
     public string Label { get; set; } = string.Empty;
     public string VerseType { get; set; } = string.Empty; // "v", "c", "b"
     public bool IsChorusSlide => VerseType == "c";
+    public bool IsPrivateSlide => VerseType == "p";
 }
 
 public static class SlideLayoutService
@@ -55,6 +56,17 @@ public static class SlideLayoutService
                 });
             }
         }
+
+        // Wyrównaj rozmiar czcionki — per-slajd auto-fit dawał drastyczne różnice
+        // (krótki tekst = gigantyczna czcionka, długi = drobna). Wspólny rozmiar to
+        // minimum z wszystkich slajdów: tekst zawsze mieści się, czcionka jest spójna.
+        if (result.Count > 1)
+        {
+            double unified = result.Min(s => s.FontSize);
+            foreach (var slide in result)
+                slide.FontSize = unified;
+        }
+
         return result;
     }
 
@@ -66,7 +78,7 @@ public static class SlideLayoutService
         // 10% bufor bezpieczeństwa — off-tree TextBlock może mierzyć niżej niż renderuje (zawijanie, zaokrąglenie pikseli)
         var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.90;
 
-        text = text.Trim();
+        text = text.Trim().Replace("\r\n", "\n").Replace("\r", "\n");
         if (MeasureTextHeight(text, settings) <= availableH)
             return [text];
 
@@ -152,7 +164,7 @@ public static class SlideLayoutService
         tb.FontSize     = settings.FontSize;
         tb.FontWeight   = settings.FontBold ? FontWeights.Bold : FontWeights.Normal;
         tb.TextWrapping = TextWrapping.Wrap;
-        tb.Text         = StripTags(text);
+        tb.Text         = StripTags(text).Replace("\n", "\r");
 
         double lh = settings.FontSize * settings.LineHeightMultiplier;
         tb.LineHeight = lh >= 1 ? lh : double.NaN;

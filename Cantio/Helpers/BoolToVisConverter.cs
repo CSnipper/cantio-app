@@ -1,5 +1,6 @@
 // Helpers/BoolToVisConverter.cs
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -34,6 +35,16 @@ public class InverseBoolConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => value is not true;
+}
+
+[ValueConversion(typeof(string), typeof(string))]
+public class FileNameConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is string s ? Path.GetFileName(s) : string.Empty;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
 }
 
 [ValueConversion(typeof(string), typeof(Color))]

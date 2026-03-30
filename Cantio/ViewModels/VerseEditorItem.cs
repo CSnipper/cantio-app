@@ -5,7 +5,7 @@ namespace Cantio.ViewModels;
 
 public partial class VerseEditorItem : ObservableObject
 {
-    [ObservableProperty] private string _type = "v";   // v, c, b
+    [ObservableProperty] private string _type = "v";   // v, c, b, p
     [ObservableProperty] private string _text = string.Empty;
     [ObservableProperty] private int _number = 1;
 
@@ -13,6 +13,7 @@ public partial class VerseEditorItem : ObservableObject
     {
         "c" => Number > 1 ? $"R{Number}" : "R",
         "b" => Number > 1 ? $"B{Number}" : "B",
+        "p" => Number > 1 ? $"P{Number}" : "P",
         _ => $"{Number}"
     };
 
@@ -26,7 +27,8 @@ public partial class VerseEditorItem : ObservableObject
         {
             "v" => "c",
             "c" => "b",
-            "b" => "v",
+            "b" => "p",
+            "p" => "v",
             _ => "v"
         };
     }

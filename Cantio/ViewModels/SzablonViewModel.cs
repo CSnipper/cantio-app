@@ -26,7 +26,7 @@ public partial class SzablonViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    // ── Lista czcionek systemowych ─────────────────────────────────────────
+    // Lista czcionek systemowych
 
     public static IReadOnlyList<string> SystemFonts { get; } =
         System.Windows.Media.Fonts.SystemFontFamilies
@@ -34,7 +34,7 @@ public partial class SzablonViewModel : ObservableObject
             .OrderBy(n => n)
             .ToList();
 
-    // ── Czcionka ──────────────────────────────────────────────────────────
+    // Czcionka
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewFontFamily))]
@@ -59,21 +59,21 @@ public partial class SzablonViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(PreviewLineHeight))]
     private double _lineHeightMultiplier = 1;
 
-    // ── Kolor tekstu ──────────────────────────────────────────────────────
+    // Kolor tekstu
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewTextBrush))]
     [NotifyPropertyChangedFor(nameof(TextColorSwatch))]
     private string _textColor = "#FFFFFF";
 
-    // ── Cień ──────────────────────────────────────────────────────────────
+    // Cień
 
     [ObservableProperty] private bool _shadowEnabled = true;
     [ObservableProperty] private double _shadowBlur = 8;
     [ObservableProperty] private double _shadowDepth = 2;
     [ObservableProperty] private double _shadowOpacity = 0.8;
 
-    // ── Tło ───────────────────────────────────────────────────────────────
+    // Tło
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
@@ -83,7 +83,7 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private string? _backgroundImagePath;
     [ObservableProperty] private double _backgroundImageOpacity = 1.0;
 
-    // ── Gradient ──────────────────────────────────────────────────────────
+    // Gradient
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
@@ -110,7 +110,7 @@ public partial class SzablonViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(PreviewBackgroundBrush))]
     private double _gradientAngle = 180;
 
-    // ── Pozycja ───────────────────────────────────────────────────────────
+    // Pozycja
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewVerticalAlignment))]
@@ -119,12 +119,12 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private double _textMarginH = 80;
     [ObservableProperty] private double _textMarginV = 60;
 
-    // ── Ekran ─────────────────────────────────────────────────────────────
+    // Ekran
 
     [ObservableProperty] private List<ScreenOption> _screens = [];
     [ObservableProperty] private ScreenOption? _selectedScreen;
 
-    // ── Język ─────────────────────────────────────────────────────────────
+    // Język
 
     [ObservableProperty] private string _selectedLanguage = "pl";
 
@@ -136,11 +136,11 @@ public partial class SzablonViewModel : ObservableObject
 
     [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
 
-    // ── Tagi formatowania ─────────────────────────────────────────────────
+    // Tagi formatowania
 
     [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
 
-    // ── Preview ───────────────────────────────────────────────────────────
+    // Preview
 
     private static readonly string[] _sampleLines =
     [
@@ -189,7 +189,7 @@ public partial class SzablonViewModel : ObservableObject
 
     public double PreviewLineHeight => PreviewFontSize * LineHeightMultiplier;
 
-    // ── Presets ───────────────────────────────────────────────────────────
+    // Presets
 
     public List<ColorPreset> BgPresets { get; } =
     [
@@ -210,7 +210,7 @@ public partial class SzablonViewModel : ObservableObject
         new("#c9a84c", "Złoty"),
     ];
 
-    // ── Commands ──────────────────────────────────────────────────────────
+    // Commands
 
     [RelayCommand] private void SetGradientType(string t) => GradientType = t;
 
@@ -317,7 +317,7 @@ public partial class SzablonViewModel : ObservableObject
         await SaveAsync();
     }
 
-    // ── Ogólne ────────────────────────────────────────────────────────────
+    // Ogólne
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
@@ -333,7 +333,7 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<Category> _psalmCategories = [];
     [ObservableProperty] private Category? _selectedPsalmCategory;
 
-    // ── Load ──────────────────────────────────────────────────────────────
+    // Load
 
     private async Task LoadAsync()
     {
