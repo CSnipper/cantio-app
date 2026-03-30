@@ -96,6 +96,7 @@ public partial class AboutViewModel : ObservableObject
     private bool CanDownload() => !IsDownloading && !string.IsNullOrEmpty(DownloadUrl);
 
     partial void OnIsDownloadingChanged(bool value) => DownloadAndInstallCommand.NotifyCanExecuteChanged();
+    partial void OnDownloadUrlChanged(string value) => DownloadAndInstallCommand.NotifyCanExecuteChanged();
 
     [RelayCommand]
     private static void OpenWebsite() =>
