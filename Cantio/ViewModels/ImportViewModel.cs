@@ -4,7 +4,6 @@ using Cantio.Services.Import;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -121,13 +120,12 @@ public partial class ImportViewModel : ObservableObject
 
             case ImportFormat.OpenSongFolder:
                 {
-                    using var folderDlg = new CommonOpenFileDialog
+                    var folderDlg = new Microsoft.Win32.OpenFolderDialog
                     {
-                        Title = "Wybierz folder z plikami OpenSong",
-                        IsFolderPicker = true
+                        Title = "Wybierz folder z plikami OpenSong"
                     };
-                    if (folderDlg.ShowDialog() == CommonFileDialogResult.Ok)
-                        FilePath = folderDlg.FileName;
+                    if (folderDlg.ShowDialog() == true)
+                        FilePath = folderDlg.FolderName;
                     break;
                 }
 
