@@ -127,7 +127,7 @@
     <sys:String x:Key="Settings.ClearDb">Limpiar base de datos</sys:String>
     <sys:String x:Key="Settings.ExportZip">Exportar ZIP</sys:String>
     <sys:String x:Key="Settings.ImportZip">Importar ZIP</sys:String>
-    <sys:String x:Key="Msg.ClearDbConfirm">¿Eliminar todas las canciones, estrofas y listas? La configuración se mantendrá.</sys:String>
+    <sys:String x:Key="Msg.ClearDbConfirm">¿Eliminar todas las canciones, estrofas y listas? La configuración se mantendrá. La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="Msg.RestoreDbConfirm">¿Reemplazar la base de datos actual con el archivo seleccionado? La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="Msg.ImportZipConfirm">¿Reemplazar base de datos e imágenes con datos del ZIP? La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Instalar actualización</sys:String>
@@ -237,5 +237,8 @@
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
     <sys:String x:Key="Import.OszDialogTitle">Seleccionar listas OpenLP (.osz)</sys:String>
     <sys:String x:Key="Import.OszDialogFilter">Listas OpenLP (*.osz)|*.osz</sys:String>
+    <sys:String x:Key="Settings.ImportPsalmy">Importar salmos</sys:String>
+    <sys:String x:Key="Msg.PsalmyImported">Se importaron {0} salmos responsoriales.</sys:String>
+    <sys:String x:Key="Msg.PsalmyCategoryMissing">No se encontró la categoría "Psalmy responsoryjne". Créala primero en el editor de categorías.</sys:String>
 
 </ResourceDictionary>

@@ -241,6 +241,17 @@ public partial class DisplayViewModel : ObservableObject
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
     }
 
+    [RelayCommand]
+    private async Task DeleteSetlistFromSearchAsync(Setlist setlist)
+    {
+        if (MessageBox.Show(
+                $"Usunąć zestaw \"{setlist.Name}\"?",
+                "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Warning)
+            != MessageBoxResult.Yes) return;
+        await _db.DeleteSetlistAsync(setlist.Id);
+        FilteredSetlists.Remove(setlist);
+    }
+
     // Edytor zwrotek inline
 
     [ObservableProperty]
@@ -692,9 +703,12 @@ public partial class DisplayViewModel : ObservableObject
         int chorusBlockIndex = -1;
         var parsed = blocks.Select((block, i) =>
         {
-            bool isChorus = block.StartsWith("Refren:", StringComparison.OrdinalIgnoreCase);
+            bool isChorus = block.StartsWith("Refren:", StringComparison.OrdinalIgnoreCase)
+                         || block.StartsWith("Aklamacja:", StringComparison.OrdinalIgnoreCase);
             if (isChorus && chorusBlockIndex < 0) chorusBlockIndex = i;
-            var text = isChorus ? block["Refren:".Length..].TrimStart('\n', '\r', ' ') : block;
+            int prefixLen = block.StartsWith("Aklamacja:", StringComparison.OrdinalIgnoreCase)
+                ? "Aklamacja:".Length : "Refren:".Length;
+            var text = isChorus ? block[prefixLen..].TrimStart('\n', '\r', ' ') : block;
             return (type: isChorus ? "c" : "v", text);
         }).ToList();
 

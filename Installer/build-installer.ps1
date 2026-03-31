@@ -4,12 +4,21 @@
 .DESCRIPTION
     1. Reads <Version> from Cantio/Cantio.csproj
     2. Verifies Cantio.db exists at repo root
-    3. Runs dotnet publish (self-contained, win-x64)
+    3. Runs dotnet publish (self-contained)
     4. Runs Inno Setup compiler (iscc.exe)
     5. Prints path to the produced installer .exe
+.PARAMETER Arch
+    Target architecture: x64 (default) or x86. Use "both" to build both variants.
 .EXAMPLE
     .\build-installer.ps1
+    .\build-installer.ps1 -Arch x86
+    .\build-installer.ps1 -Arch both
 #>
+
+param(
+    [ValidateSet('x64', 'x86', 'both')]
+    [string]$Arch = 'x64'
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -19,7 +28,6 @@ Set-StrictMode -Version Latest
 $RepoRoot   = Resolve-Path "$PSScriptRoot\.."
 $CsprojPath = Join-Path $RepoRoot "Cantio\Cantio.csproj"
 $SeedDbPath = Join-Path $RepoRoot "Cantio.db"
-$PublishDir = Join-Path $PSScriptRoot "publish"
 $IssPath    = Join-Path $PSScriptRoot "cantio.iss"
 $IsccExe    = "C:\Program Files (x86)\Inno Setup 6\iscc.exe"
 
@@ -44,38 +52,50 @@ if (-not (Test-Path $SeedDbPath)) {
 
 Write-Host "Baza seed: OK ($SeedDbPath)" -ForegroundColor Cyan
 
-# ── Step 3: dotnet publish ────────────────────────────────────────────────────
-
-Write-Host "`nPublikowanie aplikacji..." -ForegroundColor Yellow
-
-dotnet publish $CsprojPath `
-    -c Release `
-    -r win-x64 `
-    --self-contained true `
-    -o $PublishDir
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "dotnet publish nie powiodło się (kod: $LASTEXITCODE)"
-}
-
-Write-Host "Publikowanie: OK" -ForegroundColor Green
-
-# ── Step 4: Inno Setup ────────────────────────────────────────────────────────
+# ── Step 3: Inno Setup present? ───────────────────────────────────────────────
 
 if (-not (Test-Path $IsccExe)) {
     Write-Error "Nie znaleziono Inno Setup: $IsccExe`nZainstaluj Inno Setup 6 ze strony https://jrsoftware.org/isinfo.php"
 }
 
-Write-Host "`nKompilowanie instalatora..." -ForegroundColor Yellow
+# ── Helper: build one architecture ───────────────────────────────────────────
 
-& $IsccExe $IssPath /DAppVersion=$Version
+function Build-Arch([string]$TargetArch) {
+    $PublishDir = Join-Path $PSScriptRoot "publish$(if ($TargetArch -eq 'x86') { '-x86' })"
+    $Rid        = "win-$TargetArch"
+    $Suffix     = if ($TargetArch -eq 'x86') { '-x86' } else { '' }
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "iscc.exe nie powiodło się (kod: $LASTEXITCODE)"
+    Write-Host "`nPublikowanie aplikacji ($TargetArch)..." -ForegroundColor Yellow
+
+    dotnet publish $CsprojPath `
+        -c Release `
+        -r $Rid `
+        --self-contained true `
+        -o $PublishDir
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "dotnet publish nie powiodło się dla $TargetArch (kod: $LASTEXITCODE)"
+    }
+
+    Write-Host "Publikowanie $TargetArch`: OK" -ForegroundColor Green
+
+    Write-Host "`nKompilowanie instalatora ($TargetArch)..." -ForegroundColor Yellow
+
+    & $IsccExe $IssPath /DAppVersion=$Version /DArch=$TargetArch
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "iscc.exe nie powiodło się dla $TargetArch (kod: $LASTEXITCODE)"
+    }
+
+    $OutputExe = Join-Path $PSScriptRoot "Output\CantioSetup-$Version$Suffix.exe"
+    Write-Host "Instalator gotowy: $OutputExe" -ForegroundColor Green
 }
 
-# ── Step 5: Report output ─────────────────────────────────────────────────────
+# ── Step 4: Build selected architecture(s) ───────────────────────────────────
 
-$OutputExe = Join-Path $PSScriptRoot "Output\CantioSetup-$Version.exe"
-Write-Host "`nInstalator gotowy:" -ForegroundColor Green
-Write-Host "  $OutputExe" -ForegroundColor White
+if ($Arch -eq 'both') {
+    Build-Arch 'x64'
+    Build-Arch 'x86'
+} else {
+    Build-Arch $Arch
+}

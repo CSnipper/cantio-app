@@ -1,6 +1,11 @@
 using Cantio.Models;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Cantio.Services;
 
@@ -345,5 +350,108 @@ public class DatabaseService
             FontAutoFit = Get("font_auto_fit", true, v => v == "true"),
             PsalmCategoryId = Get("psalm_category_id", 0, v => int.TryParse(v, out var id) ? id : 0),
         };
+    }
+
+    // ── Import psalmów responsoryjnych ───────────────────────────────────────
+
+    private record PsalmSeedRecord(
+        [property: JsonPropertyName("dzien")]                string Dzien,
+        [property: JsonPropertyName("cykl")]                 string Cykl,
+        [property: JsonPropertyName("psalm_responsoryjny")]  string PsalmResponsoryjny,
+        [property: JsonPropertyName("aklamacja")]            string? Aklamacja
+    );
+
+    /// <summary>
+    /// Importuje psalmy responsoryjne z wbudowanego zasobu psalmy.json.gz
+    /// do kategorii "Psalmy responsoryjne". Pomija tytuły już istniejące.
+    /// Zwraca liczbę dodanych pieśni lub -1 gdy kategoria nie istnieje.
+    /// </summary>
+    public async Task<int> ImportPsalmySeedAsync()
+    {
+        // Odczyt i dekompresja zasobu
+        var asm = Assembly.GetExecutingAssembly();
+        await using var gz = asm.GetManifestResourceStream("Cantio.Assets.Data.psalmy.json.gz")!;
+        await using var deflated = new GZipStream(gz, CompressionMode.Decompress);
+        using var reader = new StreamReader(deflated, Encoding.UTF8);
+        var json = await reader.ReadToEndAsync();
+        var records = JsonSerializer.Deserialize<List<PsalmSeedRecord>>(json) ?? [];
+
+        await using var db = new CantioDbContext();
+
+        var category = await db.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Name == "Psalmy responsoryjne");
+        if (category == null) return -1;
+
+        // Pobierz istniejące tytuły jednym zapytaniem
+        var existing = await db.Songs
+            .Where(s => s.CategoryId == category.Id)
+            .Select(s => s.Title)
+            .ToHashSetAsync();
+
+        int maxNumber = await db.Songs
+            .Where(s => s.CategoryId == category.Id)
+            .MaxAsync(s => (int?)s.Number) ?? 0;
+
+        // Faza 1: wstaw wszystkie nowe pieśni
+        var toInsert = new List<(Song Song, string Psalm, string Akl)>();
+        foreach (var rec in records)
+        {
+            string title = $"{rec.Dzien} {rec.Cykl}";
+            if (existing.Contains(title)) continue;
+            maxNumber++;
+            var song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };
+            db.Songs.Add(song);
+            toInsert.Add((song, rec.PsalmResponsoryjny, rec.Aklamacja ?? ""));
+        }
+        await db.SaveChangesAsync(); // Pieśni otrzymują Id
+
+        // Faza 2: wstaw wszystkie zwrotki
+        foreach (var (song, psalm, akl) in toInsert)
+        {
+            int pos = 0;
+            foreach (var (type, text) in ParsePsalmBlocks(psalm))
+                db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++ });
+            foreach (var (type, text) in ParsePsalmBlocks(akl))
+                db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++ });
+        }
+        await db.SaveChangesAsync();
+
+        return toInsert.Count;
+    }
+
+    private static List<(string Type, string Text)> ParsePsalmBlocks(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return [];
+        var blocks = text.Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+                         .Select(b => b.Trim()).Where(b => b.Length > 0).ToList();
+        if (blocks.Count == 0) return [];
+
+        var result = new List<(string, string)>();
+        int i = 0;
+
+        string[] prefixes = ["Refren:", "Aklamacja:"];
+        string? prefix = prefixes.FirstOrDefault(p => blocks[0].StartsWith(p));
+        if (prefix != null)
+        {
+            string refren = blocks[0][prefix.Length..].Trim();
+            i = 1;
+            if (i < blocks.Count && blocks[i].StartsWith("Albo:"))
+            {
+                refren = $"{refren}\n\nAlbo:\n{blocks[i]["Albo:".Length..].Trim()}";
+                i++;
+            }
+            result.Add(("c", refren));
+        }
+        else
+        {
+            result.Add(("v", blocks[0]));
+            i = 1;
+        }
+
+        for (; i < blocks.Count; i++)
+            result.Add(("v", blocks[i]));
+
+        return result;
     }
 }

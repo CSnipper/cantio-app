@@ -1,9 +1,22 @@
 ; Cantio — Inno Setup installer script
 ; Build with: iscc cantio.iss /DAppVersion=1.0
+; x86 build:  iscc cantio.iss /DAppVersion=1.0 /DArch=x86
 ; Or use build-installer.ps1 which passes the version automatically.
 
 #ifndef AppVersion
   #define AppVersion "0.0.0-dev"
+#endif
+
+#ifndef Arch
+  #define Arch "x64"
+#endif
+
+#if Arch == "x86"
+  #define PublishDir "publish-x86"
+  #define ArchSuffix "-x86"
+#else
+  #define PublishDir "publish"
+  #define ArchSuffix ""
 #endif
 
 #define AppName      "Cantio"
@@ -19,7 +32,7 @@ AppPublisherURL=https://github.com/CSnipper/cantio-app
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 OutputDir=Output
-OutputBaseFilename=CantioSetup-{#AppVersion}
+OutputBaseFilename=CantioSetup-{#AppVersion}{#ArchSuffix}
 Compression=lzma2/ultra64
 SolidCompression=yes
 PrivilegesRequired=admin
@@ -35,7 +48,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Files]
 ; Application binaries (self-contained publish output)
-Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Seed database — installed only when user picks "sample" on fresh install
 Source: "..\Cantio.db"; DestDir: "{app}"; DestName: "cantio.db"; \

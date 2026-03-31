@@ -1645,6 +1645,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
                                                             <TextBlock Text="{Binding Name}"
@@ -1674,7 +1675,7 @@
                                                             </Button.Template>
                                                         </Button>
                                                         <Button Grid.Column="2" Content="{DynamicResource Btn.Append}"
-                                                                Padding="8,4"
+                                                                Padding="8,4" Margin="0,0,4,0"
                                                                 Background="#252d3d" BorderThickness="0"
                                                                 Foreground="#9aa3b8" FontSize="12" Cursor="Hand"
                                                                 Command="{Binding DataContext.AppendSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -1687,6 +1688,27 @@
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
                                                                             <Setter Property="Background" Value="#3a6ea8"/>
+                                                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                        <Button Grid.Column="3" Content="✕"
+                                                                Padding="8,4"
+                                                                Background="#252d3d" BorderThickness="0"
+                                                                Foreground="#e05a5a" FontSize="12" Cursor="Hand"
+                                                                ToolTip="Usuń zestaw"
+                                                                Command="{Binding DataContext.DeleteSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                CommandParameter="{Binding}">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#7a2020"/>
                                                                             <Setter Property="Foreground" Value="#ffffff"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
@@ -2337,6 +2359,12 @@
                                 <Button Content="{DynamicResource Settings.ImportZip}" Style="{StaticResource OutlineBtn}"
                                         Padding="10,6" Margin="0,0,0,6"
                                         Command="{Binding ImportZipCommand}"/>
+                            </WrapPanel>
+                            <WrapPanel Margin="0,6,0,0">
+                                <Button Content="{DynamicResource Settings.ImportPsalmy}" Style="{StaticResource OutlineBtn}"
+                                        Padding="10,6" Margin="0,0,0,6"
+                                        Command="{Binding ImportPsalmyCommand}"
+                                        IsEnabled="{Binding IsImportingPsalmy, Converter={StaticResource InverseBool}}"/>
                             </WrapPanel>
 
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>

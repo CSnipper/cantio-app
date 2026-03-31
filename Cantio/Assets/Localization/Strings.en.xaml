@@ -127,7 +127,7 @@
     <sys:String x:Key="Settings.ClearDb">Clear database</sys:String>
     <sys:String x:Key="Settings.ExportZip">Export ZIP</sys:String>
     <sys:String x:Key="Settings.ImportZip">Import ZIP</sys:String>
-    <sys:String x:Key="Msg.ClearDbConfirm">Delete all songs, verses and setlists? Settings will be kept.</sys:String>
+    <sys:String x:Key="Msg.ClearDbConfirm">Delete all songs, verses and setlists? Settings will be kept. The app will restart.</sys:String>
     <sys:String x:Key="Msg.RestoreDbConfirm">Replace the current database with the selected file? The app will restart.</sys:String>
     <sys:String x:Key="Msg.ImportZipConfirm">Replace database and images with data from ZIP? The app will restart.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Install update</sys:String>
@@ -237,5 +237,8 @@
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
     <sys:String x:Key="Import.OszDialogTitle">Select OpenLP sets (.osz)</sys:String>
     <sys:String x:Key="Import.OszDialogFilter">OpenLP Sets (*.osz)|*.osz</sys:String>
+    <sys:String x:Key="Settings.ImportPsalmy">Import psalms</sys:String>
+    <sys:String x:Key="Msg.PsalmyImported">Imported {0} responsorial psalms.</sys:String>
+    <sys:String x:Key="Msg.PsalmyCategoryMissing">Category "Psalmy responsoryjne" not found. Please create it first in the category editor.</sys:String>
 
 </ResourceDictionary>
