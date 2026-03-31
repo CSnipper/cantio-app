@@ -16,7 +16,8 @@ public partial class App : Application
             var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
             Directory.CreateDirectory(dbFolder); // ← musi być PRZED sprawdzeniem pliku
             var dbPath = Path.Combine(dbFolder, "cantio.db");
-            if (!File.Exists(dbPath))
+            bool isFirstRun = !File.Exists(dbPath);
+            if (isFirstRun)
             {
                 var seedDb = Path.Combine(AppContext.BaseDirectory, "cantio.db");
                 if (File.Exists(seedDb))
@@ -28,6 +29,12 @@ public partial class App : Application
                 await ctx.Database.MigrateAsync();
 
             var db = new DatabaseService();
+
+            if (isFirstRun)
+            {
+                await db.SaveSettingAsync("load_last_setlist", "0");
+                await db.SaveSettingAsync("last_setlist_id", "");
+            }
             var lang = db.GetSettingAsync("language").Result;
             if (lang == null)
             {
