@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
 
@@ -53,15 +54,33 @@ public partial class AboutViewModel : ObservableObject
                     ? body.GetString() ?? string.Empty : string.Empty;
 
                 if (json.TryGetProperty("assets", out var assets))
+                {
+                    bool isX86 = RuntimeInformation.ProcessArchitecture == Architecture.X86;
+                    string archSuffix = isX86 ? "-x86.exe" : ".exe";
+
+                    // Pierwsza próba: plik pasujący do architektury
                     foreach (var asset in assets.EnumerateArray())
                     {
                         var name = asset.GetProperty("name").GetString() ?? "";
-                        if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        if (name.EndsWith(archSuffix, StringComparison.OrdinalIgnoreCase)
+                            && (isX86 || !name.EndsWith("-x86.exe", StringComparison.OrdinalIgnoreCase)))
                         {
                             DownloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
                             break;
                         }
                     }
+                    // Fallback: jakikolwiek .exe
+                    if (string.IsNullOrEmpty(DownloadUrl))
+                        foreach (var asset in assets.EnumerateArray())
+                        {
+                            var name = asset.GetProperty("name").GetString() ?? "";
+                            if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                            {
+                                DownloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+                                break;
+                            }
+                        }
+                }
             }
         }
         catch { /* brak internetu lub błąd API — nic nie pokazuj */ }
