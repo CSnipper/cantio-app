@@ -23,6 +23,7 @@ public sealed class RemoteControlServer : IDisposable
     {
         if (IsRunning) return;
         Port = port;
+        _cts.Dispose();
         _cts = new CancellationTokenSource();
         _listener = new TcpListener(IPAddress.Any, port);
         _listener.Start();
@@ -36,6 +37,10 @@ public sealed class RemoteControlServer : IDisposable
         _listener?.Stop();
         _listener = null;
         IsRunning = false;
+        List<WebSocket> toClose;
+        lock (_lock) { toClose = [.. _clients]; _clients.Clear(); }
+        foreach (var ws in toClose)
+            try { ws.Dispose(); } catch { }
     }
 
     public async Task BroadcastAsync(string text, string songTitle, int index, int total)
@@ -80,7 +85,11 @@ public sealed class RemoteControlServer : IDisposable
                     keepAliveInterval: TimeSpan.FromSeconds(30));
                 lock (_lock) _clients.Add(ws);
                 try { await ReceiveLoopAsync(ws, ct); }
-                finally { lock (_lock) _clients.Remove(ws); }
+                finally
+                {
+                    lock (_lock) _clients.Remove(ws);
+                    ws.Dispose();
+                }
             }
             else
             {
@@ -122,7 +131,8 @@ public sealed class RemoteControlServer : IDisposable
     private static async Task DoWebSocketHandshakeAsync(
         NetworkStream stream, Dictionary<string, string> headers, CancellationToken ct)
     {
-        headers.TryGetValue("Sec-WebSocket-Key", out var key);
+        if (!headers.TryGetValue("Sec-WebSocket-Key", out var key) || string.IsNullOrEmpty(key))
+            throw new InvalidOperationException("Missing Sec-WebSocket-Key");
         var accept = Convert.ToBase64String(
             SHA1.HashData(Encoding.UTF8.GetBytes(key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")));
         var response =
@@ -147,16 +157,24 @@ public sealed class RemoteControlServer : IDisposable
 
     private async Task ReceiveLoopAsync(WebSocket ws, CancellationToken ct)
     {
-        var buf = new byte[256];
+        var buf = new byte[1024];
         while (ws.State == WebSocketState.Open && !ct.IsCancellationRequested)
         {
+            using var ms = new System.IO.MemoryStream();
             WebSocketReceiveResult result;
-            try { result = await ws.ReceiveAsync(buf, ct); }
-            catch { break; }
-            if (result.MessageType == WebSocketMessageType.Close) break;
             try
             {
-                var doc = JsonDocument.Parse(buf.AsMemory(0, result.Count));
+                do
+                {
+                    result = await ws.ReceiveAsync(buf, ct);
+                    if (result.MessageType == WebSocketMessageType.Close) return;
+                    ms.Write(buf, 0, result.Count);
+                } while (!result.EndOfMessage);
+            }
+            catch { break; }
+            try
+            {
+                var doc = JsonDocument.Parse(ms.ToArray());
                 var type = doc.RootElement.GetProperty("type").GetString();
                 if (type == "next") NextRequested?.Invoke(this, EventArgs.Empty);
                 else if (type == "prev") PrevRequested?.Invoke(this, EventArgs.Empty);
@@ -198,8 +216,8 @@ public sealed class RemoteControlServer : IDisposable
         <div id="slide">—</div>
         <div id="counter"></div>
         <div id="controls">
-          <button class="btn" ontouchstart="send('prev')" onclick="send('prev')">&#8592;</button>
-          <button class="btn" ontouchstart="send('next')" onclick="send('next')">&#8594;</button>
+          <button class="btn" onclick="send('prev')">&#8592;</button>
+          <button class="btn" onclick="send('next')">&#8594;</button>
         </div>
         <script>
           let ws, timer;
