@@ -104,15 +104,26 @@ public class DatabaseService
         }
         else
         {
-            // Usuń stare zwrotki
+            var existing = await db.Songs.FindAsync(song.Id)
+                ?? throw new InvalidOperationException($"Pieśń {song.Id} nie istnieje w bazie");
+            existing.Title = song.Title;
+            existing.Number = song.Number;
+            existing.Author = song.Author;
+            existing.CategoryId = song.CategoryId;
+            existing.PlayOrderJson = song.PlayOrderJson;
+
             var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
             db.Verses.RemoveRange(oldVerses);
 
-            // Przypisz SongId do nowych
             foreach (var v in song.Verses)
-                v.SongId = song.Id;
-
-            db.Songs.Update(song);
+                db.Verses.Add(new Verse
+                {
+                    SongId = song.Id,
+                    Position = v.Position,
+                    Type = v.Type,
+                    Text = v.Text,
+                    ImagePath = v.ImagePath
+                });
         }
         await db.SaveChangesAsync();
     }
