@@ -28,7 +28,9 @@ public partial class SzablonViewModel : ObservableObject
         _db = db;
         _projection = projection;
         LoadScreens();
-        _ = LoadAsync();
+        _ = LoadAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[SzablonViewModel] LoadAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
     }
 
     // Lista czcionek systemowych

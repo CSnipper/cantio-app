@@ -30,9 +30,15 @@ public partial class DisplayViewModel : ObservableObject
         _db = db;
         _projection = projection;
         _shortcuts = shortcuts;
-        _ = LoadCategoriesAsync();
-        _ = LoadPinnedSetlistsAsync();
-        _ = LoadSetlistGroupsAsync();
+        _ = LoadCategoriesAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[DisplayViewModel] LoadCategoriesAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
+        _ = LoadPinnedSetlistsAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[DisplayViewModel] LoadPinnedSetlistsAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
+        _ = LoadSetlistGroupsAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[DisplayViewModel] LoadSetlistGroupsAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
     }
 
     public async Task InitializeAsync()
@@ -1071,7 +1077,6 @@ public partial class DisplayViewModel : ObservableObject
         Categories = new ObservableCollection<Category>(list);
         CategoryItems = new ObservableCollection<CategoryEditorItem>(
             list.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
-        await LoadPinnedSetlistsAsync();
     }
 
     private async Task LoadSongsAsync(int categoryId)

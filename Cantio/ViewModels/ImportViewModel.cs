@@ -17,8 +17,12 @@ public partial class ImportViewModel : ObservableObject
     public ImportViewModel(DatabaseService db)
     {
         _db = db;
-        _ = LoadOszGroupsAsync();
-        _ = LoadCategoriesAsync();
+        _ = LoadOszGroupsAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[ImportViewModel] LoadOszGroupsAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
+        _ = LoadCategoriesAsync().ContinueWith(
+            t => System.Diagnostics.Debug.WriteLine($"[ImportViewModel] LoadCategoriesAsync: {t.Exception}"),
+            TaskContinuationOptions.OnlyOnFaulted);
     }
 
     // Format
