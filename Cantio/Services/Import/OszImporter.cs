@@ -2,7 +2,6 @@ using Cantio.Models;
 using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
-using System.Windows;
 using System.Xml.Linq;
 
 namespace Cantio.Services.Import;
@@ -64,7 +63,6 @@ public class OszImporter
 
     private async Task ImportSingleOszAsync(string oszPath, string setlistName)
     {
-        // Rozpakuj ZIP w pamięci
         using var archive = ZipFile.OpenRead(oszPath);
         var entry = archive.GetEntry("service_data.osj")
             ?? archive.Entries.FirstOrDefault(e => e.Name.EndsWith(".osj"))
@@ -72,8 +70,8 @@ public class OszImporter
 
         using var stream = entry.Open();
         var json = await new StreamReader(stream).ReadToEndAsync();
-        var items = ParseOsj(json);
-        // Utwórz zestaw
+        var parsedItems = ParseOsj(json);
+
         var setlist = new Setlist
         {
             Name = setlistName,
@@ -81,36 +79,26 @@ public class OszImporter
             CreatedAt = DateTime.Now,
             IsPinned = false
         };
-        await _db.SaveSetlistAsync(setlist);
 
-        // Dla każdej pieśni w zestawie
         var setlistItems = new List<SetlistItem>();
         int position = 1;
 
-        foreach (var item in items)
+        foreach (var item in parsedItems)
         {
-            if (item.Type != "songs") continue; // pomijamy obrazy, prezentacje itp.
+            if (item.Type != "songs") continue;
 
             var song = await FindOrImportSongAsync(item);
             if (song == null) continue;
 
             setlistItems.Add(new SetlistItem
             {
-                SetlistId = setlist.Id,
                 SongId = song.Id,
                 Position = position++,
                 Type = "song"
             });
         }
 
-        try
-        {
-            await _db.SaveSetlistItemsAsync(setlist.Id, setlistItems);
-
-        }        catch (Exception ex)
-        {
-            MessageBox.Show($"Błąd SaveSetlistItems: {ex.Message}\n{ex.InnerException?.Message}");
-        }
+        await _db.SaveSetlistWithItemsAsync(setlist, setlistItems);
     }
 
     private async Task<Song?> FindOrImportSongAsync(OsjServiceItem item)

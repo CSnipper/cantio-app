@@ -223,6 +223,38 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    public async Task<Setlist> SaveSetlistWithItemsAsync(Setlist setlist, List<SetlistItem> items)
+    {
+        await using var db = new CantioDbContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+        try
+        {
+            db.Setlists.Add(setlist);
+            await db.SaveChangesAsync(); // uzyskaj Id
+
+            var newItems = items.Select(item => new SetlistItem
+            {
+                SetlistId = setlist.Id,
+                SongId = item.SongId,
+                Position = item.Position,
+                Type = item.Type,
+                SelectedVerses = item.SelectedVerses,
+                ImagePath = item.ImagePath
+            }).ToList();
+
+            db.SetlistItems.AddRange(newItems);
+            await db.SaveChangesAsync();
+
+            await tx.CommitAsync();
+            return setlist;
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task DeleteSetlistAsync(int setlistId)
     {
         await using var db = new CantioDbContext();
