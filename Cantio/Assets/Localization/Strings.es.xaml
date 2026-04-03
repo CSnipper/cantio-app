@@ -8,6 +8,7 @@
     <sys:String x:Key="Tab.Import">APARIENCIA</sys:String>
     <sys:String x:Key="Tab.About">ACERCA DE</sys:String>
     <sys:String x:Key="Tab.Support">APOYAR</sys:String>
+    <sys:String x:Key="Tab.Pilot">MANDO</sys:String>
 
     <!-- Acerca de -->
     <sys:String x:Key="About.Subtitle">Software de proyección de canciones</sys:String>
