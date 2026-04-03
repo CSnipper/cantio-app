@@ -253,13 +253,18 @@ public class DatabaseService
         await using var db = new CantioDbContext();
         var old = db.SetlistItems.Where(i => i.SetlistId == setlistId);
         db.SetlistItems.RemoveRange(old);
-        foreach (var item in items)
+
+        var newItems = items.Select(item => new SetlistItem
         {
-            item.SetlistId = setlistId;
-            item.Id = 0;
-            item.Song = null;
-        }
-        db.SetlistItems.AddRange(items);
+            SetlistId = setlistId,
+            SongId = item.SongId,
+            Position = item.Position,
+            Type = item.Type,
+            SelectedVerses = item.SelectedVerses,
+            ImagePath = item.ImagePath
+        }).ToList();
+
+        db.SetlistItems.AddRange(newItems);
         await db.SaveChangesAsync();
     }
 
