@@ -208,12 +208,13 @@ public partial class MainWindow : Window
             Dispatcher.Invoke(() => _vm.PrevSlideCommand.Execute(null));
         _vm.PropertyChanged += async (_, e) =>
         {
-            if (e.PropertyName == nameof(DisplayViewModel.CurrentSlideIndex))
-                await _remoteControl.BroadcastAsync(
-                    _vm.CurrentSlideText,
-                    _vm.SelectedSong?.Title ?? "",
-                    _vm.CurrentSlideIndex,
-                    _vm.SlideList.Count);
+            if (e.PropertyName != nameof(DisplayViewModel.CurrentSlideIndex)) return;
+            var text = _vm.CurrentSlideText;
+            var title = _vm.SelectedSong?.Title ?? "";
+            var index = _vm.CurrentSlideIndex;
+            var total = _vm.SlideList.Count;
+            try { await _remoteControl.BroadcastAsync(text, title, index, total); }
+            catch { /* broadcast failures are non-fatal */ }
         };
 
         Loaded += async (_, _) =>
@@ -223,7 +224,7 @@ public partial class MainWindow : Window
             // Sprawdź aktualizacje w tle po starcie
             _ = _aboutVm.CheckForUpdateCommand.ExecuteAsync(null);
         };
-        Closing += (_, _) => SaveWindowPosition();
+        Closing += (_, _) => { SaveWindowPosition(); _remoteControl.Dispose(); };
         KeyDown += _vm.OnKeyDown;
     }
 

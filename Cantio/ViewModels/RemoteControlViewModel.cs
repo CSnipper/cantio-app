@@ -9,7 +9,7 @@ using QRCoder;
 
 namespace Cantio.ViewModels;
 
-public partial class RemoteControlViewModel : ObservableObject
+public partial class RemoteControlViewModel : ObservableObject, IDisposable
 {
     private readonly RemoteControlServer _server = new();
 
@@ -39,7 +39,15 @@ public partial class RemoteControlViewModel : ObservableObject
         }
         else
         {
-            _server.Start(Port);
+            try
+            {
+                _server.Start(Port);
+            }
+            catch (Exception ex) when (ex is ArgumentOutOfRangeException or System.Net.Sockets.SocketException)
+            {
+                // Port invalid or already in use — do not set IsRunning
+                return;
+            }
             IsRunning = true;
             var ip = GetLocalIp();
             LocalUrl = $"http://{ip}:{Port}";
@@ -62,6 +70,8 @@ public partial class RemoteControlViewModel : ObservableObject
         }
         catch { return "localhost"; }
     }
+
+    public void Dispose() => _server.Dispose();
 
     private static BitmapSource GenerateQr(string url)
     {
