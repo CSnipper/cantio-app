@@ -43,7 +43,7 @@ public class CantioDbContext : DbContext
 
         modelBuilder.Entity<Verse>()
             .Property(v => v.Type)
-            .HasMaxLength(1);
+            .HasMaxLength(3);
 
         // Setlist → SetlistItems (1:N)
         modelBuilder.Entity<SetlistItem>()
