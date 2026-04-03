@@ -202,6 +202,20 @@ public partial class MainWindow : Window
         _remoteControl = new RemoteControlViewModel();
         PanePilot.DataContext = _remoteControl;
 
+        _remoteControl.NextRequested += (_, _) =>
+            Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
+        _remoteControl.PrevRequested += (_, _) =>
+            Dispatcher.Invoke(() => _vm.PrevSlideCommand.Execute(null));
+        _vm.PropertyChanged += async (_, e) =>
+        {
+            if (e.PropertyName == nameof(DisplayViewModel.CurrentSlideIndex))
+                await _remoteControl.BroadcastAsync(
+                    _vm.CurrentSlideText,
+                    _vm.SelectedSong?.Title ?? "",
+                    _vm.CurrentSlideIndex,
+                    _vm.SlideList.Count);
+        };
+
         Loaded += async (_, _) =>
         {
             await _vm.InitializeAsync();
