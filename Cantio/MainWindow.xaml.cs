@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private readonly ShortcutService _shortcutService;
     private readonly ShortcutsViewModel _shortcutsVm;
     private readonly AboutViewModel _aboutVm = new();
+    private RemoteControlViewModel _remoteControl = null!;
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
@@ -198,6 +199,24 @@ public partial class MainWindow : Window
 
         PaneAbout.DataContext = _aboutVm;
 
+        _remoteControl = new RemoteControlViewModel();
+        PanePilot.DataContext = _remoteControl;
+
+        _remoteControl.NextRequested += (_, _) =>
+            Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
+        _remoteControl.PrevRequested += (_, _) =>
+            Dispatcher.Invoke(() => _vm.PrevSlideCommand.Execute(null));
+        _vm.PropertyChanged += async (_, e) =>
+        {
+            if (e.PropertyName != nameof(DisplayViewModel.CurrentSlideIndex)) return;
+            var text = _vm.CurrentSlideText;
+            var title = _vm.SelectedSong?.Title ?? "";
+            var index = _vm.CurrentSlideIndex;
+            var total = _vm.SlideList.Count;
+            try { await _remoteControl.BroadcastAsync(text, title, index, total); }
+            catch { /* broadcast failures are non-fatal */ }
+        };
+
         Loaded += async (_, _) =>
         {
             await _vm.InitializeAsync();
@@ -205,7 +224,7 @@ public partial class MainWindow : Window
             // Sprawdź aktualizacje w tle po starcie
             _ = _aboutVm.CheckForUpdateCommand.ExecuteAsync(null);
         };
-        Closing += (_, _) => SaveWindowPosition();
+        Closing += (_, _) => { SaveWindowPosition(); _remoteControl.Dispose(); };
         KeyDown += _vm.OnKeyDown;
     }
 
@@ -277,6 +296,7 @@ public partial class MainWindow : Window
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
     private void TabAbout_Click(object sender, RoutedEventArgs e) => ShowPane(PaneAbout, TabAbout);
+    private void BtnPilot_Click(object sender, RoutedEventArgs e) => ShowPane(PanePilot, BtnPilot);
     private void TabSupport_Click(object sender, RoutedEventArgs e) =>
         System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo("https://buycoffee.to/marekwojtaszek")
@@ -289,6 +309,7 @@ public partial class MainWindow : Window
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
         PaneAbout.Visibility = Visibility.Collapsed;
+        PanePilot.Visibility = Visibility.Collapsed;
 
         // Reset all tab styles
         foreach (Button btn in TabBar.Children)
@@ -302,6 +323,7 @@ public partial class MainWindow : Window
         _activeTab = pane == PaneShow      ? "show"
             : pane == PaneTemplate         ? "template"
             : pane == PaneAbout            ? "about"
+            : pane == PanePilot            ? "pilot"
             : "import";
     }
 

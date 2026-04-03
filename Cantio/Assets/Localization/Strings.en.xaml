@@ -8,6 +8,7 @@
     <sys:String x:Key="Tab.Import">APPEARANCE</sys:String>
     <sys:String x:Key="Tab.About">ABOUT</sys:String>
     <sys:String x:Key="Tab.Support">SUPPORT</sys:String>
+    <sys:String x:Key="Tab.Pilot">REMOTE</sys:String>
 
     <!-- About -->
     <sys:String x:Key="About.Subtitle">Song projection software</sys:String>

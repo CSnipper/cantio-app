@@ -675,6 +675,12 @@
                             <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <Button x:Name="BtnPilot" Style="{StaticResource TabBtn}" Height="56" Click="BtnPilot_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE8AF;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Pilot}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -3537,6 +3543,9 @@
 
                 </StackPanel>
             </Grid>
+
+            <!-- TAB: PILOT -->
+            <views:RemoteControlTab x:Name="PanePilot" Visibility="Collapsed"/>
 
         </Grid>
     </Grid>
