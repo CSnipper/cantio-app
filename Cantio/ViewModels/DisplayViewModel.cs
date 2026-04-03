@@ -18,6 +18,7 @@ public partial class DisplayViewModel : ObservableObject
     private readonly ProjectionViewModel _projection;
     private readonly ShortcutService _shortcuts;
     private ProjectionWindow? _projectionWindow;
+    private CancellationTokenSource _searchCts = new();
 
     public ProjectionViewModel Projection => _projection;
 
@@ -129,7 +130,7 @@ public partial class DisplayViewModel : ObservableObject
 
     partial void OnSearchTextChanged(string value)
     {
-        _ = SearchSongsAsync(value);
+        _ = RunDebouncedSearchAsync(value);
     }
 
     [RelayCommand]
@@ -313,8 +314,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveInlineEditAsync()
     {
-        foreach (var ev in EditableVerses)
-            await _db.SaveVerseTextAsync(ev.Id, ev.Text, ev.ImagePath);
+        await _db.SaveVerseTextsAsync(EditableVerses.Select(ev => (ev.Id, ev.Text, ev.ImagePath)));
 
         var order = EditableVerses.Select((ev, i) => (ev.Id, i));
         await _db.SaveVerseOrderAsync(order);
@@ -1085,14 +1085,26 @@ public partial class DisplayViewModel : ObservableObject
         Songs = new ObservableCollection<Song>(list);
     }
 
-    private async Task SearchSongsAsync(string query)
+    private async Task RunDebouncedSearchAsync(string query)
     {
+        _searchCts.Cancel();
+        _searchCts.Dispose();
+        _searchCts = new CancellationTokenSource();
+        var ct = _searchCts.Token;
+        try
+        {
+            await Task.Delay(300, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
         if (string.IsNullOrWhiteSpace(query))
         {
             if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
             return;
         }
-        var list = await _db.SearchSongsAsync(query);
+        var list = await _db.SearchSongsAsync(query, ct);
         Songs = new ObservableCollection<Song>(list);
     }
 

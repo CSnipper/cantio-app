@@ -149,6 +149,22 @@ public class DatabaseService
         }
     }
 
+    public async Task SaveVerseTextsAsync(IEnumerable<(int Id, string Text, string? ImagePath)> updates)
+    {
+        var list = updates.ToList();
+        if (list.Count == 0) return;
+        var ids = list.Select(u => u.Id).ToList();
+        await using var db = new CantioDbContext();
+        var verses = await db.Verses.Where(v => ids.Contains(v.Id)).ToListAsync();
+        foreach (var verse in verses)
+        {
+            var (_, text, imagePath) = list.First(u => u.Id == verse.Id);
+            verse.Text = text;
+            verse.ImagePath = imagePath;
+        }
+        await db.SaveChangesAsync();
+    }
+
     public async Task SaveSongWithVersesAsync(Song song)
     {
         await using var db = new CantioDbContext();
