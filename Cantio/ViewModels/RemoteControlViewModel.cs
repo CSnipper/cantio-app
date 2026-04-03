@@ -65,7 +65,8 @@ public partial class RemoteControlViewModel : ObservableObject
 
     private static BitmapSource GenerateQr(string url)
     {
-        var data = new QRCodeGenerator().CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+        using var qrGenerator = new QRCodeGenerator();
+        var data = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
         var png = new PngByteQRCode(data).GetGraphic(8,
             new byte[] { 201, 168, 76 },   // gold
             new byte[] { 15, 17, 23 });    // dark bg
