@@ -45,15 +45,14 @@ public class DatabaseService
             .ToListAsync();
     }
 
-    public async Task<List<Song>> SearchSongsAsync(string query)
+    public async Task<List<Song>> SearchSongsAsync(string query, CancellationToken ct = default)
     {
         await using var db = new CantioDbContext();
-        var q = query.ToLower();
         return await db.Songs.AsNoTracking()
-            .Where(s => s.Title.ToLower().Contains(q))
+            .Where(s => s.Title.Contains(query))
             .OrderBy(s => s.Title)
             .Take(100)
-            .ToListAsync();
+            .ToListAsync(ct);
     }
 
     public async Task<Song?> GetSongWithVersesAsync(int songId)
