@@ -397,7 +397,8 @@ public class DatabaseService
         var toInsert = new List<(Song Song, string Psalm, string Akl)>();
         foreach (var rec in records)
         {
-            string title = $"{rec.Dzien} {rec.Cykl}";
+            string cykl = rec.Cykl?.Trim() ?? "";
+            string title = string.IsNullOrEmpty(cykl) ? rec.Dzien : $"{rec.Dzien} {cykl}";
             if (existing.Contains(title)) continue;
             maxNumber++;
             var song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };

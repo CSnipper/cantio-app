@@ -57,7 +57,25 @@ SzablonViewModel
 - `ClearOperatorSlide()` — `IsOperatorOverride=false`
 - `ProjectionView.xaml.cs` subskrybuje `PropertyChanged` na `IsOperatorOverride` i `IsBlank` → `SyncOperatorVisibility()`
 
-## Pułapki
+## Psalm mode — rozpoznawanie refrenu
+
+Prefiksy traktowane jako refren (`type = "c"`):
+- `Refren:` — zwykły refren psalmu
+- `Aklamacja:` — aklamacja (dodano v1.42); dotyczy też aklamacji postnych
+- `Albo:` w kolejnym bloku po refrenie → scalany w jeden slajd (oddzielony `\n\nAlbo:\n`)
+
+Kod w `DisplayViewModel` (~linia 695):
+```csharp
+bool isChorus = block.StartsWith("Refren:", ...) || block.StartsWith("Aklamacja:", ...);
+```
+
+## ImportViewModel — pułapki
+
+- **Wybór folderu OpenSong:** NIE używaj `CommonOpenFileDialog` (WindowsAPICodePack) — crashuje w release
+  Używaj `Microsoft.Win32.OpenFolderDialog` (v1.43+)
+- `BrowseXmlOrFolder` używa zwykłego `OpenFileDialog` (pliki, nie folder) — OK
+
+## DisplayViewModel — pułapki
 
 - `CurrentSlideIndex` zmiana wywołuje `_projection.SetSlide()` — nie rób tego ręcznie
 - `SetBlanked(true)` zapisuje pending slide, `SetBlanked(false)` go aplikuje
@@ -65,3 +83,13 @@ SzablonViewModel
 - `HandleKey` w DisplayViewModel obsługuje ←→ (slajdy) i ↑↓ (pieśni w zestawie)
 - `HandleKey` musi być wywoływany zanim sprawdzimy fokus list — blokuje go tylko aktywny TextBox/RichTextBox
 - `RelativeSource=AncestorType` w `MultiDataTrigger.Conditions` jest zawodne w WPF — używaj code-behind z DP i subskrypcją PropertyChanged
+
+## SzablonViewModel — komendy DB
+
+Dodane w v1.4+:
+- `BackupDatabaseCommand` — `SaveFileDialog` → `File.Copy`
+- `RestoreDatabaseCommand` → `File.Copy` + `RestartApp()`
+- `ClearDatabaseAsync` → `db.ClearAllDataAsync()` + restart
+- `ExportZipCommand` / `ImportZipCommand` — `System.IO.Compression.ZipFile`
+- `RunOnStartup` — rejestr `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
+- `ImportPsalmyCommand` — wywołuje `DatabaseService.ImportPsalmySeedAsync()`; blokuje się przez `IsImportingPsalmy`

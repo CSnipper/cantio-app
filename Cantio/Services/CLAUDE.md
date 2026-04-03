@@ -71,3 +71,30 @@ OSZ flow: `.osz` → `ZipFile` → `.osj` (szukaj pierwszego, nie tylko `service
 
 ### OpenSong — pliki bez rozszerzenia
 - OpenSong zapisuje pliki XML **bez rozszerzenia** — filtr w OpenFileDialog musi uwzględniać `*.*` lub `*` obok `*.xml`
+
+### OpenSong — wybór folderu (PUŁAPKA)
+- `CommonOpenFileDialog` z `Microsoft.WindowsAPICodePack` crashuje aplikację w release (działa w debug)
+- **Fix (v1.43):** używaj `Microsoft.Win32.OpenFolderDialog` — dostępne natywnie od .NET 8, bez zewnętrznych pakietów
+  ```csharp
+  var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "..." };
+  if (dlg.ShowDialog() == true) path = dlg.FolderName;
+  ```
+
+## RemoteControlServer — pułapki
+
+- `HttpListener` z `http://*:port/` wymaga admin lub rejestracji URL ACL — dla LAN serwera bez uprawnień używaj `TcpListener(IPAddress.Any, port)`
+- `WebSocket.CreateFromStream(stream, isServer: true, ...)` dostępne w .NET 10 bez dodatkowych paczek
+
+## Style WPF — zasoby w UserControl
+
+- Style `GoldBtn`, `OutlineBtn`, `DarkTextBox`, `TabBtn` są w `MainWindow.xaml` (nie `App.xaml`)
+- `StaticResource` w UserControl nie widzi zasobów z `MainWindow.Resources` podczas `InitializeComponent()` — kopiuj potrzebne style do `<UserControl.Resources>` nowego UserControl
+- `BoolToVis` i `HeaderFont` SĄ w `App.xaml` — dostępne wszędzie
+
+## ImportPsalmySeedAsync — zasady bulk insert
+
+- Psalmy responsoryjne importowane z wbudowanego zasobu `Assets/Data/psalmy.json.gz`
+- Tytuł = `dzien` gdy `cykl` jest pusty (uroczystości), `"{dzien} {cykl}"` gdy cykl niepusty
+- **Kolejność insert:** wszystkie `Song` najpierw → `SaveChangesAsync()` → potem wszystkie `Verse` → `SaveChangesAsync()`
+- Bez tego EF Core nie ma ID dla wierszy i FK insert się sypie
+- Deduplikacja po `(Title, CategoryId)` — pomiń jeśli już istnieje

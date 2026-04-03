@@ -385,7 +385,7 @@ public partial class SzablonViewModel : ObservableObject
         if (MessageBox.Show(LocalizationManager.Get("Msg.ClearDbConfirm"), "Cantio",
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
         await _db.ClearAllDataAsync();
-        Saved?.Invoke();
+        RestartApp();
     }
 
     [RelayCommand]
@@ -433,6 +433,31 @@ public partial class SzablonViewModel : ObservableObject
         Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
         Application.Current.Shutdown();
     }
+
+    [ObservableProperty] private bool _isImportingPsalmy = false;
+
+    [RelayCommand(CanExecute = nameof(CanImportPsalmy))]
+    private async Task ImportPsalmyAsync()
+    {
+        IsImportingPsalmy = true;
+        try
+        {
+            int count = await _db.ImportPsalmySeedAsync();
+            if (count == -1)
+                MessageBox.Show(
+                    LocalizationManager.Get("Msg.PsalmyCategoryMissing"),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+            else
+                MessageBox.Show(
+                    string.Format(LocalizationManager.Get("Msg.PsalmyImported"), count),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        finally { IsImportingPsalmy = false; }
+    }
+
+    private bool CanImportPsalmy() => !IsImportingPsalmy;
+
+    partial void OnIsImportingPsalmyChanged(bool value) => ImportPsalmyCommand.NotifyCanExecuteChanged();
 
     public string FontSizeLabel => FontAutoFit
         ? (Application.Current.TryFindResource("Settings.FontSizeMin") as string ?? "Rozmiar minimalny")
