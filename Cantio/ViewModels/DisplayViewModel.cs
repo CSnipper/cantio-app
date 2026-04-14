@@ -115,6 +115,13 @@ public partial class DisplayViewModel : ObservableObject
             // Psalm verse / prywatna zwrotka: pokaż w podglądzie operatora, projektor trzyma poprzedni slajd
             _projection.SetOperatorSlide(slide);
         }
+        else if (slide.HasPreviewOnlyContent)
+        {
+            // Tag "tylko podgląd": projektor widzi tekst bez tagu, operator widzi pełny tekst
+            ProjectedSlide = slide;
+            _projection.SetSlide(slide);
+            _projection.SetOperatorOverride(slide.OperatorText, slide.OperatorFontSize);
+        }
         else
         {
             _projection.ClearOperatorSlide();
@@ -1150,7 +1157,12 @@ public partial class DisplayViewModel : ObservableObject
     public void RebuildSlides()
     {
         int prevIndex = CurrentSlideIndex;
-        var settings = BuildLayoutSettings();
+        var dbSettings = _db.GetSettings();
+        var settings = BuildLayoutSettings(dbSettings);
+        var previewOnlyTagNames = dbSettings.TextTags
+            .Where(t => t.PreviewOnly && !string.IsNullOrEmpty(t.Name))
+            .Select(t => t.Name.ToLower())
+            .ToList();
         if (IsPsalmMode)
         {
             // Zwrotki psalmu: ForceSingleSlide + auto-fit (cały tekst na jednym slajdzie)
@@ -1227,7 +1239,26 @@ public partial class DisplayViewModel : ObservableObject
                 }
                 var isPrivate = Verses[vi].Type == "p";
                 var s = isPrivate ? privateSettings : settings;
-                var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
+                var originalText = Verses[vi].Text;
+                var strippedText = previewOnlyTagNames.Count > 0
+                    ? SlideLayoutService.StripPreviewOnlyTags(originalText, previewOnlyTagNames)
+                    : originalText;
+                bool hasPreviewOnly = strippedText != originalText && !string.IsNullOrWhiteSpace(strippedText);
+                var textToSplit = hasPreviewOnly ? strippedText : originalText;
+                var operatorFontSize = 0.0;
+                if (hasPreviewOnly)
+                {
+                    var opSettings = new SlideLayoutSettings
+                    {
+                        FontFamily = s.FontFamily, FontBold = s.FontBold,
+                        FontSize = s.FontSize, LineHeightMultiplier = s.LineHeightMultiplier,
+                        SlideWidth = s.SlideWidth, SlideHeight = s.SlideHeight,
+                        MarginH = s.MarginH, MarginV = s.MarginV,
+                        ForceSingleSlide = true, AutoFit = s.AutoFit
+                    };
+                    operatorFontSize = SlideLayoutService.ComputeFitFontSize(originalText, opSettings);
+                }
+                var parts = SlideLayoutService.SplitVerse(textToSplit, s);
                 for (int pi = 0; pi < parts.Count; pi++)
                 {
                     var slide = new Slide
@@ -1237,6 +1268,11 @@ public partial class DisplayViewModel : ObservableObject
                         VerseIndex = vi,
                         PartIndex = pi
                     };
+                    if (hasPreviewOnly)
+                    {
+                        slide.OperatorText = originalText;
+                        slide.OperatorFontSize = operatorFontSize;
+                    }
                     allSlides.Add(slide);
                     if (isPrivate) privateSlides.Add(slide);
                     else normalSlides.Add(slide);
@@ -1377,9 +1413,9 @@ public partial class DisplayViewModel : ObservableObject
         PinnedSetlists = new ObservableCollection<Setlist>(list);
     }
 
-    private SlideLayoutSettings BuildLayoutSettings()
+    private SlideLayoutSettings BuildLayoutSettings(DisplaySettings? s = null)
     {
-        var s = _db.GetSettings();
+        s ??= _db.GetSettings();
         return new SlideLayoutSettings
         {
             FontFamily = s.FontFamily,

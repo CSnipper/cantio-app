@@ -183,6 +183,7 @@
     <sys:String x:Key="Settings.Tags">Etiquetas de formato</sys:String>
     <sys:String x:Key="Settings.TagName">Nombre de etiqueta</sys:String>
     <sys:String x:Key="Settings.TagColorHeader">Color</sys:String>
+    <sys:String x:Key="Settings.TagPreviewOnlyTip">Solo vista previa — el contenido de la etiqueta solo es visible en la ventana del operador, no en el proyector</sys:String>
     <sys:String x:Key="Settings.TagShortcutTip">Atajo de teclado</sys:String>
     <sys:String x:Key="Settings.TagShortcutInput">Atajo</sys:String>
     <sys:String x:Key="Settings.TagAdd">+ Añadir etiqueta</sys:String>

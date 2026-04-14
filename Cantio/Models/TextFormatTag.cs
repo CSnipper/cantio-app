@@ -10,4 +10,5 @@ public partial class TextFormatTag : ObservableObject
     [ObservableProperty] bool _italic;
     [ObservableProperty] bool _underline;
     [ObservableProperty] string _shortcutKey = string.Empty; // np. "Z" → Ctrl+Z
+    [ObservableProperty] bool _previewOnly; // zawartość tagu widoczna tylko w podglądzie operatora
 }

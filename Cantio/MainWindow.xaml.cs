@@ -352,6 +352,9 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SetlistSearchPopup_Opened(object sender, EventArgs e)
+        => SetlistSearchBox.Focus();
+
     // Nawigacja strzałką w dół z pola wyszukiwania na listę
 
     private void SearchBoxShow_PreviewKeyDown(object sender, KeyEventArgs e)

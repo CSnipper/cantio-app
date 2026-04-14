@@ -84,6 +84,18 @@ bool isChorus = block.StartsWith("Refren:", ...) || block.StartsWith("Aklamacja:
 - `HandleKey` musi być wywoływany zanim sprawdzimy fokus list — blokuje go tylko aktywny TextBox/RichTextBox
 - `RelativeSource=AncestorType` w `MultiDataTrigger.Conditions` jest zawodne w WPF — używaj code-behind z DP i subskrypcją PropertyChanged
 
+## Popup focus
+Żeby TextBox w Popup dostał focus przy otwarciu: dodaj `Opened="Handler"` do Popup, w handler wywołaj `textBox.Focus()`.
+
+## Preview-only tag (v1.45+)
+`TextFormatTag.PreviewOnly=true` → treść `{tag}...{/tag}` wystrippowana z tekstu projektora, widoczna tylko w podglądzie operatora.
+- `SlideLayoutService.StripPreviewOnlyTags(text, names)` — stripuje bloki preview-only
+- `Slide.OperatorText` / `Slide.OperatorFontSize` / `HasPreviewOnlyContent` — ustawiane w `RebuildSlides`
+- `OnCurrentSlideIndexChanged`: gdy `HasPreviewOnlyContent` → `SetSlide` (stripped) + `SetOperatorOverride` (full); projektor i operator działają równocześnie (inaczej niż psalm mode gdzie projektor trzyma poprzedni slajd)
+
+## TextFormatTag XAML
+Dodając pole do `TextFormatTag` — zaktualizuj DWIE gridy w MainWindow.xaml: nagłówek (tuż przed `ItemsControl`) i `DataTemplate` w `ItemsControl` — mają różne definicje kolumn.
+
 ## SzablonViewModel — komendy DB
 
 Dodane w v1.4+:

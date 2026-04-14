@@ -54,6 +54,13 @@ public partial class ProjectionViewModel : ObservableObject
         IsOperatorOverride = true;
     }
 
+    public void SetOperatorOverride(string text, double fontSize)
+    {
+        OperatorSlideText = text;
+        OperatorFontSize = fontSize;
+        IsOperatorOverride = true;
+    }
+
     public void ClearOperatorSlide()
     {
         IsOperatorOverride = false;

@@ -183,6 +183,7 @@
     <sys:String x:Key="Settings.Tags">Format tags</sys:String>
     <sys:String x:Key="Settings.TagName">Tag name</sys:String>
     <sys:String x:Key="Settings.TagColorHeader">Color</sys:String>
+    <sys:String x:Key="Settings.TagPreviewOnlyTip">Preview only — tag content visible in operator window only, not on projector</sys:String>
     <sys:String x:Key="Settings.TagShortcutTip">Keyboard shortcut</sys:String>
     <sys:String x:Key="Settings.TagShortcutInput">Shortcut</sys:String>
     <sys:String x:Key="Settings.TagAdd">+ Add tag</sys:String>

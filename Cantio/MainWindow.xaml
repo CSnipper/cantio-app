@@ -1622,11 +1622,13 @@
 
                             <!-- Popup wyszukiwania zestawów -->
                             <Popup Grid.Row="0"
+                                   x:Name="SetlistSearchPopup"
                                    IsOpen="{Binding IsSetlistSearchOpen, Mode=TwoWay}"
                                    PlacementTarget="{Binding ElementName=BtnOpenSetlist}"
                                    Placement="Bottom"
                                    StaysOpen="False"
-                                   AllowsTransparency="True">
+                                   AllowsTransparency="True"
+                                   Opened="SetlistSearchPopup_Opened">
                                 <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
                                         Width="340" MaxHeight="400">
                                     <Grid Margin="8">
@@ -1635,6 +1637,7 @@
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
                                         <TextBox Grid.Row="0"
+                                                 x:Name="SetlistSearchBox"
                                                  Style="{StaticResource DarkTextBox}"
                                                  Text="{Binding SetlistSearchText, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="15" Padding="8,6" Margin="0,0,0,6"/>
@@ -2462,6 +2465,7 @@
                                     <ColumnDefinition Width="36"/>
                                     <ColumnDefinition Width="36"/>
                                     <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="36"/>
                                     <ColumnDefinition Width="12"/>
                                     <ColumnDefinition Width="50"/>
                                     <ColumnDefinition Width="36"/>
@@ -2471,7 +2475,9 @@
                                 <TextBlock Grid.Column="2" Text="B" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
                                 <TextBlock Grid.Column="3" Text="I" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
                                 <TextBlock Grid.Column="4" Text="U" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
-                                <TextBlock Grid.Column="6" Text="Ctrl+" Foreground="#555f7a" FontSize="13"
+                                <TextBlock Grid.Column="5" Text="P" Foreground="#555f7a" FontSize="13" TextAlignment="Center"
+                                           ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
+                                <TextBlock Grid.Column="7" Text="Ctrl+" Foreground="#555f7a" FontSize="13"
                                            ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
                             </Grid>
 
@@ -2484,6 +2490,7 @@
                                                 <ColumnDefinition Width="6"/>
                                                 <ColumnDefinition Width="36"/>
                                                 <ColumnDefinition Width="6"/>
+                                                <ColumnDefinition Width="30"/>
                                                 <ColumnDefinition Width="30"/>
                                                 <ColumnDefinition Width="30"/>
                                                 <ColumnDefinition Width="30"/>
@@ -2524,14 +2531,18 @@
                                             <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
                                                       Foreground="#e8eaf0"/>
-                                            <TextBox Grid.Column="8"
+                                            <CheckBox Grid.Column="7" IsChecked="{Binding PreviewOnly}"
+                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                      Foreground="#e8eaf0"
+                                                      ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
+                                            <TextBox Grid.Column="9"
                                                      Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource DarkTextBox}"
                                                      FontFamily="Consolas" FontSize="14" Padding="4,4"
                                                      TextAlignment="Center"
                                                      ToolTip="{DynamicResource Settings.TagShortcutInput}"
                                                      helpers:KeyCaptureHelper.IsEnabled="True"/>
-                                            <Button Grid.Column="10" Content="&#x2715;" Width="30" Height="30"
+                                            <Button Grid.Column="11" Content="&#x2715;" Width="30" Height="30"
                                                     Style="{StaticResource RedBtn}"
                                                     Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"
