@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Cantio.ViewModels;
 
@@ -110,14 +111,14 @@ public partial class DisplayViewModel : ObservableObject
             _projection.SetImageSlide(slide.ImagePath!);
             return;
         }
-        if ((IsPsalmMode && slide.VerseType != "c") || slide.VerseType == "p")
+        if ((IsPsalmMode && slide.VerseType != "c") || slide.VerseType == "p" || slide.IsPreviewOnlySlide)
         {
-            // Psalm verse / prywatna zwrotka: pokaż w podglądzie operatora, projektor trzyma poprzedni slajd
+            // Psalm verse / prywatna zwrotka / pełna preview-only: operator widzi treść, projektor trzyma poprzedni slajd
             _projection.SetOperatorSlide(slide);
         }
         else if (slide.HasPreviewOnlyContent)
         {
-            // Tag "tylko podgląd": projektor widzi tekst bez tagu, operator widzi pełny tekst
+            // Częściowa preview-only: projektor widzi stripped tekst, operator widzi hint
             ProjectedSlide = slide;
             _projection.SetSlide(slide);
             _projection.SetOperatorOverride(slide.OperatorText, slide.OperatorFontSize);
@@ -278,6 +279,14 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<EditableVerse> _editableVerses = [];
 
     [RelayCommand]
+    private async Task OpenFullEditorFromSetlist(SetlistItem item)
+    {
+        if (item.SongId == null) return;
+        var song = await _db.GetSongWithVersesAsync(item.SongId.Value);
+        if (song != null) await EditSongAsync(song);
+    }
+
+    [RelayCommand]
     private async Task OpenInlineEditorAsync(SetlistItem item)
     {
         if (!item.SongId.HasValue) return;
@@ -420,8 +429,34 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task DeleteCategoryAsync(CategoryEditorItem item)
     {
-        if (!Confirm($"Usunąć kategorię \"{item.Name}\"?\nPieśni pozostaną bez kategorii.")) return;
-        await _db.DeleteCategoryAsync(item.Id);
+        int songCount = await _db.CountSongsInCategoryAsync(item.Id);
+        string msg = songCount > 0
+            ? $"Usunąć kategorię \"{item.Name}\"?\n\n" +
+              $"Zawiera {songCount} pieśni.\n\n" +
+              "Tak — usuń kategorię RAZEM z pieśniami\n" +
+              "Nie — usuń tylko kategorię (pieśni pozostaną bez kategorii)\n" +
+              "Anuluj — rezygnuj"
+            : $"Usunąć kategorię \"{item.Name}\"?";
+
+        var result = MessageBox.Show(msg, "Usuń kategorię",
+            songCount > 0 ? MessageBoxButton.YesNoCancel : MessageBoxButton.OKCancel,
+            MessageBoxImage.Warning);
+
+        if (songCount > 0)
+        {
+            if (result == MessageBoxResult.Yes)
+                await _db.DeleteCategoryWithSongsAsync(item.Id);
+            else if (result == MessageBoxResult.No)
+                await _db.DeleteCategoryAsync(item.Id);
+            else
+                return;
+        }
+        else
+        {
+            if (result != MessageBoxResult.OK) return;
+            await _db.DeleteCategoryAsync(item.Id);
+        }
+
         await ReloadCategoriesForEditorAsync();
     }
 
@@ -962,6 +997,39 @@ public partial class DisplayViewModel : ObservableObject
     private bool CanTogglePin() => _loadedSetlistId > 0;
 
     [RelayCommand]
+    private async Task PinNextWeek()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        for (int i = 0; i < 7; i++)
+        {
+            var date = today.AddDays(i);
+            var day = LiturgicalCalendarService.GetDay(date);
+            await _db.EnsureGroupAsync(day.Group);
+            var existing = await _db.GetSetlistByNameAndGroupAsync(day.SetlistName, day.Group);
+            if (existing == null)
+            {
+                var newSetlist = new Setlist { Name = day.SetlistName, Group = day.Group, IsPinned = true };
+                await _db.SaveSetlistAsync(newSetlist);
+            }
+            else if (!existing.IsPinned)
+            {
+                existing.IsPinned = true;
+                await _db.SaveSetlistAsync(existing);
+            }
+        }
+        await LoadPinnedSetlistsAsync();
+        await LoadSetlistGroupsAsync();
+    }
+
+    [RelayCommand]
+    private async Task PinSetlistFromSearch(Setlist setlist)
+    {
+        setlist.IsPinned = true;
+        await _db.SaveSetlistAsync(setlist);
+        await LoadPinnedSetlistsAsync();
+    }
+
+    [RelayCommand]
     private async Task LoadPinnedSetlistAsync(Setlist setlist)
     {
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
@@ -1074,6 +1142,74 @@ public partial class DisplayViewModel : ObservableObject
         // Home always goes to first slide (not configurable)
         if (key == Key.Home && _slides.Count > 0)
         { GoToSlide(0); return; }
+
+        // Klawisze 1–0: skok do N-tej zwrotki
+        int digit = key switch {
+            Key.D1 or Key.NumPad1 => 1,
+            Key.D2 or Key.NumPad2 => 2,
+            Key.D3 or Key.NumPad3 => 3,
+            Key.D4 or Key.NumPad4 => 4,
+            Key.D5 or Key.NumPad5 => 5,
+            Key.D6 or Key.NumPad6 => 6,
+            Key.D7 or Key.NumPad7 => 7,
+            Key.D8 or Key.NumPad8 => 8,
+            Key.D9 or Key.NumPad9 => 9,
+            Key.D0 or Key.NumPad0 => 0,
+            _ => -1
+        };
+        if (digit >= 0) HandleNumericKey(digit);
+    }
+
+    private DispatcherTimer? _slideJumpTimer;
+    private int _pendingJumpDigit = -1;
+
+    public void HandleNumericKey(int digit)
+    {
+        if (_slides.Count > 10 && (digit == 1 || digit == 2))
+        {
+            if (_pendingJumpDigit >= 0)
+            {
+                int target = _pendingJumpDigit * 10 + digit;
+                CancelPendingJump();
+                JumpToSlideByNumber(target);
+            }
+            else
+            {
+                _pendingJumpDigit = digit;
+                _slideJumpTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                _slideJumpTimer.Tick += (_, _) => { CancelPendingJump(); JumpToSlideByNumber(digit); };
+                _slideJumpTimer.Start();
+            }
+        }
+        else
+        {
+            int target = digit == 0 ? 10 : digit;
+            CancelPendingJump();
+            JumpToSlideByNumber(target);
+        }
+    }
+
+    private void CancelPendingJump()
+    {
+        _slideJumpTimer?.Stop();
+        _slideJumpTimer = null;
+        _pendingJumpDigit = -1;
+    }
+
+    private void JumpToSlideByNumber(int number)
+    {
+        // Zbierz kolejność VerseIndex tylko dla nie-refrenów, zachowując kolejność wystąpień
+        var verseIndices = _slides
+            .Where(s => !s.IsChorusSlide)
+            .Select(s => s.VerseIndex)
+            .Distinct()
+            .ToList();
+
+        if (number < 1 || number > verseIndices.Count) return;
+        int targetVerseIndex = verseIndices[number - 1];
+        int idx = _slides.FindIndex(s => s.VerseIndex == targetVerseIndex);
+        if (idx >= 0)
+            GoToSlide(idx);
     }
 
     // Helpers
@@ -1243,11 +1379,13 @@ public partial class DisplayViewModel : ObservableObject
                 var strippedText = previewOnlyTagNames.Count > 0
                     ? SlideLayoutService.StripPreviewOnlyTags(originalText, previewOnlyTagNames)
                     : originalText;
-                bool hasPreviewOnly = strippedText != originalText && !string.IsNullOrWhiteSpace(strippedText);
-                var textToSplit = hasPreviewOnly ? strippedText : originalText;
-                var operatorFontSize = 0.0;
-                if (hasPreviewOnly)
+                bool hasPreviewOnly = strippedText != originalText;
+
+                if (hasPreviewOnly && string.IsNullOrWhiteSpace(strippedText))
                 {
+                    // Cała zwrotka jest preview-only: jeden slajd z treścią (bez markerów),
+                    // wycieniony w liście, projektor trzyma poprzedni slajd (jak psalm)
+                    var content = SlideLayoutService.ExtractPreviewOnlyContent(originalText, previewOnlyTagNames);
                     var opSettings = new SlideLayoutSettings
                     {
                         FontFamily = s.FontFamily, FontBold = s.FontBold,
@@ -1256,33 +1394,66 @@ public partial class DisplayViewModel : ObservableObject
                         MarginH = s.MarginH, MarginV = s.MarginV,
                         ForceSingleSlide = true, AutoFit = s.AutoFit
                     };
-                    operatorFontSize = SlideLayoutService.ComputeFitFontSize(originalText, opSettings);
+                    allSlides.Add(new Slide
+                    {
+                        Text = content,
+                        FontSize = SlideLayoutService.ComputeFitFontSize(content, opSettings),
+                        VerseIndex = vi, PartIndex = 0,
+                        OperatorText = content,
+                        IsPreviewOnlySlide = true
+                    });
                 }
-                var parts = SlideLayoutService.SplitVerse(textToSplit, s);
-                for (int pi = 0; pi < parts.Count; pi++)
+                else if (hasPreviewOnly)
                 {
-                    var slide = new Slide
+                    // Częściowa preview-only: projektor widzi stripped, operator dostaje wyekstrahowany hint
+                    var hint = SlideLayoutService.ExtractPreviewOnlyContent(originalText, previewOnlyTagNames);
+                    var opSettings = new SlideLayoutSettings
                     {
-                        Text = parts[pi],
-                        FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
-                        VerseIndex = vi,
-                        PartIndex = pi
+                        FontFamily = s.FontFamily, FontBold = s.FontBold,
+                        FontSize = s.FontSize, LineHeightMultiplier = s.LineHeightMultiplier,
+                        SlideWidth = s.SlideWidth, SlideHeight = s.SlideHeight,
+                        MarginH = s.MarginH, MarginV = s.MarginV,
+                        ForceSingleSlide = true, AutoFit = s.AutoFit
                     };
-                    if (hasPreviewOnly)
+                    var hintFontSize = SlideLayoutService.ComputeFitFontSize(hint, opSettings);
+                    var parts = SlideLayoutService.SplitVerse(strippedText, s);
+                    for (int pi = 0; pi < parts.Count; pi++)
                     {
-                        slide.OperatorText = originalText;
-                        slide.OperatorFontSize = operatorFontSize;
+                        var slide = new Slide
+                        {
+                            Text = parts[pi],
+                            FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                            VerseIndex = vi, PartIndex = pi,
+                            OperatorText = hint, OperatorFontSize = hintFontSize
+                        };
+                        allSlides.Add(slide);
+                        if (isPrivate) privateSlides.Add(slide);
+                        else normalSlides.Add(slide);
                     }
-                    allSlides.Add(slide);
-                    if (isPrivate) privateSlides.Add(slide);
-                    else normalSlides.Add(slide);
+                }
+                else
+                {
+                    var parts = SlideLayoutService.SplitVerse(originalText, s);
+                    for (int pi = 0; pi < parts.Count; pi++)
+                    {
+                        var slide = new Slide
+                        {
+                            Text = parts[pi],
+                            FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                            VerseIndex = vi, PartIndex = pi
+                        };
+                        allSlides.Add(slide);
+                        if (isPrivate) privateSlides.Add(slide);
+                        else normalSlides.Add(slide);
+                    }
                 }
             }
-            // Normalizuj czcionkę w każdej grupie osobno (pomijaj slajdy-obrazki)
-            if (normalSlides.Count(s => !s.IsImageSlide) > 1)
+            // Normalizuj czcionkę w każdej grupie osobno (pomijaj obrazki i slajdy preview-only)
+            var normalSlidesForFont = normalSlides.Where(s => !s.IsImageSlide && !s.IsPreviewOnlySlide).ToList();
+            if (normalSlidesForFont.Count > 1)
             {
-                double u = normalSlides.Where(s => !s.IsImageSlide).Min(s => s.FontSize);
-                foreach (var sl in normalSlides.Where(s => !s.IsImageSlide)) sl.FontSize = u;
+                double u = normalSlidesForFont.Min(s => s.FontSize);
+                foreach (var sl in normalSlidesForFont) sl.FontSize = u;
             }
             if (privateSlides.Count > 1)
             {

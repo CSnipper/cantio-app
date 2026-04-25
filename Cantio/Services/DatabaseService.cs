@@ -34,6 +34,26 @@ public class DatabaseService
         if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
     }
 
+    public async Task DeleteCategoryWithSongsAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        var songIds = await db.Songs.Where(s => s.CategoryId == id).Select(s => s.Id).ToListAsync();
+        if (songIds.Count > 0)
+        {
+            db.SetlistItems.RemoveRange(db.SetlistItems.Where(i => i.SongId.HasValue && songIds.Contains(i.SongId.Value)));
+            db.Songs.RemoveRange(db.Songs.Where(s => songIds.Contains(s.Id)));
+        }
+        var cat = await db.Categories.FindAsync(id);
+        if (cat != null) db.Categories.Remove(cat);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<int> CountSongsInCategoryAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.CountAsync(s => s.CategoryId == id);
+    }
+
     // Pieśni
 
     public async Task<List<Song>> GetSongsByCategoryAsync(int categoryId)
@@ -47,12 +67,21 @@ public class DatabaseService
 
     public async Task<List<Song>> SearchSongsAsync(string query, CancellationToken ct = default)
     {
+        // Usuń znaki przestankowe, zostaw litery/cyfry/spacje
+        var sb = new StringBuilder();
+        foreach (var c in query)
+            if (char.IsLetterOrDigit(c) || c == ' ') sb.Append(c);
+        var normalized = sb.ToString().Trim();
+        if (string.IsNullOrWhiteSpace(normalized)) return [];
+
+        var words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
         await using var db = new CantioDbContext();
-        return await db.Songs.AsNoTracking()
-            .Where(s => s.Title.Contains(query))
-            .OrderBy(s => s.Title)
-            .Take(100)
-            .ToListAsync(ct);
+        var q = db.Songs.AsNoTracking().AsQueryable();
+        foreach (var word in words)
+            q = q.Where(s => EF.Functions.Like(s.Title, $"%{word}%"));
+
+        return await q.OrderBy(s => s.Title).Take(100).ToListAsync(ct);
     }
 
     public async Task<Song?> GetSongWithVersesAsync(int songId)
@@ -92,6 +121,84 @@ public class DatabaseService
             .Include(s => s.Category)
             .OrderBy(s => s.Title)
             .ToListAsync();
+    }
+
+    // Przyjmuje pieśni z Android pilota i wstawia je do właściwych kategorii.
+    // Zwraca mapowanie localId → assignedId.
+    public async Task<List<(int localId, int assignedId)>> SyncPushSongsAsync(string rawJson)
+    {
+        using var doc = JsonDocument.Parse(rawJson);
+        var songsEl = doc.RootElement.GetProperty("songs");
+        var mapping = new List<(int localId, int assignedId)>();
+
+        await using var db = new CantioDbContext();
+
+        foreach (var songEl in songsEl.EnumerateArray())
+        {
+            var localId    = songEl.GetProperty("localId").GetInt32();
+            var title      = songEl.GetProperty("title").GetString() ?? "";
+            var author     = songEl.GetProperty("author").GetString() ?? "";
+            var categoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
+
+            // Sprawdź czy kategoria istnieje; fallback do pierwszej dostępnej
+            var categoryExists = categoryId > 0 &&
+                await db.Categories.AnyAsync(c => c.Id == categoryId);
+            if (!categoryExists)
+            {
+                var firstCat = await db.Categories.OrderBy(c => c.Number).FirstOrDefaultAsync();
+                categoryId = firstCat?.Id ?? 0;
+            }
+
+            // Upsert: szukaj po tytule w tej samej kategorii
+            var song = await db.Songs
+                .Include(s => s.Verses)
+                .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == categoryId);
+
+            if (song == null)
+            {
+                song = new Song { Title = title, Author = author, CategoryId = categoryId, Number = 0 };
+                db.Songs.Add(song);
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                song.Author = author;
+                var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
+                db.Verses.RemoveRange(oldVerses);
+                await db.SaveChangesAsync();
+            }
+
+            var partsEl = songEl.GetProperty("parts");
+            int pos = 0;
+            foreach (var partEl in partsEl.EnumerateArray())
+            {
+                db.Verses.Add(new Verse
+                {
+                    SongId   = song.Id,
+                    Position = pos++,
+                    Type     = partEl.GetProperty("type").GetString() ?? "v",
+                    Text     = partEl.GetProperty("text").GetString() ?? ""
+                });
+            }
+            await db.SaveChangesAsync();
+
+            mapping.Add((localId, song.Id));
+        }
+
+        return mapping;
+    }
+
+    public async Task<(int total, List<Song> items)> GetSongsForSyncAsync(int offset, int limit)
+    {
+        await using var db = new CantioDbContext();
+        var total = await db.Songs.CountAsync();
+        var items = await db.Songs.AsNoTracking()
+            .Include(s => s.Verses)
+            .OrderBy(s => s.Id)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+        return (total, items);
     }
 
     public async Task SaveSongAsync(Song song)
@@ -236,6 +343,30 @@ public class DatabaseService
         if (setlist.Id == 0) db.Setlists.Add(setlist);
         else db.Setlists.Update(setlist);
         await db.SaveChangesAsync();
+    }
+
+    public async Task<Setlist?> GetSetlistByNameAndGroupAsync(string name, string group)
+    {
+        await using var db = new CantioDbContext();
+        var nameLower  = name.ToLower();
+        var groupLower = group.ToLower();
+        return await db.Setlists.AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Name.ToLower() == nameLower &&
+                                      (s.Group != null ? s.Group.ToLower() : "") == groupLower);
+    }
+
+    public async Task EnsureGroupAsync(string group)
+    {
+        var csv = await GetSettingAsync("setlist_groups") ?? string.Empty;
+        var groups = csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(g => g.Trim())
+                        .Where(g => !string.IsNullOrEmpty(g))
+                        .ToList();
+        if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
+        {
+            groups.Add(group);
+            await SaveSettingAsync("setlist_groups", string.Join(",", groups));
+        }
     }
 
     public async Task<Setlist> SaveSetlistWithItemsAsync(Setlist setlist, List<SetlistItem> items)
@@ -442,26 +573,30 @@ public class DatabaseService
         await using var db = new CantioDbContext();
 
         var category = await db.Categories
-            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Name == "Psalmy responsoryjne");
         if (category == null) return -1;
 
-        // Pobierz istniejące tytuły jednym zapytaniem
-        var existing = await db.Songs
+        // Usuń stare psalmy (mogą mieć inny format klucza) — importujemy od nowa
+        var oldSongIds = await db.Songs
             .Where(s => s.CategoryId == category.Id)
-            .Select(s => s.Title)
-            .ToHashSetAsync();
+            .Select(s => s.Id)
+            .ToListAsync();
+        if (oldSongIds.Count > 0)
+        {
+            await db.SetlistItems.Where(i => i.SongId.HasValue && oldSongIds.Contains(i.SongId.Value)).ExecuteDeleteAsync();
+            await db.Verses.Where(v => oldSongIds.Contains(v.SongId)).ExecuteDeleteAsync();
+            await db.Songs.Where(s => oldSongIds.Contains(s.Id)).ExecuteDeleteAsync();
+        }                               
 
-        int maxNumber = await db.Songs
-            .Where(s => s.CategoryId == category.Id)
-            .MaxAsync(s => (int?)s.Number) ?? 0;
+        var existing = new HashSet<string>(); // po wyczyszczeniu nic nie istnieje
+        int maxNumber = 0;
 
         // Faza 1: wstaw wszystkie nowe pieśni
         var toInsert = new List<(Song Song, string Psalm, string Akl)>();
         foreach (var rec in records)
         {
-            string cykl = rec.Cykl?.Trim() ?? "";
-            string title = string.IsNullOrEmpty(cykl) ? rec.Dzien : $"{rec.Dzien} {cykl}";
+            // Cykl jest już zawarty w polu dzien (np. "ZW 12 Nie A") — używamy dzien bezpośrednio
+            string title = rec.Dzien.Trim();
             if (existing.Contains(title)) continue;
             maxNumber++;
             var song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };
