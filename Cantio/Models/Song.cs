@@ -9,6 +9,7 @@ public class Song
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
     public string? PlayOrderJson { get; set; }
+    public double? FontSizeOverride { get; set; }
     public ICollection<Verse> Verses { get; set; } = [];
     public ICollection<SetlistItem> SetlistItems { get; set; } = [];
 }

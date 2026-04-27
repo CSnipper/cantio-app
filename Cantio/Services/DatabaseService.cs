@@ -385,7 +385,8 @@ public class DatabaseService
                 Position = item.Position,
                 Type = item.Type,
                 SelectedVerses = item.SelectedVerses,
-                ImagePath = item.ImagePath
+                ImagePath = item.ImagePath,
+                Notes = item.Notes
             }).ToList();
 
             db.SetlistItems.AddRange(newItems);
@@ -439,10 +440,29 @@ public class DatabaseService
             Position = item.Position,
             Type = item.Type,
             SelectedVerses = item.SelectedVerses,
-            ImagePath = item.ImagePath
+            ImagePath = item.ImagePath,
+            Notes = item.Notes
         }).ToList();
 
         db.SetlistItems.AddRange(newItems);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SaveSongFontSizeOverrideAsync(int songId, double? fontSize)
+    {
+        await using var db = new CantioDbContext();
+        var song = await db.Songs.FindAsync(songId);
+        if (song == null) return;
+        song.FontSizeOverride = fontSize;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SaveSetlistItemNotesAsync(int itemId, string? notes)
+    {
+        await using var db = new CantioDbContext();
+        var item = await db.SetlistItems.FindAsync(itemId);
+        if (item == null) return;
+        item.Notes = notes;
         await db.SaveChangesAsync();
     }
 

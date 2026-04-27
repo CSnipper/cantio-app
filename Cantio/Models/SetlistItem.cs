@@ -1,6 +1,8 @@
+using System.ComponentModel;
+
 namespace Cantio.Models;
 
-public class SetlistItem
+public class SetlistItem : INotifyPropertyChanged
 {
     public int Id { get; set; }
     public int Position { get; set; }
@@ -15,4 +17,13 @@ public class SetlistItem
 
     public string? ImagePath { get; set; }
     public bool IsImageItem => !string.IsNullOrEmpty(ImagePath);
+
+    private string? _notes;
+    public string? Notes
+    {
+        get => _notes;
+        set { _notes = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Notes))); }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 }

@@ -1789,6 +1789,10 @@
                                                     <ColumnDefinition Width="30"/>
                                                     <ColumnDefinition Width="30"/>
                                                 </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
                                                 <Button Grid.Column="0"
                                                         Command="{Binding DataContext.DisplaySetlistItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"
@@ -1908,6 +1912,24 @@
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                                           Text="{Binding Notes}"
+                                                           FontSize="10" Foreground="#7080a0"
+                                                           Margin="10,0,0,4" TextWrapping="Wrap">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Notes}" Value="">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Notes}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -2221,6 +2243,7 @@
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
@@ -2259,8 +2282,49 @@
                                         </Grid>
                                     </Border>
 
+                                    <!-- Uwagi + Czcionka -->
+                                    <Border Grid.Row="1" Padding="12,6" Background="#1e2535"
+                                            BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="8"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Uwagi -->
+                                            <Grid Grid.Column="0">
+                                                <TextBox Text="{Binding InlineEditorNotes, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontSize="13"/>
+                                                <TextBlock Text="Uwagi (np. zwrotki 1,5,8)…"
+                                                           Foreground="#556070" IsHitTestVisible="False"
+                                                           Margin="7,0,0,0" VerticalAlignment="Center" FontSize="13">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding InlineEditorNotes}" Value="">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
+                                            <!-- Czcionka min -->
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="Czcionka:" Foreground="#7080a0" FontSize="11"
+                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBox Text="{Binding InlineEditorFontSize, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontSize="13" Width="50"
+                                                         ToolTip="Minimalna czcionka dla tej pieśni (puste = globalna)"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
                                     <!-- Lista zwrotek do edycji -->
-                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
                                                   HorizontalScrollBarVisibility="Disabled">
                                         <ItemsControl ItemsSource="{Binding EditableVerses}"
                                                       Margin="8,4">
@@ -2328,7 +2392,7 @@
                                     </ScrollViewer>
 
                                     <!-- Przyciski Zapisz / Anuluj -->
-                                    <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                                    <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
                                             BorderThickness="0,1,0,0" Padding="8,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>

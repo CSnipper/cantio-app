@@ -41,50 +41,90 @@ public partial class AboutViewModel : ObservableObject
         DownloadUrl = string.Empty;
         try
         {
+            var result = await FetchLatestReleaseAsync();
+            if (result is not null)
+            {
+                LatestVersion  = result.Value.Version;
+                DownloadUrl    = result.Value.DownloadUrl;
+                ReleaseNotes   = result.Value.ReleaseNotes;
+                IsUpdateAvailable = true;
+            }
+        }
+        finally { IsCheckingUpdate = false; }
+    }
+
+    private bool _isPromptActive;
+
+    public async Task CheckAndPromptAsync()
+    {
+        if (_isPromptActive) return;
+        _isPromptActive = true;
+        try
+        {
+            var result = await FetchLatestReleaseAsync();
+            if (result is null) return;
+
+            LatestVersion     = result.Value.Version;
+            DownloadUrl       = result.Value.DownloadUrl;
+            ReleaseNotes      = result.Value.ReleaseNotes;
+            IsUpdateAvailable = true;
+
+            var choice = MessageBox.Show(
+                $"Dostępna jest nowa wersja Cantio {LatestVersion}.\n\nCzy chcesz ją teraz zainstalować?",
+                "Aktualizacja", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+            if (choice == MessageBoxResult.Yes)
+                await DownloadAndInstallAsync();
+        }
+        finally { _isPromptActive = false; }
+    }
+
+    private async Task<(string Version, string DownloadUrl, string ReleaseNotes)?> FetchLatestReleaseAsync()
+    {
+        try
+        {
             _http.DefaultRequestHeaders.UserAgent.Clear();
             _http.DefaultRequestHeaders.UserAgent.ParseAdd("Cantio/" + AppVersion);
             var json = await _http.GetFromJsonAsync<JsonElement>(
                 "https://api.github.com/repos/CSnipper/cantio-app/releases/latest");
-            LatestVersion = json.GetProperty("tag_name").GetString()?.TrimStart('v') ?? string.Empty;
-            IsUpdateAvailable = !string.IsNullOrEmpty(LatestVersion) && LatestVersion != AppVersion;
 
-            if (IsUpdateAvailable)
+            var latest = json.GetProperty("tag_name").GetString()?.TrimStart('v') ?? string.Empty;
+            if (string.IsNullOrEmpty(latest) || latest == AppVersion) return null;
+
+            var notes = json.TryGetProperty("body", out var body)
+                ? body.GetString() ?? string.Empty : string.Empty;
+
+            string downloadUrl = string.Empty;
+            if (json.TryGetProperty("assets", out var assets))
             {
-                ReleaseNotes = json.TryGetProperty("body", out var body)
-                    ? body.GetString() ?? string.Empty : string.Empty;
+                bool isX86 = RuntimeInformation.ProcessArchitecture == Architecture.X86;
+                string archSuffix = isX86 ? "-x86.exe" : ".exe";
 
-                if (json.TryGetProperty("assets", out var assets))
+                foreach (var asset in assets.EnumerateArray())
                 {
-                    bool isX86 = RuntimeInformation.ProcessArchitecture == Architecture.X86;
-                    string archSuffix = isX86 ? "-x86.exe" : ".exe";
-
-                    // Pierwsza próba: plik pasujący do architektury
+                    var name = asset.GetProperty("name").GetString() ?? "";
+                    if (name.EndsWith(archSuffix, StringComparison.OrdinalIgnoreCase)
+                        && (isX86 || !name.EndsWith("-x86.exe", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+                        break;
+                    }
+                }
+                if (string.IsNullOrEmpty(downloadUrl))
                     foreach (var asset in assets.EnumerateArray())
                     {
                         var name = asset.GetProperty("name").GetString() ?? "";
-                        if (name.EndsWith(archSuffix, StringComparison.OrdinalIgnoreCase)
-                            && (isX86 || !name.EndsWith("-x86.exe", StringComparison.OrdinalIgnoreCase)))
+                        if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            DownloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+                            downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
                             break;
                         }
                     }
-                    // Fallback: jakikolwiek .exe
-                    if (string.IsNullOrEmpty(DownloadUrl))
-                        foreach (var asset in assets.EnumerateArray())
-                        {
-                            var name = asset.GetProperty("name").GetString() ?? "";
-                            if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                            {
-                                DownloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
-                                break;
-                            }
-                        }
-                }
             }
+
+            return (latest, downloadUrl, notes);
         }
-        catch { /* brak internetu lub błąd API — nic nie pokazuj */ }
-        finally { IsCheckingUpdate = false; }
+        catch { return null; }
     }
 
     [RelayCommand(CanExecute = nameof(CanDownload))]

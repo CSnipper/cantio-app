@@ -276,6 +276,8 @@ public partial class DisplayViewModel : ObservableObject
     public bool CanOpenInlineEditor => !IsInlineEditorOpen;
 
     [ObservableProperty] private string _inlineEditorTitle = string.Empty;
+    [ObservableProperty] private string _inlineEditorNotes = string.Empty;
+    [ObservableProperty] private string _inlineEditorFontSize = string.Empty;
     [ObservableProperty] private ObservableCollection<EditableVerse> _editableVerses = [];
 
     [RelayCommand]
@@ -293,6 +295,10 @@ public partial class DisplayViewModel : ObservableObject
         var song = await _db.GetSongWithVersesAsync(item.SongId.Value);
         if (song == null) return;
         InlineEditorTitle = song.Title;
+        InlineEditorNotes = item.Notes ?? string.Empty;
+        InlineEditorFontSize = song.FontSizeOverride.HasValue
+            ? song.FontSizeOverride.Value.ToString("0")
+            : string.Empty;
         var verses = song.Verses.OrderBy(v => v.Position).ToList();
         var counts = new Dictionary<string, int>();
         EditableVerses = new ObservableCollection<EditableVerse>(
@@ -342,6 +348,23 @@ public partial class DisplayViewModel : ObservableObject
         {
             var refreshed = await _db.GetSongWithVersesAsync(SelectedSetlistItem.Song.Id);
             if (refreshed != null) SelectedSetlistItem.Song = refreshed;
+        }
+
+        if (SelectedSetlistItem != null)
+        {
+            var trimmed = InlineEditorNotes.Trim();
+            var notes = string.IsNullOrEmpty(trimmed) ? null : trimmed;
+            await _db.SaveSetlistItemNotesAsync(SelectedSetlistItem.Id, notes);
+            SelectedSetlistItem.Notes = notes;
+        }
+
+        if (SelectedSetlistItem?.SongId.HasValue == true)
+        {
+            double? fontOverride = double.TryParse(InlineEditorFontSize.Trim(), out var fs) && fs >= 8
+                ? fs : null;
+            await _db.SaveSongFontSizeOverrideAsync(SelectedSetlistItem.SongId.Value, fontOverride);
+            if (SelectedSong?.Id == SelectedSetlistItem.SongId.Value)
+                SelectedSong.FontSizeOverride = fontOverride;
         }
 
         IsInlineEditorOpen = false;
@@ -1165,21 +1188,18 @@ public partial class DisplayViewModel : ObservableObject
 
     public void HandleNumericKey(int digit)
     {
-        if (_slides.Count > 10 && (digit == 1 || digit == 2))
+        if (_pendingJumpDigit >= 0)
         {
-            if (_pendingJumpDigit >= 0)
-            {
-                int target = _pendingJumpDigit * 10 + digit;
-                CancelPendingJump();
-                JumpToSlideByNumber(target);
-            }
-            else
-            {
-                _pendingJumpDigit = digit;
-                _slideJumpTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-                _slideJumpTimer.Tick += (_, _) => { CancelPendingJump(); JumpToSlideByNumber(digit); };
-                _slideJumpTimer.Start();
-            }
+            int target = _pendingJumpDigit * 10 + digit;
+            CancelPendingJump();
+            JumpToSlideByNumber(target);
+        }
+        else if (_slides.Count > 10 && (digit == 1 || digit == 2))
+        {
+            _pendingJumpDigit = digit;
+            _slideJumpTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _slideJumpTimer.Tick += (_, _) => { CancelPendingJump(); JumpToSlideByNumber(digit); };
+            _slideJumpTimer.Start();
         }
         else
         {
@@ -1295,6 +1315,8 @@ public partial class DisplayViewModel : ObservableObject
         int prevIndex = CurrentSlideIndex;
         var dbSettings = _db.GetSettings();
         var settings = BuildLayoutSettings(dbSettings);
+        if (SelectedSong?.FontSizeOverride.HasValue == true)
+            settings.FontSize = SelectedSong.FontSizeOverride.Value;
         var previewOnlyTagNames = dbSettings.TextTags
             .Where(t => t.PreviewOnly && !string.IsNullOrEmpty(t.Name))
             .Select(t => t.Name.ToLower())

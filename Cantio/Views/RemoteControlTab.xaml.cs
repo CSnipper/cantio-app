@@ -17,3 +17,4 @@ public partial class RemoteControlTab : UserControl
             Clipboard.SetText(vm.LocalUrl);
     }
 }
+ 

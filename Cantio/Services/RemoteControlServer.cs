@@ -10,12 +10,24 @@ namespace Cantio.Services;
 public sealed class RemoteControlServer : IDisposable
 {
     private TcpListener? _listener;
+    private UdpClient? _udpDiscovery;
     private CancellationTokenSource _cts = new();
     private readonly List<WebSocket> _clients = [];
     private readonly Lock _lock = new();
 
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
+    public event EventHandler? BlankRequested;
+    public event Action<int>? GotoRequested;
+    public event Action<int>? GotoSongRequested;
+    public event Action<int>? SetlistAddRequested;      // songId
+    public event Action<int>? SetlistRemoveRequested;   // index
+    public event Action<int, int>? SetlistMoveRequested; // from, to
+    public event Action<WebSocket, int, int>? GetSongsRequested; // ws, offset, limit
+    public event Action<WebSocket, string>? SyncPushRequested;  // ws, raw json
+    public event Action? SetlistClearRequested;
+    public event Action<int[]>? SetlistRestoreRequested;        // songIds
+    public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
 
@@ -29,6 +41,7 @@ public sealed class RemoteControlServer : IDisposable
         _listener.Start();
         IsRunning = true;
         _ = AcceptLoopAsync(_cts.Token);
+        _ = UdpDiscoveryLoopAsync(_cts.Token);
     }
 
     public void Stop()
@@ -36,6 +49,8 @@ public sealed class RemoteControlServer : IDisposable
         _cts.Cancel();
         _listener?.Stop();
         _listener = null;
+        _udpDiscovery?.Dispose();
+        _udpDiscovery = null;
         IsRunning = false;
         List<WebSocket> toClose;
         lock (_lock) { toClose = [.. _clients]; _clients.Clear(); }
@@ -43,9 +58,41 @@ public sealed class RemoteControlServer : IDisposable
             try { ws.Dispose(); } catch { }
     }
 
-    public async Task BroadcastAsync(string text, string songTitle, int index, int total)
+    public async Task BroadcastAsync(
+        string text, string songTitle, int index, int total,
+        bool isBlank = false, IList<string>? slides = null)
     {
-        var json = JsonSerializer.Serialize(new { type = "slide", text, songTitle, index, total });
+        var json = JsonSerializer.Serialize(new
+        {
+            type = "slide", text, songTitle, index, total,
+            isBlank,
+            slides = slides ?? []
+        });
+        await BroadcastRawAsync(json);
+    }
+
+    public async Task BroadcastSetlistAsync(
+        IList<(int id, string title)> songs, int activeIndex)
+    {
+        var json = JsonSerializer.Serialize(new
+        {
+            type = "setlist",
+            activeIndex,
+            songs = songs.Select(s => new { id = s.id, title = s.title }).ToList()
+        });
+        await BroadcastRawAsync(json);
+    }
+
+    public Task SendToClientAsync(WebSocket ws, string json)
+    {
+        var bytes = Encoding.UTF8.GetBytes(json);
+        return ws.State == WebSocketState.Open
+            ? ws.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None)
+            : Task.CompletedTask;
+    }
+
+    private async Task BroadcastRawAsync(string json)
+    {
         var bytes = Encoding.UTF8.GetBytes(json);
         List<WebSocket> snapshot;
         lock (_lock) snapshot = [.. _clients];
@@ -53,6 +100,30 @@ public sealed class RemoteControlServer : IDisposable
             if (ws.State == WebSocketState.Open)
                 try { await ws.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None); }
                 catch { /* client disconnected */ }
+    }
+
+    // Nasłuchuje UDP broadcast na porcie Port+1, odpowiada na {"type":"discover"}
+    private async Task UdpDiscoveryLoopAsync(CancellationToken ct)
+    {
+        int discoveryPort = Port + 1;
+        try
+        {
+            _udpDiscovery = new UdpClient(discoveryPort);
+            var response = Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(new { type = "cantio", port = Port }));
+            while (!ct.IsCancellationRequested)
+            {
+                var result = await _udpDiscovery.ReceiveAsync(ct);
+                try
+                {
+                    var doc = JsonDocument.Parse(result.Buffer);
+                    if (doc.RootElement.GetProperty("type").GetString() == "discover")
+                        await _udpDiscovery.SendAsync(response, result.RemoteEndPoint, ct);
+                }
+                catch { }
+            }
+        }
+        catch { }
     }
 
     private async Task AcceptLoopAsync(CancellationToken ct)
@@ -84,6 +155,7 @@ public sealed class RemoteControlServer : IDisposable
                     isServer: true, subProtocol: null,
                     keepAliveInterval: TimeSpan.FromSeconds(30));
                 lock (_lock) _clients.Add(ws);
+                ClientConnected?.Invoke(ws);
                 try { await ReceiveLoopAsync(ws, ct); }
                 finally
                 {
@@ -178,6 +250,59 @@ public sealed class RemoteControlServer : IDisposable
                 var type = doc.RootElement.GetProperty("type").GetString();
                 if (type == "next") NextRequested?.Invoke(this, EventArgs.Empty);
                 else if (type == "prev") PrevRequested?.Invoke(this, EventArgs.Empty);
+                else if (type == "blank") BlankRequested?.Invoke(this, EventArgs.Empty);
+                else if (type == "goto")
+                {
+                    if (doc.RootElement.TryGetProperty("index", out var idxEl))
+                        GotoRequested?.Invoke(idxEl.GetInt32());
+                }
+                else if (type == "goto_song")
+                {
+                    if (doc.RootElement.TryGetProperty("index", out var idxEl))
+                        GotoSongRequested?.Invoke(idxEl.GetInt32());
+                }
+                else if (type == "setlist_add")
+                {
+                    if (doc.RootElement.TryGetProperty("songId", out var idEl))
+                        SetlistAddRequested?.Invoke(idEl.GetInt32());
+                }
+                else if (type == "setlist_remove")
+                {
+                    if (doc.RootElement.TryGetProperty("index", out var idxEl))
+                        SetlistRemoveRequested?.Invoke(idxEl.GetInt32());
+                }
+                else if (type == "setlist_move")
+                {
+                    if (doc.RootElement.TryGetProperty("from", out var fromEl) &&
+                        doc.RootElement.TryGetProperty("to", out var toEl))
+                        SetlistMoveRequested?.Invoke(fromEl.GetInt32(), toEl.GetInt32());
+                }
+                else if (type == "get_songs")
+                {
+                    int offset = doc.RootElement.TryGetProperty("offset", out var offEl) ? offEl.GetInt32() : 0;
+                    int limit  = doc.RootElement.TryGetProperty("limit",  out var limEl) ? limEl.GetInt32() : 100;
+                    GetSongsRequested?.Invoke(ws, offset, limit);
+                }
+                else if (type == "sync_push")
+                {
+                    var rawJson = Encoding.UTF8.GetString(ms.ToArray());
+                    SyncPushRequested?.Invoke(ws, rawJson);
+                }
+                else if (type == "setlist_clear")
+                {
+                    SetlistClearRequested?.Invoke();
+                }
+                else if (type == "setlist_restore")
+                {
+                    if (doc.RootElement.TryGetProperty("songs", out var songsEl))
+                    {
+                        var ids = songsEl.EnumerateArray()
+                            .Select(s => s.TryGetProperty("id", out var idEl) ? idEl.GetInt32() : 0)
+                            .Where(id => id > 0)
+                            .ToArray();
+                        SetlistRestoreRequested?.Invoke(ids);
+                    }
+                }
             }
             catch { }
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -20,11 +21,33 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
 
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
+    public event EventHandler? BlankRequested;
+    public event Action<int>? GotoRequested;
+    public event Action<int>? GotoSongRequested;
+    public event Action<int>? SetlistAddRequested;
+    public event Action<int>? SetlistRemoveRequested;
+    public event Action<int, int>? SetlistMoveRequested;
+    public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? SyncPushRequested;
+    public event Action? SetlistClearRequested;
+    public event Action<int[]>? SetlistRestoreRequested;
+    public event Action<System.Net.WebSockets.WebSocket>? ClientConnected;
 
     public RemoteControlViewModel()
     {
-        _server.NextRequested += (_, _) => NextRequested?.Invoke(this, EventArgs.Empty);
-        _server.PrevRequested += (_, _) => PrevRequested?.Invoke(this, EventArgs.Empty);
+        _server.NextRequested          += (_, _) => NextRequested?.Invoke(this, EventArgs.Empty);
+        _server.PrevRequested          += (_, _) => PrevRequested?.Invoke(this, EventArgs.Empty);
+        _server.BlankRequested         += (_, _) => BlankRequested?.Invoke(this, EventArgs.Empty);
+        _server.GotoRequested          += idx    => GotoRequested?.Invoke(idx);
+        _server.GotoSongRequested      += idx    => GotoSongRequested?.Invoke(idx);
+        _server.SetlistAddRequested    += id     => SetlistAddRequested?.Invoke(id);
+        _server.SetlistRemoveRequested += idx    => SetlistRemoveRequested?.Invoke(idx);
+        _server.SetlistMoveRequested   += (f, t) => SetlistMoveRequested?.Invoke(f, t);
+        _server.GetSongsRequested      += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
+        _server.SyncPushRequested       += (ws, json) => SyncPushRequested?.Invoke(ws, json);
+        _server.SetlistClearRequested   += ()         => SetlistClearRequested?.Invoke();
+        _server.SetlistRestoreRequested += ids        => SetlistRestoreRequested?.Invoke(ids);
+        _server.ClientConnected         += ws         => ClientConnected?.Invoke(ws);
     }
 
     [RelayCommand]
@@ -55,10 +78,20 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         }
     }
 
-    public Task BroadcastAsync(string text, string songTitle, int index, int total)
+    public Task BroadcastAsync(
+        string text, string songTitle, int index, int total,
+        bool isBlank = false, IList<string>? slides = null)
         => _server.IsRunning
-            ? _server.BroadcastAsync(text, songTitle, index, total)
+            ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides)
             : Task.CompletedTask;
+
+    public Task BroadcastSetlistAsync(IList<(int id, string title)> songs, int activeIndex)
+        => _server.IsRunning
+            ? _server.BroadcastSetlistAsync(songs, activeIndex)
+            : Task.CompletedTask;
+
+    public Task SendToClientAsync(System.Net.WebSockets.WebSocket ws, string json)
+        => _server.SendToClientAsync(ws, json);
 
     private static string GetLocalIp()
     {

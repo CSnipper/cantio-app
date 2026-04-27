@@ -20,17 +20,74 @@ public partial class SzablonViewModel : ObservableObject
 {
     private readonly DatabaseService _db;
     private readonly ProjectionViewModel _projection;
+    private readonly DisplayViewModel _display;
 
     public event Action? Saved;
 
-    public SzablonViewModel(DatabaseService db, ProjectionViewModel projection)
+    public ProjectionViewModel PreviewProjection { get; } = new();
+
+    public SzablonViewModel(DatabaseService db, ProjectionViewModel projection, DisplayViewModel display)
     {
         _db = db;
         _projection = projection;
+        _display = display;
         LoadScreens();
         _ = LoadAsync().ContinueWith(
             t => System.Diagnostics.Debug.WriteLine($"[SzablonViewModel] LoadAsync: {t.Exception}"),
             TaskContinuationOptions.OnlyOnFaulted);
+        PropertyChanged += (_, _) => SyncPreview();
+    }
+
+    private void SyncPreview()
+    {
+        var settings = new Services.DisplaySettings
+        {
+            FontFamily            = FontFamily,
+            FontSize              = FontSize,
+            FontBold              = FontBold,
+            LineHeightMultiplier  = LineHeightMultiplier,
+            TextAlign             = TextAlign,
+            TextColor             = TextColor,
+            ShadowEnabled         = ShadowEnabled,
+            ShadowBlur            = ShadowBlur,
+            ShadowDepth           = ShadowDepth,
+            ShadowOpacity         = ShadowOpacity,
+            BackgroundColor       = BackgroundColor,
+            BackgroundImagePath   = BackgroundImagePath,
+            BackgroundImageOpacity = BackgroundImageOpacity,
+            GradientEnabled       = GradientEnabled,
+            GradientType          = GradientType,
+            GradientColor1        = GradientColor1,
+            GradientColor2        = GradientColor2,
+            GradientAngle         = GradientAngle,
+            TextPosition          = TextPosition,
+            TextMarginH           = TextMarginH,
+            TextMarginV           = TextMarginV,
+            TextTags              = TextTags.ToList(),
+            FontAutoFit           = FontAutoFit,
+        };
+        PreviewProjection.ApplySettings(settings);
+
+        var w = _display.ProjectionScreenWidth  > 0 ? _display.ProjectionScreenWidth  : 1920;
+        var h = _display.ProjectionScreenHeight > 0 ? _display.ProjectionScreenHeight : 1080;
+        var layout = new Services.SlideLayoutSettings
+        {
+            FontFamily           = FontFamily,
+            FontBold             = FontBold,
+            FontSize             = FontSize,
+            LineHeightMultiplier = LineHeightMultiplier,
+            SlideWidth           = w,
+            SlideHeight          = h,
+            MarginH              = TextMarginH,
+            MarginV              = TextMarginV,
+            AutoFit              = FontAutoFit,
+        };
+        var parts = Services.SlideLayoutService.SplitVerse(PreviewText, layout);
+        var firstSlide = parts.Count > 0 ? parts[0] : PreviewText;
+        PreviewProjection.FontSize = FontAutoFit
+            ? Services.SlideLayoutService.ComputeFitFontSize(firstSlide, layout)
+            : FontSize;
+        PreviewProjection.SlideText = firstSlide;
     }
 
     // Lista czcionek systemowych

@@ -37,6 +37,8 @@ public class Slide
     public string OperatorText { get; set; } = string.Empty;
     public double OperatorFontSize { get; set; }
     public bool HasPreviewOnlyContent => !string.IsNullOrEmpty(OperatorText);
+    // Cała zwrotka jest preview-only (cały tekst w {tag}...{/tag}): projektor trzyma poprzedni slajd
+    public bool IsPreviewOnlySlide { get; set; }
 }
 
 public static class SlideLayoutService
@@ -44,6 +46,29 @@ public static class SlideLayoutService
     // Regex do usuwania tagów inline ({tag} i {/tag}) przed pomiarem szerokości
     private static readonly Regex _tagPattern = new(@"\{/?[a-zA-Z0-9]+\}", RegexOptions.Compiled);
     private static string StripTags(string text) => _tagPattern.Replace(text, string.Empty);
+
+    /// <summary>
+    /// Wyciąga treść ze wszystkich bloków {tagname}...{/tagname} dla tagów preview-only.
+    /// Zwraca samą treść (bez markerów), złączoną "\n" gdy bloków jest wiele.
+    /// </summary>
+    public static string ExtractPreviewOnlyContent(string text, IEnumerable<string> previewOnlyTagNames)
+    {
+        var parts = new List<string>();
+        foreach (var name in previewOnlyTagNames)
+        {
+            if (string.IsNullOrEmpty(name)) continue;
+            var escaped = Regex.Escape(name);
+            foreach (Match m in Regex.Matches(text,
+                $@"\{{{escaped}\}}(.*?)\{{/{escaped}\}}",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase))
+            {
+                var content = m.Groups[1].Value.Trim();
+                if (!string.IsNullOrEmpty(content))
+                    parts.Add(content);
+            }
+        }
+        return string.Join("\n", parts);
+    }
 
     /// <summary>
     /// Usuwa bloki {tagname}...{/tagname} dla tagów oznaczonych jako "tylko podgląd".

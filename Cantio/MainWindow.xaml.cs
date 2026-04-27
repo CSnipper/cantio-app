@@ -3,6 +3,10 @@ using Cantio.Services;
 using Cantio.ViewModels;
 using Cantio.Views;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -186,7 +190,7 @@ public partial class MainWindow : Window
 
         _importVm = new ImportViewModel(db);
 
-        _szablonVm = new SzablonViewModel(db, _vm.Projection);
+        _szablonVm = new SzablonViewModel(db, _vm.Projection, _vm);
         _szablonVm.Saved += () => _vm.RebuildSlides();
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
@@ -202,27 +206,198 @@ public partial class MainWindow : Window
         _remoteControl = new RemoteControlViewModel();
         PanePilot.DataContext = _remoteControl;
 
-        _remoteControl.NextRequested += (_, _) =>
+        _remoteControl.NextRequested  += (_, _) =>
             Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
-        _remoteControl.PrevRequested += (_, _) =>
+        _remoteControl.PrevRequested  += (_, _) =>
             Dispatcher.Invoke(() => _vm.PrevSlideCommand.Execute(null));
+        _remoteControl.BlankRequested += (_, _) =>
+            Dispatcher.Invoke(() => _vm.ToggleBlankCommand.Execute(null));
+        _remoteControl.GotoRequested += idx =>
+            Dispatcher.Invoke(() =>
+            {
+                if (idx >= 0 && idx < _vm.SlideList.Count)
+                    _vm.CurrentSlideIndex = idx;
+            });
+        _remoteControl.GotoSongRequested += idx =>
+            Dispatcher.Invoke(() =>
+            {
+                if (idx >= 0 && idx < _vm.SetlistItems.Count)
+                    _vm.DisplaySetlistItemCommand.Execute(_vm.SetlistItems[idx]);
+            });
+        _remoteControl.SetlistRemoveRequested += idx =>
+            Dispatcher.Invoke(() =>
+            {
+                if (idx >= 0 && idx < _vm.SetlistItems.Count)
+                    _vm.RemoveFromSetlistCommand.Execute(_vm.SetlistItems[idx]);
+            });
+        _remoteControl.SetlistMoveRequested += (from, to) =>
+            Dispatcher.Invoke(() =>
+            {
+                if (from >= 0 && to >= 0 &&
+                    from < _vm.SetlistItems.Count && to < _vm.SetlistItems.Count &&
+                    from != to)
+                    _vm.SetlistItems.Move(from, to);
+            });
+        _remoteControl.SetlistAddRequested += songId =>
+            _ = Dispatcher.InvokeAsync(async () =>
+            {
+                var song = await db.GetSongWithVersesAsync(songId);
+                if (song != null) _vm.AddToSetlistCommand.Execute(song);
+            });
+        _remoteControl.SetlistClearRequested += () =>
+            _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
+
+        _remoteControl.SetlistRestoreRequested += songIds =>
+            _ = Dispatcher.InvokeAsync(async () =>
+            {
+                _vm.ClearSetlistCommand.Execute(null);
+                foreach (var songId in songIds)
+                {
+                    var song = await db.GetSongWithVersesAsync(songId);
+                    if (song != null) _vm.AddToSetlistCommand.Execute(song);
+                }
+            });
+
+        _remoteControl.SyncPushRequested += async (ws, rawJson) =>
+        {
+            try
+            {
+                var mapping = await db.SyncPushSongsAsync(rawJson);
+                var ackJson = JsonSerializer.Serialize(new
+                {
+                    type    = "sync_push_ack",
+                    mapping = mapping.Select(m => new { localId = m.localId, assignedId = m.assignedId })
+                });
+                await _remoteControl.SendToClientAsync(ws, ackJson);
+            }
+            catch { }
+        };
+        _remoteControl.GetSongsRequested += async (ws, offset, limit) =>
+        {
+            try
+            {
+                var (total, items) = await db.GetSongsForSyncAsync(offset, limit);
+                var json = JsonSerializer.Serialize(new
+                {
+                    type = "songs_data",
+                    offset,
+                    total,
+                    items = items.Select(s => new
+                    {
+                        id         = s.Id,
+                        title      = s.Title,
+                        number     = s.Number,
+                        author     = s.Author ?? "",
+                        categoryId = s.CategoryId,
+                        parts      = s.Verses
+                            .OrderBy(v => v.Position)
+                            .Select(v => new { type = v.Type, text = v.Text })
+                    })
+                });
+                await _remoteControl.SendToClientAsync(ws, json);
+            }
+            catch { }
+        };
+        _remoteControl.ClientConnected += async ws =>
+        {
+            try
+            {
+                var cats = await db.GetCategoriesAsync();
+                var catsJson = JsonSerializer.Serialize(new
+                {
+                    type       = "categories_data",
+                    categories = cats.Select(c => new { id = c.Id, name = c.Name, number = c.Number })
+                });
+                await _remoteControl.SendToClientAsync(ws, catsJson);
+                await BroadcastCurrentStateToAsync(ws);
+                await BroadcastSetlistStateToAsync(ws);
+            }
+            catch { }
+        };
+
+        async Task BroadcastCurrentState()
+        {
+            var text    = _vm.CurrentSlideText;
+            var title   = _vm.SelectedSong?.Title ?? "";
+            var index   = _vm.CurrentSlideIndex;
+            var total   = _vm.SlideList.Count;
+            var isBlank = _vm.ScreenBlanked;
+            var slides  = _vm.SlideList
+                .Select(s =>
+                {
+                    var t = s.Text.Replace('\n', ' ').Replace('\r', ' ').Trim();
+                    return t.Length > 60 ? t[..60] : t;
+                })
+                .ToList();
+            try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides); }
+            catch { }
+        }
+
+        async Task BroadcastCurrentStateToAsync(WebSocket ws)
+        {
+            var text    = _vm.CurrentSlideText;
+            var title   = _vm.SelectedSong?.Title ?? "";
+            var index   = _vm.CurrentSlideIndex;
+            var total   = _vm.SlideList.Count;
+            var isBlank = _vm.ScreenBlanked;
+            var slides  = _vm.SlideList
+                .Select(s =>
+                {
+                    var t = s.Text.Replace('\n', ' ').Replace('\r', ' ').Trim();
+                    return t.Length > 60 ? t[..60] : t;
+                })
+                .ToList();
+            var json = JsonSerializer.Serialize(new
+            {
+                type = "slide", text, songTitle = title, index, total, isBlank, slides
+            });
+            await _remoteControl.SendToClientAsync(ws, json);
+        }
+
+        async Task BroadcastSetlistState()
+        {
+            var songs = _vm.SetlistItems
+                .Select(item => (id: item.SongId ?? 0, title: item.Song?.Title ?? ""))
+                .ToList<(int id, string title)>();
+            var activeIndex = _vm.SelectedSetlistItem != null
+                ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1;
+            try { await _remoteControl.BroadcastSetlistAsync(songs, activeIndex); }
+            catch { }
+        }
+
+        async Task BroadcastSetlistStateToAsync(WebSocket ws)
+        {
+            var songs = _vm.SetlistItems
+                .Select(item => new { id = item.SongId ?? 0, title = item.Song?.Title ?? "" })
+                .ToList();
+            var activeIndex = _vm.SelectedSetlistItem != null
+                ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1;
+            var json = JsonSerializer.Serialize(new { type = "setlist", activeIndex, songs });
+            await _remoteControl.SendToClientAsync(ws, json);
+        }
+
         _vm.PropertyChanged += async (_, e) =>
         {
-            if (e.PropertyName != nameof(DisplayViewModel.CurrentSlideIndex)) return;
-            var text = _vm.CurrentSlideText;
-            var title = _vm.SelectedSong?.Title ?? "";
-            var index = _vm.CurrentSlideIndex;
-            var total = _vm.SlideList.Count;
-            try { await _remoteControl.BroadcastAsync(text, title, index, total); }
-            catch { /* broadcast failures are non-fatal */ }
+            if (e.PropertyName is nameof(DisplayViewModel.CurrentSlideIndex)
+                               or nameof(DisplayViewModel.ScreenBlanked)
+                               or nameof(DisplayViewModel.SlideList))
+                await BroadcastCurrentState();
+            if (e.PropertyName is nameof(DisplayViewModel.SelectedSetlistItem))
+                await BroadcastSetlistState();
         };
+
+        _vm.SetlistItems.CollectionChanged += async (_, _) => await BroadcastSetlistState();
 
         Loaded += async (_, _) =>
         {
             await _vm.InitializeAsync();
             RestoreWindowPosition();
-            // Sprawdź aktualizacje w tle po starcie
-            _ = _aboutVm.CheckForUpdateCommand.ExecuteAsync(null);
+            await _aboutVm.CheckAndPromptAsync();
+
+            var updateTimer = new System.Windows.Threading.DispatcherTimer
+                { Interval = TimeSpan.FromHours(1) };
+            updateTimer.Tick += async (_, _) => await _aboutVm.CheckAndPromptAsync();
+            updateTimer.Start();
         };
         Closing += (_, _) => { SaveWindowPosition(); _remoteControl.Dispose(); };
         KeyDown += _vm.OnKeyDown;
@@ -397,7 +572,12 @@ public partial class MainWindow : Window
 
         var keyLabel = Helpers.KeyCaptureHelper.KeyToLabel(e.Key);
         var tag = _szablonVm.TextTags.FirstOrDefault(t =>
-            string.Equals(t.ShortcutKey, keyLabel, StringComparison.OrdinalIgnoreCase));
+        {
+            var sk = t.ShortcutKey;
+            if (sk.StartsWith("Ctrl+", StringComparison.OrdinalIgnoreCase))
+                sk = sk["Ctrl+".Length..];
+            return string.Equals(sk, keyLabel, StringComparison.OrdinalIgnoreCase);
+        });
         if (tag == null) return;
 
         e.Handled = true;
