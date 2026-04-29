@@ -98,6 +98,23 @@
                        Foreground="#959fb9"
                        FontSize="13" TextWrapping="Wrap" Margin="0,0,0,24"/>
 
+            <!-- ─── Hotspot WiFi ──────────────────────────────── -->
+            <TextBlock Text="Hotspot WiFi"
+                       Foreground="#c9a84c"
+                       FontFamily="{StaticResource HeaderFont}"
+                       FontSize="16" Margin="0,0,0,8"/>
+            <TextBlock Text="Włącz hotspot w Ustawieniach Windows, a następnie uruchom pilota poniżej."
+                       Foreground="#959fb9" FontSize="12"
+                       TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+            <Button Command="{Binding OpenHotspotSettingsCommand}"
+                    Style="{StaticResource OutlineBtn}"
+                    Height="36" FontSize="13" Margin="0,0,0,20"
+                    HorizontalAlignment="Left" Padding="20,0"
+                    Content="Ustawienia hotspota →"/>
+
+            <Separator Background="#1e2535" Margin="0,0,0,20"/>
+
             <!-- Port -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <TextBlock Text="Port:" Foreground="#e8eaf0"

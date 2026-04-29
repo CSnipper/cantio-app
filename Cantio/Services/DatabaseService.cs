@@ -228,7 +228,8 @@ public class DatabaseService
                     Position = v.Position,
                     Type = v.Type,
                     Text = v.Text,
-                    ImagePath = v.ImagePath
+                    ImagePath = v.ImagePath,
+                    BackgroundImagePath = v.BackgroundImagePath
                 });
         }
         await db.SaveChangesAsync();
@@ -256,7 +257,8 @@ public class DatabaseService
         }
     }
 
-    public async Task SaveVerseTextsAsync(IEnumerable<(int Id, string Text, string? ImagePath)> updates)
+    public async Task SaveVerseTextsAsync(
+        IEnumerable<(int Id, string Text, string? ImagePath, string? BackgroundImagePath)> updates)
     {
         var list = updates.ToList();
         if (list.Count == 0) return;
@@ -265,9 +267,10 @@ public class DatabaseService
         var verses = await db.Verses.Where(v => ids.Contains(v.Id)).ToListAsync();
         foreach (var verse in verses)
         {
-            var (_, text, imagePath) = list.First(u => u.Id == verse.Id);
+            var (_, text, imagePath, bgImagePath) = list.First(u => u.Id == verse.Id);
             verse.Text = text;
             verse.ImagePath = imagePath;
+            verse.BackgroundImagePath = bgImagePath;
         }
         await db.SaveChangesAsync();
     }

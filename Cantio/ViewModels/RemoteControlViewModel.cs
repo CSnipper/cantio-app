@@ -14,10 +14,10 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
 {
     private readonly RemoteControlServer _server = new();
 
-    [ObservableProperty] private bool _isRunning;
-    [ObservableProperty] private string _localUrl = "";
+    [ObservableProperty] private bool        _isRunning;
+    [ObservableProperty] private string      _localUrl = "";
     [ObservableProperty] private BitmapSource? _qrCode;
-    [ObservableProperty] private int _port = 8765;
+    [ObservableProperty] private int         _port     = 8765;
 
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
@@ -77,6 +77,9 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             QrCode = GenerateQr(LocalUrl);
         }
     }
+
+    [RelayCommand]
+    private static void OpenHotspotSettings() => HotspotService.OpenSettings();
 
     public Task BroadcastAsync(
         string text, string songTitle, int index, int total,

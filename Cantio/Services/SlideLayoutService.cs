@@ -31,6 +31,7 @@ public class Slide
     public string VerseType { get; set; } = string.Empty; // "v", "c", "b"
     public string? ImagePath { get; set; }
     public bool IsImageSlide => !string.IsNullOrEmpty(ImagePath);
+    public string? BackgroundImagePath { get; set; }
     public bool IsChorusSlide => VerseType == "c";
     public bool IsPrivateSlide => VerseType == "p";
     // Gdy tag "tylko podgląd" jest obecny: pełny tekst dla operatora, Text ma go wystrippowany
@@ -46,6 +47,7 @@ public static class SlideLayoutService
     // Regex do usuwania tagów inline ({tag} i {/tag}) przed pomiarem szerokości
     private static readonly Regex _tagPattern = new(@"\{/?[a-zA-Z0-9]+\}", RegexOptions.Compiled);
     private static string StripTags(string text) => _tagPattern.Replace(text, string.Empty);
+    public  static string StripFormatTags(string text) => _tagPattern.Replace(text, string.Empty);
 
     /// <summary>
     /// Wyciąga treść ze wszystkich bloków {tagname}...{/tagname} dla tagów preview-only.

@@ -8,8 +8,8 @@
 
     <Grid Background="{Binding BackgroundBrush}" ClipToBounds="True">
 
-        <!-- Tło graficzne -->
-        <Image Source="{Binding BackgroundImagePath}"
+        <!-- Tło graficzne (globalne lub per-zwrotka) -->
+        <Image Source="{Binding ActiveBackgroundImagePath}"
                Stretch="UniformToFill"
                Opacity="{Binding BackgroundImageOpacity}"/>
 

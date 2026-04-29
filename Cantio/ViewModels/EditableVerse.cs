@@ -12,4 +12,7 @@ public partial class EditableVerse : ObservableObject
     private string _text = string.Empty;
 
     public string? ImagePath { get; set; }
+
+    [ObservableProperty]
+    private string? _backgroundImagePath;
 }

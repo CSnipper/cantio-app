@@ -317,36 +317,24 @@ public partial class MainWindow : Window
 
         async Task BroadcastCurrentState()
         {
-            var text    = _vm.CurrentSlideText;
+            var text    = SlideLayoutService.StripFormatTags(_vm.CurrentSlideText);
             var title   = _vm.SelectedSong?.Title ?? "";
             var index   = _vm.CurrentSlideIndex;
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
-            var slides  = _vm.SlideList
-                .Select(s =>
-                {
-                    var t = s.Text.Replace('\n', ' ').Replace('\r', ' ').Trim();
-                    return t.Length > 60 ? t[..60] : t;
-                })
-                .ToList();
+            var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
             try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides); }
             catch { }
         }
 
         async Task BroadcastCurrentStateToAsync(WebSocket ws)
         {
-            var text    = _vm.CurrentSlideText;
+            var text    = SlideLayoutService.StripFormatTags(_vm.CurrentSlideText);
             var title   = _vm.SelectedSong?.Title ?? "";
             var index   = _vm.CurrentSlideIndex;
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
-            var slides  = _vm.SlideList
-                .Select(s =>
-                {
-                    var t = s.Text.Replace('\n', ' ').Replace('\r', ' ').Trim();
-                    return t.Length > 60 ? t[..60] : t;
-                })
-                .ToList();
+            var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
             var json = JsonSerializer.Serialize(new
             {
                 type = "slide", text, songTitle = title, index, total, isBlank, slides

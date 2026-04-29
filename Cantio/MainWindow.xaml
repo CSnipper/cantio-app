@@ -2372,6 +2372,74 @@
                                                                 </TextBlock.Style>
                                                                 <Run Text="🖼 " /><Run Text="{Binding ImagePath, Converter={StaticResource FileName}, Mode=OneWay}"/>
                                                             </TextBlock>
+                                                            <!-- Tło per zwrotka (tylko dla zwrotek tekstowych) -->
+                                                            <Grid Margin="0,4,0,0">
+                                                                <Grid.Style>
+                                                                    <Style TargetType="Grid">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Grid.Style>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="Tło:" Foreground="#7080a0" FontSize="11"
+                                                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                                <TextBlock Grid.Column="1"
+                                                                           Text="{Binding BackgroundImagePath, Converter={StaticResource FileName}}"
+                                                                           Foreground="#9aa3b8" FontSize="11" VerticalAlignment="Center"
+                                                                           TextTrimming="CharacterEllipsis">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding BackgroundImagePath}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <TextBlock Grid.Column="1" Text="—" Foreground="#556070" FontSize="11"
+                                                                           VerticalAlignment="Center">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding BackgroundImagePath}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <Button Grid.Column="2" Content="…" Width="26" Height="22" Margin="4,0,0,0"
+                                                                        Style="{StaticResource SmallIconBtn}"
+                                                                        ToolTip="Wybierz tło zwrotki"
+                                                                        Command="{Binding DataContext.PickVerseBackgroundCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                        CommandParameter="{Binding}"/>
+                                                                <Button Grid.Column="3" Content="×" Width="22" Height="22" Margin="2,0,0,0"
+                                                                        ToolTip="Usuń tło zwrotki"
+                                                                        Command="{Binding DataContext.ClearVerseBackgroundCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                        CommandParameter="{Binding}">
+                                                                    <Button.Style>
+                                                                        <Style TargetType="Button" BasedOn="{StaticResource SmallIconBtn}">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding BackgroundImagePath}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Button.Style>
+                                                                </Button>
+                                                            </Grid>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,0,0,0">
                                                             <Button Content="↑" Width="28" Height="28" Margin="0,0,0,2"
@@ -3515,7 +3583,7 @@
                                 <Button Grid.Column="4" Content="&#x2715;" Style="{StaticResource RedBtn}"
                                         Padding="10,8" Command="{Binding ClearBackgroundCommand}"/>
                             </Grid>
-                            <StackPanel Visibility="{Binding BackgroundImagePath, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Margin="0,0,0,10">
                                 <TextBlock Text="{DynamicResource Settings.BgImageOpacity}" Foreground="#959fb9" FontSize="11" Margin="0,0,0,6"/>
                                 <Slider Style="{StaticResource DarkSlider}" Minimum="0" Maximum="1"
                                         Value="{Binding BackgroundImageOpacity}"/>

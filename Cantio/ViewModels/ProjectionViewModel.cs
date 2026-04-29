@@ -26,7 +26,15 @@ public partial class ProjectionViewModel : ObservableObject
     [ObservableProperty] private Brush _textBrush = Brushes.White;
     [ObservableProperty] private Brush _backgroundBrush = Brushes.Black;
     [ObservableProperty] private string? _backgroundImagePath;
+    [ObservableProperty] private string? _slideBackgroundImagePath;
     [ObservableProperty] private double _backgroundImageOpacity = 1.0;
+
+    public string? ActiveBackgroundImagePath => SlideBackgroundImagePath ?? BackgroundImagePath;
+
+    partial void OnBackgroundImagePathChanged(string? value) =>
+        OnPropertyChanged(nameof(ActiveBackgroundImagePath));
+    partial void OnSlideBackgroundImagePathChanged(string? value) =>
+        OnPropertyChanged(nameof(ActiveBackgroundImagePath));
     [ObservableProperty] private bool _shadowEnabled = true;
     [ObservableProperty] private double _shadowBlur = 8;
     [ObservableProperty] private double _shadowDepth = 2;
@@ -86,6 +94,7 @@ public partial class ProjectionViewModel : ObservableObject
         _pendingImagePath = null;
         IsImageSlide = false;
         ImageSlidePath = null;
+        SlideBackgroundImagePath = null;
     }
 
     private void ApplyPendingImage()
@@ -111,6 +120,9 @@ public partial class ProjectionViewModel : ObservableObject
         if (_pendingSlide == null) return;
         FontSize = _pendingSlide.FontSize;
         SlideText = _pendingSlide.Text;
+        SlideBackgroundImagePath = string.IsNullOrEmpty(_pendingSlide.BackgroundImagePath)
+            ? null
+            : ImageStorage.Resolve(_pendingSlide.BackgroundImagePath);
     }
 
     public void ApplySettings(DisplaySettings s)

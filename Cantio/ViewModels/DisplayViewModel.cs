@@ -312,7 +312,7 @@ public partial class DisplayViewModel : ObservableObject
                     "img" => "Obrazek",
                     _ => $"Zwrotka {counts[v.Type]}"
                 };
-                return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text, ImagePath = v.ImagePath };
+                return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text, ImagePath = v.ImagePath, BackgroundImagePath = v.BackgroundImagePath };
             }));
         IsInlineEditorOpen = true;
     }
@@ -336,7 +336,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveInlineEditAsync()
     {
-        await _db.SaveVerseTextsAsync(EditableVerses.Select(ev => (ev.Id, ev.Text, ev.ImagePath)));
+        await _db.SaveVerseTextsAsync(EditableVerses.Select(ev => (ev.Id, ev.Text, ev.ImagePath, ev.BackgroundImagePath)));
 
         var order = EditableVerses.Select((ev, i) => (ev.Id, i));
         await _db.SaveVerseOrderAsync(order);
@@ -382,6 +382,22 @@ public partial class DisplayViewModel : ObservableObject
         IsInlineEditorOpen = false;
         EditableVerses = [];
     }
+
+    [RelayCommand]
+    private void PickVerseBackground(EditableVerse verse)
+    {
+        var dlg = new OpenFileDialog
+        {
+            Filter = "Obrazy|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp",
+            Title = "Wybierz tło zwrotki"
+        };
+        if (dlg.ShowDialog() == true)
+            verse.BackgroundImagePath = dlg.FileName;
+    }
+
+    [RelayCommand]
+    private static void ClearVerseBackground(EditableVerse verse) =>
+        verse.BackgroundImagePath = null;
 
     // Tryb edycji pieśni
 
@@ -1503,7 +1519,10 @@ public partial class DisplayViewModel : ObservableObject
             if (slide.VerseIndex >= 0 && slide.VerseIndex < verseLabels.Length)
                 slide.Label = verseLabels[slide.VerseIndex];
             if (slide.VerseIndex >= 0 && slide.VerseIndex < Verses.Count)
+            {
                 slide.VerseType = Verses[slide.VerseIndex].Type;
+                slide.BackgroundImagePath = Verses[slide.VerseIndex].BackgroundImagePath;
+            }
         }
 
         SlideList = new ObservableCollection<Slide>(_slides);
