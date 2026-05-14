@@ -32,22 +32,30 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action? SetlistClearRequested;
     public event Action<int[]>? SetlistRestoreRequested;
     public event Action<System.Net.WebSockets.WebSocket>? ClientConnected;
+    public event Action<System.Net.WebSockets.WebSocket>? GetSetlistsRequested;
+    public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
+    public event Action<System.Net.WebSockets.WebSocket, int>? GetSetlistDetailRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
 
     public RemoteControlViewModel()
     {
-        _server.NextRequested          += (_, _) => NextRequested?.Invoke(this, EventArgs.Empty);
-        _server.PrevRequested          += (_, _) => PrevRequested?.Invoke(this, EventArgs.Empty);
-        _server.BlankRequested         += (_, _) => BlankRequested?.Invoke(this, EventArgs.Empty);
-        _server.GotoRequested          += idx    => GotoRequested?.Invoke(idx);
-        _server.GotoSongRequested      += idx    => GotoSongRequested?.Invoke(idx);
-        _server.SetlistAddRequested    += id     => SetlistAddRequested?.Invoke(id);
-        _server.SetlistRemoveRequested += idx    => SetlistRemoveRequested?.Invoke(idx);
-        _server.SetlistMoveRequested   += (f, t) => SetlistMoveRequested?.Invoke(f, t);
-        _server.GetSongsRequested      += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
-        _server.SyncPushRequested       += (ws, json) => SyncPushRequested?.Invoke(ws, json);
-        _server.SetlistClearRequested   += ()         => SetlistClearRequested?.Invoke();
-        _server.SetlistRestoreRequested += ids        => SetlistRestoreRequested?.Invoke(ids);
-        _server.ClientConnected         += ws         => ClientConnected?.Invoke(ws);
+        _server.NextRequested           += (_, _)         => NextRequested?.Invoke(this, EventArgs.Empty);
+        _server.PrevRequested           += (_, _)         => PrevRequested?.Invoke(this, EventArgs.Empty);
+        _server.BlankRequested          += (_, _)         => BlankRequested?.Invoke(this, EventArgs.Empty);
+        _server.GotoRequested           += idx            => GotoRequested?.Invoke(idx);
+        _server.GotoSongRequested       += idx            => GotoSongRequested?.Invoke(idx);
+        _server.SetlistAddRequested     += id             => SetlistAddRequested?.Invoke(id);
+        _server.SetlistRemoveRequested  += idx            => SetlistRemoveRequested?.Invoke(idx);
+        _server.SetlistMoveRequested    += (f, t)         => SetlistMoveRequested?.Invoke(f, t);
+        _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
+        _server.SyncPushRequested       += (ws, json)     => SyncPushRequested?.Invoke(ws, json);
+        _server.SetlistClearRequested   += ()             => SetlistClearRequested?.Invoke();
+        _server.SetlistRestoreRequested += ids            => SetlistRestoreRequested?.Invoke(ids);
+        _server.ClientConnected         += ws             => ClientConnected?.Invoke(ws);
+        _server.GetSetlistsRequested        += ws         => GetSetlistsRequested?.Invoke(ws);
+        _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);
+        _server.GetSetlistDetailRequested   += (ws, id)   => GetSetlistDetailRequested?.Invoke(ws, id);
+        _server.SetlistSyncPushRequested    += (ws, json) => SetlistSyncPushRequested?.Invoke(ws, json);
     }
 
     [RelayCommand]

@@ -227,6 +227,8 @@
     <sys:String x:Key="Import.Source">ARCHIVO FUENTE</sys:String>
     <sys:String x:Key="Import.ImportCategories">Importar categorías</sys:String>
     <sys:String x:Key="Import.ImportCategoriesTip">Crea nuevas categorías si no existen</sys:String>
+    <sys:String x:Key="Import.CategorySourceSongBooks">De colecciones (song_books)</sys:String>
+    <sys:String x:Key="Import.CategorySourceTopics">De temas (topics)</sys:String>
     <sys:String x:Key="Import.Overwrite">Sobrescribir canciones existentes</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Reemplaza el texto si la canción ya existe</sys:String>
     <sys:String x:Key="Import.Options">OPCIONES</sys:String>
@@ -242,5 +244,8 @@
     <sys:String x:Key="Settings.ImportPsalmy">Importar salmos</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Se importaron {0} salmos responsoriales.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">No se encontró la categoría "Psalmy responsoryjne". Créala primero en el editor de categorías.</sys:String>
+    <sys:String x:Key="Inline.FontSizeTip">Tamaño de fuente fijo para esta canción</sys:String>
+    <sys:String x:Key="Inline.FontSizeHard">fijo</sys:String>
+    <sys:String x:Key="Inline.FontSizeHardTip">Activado: ignora el ajuste automático y los ajustes globales, usa el tamaño escrito tal cual. Desactivado: usa los ajustes de la pestaña Apariencia.</sys:String>
 
 </ResourceDictionary>

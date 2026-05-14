@@ -228,6 +228,8 @@
     <sys:String x:Key="Import.Source">PLIK ŹRÓDŁOWY</sys:String>
     <sys:String x:Key="Import.ImportCategories">Importuj kategorie</sys:String>
     <sys:String x:Key="Import.ImportCategoriesTip">Tworzy nowe kategorie jeśli nie istnieją</sys:String>
+    <sys:String x:Key="Import.CategorySourceSongBooks">Ze śpiewników (song_books)</sys:String>
+    <sys:String x:Key="Import.CategorySourceTopics">Z tematów (topics)</sys:String>
     <sys:String x:Key="Import.Overwrite">Nadpisuj istniejące pieśni</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Zastępuje tekst pieśni jeśli już istnieje</sys:String>
     <sys:String x:Key="Import.Options">OPCJE</sys:String>
@@ -243,5 +245,8 @@
     <sys:String x:Key="Settings.ImportPsalmy">Importuj psalmy</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Zaimportowano {0} psalmów responsoryjnych.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">Nie znaleziono kategorii „Psalmy responsoryjne". Utwórz ją najpierw w edytorze kategorii.</sys:String>
+    <sys:String x:Key="Inline.FontSizeTip">Sztywny rozmiar czcionki dla tej pieśni</sys:String>
+    <sys:String x:Key="Inline.FontSizeHard">dopasowanie</sys:String>
+    <sys:String x:Key="Inline.FontSizeHardTip">Włączone: pomija auto-fit i ustawienia globalne, używa wpisanego rozmiaru sztywno. Wyłączone: używa ustawień z zakładki Wygląd.</sys:String>
 
 </ResourceDictionary>

@@ -27,6 +27,10 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, string>? SyncPushRequested;  // ws, raw json
     public event Action? SetlistClearRequested;
     public event Action<int[]>? SetlistRestoreRequested;        // songIds
+    public event Action<WebSocket>? GetSetlistsRequested;       // ws
+    public event Action<WebSocket, int>? OpenSetlistRequested;  // ws, setlistId
+    public event Action<WebSocket, int>? GetSetlistDetailRequested; // ws, setlistId
+    public event Action<WebSocket, string>? SetlistSyncPushRequested; // ws, raw json
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -302,6 +306,25 @@ public sealed class RemoteControlServer : IDisposable
                             .ToArray();
                         SetlistRestoreRequested?.Invoke(ids);
                     }
+                }
+                else if (type == "get_setlists")
+                {
+                    GetSetlistsRequested?.Invoke(ws);
+                }
+                else if (type == "open_setlist")
+                {
+                    if (doc.RootElement.TryGetProperty("id", out var idEl))
+                        OpenSetlistRequested?.Invoke(ws, idEl.GetInt32());
+                }
+                else if (type == "get_setlist_detail")
+                {
+                    if (doc.RootElement.TryGetProperty("id", out var idEl))
+                        GetSetlistDetailRequested?.Invoke(ws, idEl.GetInt32());
+                }
+                else if (type == "setlist_sync_push")
+                {
+                    var rawJson = Encoding.UTF8.GetString(ms.ToArray());
+                    SetlistSyncPushRequested?.Invoke(ws, rawJson);
                 }
             }
             catch { }

@@ -11,6 +11,8 @@ public partial class CategoryEditorItem : ObservableObject
     [ObservableProperty] private string _editName = string.Empty;
     [ObservableProperty] private int _editNumber;
     [ObservableProperty] private bool _isEditing = false;
+    [ObservableProperty] private bool _canMoveUp = true;
+    [ObservableProperty] private bool _canMoveDown = true;
 
     partial void OnIsEditingChanged(bool value)
     {

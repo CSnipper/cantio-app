@@ -1255,17 +1255,16 @@
                                              SelectedItem="{Binding SelectedCategoryItem}"
                                              Background="Transparent" BorderThickness="0"
                                              ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                             ItemContainerStyle="{StaticResource DarkListItemGold}"
-                                             AllowDrop="True"
-                                             Drop="CategoryList_Drop">
+                                             ItemContainerStyle="{StaticResource DarkListItemGold}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid MinHeight="50"
-                                                      MouseMove="CategoryItem_MouseMove">
+                                                <Grid MinHeight="50">
                                                     <!-- Normalny widok -->
                                                     <Grid Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="32"/>
+                                                            <ColumnDefinition Width="32"/>
                                                             <ColumnDefinition Width="32"/>
                                                             <ColumnDefinition Width="32"/>
                                                         </Grid.ColumnDefinitions>
@@ -1273,13 +1272,27 @@
                                                                    TextTrimming="CharacterEllipsis"
                                                                    Padding="5,0,0,0" FontSize="18"
                                                                    VerticalAlignment="Center"/>
-                                                        <Button Grid.Column="1" Content="✎"
+                                                        <Button Grid.Column="1" Content="▲"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Width="32" Height="50"
+                                                                IsEnabled="{Binding CanMoveUp}"
+                                                                Command="{Binding DataContext.MoveCategoryUpCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <Button Grid.Column="2" Content="▼"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Width="32" Height="50"
+                                                                IsEnabled="{Binding CanMoveDown}"
+                                                                Command="{Binding DataContext.MoveCategoryDownCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <Button Grid.Column="3" Content="✎"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50"
                                                                 Command="{Binding DataContext.StartEditCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>
-                                                        <Button Grid.Column="2" Content="✕"
+                                                        <Button Grid.Column="4" Content="✕"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50" Foreground="#d44a4a"
                                                                 Command="{Binding DataContext.DeleteCategoryCommand,
@@ -1767,7 +1780,8 @@
                             </Popup>
 
                             <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="1,0,0,0">
-                                <ListBox ItemsSource="{Binding SetlistItems}"
+                                <ListBox x:Name="SetlistListBox"
+                                         ItemsSource="{Binding SetlistItems}"
                                          SelectedItem="{Binding SelectedSetlistItem}"
                                          Background="Transparent" BorderThickness="0"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -2318,7 +2332,13 @@
                                                 <TextBox Text="{Binding InlineEditorFontSize, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
                                                          FontSize="13" Width="50"
-                                                         ToolTip="Minimalna czcionka dla tej pieśni (puste = globalna)"/>
+                                                         IsEnabled="{Binding InlineEditorFontSizeHard}"
+                                                         ToolTip="{DynamicResource Inline.FontSizeTip}"/>
+                                                <CheckBox IsChecked="{Binding InlineEditorFontSizeHard}"
+                                                          Content="{DynamicResource Inline.FontSizeHard}"
+                                                          Foreground="#9aa3b8" FontSize="11"
+                                                          VerticalAlignment="Center" Margin="8,0,0,0"
+                                                          ToolTip="{DynamicResource Inline.FontSizeHardTip}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -2894,6 +2914,19 @@
                                         <TextBlock Text="{DynamicResource Import.ImportCategoriesTip}"
                                                    Foreground="#959fb9" FontSize="12" Margin="22,0,0,0"
                                                    TextWrapping="Wrap"/>
+                                        <StackPanel Margin="22,6,0,0"
+                                                    Visibility="{Binding ShowCategorySourceSelector, Converter={StaticResource BoolToVis}}">
+                                            <RadioButton Content="{DynamicResource Import.CategorySourceSongBooks}"
+                                                         IsChecked="{Binding IsCategorySourceSongBooks, Mode=OneWay}"
+                                                         Command="{Binding SelectCategorySourceCommand}"
+                                                         CommandParameter="SongBooks"
+                                                         Foreground="#e8eaf0" FontSize="13" Margin="0,0,0,2"/>
+                                            <RadioButton Content="{DynamicResource Import.CategorySourceTopics}"
+                                                         IsChecked="{Binding IsCategorySourceTopics, Mode=OneWay}"
+                                                         Command="{Binding SelectCategorySourceCommand}"
+                                                         CommandParameter="Topics"
+                                                         Foreground="#e8eaf0" FontSize="13"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"

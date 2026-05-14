@@ -278,6 +278,7 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private string _inlineEditorTitle = string.Empty;
     [ObservableProperty] private string _inlineEditorNotes = string.Empty;
     [ObservableProperty] private string _inlineEditorFontSize = string.Empty;
+    [ObservableProperty] private bool _inlineEditorFontSizeHard;
     [ObservableProperty] private ObservableCollection<EditableVerse> _editableVerses = [];
 
     [RelayCommand]
@@ -299,6 +300,7 @@ public partial class DisplayViewModel : ObservableObject
         InlineEditorFontSize = song.FontSizeOverride.HasValue
             ? song.FontSizeOverride.Value.ToString("0")
             : string.Empty;
+        InlineEditorFontSizeHard = song.FontSizeOverride.HasValue;
         var verses = song.Verses.OrderBy(v => v.Position).ToList();
         var counts = new Dictionary<string, int>();
         EditableVerses = new ObservableCollection<EditableVerse>(
@@ -360,7 +362,8 @@ public partial class DisplayViewModel : ObservableObject
 
         if (SelectedSetlistItem?.SongId.HasValue == true)
         {
-            double? fontOverride = double.TryParse(InlineEditorFontSize.Trim(), out var fs) && fs >= 8
+            double? fontOverride = InlineEditorFontSizeHard
+                && double.TryParse(InlineEditorFontSize.Trim(), out var fs) && fs >= 8
                 ? fs : null;
             await _db.SaveSongFontSizeOverrideAsync(SelectedSetlistItem.SongId.Value, fontOverride);
             if (SelectedSong?.Id == SelectedSetlistItem.SongId.Value)
@@ -531,6 +534,37 @@ public partial class DisplayViewModel : ObservableObject
             await _db.SaveCategoryAsync(new Category { Id = item.Id, Name = item.Name, Number = i + 1 });
         }
         Categories = new ObservableCollection<Category>(await _db.GetCategoriesAsync());
+        RefreshCategoryMoveFlags();
+    }
+
+    private void RefreshCategoryMoveFlags()
+    {
+        int last = CategoryItems.Count - 1;
+        for (int i = 0; i < CategoryItems.Count; i++)
+        {
+            CategoryItems[i].CanMoveUp = i > 0;
+            CategoryItems[i].CanMoveDown = i < last;
+        }
+    }
+
+    [RelayCommand]
+    private async Task MoveCategoryUpAsync(CategoryEditorItem item)
+    {
+        int idx = CategoryItems.IndexOf(item);
+        if (idx <= 0) return;
+        CategoryItems.Move(idx, idx - 1);
+        SelectedCategoryItem = item;
+        await SaveCategoryOrderAsync();
+    }
+
+    [RelayCommand]
+    private async Task MoveCategoryDownAsync(CategoryEditorItem item)
+    {
+        int idx = CategoryItems.IndexOf(item);
+        if (idx < 0 || idx >= CategoryItems.Count - 1) return;
+        CategoryItems.Move(idx, idx + 1);
+        SelectedCategoryItem = item;
+        await SaveCategoryOrderAsync();
     }
 
     private async Task ReloadCategoriesForEditorAsync()
@@ -909,6 +943,7 @@ public partial class DisplayViewModel : ObservableObject
     private void AddToSetlist(Song? song)
     {
         if (song == null) return;
+        bool projectionActive = SelectedSetlistItem != null;
         var newItem = new SetlistItem { Song = song, SongId = song.Id, Type = "song" };
         var idx = SelectedSetlistItem != null ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
         if (idx >= 0)
@@ -916,7 +951,10 @@ public partial class DisplayViewModel : ObservableObject
         else
             SetlistItems.Add(newItem);
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
-        LoadSongFromSetlist(newItem);
+        if (projectionActive)
+            SelectedSetlistItem = newItem;
+        else
+            LoadSongFromSetlist(newItem);
     }
 
     [RelayCommand]
@@ -1256,6 +1294,7 @@ public partial class DisplayViewModel : ObservableObject
         Categories = new ObservableCollection<Category>(list);
         CategoryItems = new ObservableCollection<CategoryEditorItem>(
             list.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
+        RefreshCategoryMoveFlags();
     }
 
     private async Task LoadSongsAsync(int categoryId)
@@ -1331,8 +1370,11 @@ public partial class DisplayViewModel : ObservableObject
         int prevIndex = CurrentSlideIndex;
         var dbSettings = _db.GetSettings();
         var settings = BuildLayoutSettings(dbSettings);
-        if (SelectedSong?.FontSizeOverride.HasValue == true)
-            settings.FontSize = SelectedSong.FontSizeOverride.Value;
+        bool hardFont = SelectedSong?.FontSizeOverride.HasValue == true;
+        if (hardFont)
+            settings.FontSize = SelectedSong!.FontSizeOverride!.Value;
+        double Fit(string t, SlideLayoutSettings s) =>
+            hardFont ? settings.FontSize : SlideLayoutService.ComputeFitFontSize(t, s);
         var previewOnlyTagNames = dbSettings.TextTags
             .Where(t => t.PreviewOnly && !string.IsNullOrEmpty(t.Name))
             .Select(t => t.Name.ToLower())
@@ -1371,7 +1413,7 @@ public partial class DisplayViewModel : ObservableObject
                     psalmSlides.Add(new Slide
                     {
                         Text = parts[pi],
-                        FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                        FontSize = Fit(parts[pi], s),
                         VerseIndex = vi,
                         PartIndex = pi
                     });
@@ -1435,7 +1477,7 @@ public partial class DisplayViewModel : ObservableObject
                     allSlides.Add(new Slide
                     {
                         Text = content,
-                        FontSize = SlideLayoutService.ComputeFitFontSize(content, opSettings),
+                        FontSize = Fit(content, opSettings),
                         VerseIndex = vi, PartIndex = 0,
                         OperatorText = content,
                         IsPreviewOnlySlide = true
@@ -1453,14 +1495,14 @@ public partial class DisplayViewModel : ObservableObject
                         MarginH = s.MarginH, MarginV = s.MarginV,
                         ForceSingleSlide = true, AutoFit = s.AutoFit
                     };
-                    var hintFontSize = SlideLayoutService.ComputeFitFontSize(hint, opSettings);
+                    var hintFontSize = Fit(hint, opSettings);
                     var parts = SlideLayoutService.SplitVerse(strippedText, s);
                     for (int pi = 0; pi < parts.Count; pi++)
                     {
                         var slide = new Slide
                         {
                             Text = parts[pi],
-                            FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                            FontSize = Fit(parts[pi], s),
                             VerseIndex = vi, PartIndex = pi,
                             OperatorText = hint, OperatorFontSize = hintFontSize
                         };
@@ -1477,7 +1519,7 @@ public partial class DisplayViewModel : ObservableObject
                         var slide = new Slide
                         {
                             Text = parts[pi],
-                            FontSize = SlideLayoutService.ComputeFitFontSize(parts[pi], s),
+                            FontSize = Fit(parts[pi], s),
                             VerseIndex = vi, PartIndex = pi
                         };
                         allSlides.Add(slide);

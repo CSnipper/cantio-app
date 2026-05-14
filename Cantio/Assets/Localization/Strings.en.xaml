@@ -227,6 +227,8 @@
     <sys:String x:Key="Import.Source">SOURCE FILE</sys:String>
     <sys:String x:Key="Import.ImportCategories">Import categories</sys:String>
     <sys:String x:Key="Import.ImportCategoriesTip">Creates new categories if they don't exist</sys:String>
+    <sys:String x:Key="Import.CategorySourceSongBooks">From songbooks (song_books)</sys:String>
+    <sys:String x:Key="Import.CategorySourceTopics">From topics (topics)</sys:String>
     <sys:String x:Key="Import.Overwrite">Overwrite existing songs</sys:String>
     <sys:String x:Key="Import.OverwriteTip">Replaces song text if it already exists</sys:String>
     <sys:String x:Key="Import.Options">OPTIONS</sys:String>
@@ -242,5 +244,8 @@
     <sys:String x:Key="Settings.ImportPsalmy">Import psalms</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Imported {0} responsorial psalms.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">Category "Psalmy responsoryjne" not found. Please create it first in the category editor.</sys:String>
+    <sys:String x:Key="Inline.FontSizeTip">Fixed font size for this song</sys:String>
+    <sys:String x:Key="Inline.FontSizeHard">fixed</sys:String>
+    <sys:String x:Key="Inline.FontSizeHardTip">On: ignores auto-fit and global settings, uses the typed size as-is. Off: uses settings from the Appearance tab.</sys:String>
 
 </ResourceDictionary>

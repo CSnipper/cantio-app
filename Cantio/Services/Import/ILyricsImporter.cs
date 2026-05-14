@@ -21,10 +21,13 @@ public class ImportProgress
 
 // Opcje
 
+public enum OpenLpCategorySource { SongBooks, Topics }
+
 public class ImportOptions
 {
     public bool OverwriteExisting { get; set; } = false;
     public bool ImportCategories { get; set; } = true;
+    public OpenLpCategorySource OpenLpCategorySource { get; set; } = OpenLpCategorySource.SongBooks;
 
     /// <summary>
     /// Id kategorii użytej gdy plik nie zawiera informacji o kategorii.

@@ -314,6 +314,73 @@ public class DatabaseService
             .ToListAsync();
     }
 
+    public async Task<List<(int Id, string Name, string? Group, int SongCount, long UpdatedAt)>> GetSetlistSummariesAsync()
+    {
+        await using var db = new CantioDbContext();
+        var rows = await db.Setlists.AsNoTracking()
+            .OrderByDescending(sl => sl.UpdatedAt)
+            .Select(sl => new { sl.Id, sl.Name, sl.Group, SongCount = sl.Items.Count(i => i.SongId != null), sl.UpdatedAt })
+            .ToListAsync();
+        return rows.Select(r => (r.Id, r.Name, r.Group, r.SongCount,
+            new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds())).ToList();
+    }
+
+    public async Task<(int Id, string Name, string? Group, long UpdatedAt, List<(int SongId, string Title)> Songs)?> GetSetlistDetailAsync(int setlistId)
+    {
+        await using var db = new CantioDbContext();
+        var sl = await db.Setlists.AsNoTracking()
+            .Include(s => s.Items.OrderBy(i => i.Position))
+                .ThenInclude(i => i.Song)
+            .FirstOrDefaultAsync(s => s.Id == setlistId);
+        if (sl == null) return null;
+        var songs = sl.Items
+            .Where(i => i.SongId.HasValue && i.Song != null)
+            .Select(i => (i.SongId!.Value, i.Song!.Title))
+            .ToList();
+        var updatedAt = new DateTimeOffset(sl.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds();
+        return (sl.Id, sl.Name, sl.Group, updatedAt, songs);
+    }
+
+    public async Task<int> CreateOrUpdateSetlistFromPilotAsync(int? desktopId, string name, long updatedAtMs, int[] songIds)
+    {
+        await using var db = new CantioDbContext();
+        Setlist setlist;
+        if (desktopId.HasValue)
+        {
+            setlist = await db.Setlists.Include(s => s.Items)
+                .FirstOrDefaultAsync(s => s.Id == desktopId.Value)
+                ?? new Setlist { Name = name };
+            if (setlist.Id != 0)
+            {
+                db.SetlistItems.RemoveRange(setlist.Items);
+                setlist.Name      = name;
+                setlist.UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(updatedAtMs).UtcDateTime;
+            }
+        }
+        else
+        {
+            setlist = new Setlist
+            {
+                Name      = name,
+                UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(updatedAtMs).UtcDateTime
+            };
+        }
+        if (setlist.Id == 0) db.Setlists.Add(setlist);
+        await db.SaveChangesAsync();
+
+        var songs = await db.Songs.Where(s => songIds.Contains(s.Id)).ToDictionaryAsync(s => s.Id);
+        var items = songIds
+            .Select((id, pos) => songs.TryGetValue(id, out var s)
+                ? new SetlistItem { SetlistId = setlist.Id, SongId = id, Position = pos }
+                : null)
+            .Where(i => i != null)
+            .Cast<SetlistItem>()
+            .ToList();
+        db.SetlistItems.AddRange(items);
+        await db.SaveChangesAsync();
+        return setlist.Id;
+    }
+
     public async Task<Setlist?> GetSetlistAsync(int setlistId)
     {
         await using var db = new CantioDbContext();

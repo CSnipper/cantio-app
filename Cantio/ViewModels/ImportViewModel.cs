@@ -32,6 +32,7 @@ public partial class ImportViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsOpenLPXml))]
     [NotifyPropertyChangedFor(nameof(IsOpenSongFolder))]
     [NotifyPropertyChangedFor(nameof(IsOpenSongXml))]
+    [NotifyPropertyChangedFor(nameof(ShowCategorySourceSelector))]
     [NotifyCanExecuteChangedFor(nameof(BrowseCommand))]
     private ImportFormat _selectedFormat = ImportFormat.OpenLPSqlite;
 
@@ -80,7 +81,25 @@ public partial class ImportViewModel : ObservableObject
     // Opcje
 
     [ObservableProperty] private bool _overwriteExisting = false;
-    [ObservableProperty] private bool _importCategories = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowCategorySourceSelector))]
+    private bool _importCategories = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCategorySourceSongBooks))]
+    [NotifyPropertyChangedFor(nameof(IsCategorySourceTopics))]
+    private OpenLpCategorySource _openLpCategorySource = OpenLpCategorySource.SongBooks;
+
+    public bool ShowCategorySourceSelector => IsOpenLPSqlite && ImportCategories;
+    public bool IsCategorySourceSongBooks => OpenLpCategorySource == OpenLpCategorySource.SongBooks;
+    public bool IsCategorySourceTopics => OpenLpCategorySource == OpenLpCategorySource.Topics;
+
+    [RelayCommand]
+    private void SelectCategorySource(string source)
+    {
+        OpenLpCategorySource = source == "Topics" ? OpenLpCategorySource.Topics : OpenLpCategorySource.SongBooks;
+    }
 
     // Podgląd
 
@@ -186,6 +205,7 @@ public partial class ImportViewModel : ObservableObject
             {
                 OverwriteExisting = OverwriteExisting,
                 ImportCategories = ImportCategories,
+                OpenLpCategorySource = OpenLpCategorySource,
                 FallbackCategoryId = FallbackCategory?.Id
             };
 

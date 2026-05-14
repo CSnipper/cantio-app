@@ -88,59 +88,6 @@ public partial class MainWindow : Window
         base.OnPreviewKeyDown(e);
     }
 
-    // Drag & drop kategorii
-
-    private CategoryEditorItem? _draggedCategory;
-    private Point? _categoryDragStart;
-
-    private void CategoryItem_MouseMove(object sender, MouseEventArgs e)
-    {
-        if (e.LeftButton != MouseButtonState.Pressed) { _categoryDragStart = null; return; }
-
-        var pos = e.GetPosition(null);
-        if (_categoryDragStart == null) { _categoryDragStart = pos; return; }
-
-        if (Math.Abs(pos.X - _categoryDragStart.Value.X) < SystemParameters.MinimumHorizontalDragDistance &&
-            Math.Abs(pos.Y - _categoryDragStart.Value.Y) < SystemParameters.MinimumVerticalDragDistance) return;
-
-        if (sender is FrameworkElement fe && fe.DataContext is CategoryEditorItem item && !item.IsEditing)
-        {
-            _categoryDragStart = null;
-            _draggedCategory = item;
-            DragDrop.DoDragDrop(fe, item, DragDropEffects.Move);
-        }
-    }
-
-    private void CategoryList_Drop(object sender, DragEventArgs e)
-    {
-        if (_draggedCategory == null) return;
-        var target = GetCategoryItemAtPoint(CategoryListBox, e.GetPosition(CategoryListBox));
-        if (target != null && target != _draggedCategory)
-        {
-            var items = _vm.CategoryItems;
-            int from = items.IndexOf(_draggedCategory);
-            int to = items.IndexOf(target);
-            if (from >= 0 && to >= 0)
-            {
-                items.Move(from, to);
-                _ = _vm.SaveCategoryOrderAsync();
-            }
-        }
-        _draggedCategory = null;
-    }
-
-    private static CategoryEditorItem? GetCategoryItemAtPoint(ListBox lb, Point pt)
-    {
-        var element = lb.InputHitTest(pt) as UIElement;
-        while (element != null)
-        {
-            if (lb.ItemContainerGenerator.ItemFromContainer(element) is CategoryEditorItem item)
-                return item;
-            element = VisualTreeHelper.GetParent(element) as UIElement;
-        }
-        return null;
-    }
-
     // Drag & drop listy zestawu
 
     private int _dragFromIndex = -1;
@@ -258,6 +205,85 @@ public partial class MainWindow : Window
                 }
             });
 
+        _remoteControl.GetSetlistsRequested += async ws =>
+        {
+            try
+            {
+                var summaries = await db.GetSetlistSummariesAsync();
+                var json = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    type     = "setlists_data",
+                    setlists = summaries.Select(s => new { id = s.Id, name = s.Name, group = s.Group ?? "", songCount = s.SongCount, updatedAt = s.UpdatedAt })
+                });
+                await _remoteControl.SendToClientAsync(ws, json);
+            }
+            catch { }
+        };
+
+        _remoteControl.GetSetlistDetailRequested += async (ws, setlistId) =>
+        {
+            try
+            {
+                var detail = await db.GetSetlistDetailAsync(setlistId);
+                if (detail == null) return;
+                var json = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    type      = "setlist_detail",
+                    id        = detail.Value.Id,
+                    name      = detail.Value.Name,
+                    group     = detail.Value.Group ?? "",
+                    updatedAt = detail.Value.UpdatedAt,
+                    songs     = detail.Value.Songs.Select(s => new { id = s.SongId, title = s.Title })
+                });
+                await _remoteControl.SendToClientAsync(ws, json);
+            }
+            catch { }
+        };
+
+        _remoteControl.SetlistSyncPushRequested += async (ws, rawJson) =>
+        {
+            try
+            {
+                var doc       = System.Text.Json.JsonDocument.Parse(rawJson);
+                var root      = doc.RootElement;
+                int? desktopId = root.TryGetProperty("desktopId", out var dEl) && dEl.ValueKind == System.Text.Json.JsonValueKind.Number
+                    ? dEl.GetInt32() : null;
+                var name      = root.GetProperty("name").GetString() ?? "";
+                var updatedAt = root.GetProperty("updatedAt").GetInt64();
+                var songIds   = root.GetProperty("songs").EnumerateArray()
+                    .Select(s => s.GetProperty("id").GetInt32()).ToArray();
+                var assignedId = await db.CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAt, songIds);
+                var ackJson = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    type      = "setlist_sync_ack",
+                    desktopId = assignedId,
+                    name      = name
+                });
+                await _remoteControl.SendToClientAsync(ws, ackJson);
+            }
+            catch { }
+        };
+
+        _remoteControl.OpenSetlistRequested += (ws, setlistId) =>
+            _ = Dispatcher.InvokeAsync(async () =>
+            {
+                try
+                {
+                    var setlist = await db.GetSetlistWithItemsAsync(setlistId);
+                    if (setlist == null) return;
+                    _vm.ClearSetlistCommand.Execute(null);
+                    foreach (var item in setlist.Items.OrderBy(i => i.Position))
+                    {
+                        if (item.SongId.HasValue)
+                        {
+                            var song = await db.GetSongWithVersesAsync(item.SongId.Value);
+                            if (song != null) _vm.AddToSetlistCommand.Execute(song);
+                        }
+                    }
+                }
+                catch { }
+            });
+
         _remoteControl.SyncPushRequested += async (ws, rawJson) =>
         {
             try
@@ -371,10 +397,20 @@ public partial class MainWindow : Window
                                or nameof(DisplayViewModel.SlideList))
                 await BroadcastCurrentState();
             if (e.PropertyName is nameof(DisplayViewModel.SelectedSetlistItem))
+            {
                 await BroadcastSetlistState();
+                if (_vm.SelectedSetlistItem != null)
+                    await Dispatcher.InvokeAsync(() => SetlistListBox.ScrollIntoView(_vm.SelectedSetlistItem));
+            }
         };
 
-        _vm.SetlistItems.CollectionChanged += async (_, _) => await BroadcastSetlistState();
+        _vm.SetlistItems.CollectionChanged += async (_, e) =>
+        {
+            await BroadcastSetlistState();
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add
+                && e.NewItems?.Count > 0)
+                await Dispatcher.InvokeAsync(() => SetlistListBox.ScrollIntoView(e.NewItems[e.NewItems.Count - 1]));
+        };
 
         Loaded += async (_, _) =>
         {
