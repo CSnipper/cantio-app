@@ -90,13 +90,33 @@ public partial class SzablonViewModel : ObservableObject
         PreviewProjection.SlideText = firstSlide;
     }
 
-    // Lista czcionek systemowych
+    // Lista czcionek (wbudowane + systemowe), z grupowaniem
 
-    public static IReadOnlyList<string> SystemFonts { get; } =
-        System.Windows.Media.Fonts.SystemFontFamilies
+    public record FontEntry(string Name, string Group);
+
+    public static IReadOnlyList<FontEntry> SystemFonts { get; } = BuildFontList();
+
+    public System.ComponentModel.ICollectionView FontsView { get; } = BuildFontsView();
+
+    private static System.ComponentModel.ICollectionView BuildFontsView()
+    {
+        var view = System.Windows.Data.CollectionViewSource.GetDefaultView(SystemFonts);
+        if (view.GroupDescriptions.Count == 0)
+            view.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription(nameof(FontEntry.Group)));
+        return view;
+    }
+
+    private static IReadOnlyList<FontEntry> BuildFontList()
+    {
+        var embedded = Helpers.EmbeddedFonts.Names
+            .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
+            .Select(n => new FontEntry(n, "Wbudowane"));
+        var system = System.Windows.Media.Fonts.SystemFontFamilies
             .Select(f => f.Source)
-            .OrderBy(n => n)
-            .ToList();
+            .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
+            .Select(n => new FontEntry(n, "Systemowe"));
+        return embedded.Concat(system).ToList();
+    }
 
     // Czcionka
 
@@ -216,7 +236,7 @@ public partial class SzablonViewModel : ObservableObject
 
     public string PreviewText => string.Join("\n", _sampleLines);
 
-    public FontFamily PreviewFontFamily => new(FontFamily);
+    public FontFamily PreviewFontFamily => Helpers.EmbeddedFonts.Resolve(FontFamily);
     public FontWeight PreviewFontWeight => FontBold ? FontWeights.Bold : FontWeights.Normal;
     public TextAlignment PreviewTextAlignment => TextAlign switch
     {

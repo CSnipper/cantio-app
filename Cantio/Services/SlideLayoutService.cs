@@ -213,7 +213,7 @@ public static class SlideLayoutService
         var availableWidth = settings.SlideWidth - 2 * settings.MarginH;
         var tb = MeasureTb;
 
-        tb.FontFamily   = new FontFamily(settings.FontFamily);
+        tb.FontFamily   = Helpers.EmbeddedFonts.Resolve(settings.FontFamily);
         tb.FontSize     = settings.FontSize;
         tb.FontWeight   = settings.FontBold ? FontWeights.Bold : FontWeights.Normal;
         tb.TextWrapping = TextWrapping.Wrap;
@@ -277,7 +277,7 @@ public static class SlideLayoutService
     private static double MeasureMaxLineWidth(string text, SlideLayoutSettings settings)
     {
         var typeface = new Typeface(
-            new FontFamily(settings.FontFamily),
+            Helpers.EmbeddedFonts.Resolve(settings.FontFamily),
             FontStyles.Normal,
             settings.FontBold ? FontWeights.Bold : FontWeights.Normal,
             FontStretches.Normal);

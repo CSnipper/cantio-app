@@ -127,7 +127,7 @@ public partial class ProjectionViewModel : ObservableObject
 
     public void ApplySettings(DisplaySettings s)
     {
-        FontFamily = new FontFamily(s.FontFamily);
+        FontFamily = Helpers.EmbeddedFonts.Resolve(s.FontFamily);
         FontSize = s.FontSize;
         FontWeight = s.FontBold ? FontWeights.Bold : FontWeights.Normal;
         LineHeightMultiplier = s.LineHeightMultiplier;

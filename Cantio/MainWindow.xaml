@@ -3157,11 +3157,29 @@
                             <ComboBox Style="{StaticResource DarkCombo}"
                                       IsEditable="True"
                                       IsTextSearchEnabled="True"
-                                      ItemsSource="{Binding SystemFonts}"
+                                      TextSearch.TextPath="Name"
+                                      DisplayMemberPath="Name"
                                       Margin="0,0,0,16">
+                                <ComboBox.ItemsSource>
+                                    <Binding Path="FontsView"/>
+                                </ComboBox.ItemsSource>
                                 <ComboBox.Text>
                                     <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged"/>
                                 </ComboBox.Text>
+                                <ComboBox.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}"
+                                                           Foreground="#c9a84c"
+                                                           FontFamily="{StaticResource HeaderFont}"
+                                                           FontSize="13"
+                                                           FontWeight="Bold"
+                                                           Margin="6,8,6,4"/>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ComboBox.GroupStyle>
                             </ComboBox>
 
                             <Grid Margin="0,0,0,16">

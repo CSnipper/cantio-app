@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<UseWPF>true</UseWPF>
 	<ApplicationIcon>cantio.ico</ApplicationIcon>
-	<Version>1.49</Version>
+	<Version>1.50</Version>
 	<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
@@ -27,6 +27,23 @@
     <None Remove="Assets\Fonts\Lato-Light.ttf" />
     <None Remove="Assets\Fonts\Lato-Regular.ttf" />
     <None Remove="Assets\Fonts\Lato-Bold.ttf" />
+    <None Remove="Assets\Fonts\OpenSans-Regular.ttf" />
+    <None Remove="Assets\Fonts\OpenSans-Bold.ttf" />
+    <None Remove="Assets\Fonts\OpenSans-Italic.ttf" />
+    <None Remove="Assets\Fonts\PlusJakartaSans-Regular.ttf" />
+    <None Remove="Assets\Fonts\PlusJakartaSans-Bold.ttf" />
+    <None Remove="Assets\Fonts\PlusJakartaSans-Italic.ttf" />
+    <None Remove="Assets\Fonts\Raleway-Regular.ttf" />
+    <None Remove="Assets\Fonts\Raleway-Bold.ttf" />
+    <None Remove="Assets\Fonts\Raleway-Italic.ttf" />
+    <None Remove="Assets\Fonts\RobotoSlab-Regular.ttf" />
+    <None Remove="Assets\Fonts\RobotoSlab-Bold.ttf" />
+    <None Remove="Assets\Fonts\Signika-Regular.ttf" />
+    <None Remove="Assets\Fonts\Signika-Bold.ttf" />
+    <None Remove="Assets\Fonts\Afacad-Regular.ttf" />
+    <None Remove="Assets\Fonts\Afacad-Bold.ttf" />
+    <None Remove="Assets\Fonts\Afacad-Italic.ttf" />
+    <None Remove="Assets\Fonts\Alatsi-Regular.ttf" />
     <None Remove="cantio.ico" />
   </ItemGroup>
 
@@ -61,6 +78,23 @@
 	<Resource Include="Assets\Fonts\Lato-Light.ttf" />
 	<Resource Include="Assets\Fonts\Lato-Regular.ttf" />
 	<Resource Include="Assets\Fonts\Lato-Bold.ttf" />
+	<Resource Include="Assets\Fonts\OpenSans-Regular.ttf" />
+	<Resource Include="Assets\Fonts\OpenSans-Bold.ttf" />
+	<Resource Include="Assets\Fonts\OpenSans-Italic.ttf" />
+	<Resource Include="Assets\Fonts\PlusJakartaSans-Regular.ttf" />
+	<Resource Include="Assets\Fonts\PlusJakartaSans-Bold.ttf" />
+	<Resource Include="Assets\Fonts\PlusJakartaSans-Italic.ttf" />
+	<Resource Include="Assets\Fonts\Raleway-Regular.ttf" />
+	<Resource Include="Assets\Fonts\Raleway-Bold.ttf" />
+	<Resource Include="Assets\Fonts\Raleway-Italic.ttf" />
+	<Resource Include="Assets\Fonts\RobotoSlab-Regular.ttf" />
+	<Resource Include="Assets\Fonts\RobotoSlab-Bold.ttf" />
+	<Resource Include="Assets\Fonts\Signika-Regular.ttf" />
+	<Resource Include="Assets\Fonts\Signika-Bold.ttf" />
+	<Resource Include="Assets\Fonts\Afacad-Regular.ttf" />
+	<Resource Include="Assets\Fonts\Afacad-Bold.ttf" />
+	<Resource Include="Assets\Fonts\Afacad-Italic.ttf" />
+	<Resource Include="Assets\Fonts\Alatsi-Regular.ttf" />
 	<Resource Include="cantio.ico" />
   </ItemGroup>
 
