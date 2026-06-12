@@ -85,11 +85,10 @@ public static class LiturgicalCalendarService
 
     private static DateOnly GetAdventStart(int year)
     {
-        // 1. Niedziela Adwentu = niedziela najbliższa 30 listopada
-        var nov30 = new DateOnly(year, 11, 30);
-        int dow = (int)nov30.DayOfWeek;
-        int daysToSunday = dow == 0 ? 0 : 7 - dow;
-        return nov30.AddDays(daysToSunday);
+        // 1. Niedziela Adwentu = niedziela najbliższa 30 listopada, czyli w przedziale [27 XI, 3 XII]
+        var nov27 = new DateOnly(year, 11, 27);
+        int dow = (int)nov27.DayOfWeek;
+        return nov27.AddDays((7 - dow) % 7);
     }
 
     private static int GetAdventWeek(DateOnly date, DateOnly adventStart)
@@ -102,14 +101,15 @@ public static class LiturgicalCalendarService
     {
         var baptism = GetBaptismOfLord(year);
         var ashWednesday = easter.AddDays(-46);
-        var pentecost = easter.AddDays(49);
 
         if (date > baptism && date < ashWednesday)
             return (date.DayNumber - baptism.DayNumber) / 7 + 1;
 
-        // Po Zesłaniu — kontynuacja numeracji
-        int weeksBefore = (ashWednesday.DayNumber - baptism.DayNumber) / 7;
-        return weeksBefore + (date.DayNumber - pentecost.DayNumber) / 7 + 1;
+        // Po Zesłaniu — numeracja WSTECZ od Adwentu: 34. tydzień = tydzień przed 1. Nd Adwentu
+        // (Chrystusa Króla); ewentualna luka w numeracji wypada tuż po Zesłaniu
+        var christKing = GetAdventStart(year).AddDays(-7);
+        var sundayOfWeek = date.AddDays(date.DayOfWeek == DayOfWeek.Sunday ? 0 : -(int)date.DayOfWeek);
+        return 34 - (christKing.DayNumber - sundayOfWeek.DayNumber) / 7;
     }
 
     private static DateOnly GetBaptismOfLord(int year)
