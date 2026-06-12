@@ -1580,12 +1580,25 @@
                                         <ItemsControl ItemsSource="{Binding PinnedSetlists}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="{Binding Name}"
-                                                            Margin="0,0,0,4"
-                                                            Command="{Binding DataContext.LoadPinnedSetlistCommand,
-                                                                RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource OutlineBtn}"/>
+                                                    <Grid Margin="0,0,0,4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Grid.Column="0" Content="{Binding Name}"
+                                                                Command="{Binding DataContext.LoadPinnedSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}"/>
+                                                        <Button Grid.Column="1" Content="✕"
+                                                                Margin="3,0,0,0" Padding="5,0"
+                                                                FontSize="11"
+                                                                ToolTip="{DynamicResource Pinned.Unpin}"
+                                                                Command="{Binding DataContext.UnpinSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}"/>
+                                                    </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>

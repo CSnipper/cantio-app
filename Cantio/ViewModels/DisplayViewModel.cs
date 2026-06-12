@@ -1107,6 +1107,15 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task UnpinSetlist(Setlist setlist)
+    {
+        setlist.IsPinned = false;
+        await _db.SaveSetlistAsync(setlist);
+        if (setlist.Id == _loadedSetlistId) IsCurrentSetlistPinned = false;
+        await LoadPinnedSetlistsAsync();
+    }
+
+    [RelayCommand]
     private async Task LoadPinnedSetlistAsync(Setlist setlist)
     {
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);

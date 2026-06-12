@@ -221,6 +221,7 @@
     <!-- Pestaña Presentación — lista -->
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
     <sys:String x:Key="Section.Pinned">FIJADOS</sys:String>
+    <sys:String x:Key="Pinned.Unpin">Desfijar</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>

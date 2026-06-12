@@ -222,6 +222,7 @@
     <!-- Zakładka Wyświetlanie — zestaw -->
     <sys:String x:Key="Section.CurrentSet">ZESTAW</sys:String>
     <sys:String x:Key="Section.Pinned">PRZYPIĘTE</sys:String>
+    <sys:String x:Key="Pinned.Unpin">Odepnij</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Import pieśni</sys:String>

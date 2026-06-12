@@ -221,6 +221,7 @@
     <!-- Display tab — setlist -->
     <sys:String x:Key="Section.CurrentSet">SET</sys:String>
     <sys:String x:Key="Section.Pinned">PINNED</sys:String>
+    <sys:String x:Key="Pinned.Unpin">Unpin</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Song Import</sys:String>
