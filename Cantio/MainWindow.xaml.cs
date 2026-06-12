@@ -150,8 +150,8 @@ public partial class MainWindow : Window
 
         PaneAbout.DataContext = _aboutVm;
 
-        _remoteControl = new RemoteControlViewModel();
-        PanePilot.DataContext = _remoteControl;
+        _remoteControl = new RemoteControlViewModel(db);
+        PilotPanel.DataContext = _remoteControl;
 
         _remoteControl.NextRequested  += (_, _) =>
             Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
@@ -416,6 +416,7 @@ public partial class MainWindow : Window
         {
             await _vm.InitializeAsync();
             RestoreWindowPosition();
+            await _remoteControl.InitAsync();
             await _aboutVm.CheckAndPromptAsync();
 
             var updateTimer = new System.Windows.Threading.DispatcherTimer
@@ -495,7 +496,6 @@ public partial class MainWindow : Window
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
     private void TabAbout_Click(object sender, RoutedEventArgs e) => ShowPane(PaneAbout, TabAbout);
-    private void BtnPilot_Click(object sender, RoutedEventArgs e) => ShowPane(PanePilot, BtnPilot);
     private void TabSupport_Click(object sender, RoutedEventArgs e) =>
         System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo("https://buycoffee.to/marekwojtaszek")
@@ -508,7 +508,6 @@ public partial class MainWindow : Window
         PaneTemplate.Visibility = Visibility.Collapsed;
         PaneImport.Visibility = Visibility.Collapsed;
         PaneAbout.Visibility = Visibility.Collapsed;
-        PanePilot.Visibility = Visibility.Collapsed;
 
         // Reset all tab styles
         foreach (Button btn in TabBar.Children)
@@ -522,7 +521,6 @@ public partial class MainWindow : Window
         _activeTab = pane == PaneShow      ? "show"
             : pane == PaneTemplate         ? "template"
             : pane == PaneAbout            ? "about"
-            : pane == PanePilot            ? "pilot"
             : "import";
     }
 

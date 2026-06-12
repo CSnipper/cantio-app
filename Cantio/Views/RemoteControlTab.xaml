@@ -136,7 +136,7 @@
 
             <!-- Toggle button -->
             <Button Command="{Binding ToggleServerCommand}"
-                    Height="44" FontSize="14" Margin="0,0,0,24"
+                    Height="44" FontSize="14" Margin="0,0,0,12"
                     HorizontalAlignment="Left" Padding="24,0">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource GoldBtn}">
@@ -149,6 +149,13 @@
                     </Style>
                 </Button.Style>
             </Button>
+
+            <!-- Zapamiętaj stan po zamknięciu aplikacji -->
+            <CheckBox IsChecked="{Binding RememberState}" Margin="0,0,0,24"
+                      VerticalContentAlignment="Center">
+                <TextBlock Text="{DynamicResource Pilot.RememberState}"
+                           Foreground="#e8eaf0" FontSize="13" TextWrapping="Wrap"/>
+            </CheckBox>
 
             <!-- URL row (visible when running) -->
             <StackPanel Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"

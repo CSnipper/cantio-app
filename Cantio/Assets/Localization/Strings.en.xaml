@@ -9,6 +9,7 @@
     <sys:String x:Key="Tab.About">ABOUT</sys:String>
     <sys:String x:Key="Tab.Support">SUPPORT</sys:String>
     <sys:String x:Key="Tab.Pilot">REMOTE</sys:String>
+    <sys:String x:Key="Pilot.RememberState">Remember remote state — start automatically on app launch</sys:String>
 
     <!-- About -->
     <sys:String x:Key="About.Subtitle">Song projection software</sys:String>

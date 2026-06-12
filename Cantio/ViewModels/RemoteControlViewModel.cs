@@ -13,11 +13,14 @@ namespace Cantio.ViewModels;
 public partial class RemoteControlViewModel : ObservableObject, IDisposable
 {
     private readonly RemoteControlServer _server = new();
+    private readonly DatabaseService? _db;
+    private bool _initializing;
 
     [ObservableProperty] private bool        _isRunning;
     [ObservableProperty] private string      _localUrl = "";
     [ObservableProperty] private BitmapSource? _qrCode;
     [ObservableProperty] private int         _port     = 8765;
+    [ObservableProperty] private bool        _rememberState;
 
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
@@ -37,8 +40,9 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int>? GetSetlistDetailRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
 
-    public RemoteControlViewModel()
+    public RemoteControlViewModel(DatabaseService? db = null)
     {
+        _db = db;
         _server.NextRequested           += (_, _)         => NextRequested?.Invoke(this, EventArgs.Empty);
         _server.PrevRequested           += (_, _)         => PrevRequested?.Invoke(this, EventArgs.Empty);
         _server.BlankRequested          += (_, _)         => BlankRequested?.Invoke(this, EventArgs.Empty);
@@ -84,6 +88,37 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             LocalUrl = $"http://{ip}:{Port}";
             QrCode = GenerateQr(LocalUrl);
         }
+        PersistState();
+    }
+
+    /// <summary>Wczytuje zapamiętany stan i auto-startuje serwer, jeśli działał przy zamknięciu.</summary>
+    public async Task InitAsync()
+    {
+        if (_db == null) return;
+        _initializing = true;
+        try
+        {
+            RememberState = await _db.GetSettingAsync("pilot_remember") == "1";
+            if (int.TryParse(await _db.GetSettingAsync("pilot_port"), out var port)) Port = port;
+            if (RememberState && !IsRunning &&
+                await _db.GetSettingAsync("pilot_was_running") == "1")
+                ToggleServer();
+        }
+        finally { _initializing = false; }
+    }
+
+    partial void OnRememberStateChanged(bool value)
+    {
+        if (_initializing || _db == null) return;
+        _ = _db.SaveSettingAsync("pilot_remember", value ? "1" : "0");
+        PersistState();
+    }
+
+    private void PersistState()
+    {
+        if (_initializing || _db == null) return;
+        _ = _db.SaveSettingAsync("pilot_was_running", IsRunning ? "1" : "0");
+        _ = _db.SaveSettingAsync("pilot_port", Port.ToString());
     }
 
     [RelayCommand]

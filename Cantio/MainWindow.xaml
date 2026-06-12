@@ -675,12 +675,6 @@
                             <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="BtnPilot" Style="{StaticResource TabBtn}" Height="56" Click="BtnPilot_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE8AF;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Pilot}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -2674,127 +2668,9 @@
                 </Border>
 
 
-                <!-- COL 2: Tagi formatowania -->
+                <!-- COL 2: Pilot -->
                 <Border Grid.Row="0" Grid.Column="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Margin="24,24,24,24">
-
-                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
-
-                            <TextBlock Text="{DynamicResource Settings.Tags}" FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,12"/>
-
-                            <Grid Margin="0,0,0,6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="42"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="70"/>
-                                    <ColumnDefinition Width="36"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{DynamicResource Settings.TagName}" Foreground="#555f7a" FontSize="13"/>
-                                <TextBlock Grid.Column="1" Text="{DynamicResource Settings.TagColorHeader}" Foreground="#555f7a" FontSize="13"/>
-                                <TextBlock Grid.Column="2" Text="B" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
-                                <TextBlock Grid.Column="3" Text="I" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
-                                <TextBlock Grid.Column="4" Text="U" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
-                                <TextBlock Grid.Column="5" Text="P" Foreground="#555f7a" FontSize="13" TextAlignment="Center"
-                                           ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
-                                <TextBlock Grid.Column="7" Text="Ctrl+" Foreground="#555f7a" FontSize="13"
-                                           ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
-                            </Grid>
-
-                            <ItemsControl ItemsSource="{Binding TextTags}" Margin="0,0,0,10">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0,0,0,6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="90"/>
-                                                <ColumnDefinition Width="6"/>
-                                                <ColumnDefinition Width="36"/>
-                                                <ColumnDefinition Width="6"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="12"/>
-                                                <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="6"/>
-                                                <ColumnDefinition Width="30"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox Grid.Column="0"
-                                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource DarkTextBox}"
-                                                     FontFamily="Consolas" FontSize="14" Padding="6,4"/>
-                                            <Button Grid.Column="2" Width="36" Height="34" Cursor="Hand"
-                                                    ToolTip="{DynamicResource Btn.PickColor}"
-                                                    Command="{Binding DataContext.PickTagColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border BorderBrush="#555" BorderThickness="1">
-                                                            <Border.Background>
-                                                                <SolidColorBrush Color="{Binding Color, Converter={StaticResource HexToColor}, FallbackValue=White}"/>
-                                                            </Border.Background>
-                                                        </Border>
-                                                        <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Opacity" Value="0.8"/>
-                                                            </Trigger>
-                                                        </ControlTemplate.Triggers>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-                                            <CheckBox Grid.Column="4" IsChecked="{Binding Bold}"
-                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                      Foreground="#e8eaf0"/>
-                                            <CheckBox Grid.Column="5" IsChecked="{Binding Italic}"
-                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                      Foreground="#e8eaf0"/>
-                                            <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
-                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                      Foreground="#e8eaf0"/>
-                                            <CheckBox Grid.Column="7" IsChecked="{Binding PreviewOnly}"
-                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                      Foreground="#e8eaf0"
-                                                      ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
-                                            <TextBox Grid.Column="9"
-                                                     Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource DarkTextBox}"
-                                                     FontFamily="Consolas" FontSize="14" Padding="4,4"
-                                                     TextAlignment="Center"
-                                                     ToolTip="{DynamicResource Settings.TagShortcutInput}"
-                                                     helpers:KeyCaptureHelper.IsEnabled="True"/>
-                                            <Button Grid.Column="11" Content="&#x2715;" Width="30" Height="30"
-                                                    Style="{StaticResource RedBtn}"
-                                                    Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    Padding="0" FontSize="14"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <Button Content="{DynamicResource Settings.TagAdd}" Style="{StaticResource GoldBtn}"
-                                    Command="{Binding AddTagCommand}"
-                                    Height="36" Padding="16,0" HorizontalAlignment="Left"
-                                    FontSize="14" Margin="0,0,0,20"/>
-
-                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="12,10" Margin="0,0,0,8">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.TagsSyntax}" Foreground="#9aa3b8"
-                                               FontFamily="Consolas" FontSize="13" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{DynamicResource Settings.TagsBuiltin}"
-                                               Foreground="#9aa3b8" FontFamily="Consolas" FontSize="13"/>
-                                </StackPanel>
-                            </Border>
-
-                        </StackPanel>
-                    </ScrollViewer>
+                    <views:RemoteControlTab x:Name="PilotPanel"/>
                 </Border>
                 <!-- COL 3: Import -->
                 <Border x:Name="ImportColumn" Grid.Row="0" Grid.Column="2" BorderBrush="#2a3347" BorderThickness="0,0,0,0">
@@ -3125,7 +3001,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="360"/>
+                    <ColumnDefinition Width="440"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- COL 1: Czcionka -->
@@ -3659,29 +3535,156 @@
                     </ScrollViewer>
                 </Border>
 
-                <!-- COL 3: Podgląd -->
+                <!-- COL 3: Tagi formatowania + Podgląd -->
                 <Border Grid.Row="0" Grid.Column="2" BorderBrush="#2a3347" BorderThickness="1,0,0,0"
                         Background="#0a0d14">
-                    <StackPanel VerticalAlignment="Center" Margin="20">
-                        <TextBlock Text="{DynamicResource Settings.SectionPreview}" FontFamily="{StaticResource HeaderFont}"
-                                   FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,16"/>
-                        <Border Background="{Binding PreviewProjection.BackgroundBrush}"
-                                BorderBrush="#2a3347" BorderThickness="1"
-                                ClipToBounds="True"
-                                Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
-                                         Converter={StaticResource WidthToHeight}}">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
-                            </Border.Effect>
-                            <Viewbox Stretch="Uniform">
-                                <views:ProjectionView
-                                    DataContext="{Binding PreviewProjection}"
-                                    IsPreviewMode="True"
-                                    Width="{Binding DataContext.ProjectionScreenWidth, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    Height="{Binding DataContext.ProjectionScreenHeight, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Viewbox>
-                        </Border>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Tagi formatowania -->
+                        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="20,20,20,8">
+
+                                <TextBlock Text="{DynamicResource Settings.Tags}" FontFamily="{StaticResource HeaderFont}"
+                                           FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,12"/>
+
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="42"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="36"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource Settings.TagName}" Foreground="#555f7a" FontSize="13"/>
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Settings.TagColorHeader}" Foreground="#555f7a" FontSize="13"/>
+                                    <TextBlock Grid.Column="2" Text="B" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="I" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="U" Foreground="#555f7a" FontSize="13" TextAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="P" Foreground="#555f7a" FontSize="13" TextAlignment="Center"
+                                               ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
+                                    <TextBlock Grid.Column="7" Text="Ctrl+" Foreground="#555f7a" FontSize="13"
+                                               ToolTip="{DynamicResource Settings.TagShortcutTip}"/>
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding TextTags}" Margin="0,0,0,10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="12"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0"
+                                                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontFamily="Consolas" FontSize="14" Padding="6,4"/>
+                                                <Button Grid.Column="2" Width="36" Height="34" Cursor="Hand"
+                                                        ToolTip="{DynamicResource Btn.PickColor}"
+                                                        Command="{Binding DataContext.PickTagColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border BorderBrush="#555" BorderThickness="1">
+                                                                <Border.Background>
+                                                                    <SolidColorBrush Color="{Binding Color, Converter={StaticResource HexToColor}, FallbackValue=White}"/>
+                                                                </Border.Background>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity" Value="0.8"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                                <CheckBox Grid.Column="4" IsChecked="{Binding Bold}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <CheckBox Grid.Column="5" IsChecked="{Binding Italic}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <CheckBox Grid.Column="6" IsChecked="{Binding Underline}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"/>
+                                                <CheckBox Grid.Column="7" IsChecked="{Binding PreviewOnly}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Foreground="#e8eaf0"
+                                                          ToolTip="{DynamicResource Settings.TagPreviewOnlyTip}"/>
+                                                <TextBox Grid.Column="9"
+                                                         Text="{Binding ShortcutKey, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         FontFamily="Consolas" FontSize="14" Padding="4,4"
+                                                         TextAlignment="Center"
+                                                         ToolTip="{DynamicResource Settings.TagShortcutInput}"
+                                                         helpers:KeyCaptureHelper.IsEnabled="True"/>
+                                                <Button Grid.Column="11" Content="&#x2715;" Width="30" Height="30"
+                                                        Style="{StaticResource RedBtn}"
+                                                        Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Padding="0" FontSize="14"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Content="{DynamicResource Settings.TagAdd}" Style="{StaticResource GoldBtn}"
+                                        Command="{Binding AddTagCommand}"
+                                        Height="36" Padding="16,0" HorizontalAlignment="Left"
+                                        FontSize="14" Margin="0,0,0,16"/>
+
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                        Padding="12,10" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.TagsSyntax}" Foreground="#9aa3b8"
+                                                   FontFamily="Consolas" FontSize="13" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{DynamicResource Settings.TagsBuiltin}"
+                                                   Foreground="#9aa3b8" FontFamily="Consolas" FontSize="13"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Podgląd -->
+                        <StackPanel Grid.Row="1" Margin="20,8,20,20">
+                            <TextBlock Text="{DynamicResource Settings.SectionPreview}" FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,12"/>
+                            <Border Background="{Binding PreviewProjection.BackgroundBrush}"
+                                    BorderBrush="#2a3347" BorderThickness="1"
+                                    ClipToBounds="True"
+                                    Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
+                                             Converter={StaticResource WidthToHeight}}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
+                                </Border.Effect>
+                                <Viewbox Stretch="Uniform">
+                                    <views:ProjectionView
+                                        DataContext="{Binding PreviewProjection}"
+                                        IsPreviewMode="True"
+                                        Width="{Binding DataContext.ProjectionScreenWidth, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        Height="{Binding DataContext.ProjectionScreenHeight, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                </Viewbox>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- Save Bar -->
@@ -3811,9 +3814,6 @@
 
                 </StackPanel>
             </Grid>
-
-            <!-- TAB: PILOT -->
-            <views:RemoteControlTab x:Name="PanePilot" Visibility="Collapsed"/>
 
         </Grid>
     </Grid>

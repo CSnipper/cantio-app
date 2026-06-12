@@ -9,6 +9,7 @@
     <sys:String x:Key="Tab.About">ACERCA DE</sys:String>
     <sys:String x:Key="Tab.Support">APOYAR</sys:String>
     <sys:String x:Key="Tab.Pilot">MANDO</sys:String>
+    <sys:String x:Key="Pilot.RememberState">Recordar el estado del mando — iniciar automáticamente al abrir la aplicación</sys:String>
 
     <!-- Acerca de -->
     <sys:String x:Key="About.Subtitle">Software de proyección de canciones</sys:String>
