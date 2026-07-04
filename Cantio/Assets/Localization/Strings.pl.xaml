@@ -10,6 +10,20 @@
     <sys:String x:Key="Tab.Support">WESPRZYJ</sys:String>
     <sys:String x:Key="Tab.Pilot">PILOT</sys:String>
     <sys:String x:Key="Pilot.RememberState">Pamiętaj stan pilota — uruchom automatycznie przy starcie aplikacji</sys:String>
+    <sys:String x:Key="Season.adwent">Adwent</sys:String>
+    <sys:String x:Key="Season.boznarodzenie">Boże Narodzenie</sys:String>
+    <sys:String x:Key="Season.wielki_post">Wielki Post</sys:String>
+    <sys:String x:Key="Season.wielkanoc">Wielkanoc</sys:String>
+    <sys:String x:Key="Season.zwykly">Okres Zwykły</sys:String>
+    <sys:String x:Key="Btn.RecentSongs">Ostatnio wyświetlane</sys:String>
+    <sys:String x:Key="Recent.Empty">Brak ostatnio wyświetlanych pieśni.</sys:String>
+    <sys:String x:Key="Note.Title">Notatka dla zmienników</sys:String>
+    <sys:String x:Key="Note.Tip">Notatka — krótka wiadomość dla innych organistów</sys:String>
+    <sys:String x:Key="Clock.Year">rok</sys:String>
+    <sys:String x:Key="Sort.ByNumber">Sortuj według numeru</sys:String>
+    <sys:String x:Key="Sort.ByAlpha">Sortuj alfabetycznie</sys:String>
+    <sys:String x:Key="Settings.Diocese">Diecezja</sys:String>
+    <sys:String x:Key="Settings.DioceseDesc">Obchody własne diecezji w kalendarzu (formularze przy zegarze, nazwy przypinanych zestawów).</sys:String>
 
     <!-- O programie -->
     <sys:String x:Key="About.Subtitle">Program do wyświetlania pieśni na projektorze</sys:String>

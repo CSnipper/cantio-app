@@ -123,6 +123,26 @@ public class DatabaseService
             .ToListAsync();
     }
 
+    /** Odnotowuje wyświetlenie pieśni na projektorze (lista „Ostatnie"). */
+    public async Task TouchSongUsageAsync(int songId)
+    {
+        await using var db = new CantioDbContext();
+        var song = await db.Songs.FirstOrDefaultAsync(s => s.Id == songId);
+        if (song == null) return;
+        song.LastUsedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<List<Song>> GetRecentSongsAsync(int limit = 10)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.AsNoTracking()
+            .Where(s => s.LastUsedAt != null)
+            .OrderByDescending(s => s.LastUsedAt)
+            .Take(limit)
+            .ToListAsync();
+    }
+
     // Przyjmuje pieśni z Android pilota i wstawia je do właściwych kategorii.
     // Zwraca mapowanie localId → assignedId.
     public async Task<List<(int localId, int assignedId)>> SyncPushSongsAsync(string rawJson)

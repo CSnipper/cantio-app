@@ -139,6 +139,7 @@ public partial class MainWindow : Window
 
         _szablonVm = new SzablonViewModel(db, _vm.Projection, _vm);
         _szablonVm.Saved += () => _vm.RebuildSlides();
+        _szablonVm.DioceseChanged += RefreshLitDay;
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
         ImportColumn.DataContext = _importVm;
@@ -415,6 +416,9 @@ public partial class MainWindow : Window
         Loaded += async (_, _) =>
         {
             await _vm.InitializeAsync();
+            await _vm.LoadOperatorNoteAsync();
+            DiocesanCalendarService.CurrentDiocese = await db.GetSettingAsync("diocese") ?? "";
+            RefreshLitDay();
             RestoreWindowPosition();
             await _remoteControl.InitAsync();
             await _aboutVm.CheckAndPromptAsync();
@@ -426,6 +430,93 @@ public partial class MainWindow : Window
         };
         Closing += (_, _) => { SaveWindowPosition(); _remoteControl.Dispose(); };
         KeyDown += _vm.OnKeyDown;
+
+        InitClock();
+    }
+
+    // ─── Notatka dla zmienników ───────────────────────────────────────────────
+
+    private void NotePopup_Opened(object sender, EventArgs e)
+    {
+        _vm.MarkNoteOpened();
+        NoteTextBox.Focus();
+    }
+
+    private void NotePopup_Closed(object sender, EventArgs e)
+    {
+        if (_vm.SaveOperatorNoteCommand.CanExecute(null))
+            _vm.SaveOperatorNoteCommand.Execute(null);
+    }
+
+    // ─── Zegar + dzień liturgiczny + formularze na pasku górnym ───────────────
+
+    private DateOnly _clockDate;
+    private Cantio.Models.LiturgicalDay? _clockDay;
+    private List<Celebration> _clockCelebrations = [];
+
+    private sealed record LitFormOption(string Label, string Name);
+
+    private void InitClock()
+    {
+        UpdateClock();
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => UpdateClock();
+        timer.Start();
+    }
+
+    private void UpdateClock()
+    {
+        TxtClock.Text = DateTime.Now.ToString("HH:mm");
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        if (today != _clockDate)
+        {
+            _clockDate = today;
+            RefreshLitDay();
+        }
+        // co tick, żeby zmiana języka odświeżała nazwę okresu bez restartu
+        var day = _clockDay;
+        if (day == null) return;
+        var season = TryFindResource("Season." + day.Group) as string ?? day.Group;
+        TxtLitSeason.Text = day.Cycle.Length > 0
+            ? $"{season} · {TryFindResource("Clock.Year") as string ?? "rok"} {day.Cycle}"
+            : season;
+    }
+
+    /// <summary>Przelicza dzień liturgiczny, obchody i strzałkę formularzy (data/diecezja/wybór).</summary>
+    public void RefreshLitDay()
+    {
+        var day = LiturgicalCalendarService.GetDay(_clockDate);
+        _clockDay = day;
+        _clockCelebrations = DiocesanCalendarService.ForDate(_clockDate);
+        TxtLitDay.Text = DiocesanCalendarService.EffectiveSetlistName(_clockDate, day);
+        BtnLitFormularies.Visibility = _clockCelebrations.Count > 0
+            ? Visibility.Visible : Visibility.Collapsed;
+        LitSeasonDot.Fill = new System.Windows.Media.SolidColorBrush(day.Group switch
+        {
+            "adwent" or "wielki_post" => System.Windows.Media.Color.FromRgb(0x8e, 0x44, 0xad),
+            "boznarodzenie" or "wielkanoc" => System.Windows.Media.Color.FromRgb(0xe8, 0xc9, 0x7a),
+            _ => System.Windows.Media.Color.FromRgb(0x3d, 0x8b, 0x40),
+        });
+    }
+
+    private void BtnLitFormularies_Click(object sender, RoutedEventArgs e)
+    {
+        if (_clockDay == null) return;
+        var opts = new List<LitFormOption> { new(_clockDay.SetlistName, _clockDay.SetlistName) };
+        opts.AddRange(_clockCelebrations.Select(c =>
+            new LitFormOption($"{c.Tytul} · {c.RangaLabel}", c.Tytul)));
+        LitFormItems.ItemsSource = opts;
+        LitPopup.IsOpen = true;
+    }
+
+    private void LitFormItem_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is LitFormOption opt)
+        {
+            DiocesanCalendarService.SetOverride(_clockDate, opt.Name);
+            RefreshLitDay();
+        }
+        LitPopup.IsOpen = false;
     }
 
     // Pozycja okna

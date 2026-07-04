@@ -22,7 +22,7 @@
         <helpers:WidthToHeightConverter x:Key="WidthToHeight"/>
         <FontFamily x:Key="HeaderFont">/Assets/Fonts/#Grenze</FontFamily>
         
-        <!-- â”€â”€ Ciemny ComboBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Ciemny ComboBox  -->
         <ControlTemplate x:Key="DarkComboToggle" TargetType="ToggleButton">
             <Border x:Name="Bd"
                     Background="{TemplateBinding Background}"
@@ -126,7 +126,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ Ciemny TextBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Ciemny TextBox  -->
         <Style x:Key="DarkTextBox" TargetType="TextBox">
             <Setter Property="Background"      Value="#1e2535"/>
             <Setter Property="Foreground"      Value="#e8eaf0"/>
@@ -158,7 +158,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ Ciemny Slider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Ciemny Slider  -->
         <Style x:Key="DarkSlider" TargetType="Slider">
             <Setter Property="Template">
                 <Setter.Value>
@@ -205,7 +205,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ Ciemny CheckBox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Ciemny CheckBox  -->
         <Style x:Key="DarkCheck" TargetType="CheckBox">
             <Setter Property="Foreground"  Value="#e8eaf0"/>
             <Setter Property="FontSize"    Value="13"/>
@@ -237,7 +237,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ Ciemny RadioButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Ciemny RadioButton  -->
         <Style x:Key="DarkRadio" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#e8eaf0"/>
             <Setter Property="FontSize"   Value="13"/>
@@ -265,7 +265,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ ToggleButton (wyrównanie tekstu) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  ToggleButton (wyrównanie tekstu)  -->
         <Style x:Key="AlignBtn" TargetType="ToggleButton">
             <Setter Property="Background"      Value="#1e2535"/>
             <Setter Property="Foreground"      Value="#959fb9"/>
@@ -297,7 +297,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ Zakładka ustawień (Czcionka/Kolor/itd.) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+        <!--  Zakładka ustawień (Czcionka/Kolor/itd.)  -->
         <Style x:Key="SettingsTab" TargetType="RadioButton">
             <Setter Property="Background"  Value="Transparent"/>
             <Setter Property="Foreground"  Value="#959fb9"/>
@@ -331,13 +331,13 @@
 
 
 
-        <!-- â”€â”€ SCROLLBAR â”€â”€ -->
+        <!--  SCROLLBAR  -->
         <Style x:Key="SlimScrollViewer" TargetType="ScrollViewer">
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
         </Style>
 
-        <!-- â”€â”€ TAB BUTTON â”€â”€ -->
+        <!--  TAB BUTTON  -->
         <Style x:Key="TabBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1,0,0,1"/>
@@ -374,7 +374,7 @@
             <Setter Property="BorderThickness" Value="1,0,0,3"/>
         </Style>
 
-        <!-- â”€â”€ OUTLINE BUTTON â”€â”€ -->
+        <!--  OUTLINE BUTTON  -->
         <Style x:Key="OutlineBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -405,7 +405,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ RED BUTTON â”€â”€ -->
+        <!--  RED BUTTON  -->
         <Style x:Key="RedBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
             <Setter Property="Foreground" Value="#d44a4a"/>
             <Setter Property="Template">
@@ -428,7 +428,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ SMALL ICON BUTTON â”€â”€ -->
+        <!--  SMALL ICON BUTTON  -->
         <Style x:Key="SmallIconBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#959fb9"/>
@@ -451,7 +451,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ GOLD BUTTON â”€â”€ -->
+        <!--  GOLD BUTTON  -->
         <Style x:Key="GoldBtn" TargetType="Button">
             <Setter Property="Background" Value="#c9a84c"/>
             <Setter Property="Foreground" Value="#0f1117"/>
@@ -477,7 +477,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ PIN BUTTON â”€â”€ -->
+        <!--  PIN BUTTON  -->
         <Style x:Key="PinBtn" TargetType="ToggleButton">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -513,7 +513,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ NAV BUTTON â”€â”€ -->
+        <!--  NAV BUTTON  -->
         <Style x:Key="NavBtn" TargetType="Button">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#e8eaf0"/>
@@ -547,7 +547,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ SEARCH BOX â”€â”€ -->
+        <!--  SEARCH BOX  -->
         <Style x:Key="SearchBox" TargetType="TextBox">
             <Setter Property="Background" Value="#1e2535"/>
             <Setter Property="Foreground" Value="#e8eaf0"/>
@@ -576,7 +576,7 @@
             </Setter>
         </Style>
 
-        <!-- â”€â”€ SHARED LIST ITEM â”€â”€ -->
+        <!--  SHARED LIST ITEM  -->
         <Style x:Key="DarkListItem" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Foreground" Value="#9aa3b8"/>
@@ -628,12 +628,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- â•â•â•â•â•â•â•â•â•â• TOP BAR â•â•â•â•â•â•â•â•â•â• -->
+        <!--  TOP BAR  -->
         <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
@@ -644,45 +645,138 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
+                <!-- Zegar + dzień liturgiczny + formularze + notatka -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtClock"
+                               FontFamily="{StaticResource HeaderFont}"
+                               FontSize="34" FontWeight="SemiBold" Foreground="#e8eaf0"
+                               VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <Ellipse x:Name="LitSeasonDot" Width="10" Height="10"
+                             Fill="#3d8b40" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                    <StackPanel VerticalAlignment="Center" MaxWidth="300">
+                        <TextBlock x:Name="TxtLitDay"
+                                   FontFamily="{StaticResource HeaderFont}"
+                                   FontSize="17" FontWeight="Medium" Foreground="#c9a84c"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock x:Name="TxtLitSeason"
+                                   FontSize="12" Foreground="#9aa3b8" Margin="0,-2,0,0"/>
+                    </StackPanel>
+                    <Button x:Name="BtnLitFormularies" Content="▾"
+                            Style="{StaticResource OutlineBtn}"
+                            Visibility="Collapsed"
+                            Padding="6,1" Margin="8,0,0,0" FontSize="14"
+                            VerticalAlignment="Center"
+                            Click="BtnLitFormularies_Click"/>
+                    <Popup x:Name="LitPopup" StaysOpen="False" AllowsTransparency="True"
+                           PlacementTarget="{Binding ElementName=BtnLitFormularies}" Placement="Bottom">
+                        <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                Padding="8" MinWidth="280" MaxWidth="420">
+                            <ItemsControl x:Name="LitFormItems">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Label}"
+                                                Margin="0,0,0,4" Padding="10,6"
+                                                HorizontalContentAlignment="Left"
+                                                Style="{StaticResource OutlineBtn}"
+                                                FontSize="14"
+                                                Click="LitFormItem_Click"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                    </Popup>
+                    <Button x:Name="BtnOperatorNote" Content="📝"
+                            ToolTip="{DynamicResource Note.Tip}"
+                            BorderThickness="0" FontSize="15" Cursor="Hand"
+                            Padding="8,4" Margin="10,0,0,0" VerticalAlignment="Center"
+                            Command="{Binding ToggleNotePopupCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#252d3d"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNoteUnread}" Value="True">
+                                        <Setter Property="Background" Value="#d44a4a"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#3a4a65"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Popup IsOpen="{Binding IsNotePopupOpen, Mode=TwoWay}"
+                           PlacementTarget="{Binding ElementName=BtnOperatorNote}"
+                           Placement="Bottom" StaysOpen="False"
+                           AllowsTransparency="True"
+                           Opened="NotePopup_Opened" Closed="NotePopup_Closed">
+                        <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                Padding="10" Width="320">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Note.Title}"
+                                           FontFamily="{StaticResource HeaderFont}"
+                                           FontSize="16" FontWeight="Medium"
+                                           Foreground="#c9a84c" Margin="0,0,0,8"/>
+                                <TextBox x:Name="NoteTextBox"
+                                         Text="{Binding OperatorNote, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource DarkTextBox}"
+                                         AcceptsReturn="True" TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Height="140" FontSize="14"/>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
                     <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Click="TabTemplate_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Click="TabAbout_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Click="TabSupport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="26" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- â•â•â•â•â•â•â•â•â•â• CONTENT â•â•â•â•â•â•â•â•â•â• -->
+        <!--  CONTENT  -->
         <Grid Grid.Row="1">
 
-            <!-- â”€â”€ TAB: WYĹšWIETLANIE â”€â”€ -->
+            <!--  TAB: WYĹšWIETLANIE  -->
             <Grid x:Name="PaneShow" Visibility="Visible">
 
                 <Grid>
@@ -1345,6 +1439,9 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
                                                    FontFamily="{StaticResource HeaderFont}"
@@ -1352,9 +1449,84 @@
                                         <TextBlock Grid.Column="1" Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8"
                                                    FontSize="14" Margin="10,7" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
-                                        <Button Grid.Column="2" Content="{DynamicResource Btn.NewSong}"
+                                        <Button Grid.Column="2" Content="1-9"
+                                                ToolTip="{DynamicResource Sort.ByNumber}"
+                                                Padding="6,4" Margin="0,0,4,0" FontSize="12"
+                                                Command="{Binding SetSongSortCommand}" CommandParameter="number">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SongSortMode}" Value="number">
+                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Grid.Column="3" Content="A-Z"
+                                                ToolTip="{DynamicResource Sort.ByAlpha}"
+                                                Padding="6,4" Margin="0,0,6,0" FontSize="12"
+                                                Command="{Binding SetSongSortCommand}" CommandParameter="alpha">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SongSortMode}" Value="alpha">
+                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Grid.Column="4" x:Name="BtnRecentSongs" Content="🕘"
+                                                Style="{StaticResource OutlineBtn}"
+                                                ToolTip="{DynamicResource Btn.RecentSongs}"
+                                                Padding="7,4" Margin="0,0,6,0" FontSize="14"
+                                                Command="{Binding OpenRecentSongsCommand}"/>
+                                        <Button Grid.Column="5" Content="{DynamicResource Btn.NewSong}"
                                                 Style="{StaticResource GoldBtn}"
                                                 Padding="8,4" Command="{Binding NewSongCommand}"/>
+                                        <Popup IsOpen="{Binding IsRecentPopupOpen, Mode=TwoWay}"
+                                               PlacementTarget="{Binding ElementName=BtnRecentSongs}"
+                                               Placement="Bottom" StaysOpen="False"
+                                               AllowsTransparency="True">
+                                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                                    Padding="8" MinWidth="260" MaxWidth="380">
+                                                <StackPanel>
+                                                    <TextBlock Text="{DynamicResource Btn.RecentSongs}"
+                                                               FontFamily="{StaticResource HeaderFont}"
+                                                               FontSize="16" FontWeight="Medium"
+                                                               Foreground="#c9a84c" Margin="2,0,0,8"/>
+                                                    <ItemsControl ItemsSource="{Binding RecentSongs}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Content="{Binding Title}"
+                                                                        Margin="0,0,0,4" Padding="10,6"
+                                                                        HorizontalContentAlignment="Left"
+                                                                        Style="{StaticResource OutlineBtn}"
+                                                                        Command="{Binding DataContext.DisplayRecentSongCommand,
+                                                                            RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        CommandParameter="{Binding}"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Text="{DynamicResource Recent.Empty}"
+                                                               Foreground="#9aa3b8" FontSize="13" Margin="2,2,0,2">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RecentSongs.Count}" Value="0">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </Popup>
                                     </Grid>
                                 </Border>
                                 <Border Grid.Row="1" Background="#161b25">
@@ -2655,6 +2827,17 @@
                                              IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
                                              Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
                             </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Settings.Diocese}"
+                                       Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,16,0,4"/>
+                            <TextBlock Text="{DynamicResource Settings.DioceseDesc}"
+                                       Foreground="#959fb9" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <ComboBox Style="{StaticResource DarkCombo}"
+                                      ItemsSource="{Binding DioceseOptions}"
+                                      SelectedItem="{Binding SelectedDioceseOption}"
+                                      FontSize="14" Height="34"/>
 
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,20,0,0">
                                 <Button Content="{DynamicResource Btn.OpenShortcuts}"

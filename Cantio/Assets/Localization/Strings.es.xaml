@@ -10,6 +10,20 @@
     <sys:String x:Key="Tab.Support">APOYAR</sys:String>
     <sys:String x:Key="Tab.Pilot">MANDO</sys:String>
     <sys:String x:Key="Pilot.RememberState">Recordar el estado del mando — iniciar automáticamente al abrir la aplicación</sys:String>
+    <sys:String x:Key="Season.adwent">Adviento</sys:String>
+    <sys:String x:Key="Season.boznarodzenie">Navidad</sys:String>
+    <sys:String x:Key="Season.wielki_post">Cuaresma</sys:String>
+    <sys:String x:Key="Season.wielkanoc">Pascua</sys:String>
+    <sys:String x:Key="Season.zwykly">Tiempo Ordinario</sys:String>
+    <sys:String x:Key="Btn.RecentSongs">Mostradas recientemente</sys:String>
+    <sys:String x:Key="Recent.Empty">No hay canciones mostradas recientemente.</sys:String>
+    <sys:String x:Key="Note.Title">Nota para suplentes</sys:String>
+    <sys:String x:Key="Note.Tip">Nota — un mensaje breve para otros organistas</sys:String>
+    <sys:String x:Key="Clock.Year">año</sys:String>
+    <sys:String x:Key="Sort.ByNumber">Ordenar por número</sys:String>
+    <sys:String x:Key="Sort.ByAlpha">Ordenar alfabéticamente</sys:String>
+    <sys:String x:Key="Settings.Diocese">Diócesis</sys:String>
+    <sys:String x:Key="Settings.DioceseDesc">Celebraciones propias de la diócesis en el calendario (formularios junto al reloj, nombres de las listas fijadas).</sys:String>
 
     <!-- Acerca de -->
     <sys:String x:Key="About.Subtitle">Software de proyección de canciones</sys:String>

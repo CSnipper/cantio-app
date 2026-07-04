@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\Data\psalmy.json.gz" />
+    <EmbeddedResource Include="Assets\Data\kalendarz_diecezji.json" />
   </ItemGroup>
 
   <ItemGroup>

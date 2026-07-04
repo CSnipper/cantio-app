@@ -1,0 +1,4156 @@
+[
+  {
+    "data": "01-01",
+    "tytul": "UROCZYSTOŚĆ ŚWIĘTEJ BOŻEJ RODZICIELKI MARYI",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-01",
+    "tytul": "ŚWIĘTEJ BOŻEJ RODZICIELKI MARYI, MATKI ODKUPICIELA, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji zamojsko-lubaczowskiej:",
+    "diecezje": [
+      "zamojsko-lubaczowska"
+    ]
+  },
+  {
+    "data": "01-02",
+    "tytul": "Świętych Bazylego Wielkiego i Grzegorza z Nazjanzu, biskupów i doktorów Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-03",
+    "tytul": "Najświętszego Imienia Jezus",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-05",
+    "tytul": "Bł. Marceliny Darowskiej, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "01-06",
+    "tytul": "OBJAWIENIE PAŃSKIE",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-07",
+    "tytul": "Św. Rajmunda z Penyafort, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-10",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W DROHICZYNIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji drohiczyńskiej:",
+    "diecezje": [
+      "drohiczyńska"
+    ]
+  },
+  {
+    "data": "01-13",
+    "tytul": "Św. Hilarego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-17",
+    "tytul": "Św. Antoniego, opata",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-18",
+    "tytul": "Bł. Reginy Protmann, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "01-19",
+    "tytul": "Św. Józefa Sebastiana Pelczara, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-19",
+    "tytul": "ŚW. JÓZEFA SEBASTIANA PELCZARA, BISKUPA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "01-20",
+    "tytul": "Św. Fabiana, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-20",
+    "tytul": "Św. Sebastiana, męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-21",
+    "tytul": "Św. Agnieszki, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-22",
+    "tytul": "Św. Wincentego, diakona i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-22",
+    "tytul": "Św. Wincentego Pallottiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-23",
+    "tytul": "Błogosławionych męczenników z Pratulina Wincentego Lewoniuka i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "01-23",
+    "tytul": "Błogosławionych męczenników z Pratulina Wincentego Lewoniuka i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji drohiczyńskiej:",
+    "diecezje": [
+      "drohiczyńska"
+    ]
+  },
+  {
+    "data": "01-24",
+    "tytul": "Św. Franciszka Salezego, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-25",
+    "tytul": "NAWRÓCENIE ŚW. PAWŁA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-26",
+    "tytul": "Świętych biskupów Tymoteusza i Tytusa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-27",
+    "tytul": "Św. Anieli Merici, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-27",
+    "tytul": "Bł. Jerzego Matulewicza, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej i warszawskiej oraz diecezji kieleckiej i warszawsko-praskiej:",
+    "diecezje": [
+      "białostocka",
+      "warszawska",
+      "kielecka",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "01-28",
+    "tytul": "Św. Tomasza z Akwinu, prezbitera i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "01-29",
+    "tytul": "Bł. Bolesławy Marii Lament, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej:",
+    "diecezje": [
+      "białostocka"
+    ]
+  },
+  {
+    "data": "01-29",
+    "tytul": "Bł. Bolesławy Marii Lament, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji drohiczyńskiej, łowickiej, płockiej i warszawsko-praskiej:",
+    "diecezje": [
+      "drohiczyńska",
+      "łowicka",
+      "płocka",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "01-29",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W TARNOWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "01-30",
+    "tytul": "Bł. Bronisława Markiewicza, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "01-30",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W ŚWIDNICY",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji świdnickiej:",
+    "diecezje": [
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "01-31",
+    "tytul": "Św. Jana Bosko, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-01",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI PRYMASOWSKIEJ W GNIEŹNIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej:",
+    "diecezje": [
+      "gnieźnieńska"
+    ]
+  },
+  {
+    "data": "02-02",
+    "tytul": "OFIAROWANIE PAŃSKIE",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-03",
+    "tytul": "Św. Błażeja, biskupa i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-03",
+    "tytul": "Św. Oskara, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-05",
+    "tytul": "Św. Agaty, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-06",
+    "tytul": "Świętych męczenników Pawła Miki i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-07",
+    "tytul": "Bł. Klary Szczęsnej, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji płockiej:",
+    "diecezje": [
+      "krakowska",
+      "płocka"
+    ]
+  },
+  {
+    "data": "02-08",
+    "tytul": "Św. Hieronima Emilianiego",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-08",
+    "tytul": "Św. Józefiny Bakhity, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-10",
+    "tytul": "Św. Scholastyki, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-11",
+    "tytul": "Najśw. Maryi Panny z Lourdes",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-14",
+    "tytul": "ŚWIĘTYCH CYRYLA, MNICHA, I METODEGO, BISKUPA, patronów Europy",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-17",
+    "tytul": "Świętych Siedmiu Założycieli Zakonu Serwitów Najśw. Maryi Panny",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-21",
+    "tytul": "Św. Piotra Damianiego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-22",
+    "tytul": "KATEDRY ŚW. PIOTRA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-23",
+    "tytul": "Św. Polikarpa, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "02-23",
+    "tytul": "Bł. Stefana Wincentego Frelichowskiego, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "02-24",
+    "tytul": "Św. Polikarpa, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "02-27",
+    "tytul": "Św. Grzegorza z Nareku, opata i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-04",
+    "tytul": "ŚW. KAZIMIERZA, KRÓLEWICZA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-04",
+    "tytul": "W metropolii białostockiej oraz diecezji drohiczyńskiej, łomżyńskiej i radomskiej: ŚW. KAZIMIERZA, KRÓLEWICZA, głównego patrona metropolii i diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-04",
+    "tytul": "ŚW. KAZIMIERZA, KRÓLEWICZA, patrona archidiecezji",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "03-07",
+    "tytul": "Świętych męczennic Perpetuy i Felicyty",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-08",
+    "tytul": "Św. Jana Bożego, zakonnika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-08",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W PELPLINIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej:",
+    "diecezje": [
+      "pelplińska"
+    ]
+  },
+  {
+    "data": "03-09",
+    "tytul": "Św. Franciszki Rzymianki, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-12",
+    "tytul": "W Ordynariacie Polowym Wojska Polskiego: ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W WARSZAWIE",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-15",
+    "tytul": "Św. Klemensa Marii Hofbauera, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i warszawskiej oraz diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "krakowska",
+      "warszawska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "03-17",
+    "tytul": "Św. Patryka, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-18",
+    "tytul": "Św. Cyryla Jerozolimskiego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-19",
+    "tytul": "ŚW. JÓZEFA, OBLUBIEŃCA NAJŚW. MARYI PANNY",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-19",
+    "tytul": "ŚW. JÓZEFA, OBLUBIEŃCA NMP, głównego patrona archidiecezji i diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji łódzkiej i diecezji włocławskiej:",
+    "diecezje": [
+      "łódzka",
+      "włocławska"
+    ]
+  },
+  {
+    "data": "03-19",
+    "tytul": "ŚW. JÓZEFA, OBLUBIEŃCA NMP, OPIEKUNA ZBAWICIELA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "03-19",
+    "tytul": "ŚW. JÓZEFA, OBLUBIEŃCA NMP, OPIEKUNA ZBAWICIELA, patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji legnickiej:",
+    "diecezje": [
+      "legnicka"
+    ]
+  },
+  {
+    "data": "03-23",
+    "tytul": "Św. Turybiusza z Mongrovejo, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-25",
+    "tytul": "ZWIASTOWANIE PAŃSKIE",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "03-26",
+    "tytul": "Św. Łotra",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "04-02",
+    "tytul": "Św. Franciszka z Paoli, pustelnika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-04",
+    "tytul": "Św. Izydora, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-05",
+    "tytul": "Św. Wincentego Ferreriusza, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-07",
+    "tytul": "Św. Jana Chrzciciela de la Salle, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-13",
+    "tytul": "Św. Marcina I, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-21",
+    "tytul": "Św. Anzelma, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-23",
+    "tytul": "ŚW. WOJCIECHA, BISKUPA I MĘCZENNIKA, głównego patrona Polski, archidiecezji gdańskiej, gnieźnieńskiej i warmińskiej oraz diecezji elbląskiej i koszalińsko-kołobrzeskiej; patrona diecezji ełckiej",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-24",
+    "tytul": "Św. Fidelisa z Sigmaringen, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-24",
+    "tytul": "Św. Jerzego, męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-24",
+    "tytul": "ŚW. JERZEGO, MĘCZENNIKA, głównego patrona archidiecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej:",
+    "diecezje": [
+      "białostocka"
+    ]
+  },
+  {
+    "data": "04-24",
+    "tytul": "Św. Jerzego, męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej:",
+    "diecezje": [
+      "pelplińska"
+    ]
+  },
+  {
+    "data": "04-25",
+    "tytul": "ŚW. MARKA, EWANGELISTY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-28",
+    "tytul": "Św. Piotra Chanela, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-28",
+    "tytul": "Św. Ludwika Marii Grignion de Montfort, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-28",
+    "tytul": "Bł. Hanny Chrzanowskiej",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i warszawskiej:",
+    "diecezje": [
+      "krakowska",
+      "warszawska"
+    ]
+  },
+  {
+    "data": "04-29",
+    "tytul": "ŚW. KATARZYNY SIENEŃSKIEJ, DZIEWICY I DOKTORA KOŚCIOŁA, patronki Europy",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "04-30",
+    "tytul": "Św. Piusa V, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-01",
+    "tytul": "Św. Józefa, rzemieślnika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-01",
+    "tytul": "ŚW. JÓZEFA, RZEMIEŚLNIKA",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "05-02",
+    "tytul": "Św. Atanazego, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-03",
+    "tytul": "NAJŚW. MARYI PANNY, KRÓLOWEJ POLSKI, głównej patronki Polski oraz archidiecezji częstochowskiej i przemyskiej",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-03",
+    "tytul": "W Ordynariacie Polowym Wojska Polskiego: NAJŚW. MARYI PANNY, KRÓLOWEJ POLSKI, HETMANKI ŻOŁNIERZA POLSKIEGO, głównej patronki Ordynariatu Polowego",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-04",
+    "tytul": "Św. Floriana, męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-04",
+    "tytul": "Św. Floriana, męczennika, patrona archidiecezji i diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej i diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "katowicka",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "05-05",
+    "tytul": "Św. Stanisława Kazimierczyka, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-05",
+    "tytul": "Św. Stanisława Kazimierczyka, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "05-05",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W PRZEMYŚLU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "05-06",
+    "tytul": "ŚWIĘTYCH APOSTOŁÓW FILIPA I JAKUBA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-07",
+    "tytul": "NAJŚW. MARYI PANNY, MATKI ŁASKI BOŻEJ",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kieleckiej:",
+    "diecezje": [
+      "kielecka"
+    ]
+  },
+  {
+    "data": "05-08",
+    "tytul": "ŚW. STANISŁAWA, BISKUPA I MĘCZENNIKA, głównego patrona Polski, archidiecezji krakowskiej, lubelskiej, poznańskiej i warszawskiej oraz diecezji kieleckiej, sandomierskiej, świdnickiej i tarnowskiej",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-10",
+    "tytul": "Św. Jana z Avili, prezbitera i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-11",
+    "tytul": "Błogosławionych dziewic i męczennic Marii Sapiencji Heymann i Towarzyszek",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "05-12",
+    "tytul": "Świętych męczenników Nereusza i Achillesa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-12",
+    "tytul": "Św. Pankracego, męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-12",
+    "tytul": "Bł. Juty z Bielczyn",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "05-13",
+    "tytul": "Najśw. Maryi Panny z Fatimy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-14",
+    "tytul": "ŚW. MACIEJA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-15",
+    "tytul": "Bł. Zofii Maciejowskiej Czeskiej, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "05-16",
+    "tytul": "ŚW. ANDRZEJA BOBOLI, PREZBITERA I MĘCZENNIKA, patrona Polski oraz archidiecezji warmińskiej i diecezji łomżyńskiej",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-16",
+    "tytul": "W metropolii warszawskiej: ŚW. ANDRZEJA BOBOLI, PREZBITERA I MĘCZENNIKA, patrona metropolii",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-16",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W GLIWICACH",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej:",
+    "diecezje": [
+      "gliwicka"
+    ]
+  },
+  {
+    "data": "05-17",
+    "tytul": "ŚW. ANDRZEJA BOBOLI, PREZBITERA I MĘCZENNIKA",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej:",
+    "diecezje": [
+      "gliwicka"
+    ]
+  },
+  {
+    "data": "05-17",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W ELBLĄGU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji elbląskiej:",
+    "diecezje": [
+      "elbląska"
+    ]
+  },
+  {
+    "data": "05-18",
+    "tytul": "Św. Jana I, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-18",
+    "tytul": "Św. Stanisława Papczyńskiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji ełckiej:",
+    "diecezje": [
+      "ełcka"
+    ]
+  },
+  {
+    "data": "05-18",
+    "tytul": "Św. Stanisława Papczyńskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej, przemyskiej i warszawskiej oraz diecezji łowickiej, siedleckiej, tarnowskiej, warszawsko-praskiej i włocławskiej:",
+    "diecezje": [
+      "krakowska",
+      "przemyska",
+      "warszawska",
+      "łowicka",
+      "siedlecka",
+      "tarnowska",
+      "warszawsko-praska",
+      "włocławska"
+    ]
+  },
+  {
+    "data": "05-19",
+    "tytul": "Bł. Elżbiety Czackiej, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej:",
+    "diecezje": [
+      "warszawska"
+    ]
+  },
+  {
+    "data": "05-19",
+    "tytul": "Św. Jana I, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji ełckiej:",
+    "diecezje": [
+      "ełcka"
+    ]
+  },
+  {
+    "data": "05-20",
+    "tytul": "Św. Bernardyna ze Sieny, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-21",
+    "tytul": "Świętych męczenników Krzysztofa Magallanesa, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-21",
+    "tytul": "W metropolii katowickiej oraz diecezji bielsko-żywieckiej i świdnickiej: Św. Jana Nepomucena, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-21",
+    "tytul": "Św. Jana Nepomucena, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "05-21",
+    "tytul": "Św. Karola Eugeniusza de Mazenod, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "05-22",
+    "tytul": "Św. Rity z Cascii, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-22",
+    "tytul": "Świętych męczenników Krzysztofa Magallanesa, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej i diecezji świdnickiej:",
+    "diecezje": [
+      "katowicka",
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "05-24",
+    "tytul": "Najśw. Maryi Panny, Wspomożycielki Wiernych",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-25",
+    "tytul": "Św. Bedy Czcigodnego, prezbitera i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-25",
+    "tytul": "Św. Grzegorza VII, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-25",
+    "tytul": "Św. Marii Magdaleny de Pazzi, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-26",
+    "tytul": "Św. Filipa Neri, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-27",
+    "tytul": "Św. Augustyna z Canterbury, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-27",
+    "tytul": "Św. Pawła VI, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-28",
+    "tytul": "Bł. Stefana Wyszyńskiego, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-29",
+    "tytul": "Św. Urszuli Ledóchowskiej, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-29",
+    "tytul": "Św. Urszuli Ledóchowskiej, dziewicy, patronki archidiecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "05-30",
+    "tytul": "Św. Jana Sarkandra, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-30",
+    "tytul": "Św. Zdzisławy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-30",
+    "tytul": "Św. Jana Sarkandra, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "05-30",
+    "tytul": "Św. Jana Sarkandra, prezbitera i męczennika, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "05-30",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W BIAŁYMSTOKU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej:",
+    "diecezje": [
+      "białostocka"
+    ]
+  },
+  {
+    "data": "05-30",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W SZCZECINIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej:",
+    "diecezje": [
+      "szczecińsko-kamieńska"
+    ]
+  },
+  {
+    "data": "05-31",
+    "tytul": "NAWIEDZENIE NAJŚW. MARYI PANNY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-31",
+    "tytul": "7 Niedziela Wielkanocy: WNIEBOWSTĄPIENIE PAŃSKIE",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-31",
+    "tytul": "Poniedziałek po Zesłaniu Ducha Świętego: NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "05-31",
+    "tytul": "NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA, głównej patronki archidiecezji i diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej oraz diecezji drohiczyńskiej i ełckiej:",
+    "diecezje": [
+      "szczecińsko-kamieńska",
+      "drohiczyńska",
+      "ełcka"
+    ]
+  },
+  {
+    "data": "05-31",
+    "tytul": "Czwartek po Zesłaniu Ducha Świętego: JEZUSA CHRYSTUSA, NAJWYŻSZEGO I WIECZNEGO KAPŁANA",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej oraz diecezji drohiczyńskiej i ełckiej:",
+    "diecezje": [
+      "szczecińsko-kamieńska",
+      "drohiczyńska",
+      "ełcka"
+    ]
+  },
+  {
+    "data": "06-01",
+    "tytul": "Św. Justyna, męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-02",
+    "tytul": "Świętych męczenników Marcelina i Piotra",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-02",
+    "tytul": "Najśw. Maryi Panny Łaskawej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji legnickiej:",
+    "diecezje": [
+      "legnicka"
+    ]
+  },
+  {
+    "data": "06-02",
+    "tytul": "Błogosławionych męczenników Sadoka i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sandomierskiej:",
+    "diecezje": [
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "06-02",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W RZESZOWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "06-03",
+    "tytul": "Świętych męczenników Karola Lwangi i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-04",
+    "tytul": "Bł. Michała Giedroycia, zakonnika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "06-05",
+    "tytul": "Św. Bonifacego, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-05",
+    "tytul": "Św. Bonifacego, biskupa i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "krakowska",
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "06-05",
+    "tytul": "Bł. Małgorzaty Łucji Szewczyk, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "krakowska",
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "06-06",
+    "tytul": "Św. Norberta, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-06",
+    "tytul": "Bł. Marii Karłowskiej, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "06-07",
+    "tytul": "Błogosławionych męczenników Zbigniewa Strzałkowskiego i Michała Tomaszka, prezbiterów",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "06-07",
+    "tytul": "Bł. Michała Tomaszka, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "06-07",
+    "tytul": "Bł. Zbigniewa Strzałkowskiego, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "06-08",
+    "tytul": "Św. Jadwigi Królowej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-09",
+    "tytul": "Św. Efrema, diakona i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-09",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA ARCHIKATEDRALNEGO W LUBLINIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji lubelskiej:",
+    "diecezje": [
+      "lubelska"
+    ]
+  },
+  {
+    "data": "06-09",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W WARSZAWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej:",
+    "diecezje": [
+      "warszawska"
+    ]
+  },
+  {
+    "data": "06-10",
+    "tytul": "Bł. Bogumiła, biskupa, patrona archidiecezji i diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej i poznańskiej oraz diecezji włocławskiej:",
+    "diecezje": [
+      "gnieźnieńska",
+      "poznańska",
+      "włocławska"
+    ]
+  },
+  {
+    "data": "06-10",
+    "tytul": "Św. Efrema, diakona i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej:",
+    "diecezje": [
+      "warszawska"
+    ]
+  },
+  {
+    "data": "06-10",
+    "tytul": "Św. Barnaby, Apostoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji radomskiej:",
+    "diecezje": [
+      "radomska"
+    ]
+  },
+  {
+    "data": "06-11",
+    "tytul": "Św. Barnaby, Apostoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-11",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W RADOMIU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji radomskiej:",
+    "diecezje": [
+      "radomska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Antoniego Juliana Nowowiejskiego, biskupa, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Mieczysława Bohatkiewicza, Henryka Hlebowicza, Władysława Maćkowiaka, Stanisława Pyrtka, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej:",
+    "diecezje": [
+      "białostocka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Maksymiliana Binkiewicza, Ludwika Rocha Gietyngiera, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji częstochowskiej:",
+    "diecezje": [
+      "częstochowska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Mariana Góreckiego, Bronisława Komorowskiego, Franciszka Rogaczewskiego, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gdańskiej:",
+    "diecezje": [
+      "gdańska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Jana Nepomucena Chrzana, Franciszka Dachtery, Władysława Demskiego, Stanisława Kubskiego, Władysława Mączkowskiego, Mariana Skrzypczaka, Aleksego Sobaszka, Antoniego Świadka, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej:",
+    "diecezje": [
+      "gnieźnieńska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Józefa Czempiela, Emila Szramka, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Piotra Dańkowskiego, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Władysława Gorala, biskupa, Kazimierza Gostyńskiego, Stanisława Mysakowskiego, Antoniego Zawistowskiego, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji lubelskiej:",
+    "diecezje": [
+      "lubelska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Anastazego Pankiewicza, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji łódzkiej:",
+    "diecezje": [
+      "łódzka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Mariana Konopińskiego, Józefa Kuta, Włodzimierza Laskowskiego, Narcyza Putza, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Czesława Jóźwiaka, Edwarda Kaźmierskiego, Franciszka Kęsego, Edwarda Klinika, Jarogniewa Wojciechowskiego i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Józefa Achillesa Puchały, prezbitera, Katarzyny Celestyny Faron, dziewicy, Stanisława Starowieyskiego i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Franciszka Dachtery, Antoniego Świadka, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bydgoskiej:",
+    "diecezje": [
+      "bydgoska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Antoniego Beszty-Borowskiego, Mieczysława Bohatkiewicza, Edwarda Grzymały, Władysława Maćkowiaka, Michała Woźniaka, prezbiterów, Marii Marty Kazimiery Wołowskiej, dziewicy, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji drohiczyńskiej:",
+    "diecezje": [
+      "drohiczyńska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Władysława Demskiego, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji elbląskiej:",
+    "diecezje": [
+      "elbląska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Marianny Biernackiej i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji ełckiej:",
+    "diecezje": [
+      "ełcka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Franciszka Stryjasa i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Józefa Pawłowskiego i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kieleckiej:",
+    "diecezje": [
+      "kielecka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Bronisława Kostkowskiego i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Adama Bargielskiego, Michała Piaszczyńskiego, prezbiterów, Marianny Biernackiej i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łomżyńskiej:",
+    "diecezje": [
+      "łomżyńska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Józefa Cebuli, Alojzego Ligudy, Emila Szramka, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Antoniego Juliana Nowowiejskiego, Leona Wetmańskiego, biskupów, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji płockiej:",
+    "diecezje": [
+      "płocka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Kazimierza Grelewskiego, Stefana Grelewskiego, Franciszka Rosłańca, Bolesława Strzeleckiego, Kazimierza Sykulskiego, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji radomskiej:",
+    "diecezje": [
+      "radomska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Antoniego Rewery, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sandomierskiej:",
+    "diecezje": [
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Władysława Błądzińskiego, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji świdnickiej:",
+    "diecezje": [
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Romana Sitki, prezbitera, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Antoniego Juliana Nowowiejskiego, biskupa, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "Błogosławionych męczenników Edwarda Grzymały, Henryka Hlebowicza, Dominika Jędrzejewskiego, Henryka Kaczorowskiego, Józefa Kurzawy, Wincentego Matuszewskiego, Leona Nowakowskiego, Józefa Straszewskiego, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji włocławskiej:",
+    "diecezje": [
+      "włocławska"
+    ]
+  },
+  {
+    "data": "06-12",
+    "tytul": "W Ordynariacie Polowym Wojska Polskiego: Błogosławionych męczenników Władysława Miegonia, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji włocławskiej:",
+    "diecezje": [
+      "włocławska"
+    ]
+  },
+  {
+    "data": "06-13",
+    "tytul": "Św. Antoniego z Padwy, prezbitera i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-14",
+    "tytul": "Bł. Michała Kozala, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-14",
+    "tytul": "Bł. Michała Kozala, biskupa i męczennika, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bydgoskiej:",
+    "diecezje": [
+      "bydgoska"
+    ]
+  },
+  {
+    "data": "06-15",
+    "tytul": "Bł. Jolanty, zakonnicy, patronki archidiecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej:",
+    "diecezje": [
+      "gnieźnieńska"
+    ]
+  },
+  {
+    "data": "06-15",
+    "tytul": "Bł. Jolanty, Księżnej Kaliskiej, zakonnicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "06-17",
+    "tytul": "Św. Brata Alberta Chmielowskiego, zakonnika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-17",
+    "tytul": "ŚW. BRATA ALBERTA CHMIELOWSKIEGO, ZAKONNIKA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sosnowieckiej:",
+    "diecezje": [
+      "sosnowiecka"
+    ]
+  },
+  {
+    "data": "06-18",
+    "tytul": "NAJŚW. MARYI PANNY Z ROKITNA, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji zielonogórsko-gorzowskiej:",
+    "diecezje": [
+      "zielonogórsko-gorzowska"
+    ]
+  },
+  {
+    "data": "06-19",
+    "tytul": "Św. Romualda, opata",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-20",
+    "tytul": "Św. Alojzego Gonzagi, zakonnika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej i świdnickiej:",
+    "diecezje": [
+      "opolska",
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "06-20",
+    "tytul": "Bł. Władysława Bukowińskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "06-21",
+    "tytul": "Św. Alojzego Gonzagi, zakonnika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-21",
+    "tytul": "Najśw. Maryi Panny Opolskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "06-21",
+    "tytul": "Najśw. Maryi Panny, Przyczyny Naszej Radości",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji świdnickiej:",
+    "diecezje": [
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "06-22",
+    "tytul": "Św. Paulina z Noli, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-22",
+    "tytul": "Świętych męczenników Jana Fishera, biskupa, i Tomasza More’a",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-24",
+    "tytul": "NARODZENIE ŚW. JANA CHRZCICIELA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-25",
+    "tytul": "Najśw. Maryi Panny Świętogórskiej z Gostynia",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "06-25",
+    "tytul": "Bł. Doroty z Mątów",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gdańskiej i diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "gdańska",
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "06-25",
+    "tytul": "Bł. Doroty z Mątów",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "06-25",
+    "tytul": "Bł. Doroty z Mątów, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji elbląskiej:",
+    "diecezje": [
+      "elbląska"
+    ]
+  },
+  {
+    "data": "06-26",
+    "tytul": "Św. Zygmunta Gorazdowskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-26",
+    "tytul": "Św. Cyryla Aleksandryjskiego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej:",
+    "diecezje": [
+      "pelplińska"
+    ]
+  },
+  {
+    "data": "06-27",
+    "tytul": "Św. Cyryla Aleksandryjskiego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-27",
+    "tytul": "NAJŚW. MARYI PANNY NIEUSTAJĄCEJ POMOCY, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej i toruńskiej:",
+    "diecezje": [
+      "pelplińska",
+      "toruńska"
+    ]
+  },
+  {
+    "data": "06-28",
+    "tytul": "Św. Ireneusza, biskupa i doktora Kościoła, męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-29",
+    "tytul": "ŚWIĘTYCH APOSTOŁÓW PIOTRA I PAWŁA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-29",
+    "tytul": "ŚWIĘTYCH APOSTOŁÓW PIOTRA I PAWŁA, głównych patronów diecezjii",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej i legnickiej:",
+    "diecezje": [
+      "gliwicka",
+      "legnicka"
+    ]
+  },
+  {
+    "data": "06-30",
+    "tytul": "Świętych Pierwszych Męczenników Kościoła rzymskiego",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-30",
+    "tytul": "Piątek po drugiej niedzieli po Zesłaniu Ducha Świętego: NAJŚWIĘTSZEGO SERCA PANA JEZUSA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "06-30",
+    "tytul": "Sobota po drugiej niedzieli po Zesłaniu Ducha Świętego: Niepokalanego Serca Najśw. Maryi Panny",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-01",
+    "tytul": "Św. Ottona, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-01",
+    "tytul": "Św. Ottona, biskupa, patrona archidiecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej:",
+    "diecezje": [
+      "szczecińsko-kamieńska"
+    ]
+  },
+  {
+    "data": "07-01",
+    "tytul": "Św. Ottona, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "07-02",
+    "tytul": "Najśw. Maryi Panny Kodeńskiej, Matki Jedności",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "07-02",
+    "tytul": "NAJŚW. MARYI PANNY TUCHOWSKIEJ",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "07-02",
+    "tytul": "Najśw. Maryi Panny Licheńskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji włocławskiej:",
+    "diecezje": [
+      "włocławska"
+    ]
+  },
+  {
+    "data": "07-03",
+    "tytul": "ŚW. TOMASZA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-04",
+    "tytul": "Św. Elżbiety Portugalskiej",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-04",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W KRAKOWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "07-05",
+    "tytul": "Św. Antoniego Marii Zaccarii, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-05",
+    "tytul": "Św. Marii Goretti, dziewicy i męczennicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-05",
+    "tytul": "Św. Elżbiety Portugalskiej",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "07-06",
+    "tytul": "Bł. Marii Teresy Ledóchowskiej, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-08",
+    "tytul": "Św. Jana z Dukli, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-08",
+    "tytul": "Św. Jana z Dukli, prezbitera, patrona archidiecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "07-09",
+    "tytul": "Świętych męczenników Augustyna Zhao Rong, prezbitera, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-11",
+    "tytul": "ŚW. BENEDYKTA, OPATA, patrona Europy",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-12",
+    "tytul": "Św. Brunona Bonifacego z Kwerfurtu, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-12",
+    "tytul": "ŚW. BRUNONA BONIFACEGO Z KWERFURTU, BISKUPA I MĘCZENNIKA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łomżyńskiej:",
+    "diecezje": [
+      "łomżyńska"
+    ]
+  },
+  {
+    "data": "07-12",
+    "tytul": "Św. Brunona Bonifacego z Kwerfurtu, biskupa i męczennika, patrona archidiecezji i diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej i diecezji ełckiej:",
+    "diecezje": [
+      "warmińska",
+      "ełcka"
+    ]
+  },
+  {
+    "data": "07-13",
+    "tytul": "Świętych pustelników Andrzeja Świerada i Benedykta",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-13",
+    "tytul": "Świętych pustelników Andrzeja Świerada i Benedykta, patronów diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "07-14",
+    "tytul": "Św. Kamila de Lellis, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-14",
+    "tytul": "Św. Henryka",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-15",
+    "tytul": "Św. Bonawentury, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-16",
+    "tytul": "Najśw. Maryi Panny z Góry Karmel",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-18",
+    "tytul": "Św. Szymona z Lipnicy, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-18",
+    "tytul": "Św. Szymona z Lipnicy, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji tarnowskiej:",
+    "diecezje": [
+      "krakowska",
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "07-18",
+    "tytul": "Bł. Alfonsa Trackiego, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "07-20",
+    "tytul": "Bł. Czesława, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-20",
+    "tytul": "Bł. Czesława, prezbitera, patrona archidiecezji i diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji wrocławskiej i diecezji opolskiej:",
+    "diecezje": [
+      "wrocławska",
+      "opolska"
+    ]
+  },
+  {
+    "data": "07-21",
+    "tytul": "Św. Apolinarego, biskupa i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-21",
+    "tytul": "Św. Wawrzyńca z Brindisi, prezbitera i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-22",
+    "tytul": "ŚW. MARII MAGDALENY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-23",
+    "tytul": "ŚW. BRYGIDY, ZAKONNICY, patronki Europy",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-24",
+    "tytul": "Św. Kingi, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-24",
+    "tytul": "Św. Kingi, dziewicy, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "07-25",
+    "tytul": "ŚW. JAKUBA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-26",
+    "tytul": "Świętych Joachima i Anny, rodziców Najśw. Maryi Panny",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-26",
+    "tytul": "ŚW. ANNY, MATKI NAJŚW. MARYI PANNY, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "07-26",
+    "tytul": "Św. Anny, matki Najśw. Maryi Panny, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej:",
+    "diecezje": [
+      "gliwicka"
+    ]
+  },
+  {
+    "data": "07-27",
+    "tytul": "Św. Joachima, ojca Najśw. Maryi Panny",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej i opolskiej:",
+    "diecezje": [
+      "gliwicka",
+      "opolska"
+    ]
+  },
+  {
+    "data": "07-28",
+    "tytul": "Św. Szarbela Makhlufa, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-29",
+    "tytul": "Świętych Marty, Marii i Łazarza",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-30",
+    "tytul": "Św. Piotra Chryzologa, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "07-31",
+    "tytul": "Św. Ignacego z Loyoli, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-01",
+    "tytul": "Św. Alfonsa Marii Liguoriego, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-02",
+    "tytul": "Św. Euzebiusza z Vercelli, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-02",
+    "tytul": "Św. Piotra Juliana Eymarda, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-02",
+    "tytul": "Bł. Augusta Czartoryskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "08-04",
+    "tytul": "Św. Jana Marii Vianneya, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-05",
+    "tytul": "Rocznica poświęcenia rzymskiej Bazyliki Najśw. Maryi Panny",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-06",
+    "tytul": "PRZEMIENIENIE PAŃSKIE",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-07",
+    "tytul": "Świętych męczenników Sykstusa II, papieża, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-07",
+    "tytul": "Św. Kajetana, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-07",
+    "tytul": "Bł. Edmunda Bojanowskiego",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej i wrocławskiej:",
+    "diecezje": [
+      "poznańska",
+      "wrocławska"
+    ]
+  },
+  {
+    "data": "08-07",
+    "tytul": "Bł. Edmunda Bojanowskiego",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "08-07",
+    "tytul": "Św. Dominika, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sosnowieckiej:",
+    "diecezje": [
+      "sosnowiecka"
+    ]
+  },
+  {
+    "data": "08-08",
+    "tytul": "Św. Dominika, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-08",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W SOSNOWCU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sosnowieckiej:",
+    "diecezje": [
+      "sosnowiecka"
+    ]
+  },
+  {
+    "data": "08-09",
+    "tytul": "ŚW. TERESY BENEDYKTY OD KRZYŻA, DZIEWICY I MĘCZENNICY, patronki Europy",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-10",
+    "tytul": "ŚW. WAWRZYŃCA, DIAKONA I MĘCZENNIKA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-10",
+    "tytul": "ŚW. WAWRZYŃCA, DIAKONA I MĘCZENNIKA patrona diecezji",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej:",
+    "diecezje": [
+      "pelplińska"
+    ]
+  },
+  {
+    "data": "08-11",
+    "tytul": "Św. Klary, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-11",
+    "tytul": "Najśw. Maryi Panny Świętolipskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "08-12",
+    "tytul": "Św. Joanny Franciszki de Chantal, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-12",
+    "tytul": "Św. Maksymiliana Marii Kolbego, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gdańskiej:",
+    "diecezje": [
+      "gdańska"
+    ]
+  },
+  {
+    "data": "08-12",
+    "tytul": "Św. Klary, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "08-12",
+    "tytul": "Świętych męczenników Poncjana, papieża, i Hipolita, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "08-13",
+    "tytul": "Świętych męczenników Poncjana, papieża, i Hipolita, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-13",
+    "tytul": "NAJŚW. MARYI PANNY KALWARYJSKIEJ",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "08-14",
+    "tytul": "Św. Maksymiliana Marii Kolbego, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-14",
+    "tytul": "ŚW. MAKSYMILIANA MARII KOLBEGO, PREZBITERA I MĘCZENNIKA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "08-14",
+    "tytul": "Św. Maksymiliana Marii Kolbego, prezbitera i męczennika, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji elbląskiej i koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "elbląska",
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "08-14",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W OLIWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gdańskiej:",
+    "diecezje": [
+      "gdańska"
+    ]
+  },
+  {
+    "data": "08-15",
+    "tytul": "WNIEBOWZIĘCIE NAJŚW. MARYI PANNY",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-15",
+    "tytul": "WNIEBOWZIĘCIE NMP, MATKI BOŻEJ ZWYCIĘSKIEJ, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "08-16",
+    "tytul": "Św. Stefana Węgierskiego",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-16",
+    "tytul": "Św. Rocha",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łomżyńskiej i opolskiej:",
+    "diecezje": [
+      "łomżyńska",
+      "opolska"
+    ]
+  },
+  {
+    "data": "08-17",
+    "tytul": "Św. Jacka, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-17",
+    "tytul": "W metropolii katowickiej: ŚW. JACKA, PREZBITERA, głównego patrona metropolii",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-17",
+    "tytul": "ŚW. JACKA, PREZBITERA, patrona archidiecezji",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "08-18",
+    "tytul": "Bł. Sancji Szymkowiak, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "08-18",
+    "tytul": "Bł. Sancji Szymkowiak, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "08-19",
+    "tytul": "Św. Jana Eudesa, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-19",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W EŁKU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji ełckiej:",
+    "diecezje": [
+      "ełcka"
+    ]
+  },
+  {
+    "data": "08-20",
+    "tytul": "Św. Bernarda, opata i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-20",
+    "tytul": "Św. Bernarda, opata i doktora Kościoła, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji pelplińskiej:",
+    "diecezje": [
+      "pelplińska"
+    ]
+  },
+  {
+    "data": "08-21",
+    "tytul": "Św. Piusa X, papieża",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-22",
+    "tytul": "Najśw. Maryi Panny, Królowej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-23",
+    "tytul": "Św. Róży z Limy, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-23",
+    "tytul": "Bł. Władysława Findysza, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "08-24",
+    "tytul": "ŚW. BARTŁOMIEJA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-25",
+    "tytul": "Św. Ludwika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-25",
+    "tytul": "Św. Józefa Kalasancjusza, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-26",
+    "tytul": "NAJŚW. MARYI PANNY CZĘSTOCHOWSKIEJ",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-26",
+    "tytul": "W metropolii częstochowskiej: NAJŚW. MARYI PANNY CZĘSTOCHOWSKIEJ, głównej patronki metropolii",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-27",
+    "tytul": "Św. Moniki",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-28",
+    "tytul": "Św. Augustyna, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-29",
+    "tytul": "Męczeństwo św. Jana Chrzciciela",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "08-31",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W BYDGOSZCZY",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bydgoskiej:",
+    "diecezje": [
+      "bydgoska"
+    ]
+  },
+  {
+    "data": "09-01",
+    "tytul": "Bł. Bronisławy, dziewicy, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "09-01",
+    "tytul": "Bł. Bronisławy, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "09-01",
+    "tytul": "Najśw. Maryi Panny, Królowej Pokoju",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "09-03",
+    "tytul": "Św. Grzegorza Wielkiego, papieża i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-04",
+    "tytul": "Błogosławionych dziewic i męczennic Marii Stelli i Towarzyszek",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-04",
+    "tytul": "Błogosławionych dziewic i męczennic Marii Kanuty i Towarzyszek",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji częstochowskiej:",
+    "diecezje": [
+      "częstochowska"
+    ]
+  },
+  {
+    "data": "09-04",
+    "tytul": "Błogosławionych dziewic i męczennic Marii Kanizji, Marii Sergii i Towarzyszek",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji ełckiej:",
+    "diecezje": [
+      "ełcka"
+    ]
+  },
+  {
+    "data": "09-04",
+    "tytul": "Błogosławionych dziewic i męczennic Gwidony Cierpki i Towarzyszek",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "09-04",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W ŁOMŻY",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łomżyńskiej:",
+    "diecezje": [
+      "łomżyńska"
+    ]
+  },
+  {
+    "data": "09-07",
+    "tytul": "Św. Melchiora Grodzieckiego, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-07",
+    "tytul": "Św. Melchiora Grodzieckiego, prezbitera i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "09-07",
+    "tytul": "Bł. Ignacego Kłopotowskiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji lubelskiej i diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "lubelska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-07",
+    "tytul": "Bł. Ignacego Kłopotowskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej i warszawskiej oraz diecezji drohiczyńskiej i siedleckiej:",
+    "diecezje": [
+      "katowicka",
+      "warszawska",
+      "drohiczyńska",
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "09-08",
+    "tytul": "NARODZENIE NAJŚW. MARYI PANNY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-08",
+    "tytul": "NARODZENIE NAJŚW. MARYI PANNY, NAJŚW. MARYI PANNY, MATKI PIĘKNEJ MIŁOŚCI, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bydgoskiej:",
+    "diecezje": [
+      "bydgoska"
+    ]
+  },
+  {
+    "data": "09-08",
+    "tytul": "NARODZENIE NAJŚW. MARYI PANNY, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji tarnowskiej:",
+    "diecezje": [
+      "tarnowska"
+    ]
+  },
+  {
+    "data": "09-08",
+    "tytul": "NARODZENIE NAJŚW. MARYI PANNY, NAJŚW. MARYI PANNY GIETRZWAŁDZKIEJ",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "09-09",
+    "tytul": "Św. Piotra Klawera, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-09",
+    "tytul": "Bł. Anieli Salawy, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "09-09",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W GORZOWIE WIELKOPOLSKIM",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji zielonogórsko-gorzowskiej:",
+    "diecezje": [
+      "zielonogórsko-gorzowska"
+    ]
+  },
+  {
+    "data": "09-12",
+    "tytul": "Najśw. Imienia Maryi",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-12",
+    "tytul": "NAJŚW. MARYI PANNY PIEKARSKIEJ, głównej patronki archidiecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "09-12",
+    "tytul": "Najśw. Maryi Panny, Matki Sprawiedliwości i Miłości Społecznej, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej:",
+    "diecezje": [
+      "gliwicka"
+    ]
+  },
+  {
+    "data": "09-12",
+    "tytul": "Najśw. Maryi Panny Rzeszowskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "09-13",
+    "tytul": "Św. Jana Chryzostoma, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-14",
+    "tytul": "PODWYŻSZENIE KRZYŻA ŚWIĘTEGO",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-15",
+    "tytul": "Najśw. Maryi Panny Bolesnej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-15",
+    "tytul": "Najśw. Maryi Panny Bolesnej, Pani Skrzatuskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "09-16",
+    "tytul": "Świętych męczenników Korneliusza, papieża, i Cypriana, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-17",
+    "tytul": "Św. Roberta Bellarmina, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-17",
+    "tytul": "Św. Hildegardy z Bingen, dziewicy i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-17",
+    "tytul": "Św. Zygmunta Szczęsnego Felińskiego, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-17",
+    "tytul": "Św. Zygmunta Szczęsnego Felińskiego, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej i diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-18",
+    "tytul": "ŚW. STANISŁAWA KOSTKI, ZAKONNIKA, patrona Polski",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-18",
+    "tytul": "ŚW. STANISŁAWA KOSTKI, ZAKONNIKA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji płockiej:",
+    "diecezje": [
+      "płocka"
+    ]
+  },
+  {
+    "data": "09-18",
+    "tytul": "ŚW. STANISŁAWA KOSTKI, ZAKONNIKA, patrona archidiecezji",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej:",
+    "diecezje": [
+      "warszawska"
+    ]
+  },
+  {
+    "data": "09-19",
+    "tytul": "Św. Januarego, biskupa i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-19",
+    "tytul": "Św. Roberta Bellarmina, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej i diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-19",
+    "tytul": "Św. Hildegardy z Bingen, dziewicy i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej i diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-19",
+    "tytul": "Świętych męczenników Andrzeja Kim Taegon, prezbitera, Pawła Chong Hasang i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji legnickiej:",
+    "diecezje": [
+      "legnicka"
+    ]
+  },
+  {
+    "data": "09-19",
+    "tytul": "Najśw. Maryi Panny z La Salette, Pojednawczyni Grzeszników",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "09-19",
+    "tytul": "Bł. Gerharda Hirschfeldera, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji świdnickiej:",
+    "diecezje": [
+      "świdnicka"
+    ]
+  },
+  {
+    "data": "09-20",
+    "tytul": "Świętych męczenników Andrzeja Kim Taegon, prezbitera, Pawła Chong Hasang i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-20",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W LEGNICY",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji legnickiej:",
+    "diecezje": [
+      "legnicka"
+    ]
+  },
+  {
+    "data": "09-21",
+    "tytul": "ŚW. MATEUSZA, APOSTOŁA I EWANGELISTY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-22",
+    "tytul": "Bł. Bernardyny Jabłońskiej, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji zamojsko-lubaczowskiej:",
+    "diecezje": [
+      "krakowska",
+      "zamojsko-lubaczowska"
+    ]
+  },
+  {
+    "data": "09-22",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W SIEDLCACH",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "09-23",
+    "tytul": "Św. Pio z Pietrelciny, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-24",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W BIELSKU-BIAŁEJ",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "09-24",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W KALISZU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "09-25",
+    "tytul": "Bł. Władysława z Gielniowa, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej oraz diecezji radomskiej i warszawsko-praskiej:",
+    "diecezje": [
+      "warszawska",
+      "radomska",
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-25",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ WE FROMBORKU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "09-26",
+    "tytul": "Świętych męczenników Kosmy i Damiana",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-26",
+    "tytul": "Świętych męczenników Wawrzyńca Ruiz i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-26",
+    "tytul": "Najśw. Maryi Panny Leśniańskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "09-26",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W KIELCACH",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kieleckiej:",
+    "diecezje": [
+      "kielecka"
+    ]
+  },
+  {
+    "data": "09-27",
+    "tytul": "Św. Wincentego à Paulo, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-28",
+    "tytul": "Św. Wacława, męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-28",
+    "tytul": "Św. Wacława, męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej i Ordynariacie Polowym Wojska Polskiego:",
+    "diecezje": [
+      "białostocka",
+      "Ordynariat Polowy Wojska Polskiego"
+    ]
+  },
+  {
+    "data": "09-28",
+    "tytul": "Bł. Michała Sopoćki, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej i Ordynariacie Polowym Wojska Polskiego:",
+    "diecezje": [
+      "białostocka",
+      "Ordynariat Polowy Wojska Polskiego"
+    ]
+  },
+  {
+    "data": "09-29",
+    "tytul": "ŚWIĘTYCH ARCHANIOŁÓW MICHAŁA, GABRIELA I RAFAŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "09-29",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W WARSZAWIE-PRADZE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "09-30",
+    "tytul": "Św. Hieronima, prezbitera i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-01",
+    "tytul": "Św. Teresy od Dzieciątka Jezus, dziewicy i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-02",
+    "tytul": "Świętych Aniołów Stróżów",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-03",
+    "tytul": "ŚWIĘTYCH ARCHANIOŁÓW MICHAŁA, GABRIELA I RAFAŁA",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "10-04",
+    "tytul": "Św. Franciszka z Asyżu",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-05",
+    "tytul": "Św. Faustyny Kowalskiej, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-05",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W TORUNIU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej:",
+    "diecezje": [
+      "toruńska"
+    ]
+  },
+  {
+    "data": "10-05",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ WE WŁOCŁAWKU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji włocławskiej:",
+    "diecezje": [
+      "włocławska"
+    ]
+  },
+  {
+    "data": "10-06",
+    "tytul": "Św. Brunona, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-06",
+    "tytul": "Św. Faustyny Kowalskiej, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej i włocławskiej:",
+    "diecezje": [
+      "toruńska",
+      "włocławska"
+    ]
+  },
+  {
+    "data": "10-07",
+    "tytul": "Najśw. Maryi Panny Różańcowej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-08",
+    "tytul": "Św. Brunona, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji toruńskiej i włocławskiej:",
+    "diecezje": [
+      "toruńska",
+      "włocławska"
+    ]
+  },
+  {
+    "data": "10-09",
+    "tytul": "Świętych męczenników Dionizego, biskupa, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-09",
+    "tytul": "Św. Jana Leonardiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-09",
+    "tytul": "Bł. Wincentego Kadłubka, biskupa, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej oraz diecezji kieleckiej i sandomierskiej:",
+    "diecezje": [
+      "krakowska",
+      "kielecka",
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "10-10",
+    "tytul": "Bł. Marii Angeli Truszkowskiej, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji kaliskiej:",
+    "diecezje": [
+      "kaliska"
+    ]
+  },
+  {
+    "data": "10-10",
+    "tytul": "Bł. Marii Angeli Truszkowskiej, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i warszawskiej oraz diecezji drohiczyńskiej:",
+    "diecezje": [
+      "krakowska",
+      "warszawska",
+      "drohiczyńska"
+    ]
+  },
+  {
+    "data": "10-11",
+    "tytul": "Św. Jana XXIII, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-12",
+    "tytul": "Bł. Jana Beyzyma, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-12",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W POZNANIU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "10-13",
+    "tytul": "Bł. Honorata Koźmińskiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-13",
+    "tytul": "BŁ. HONORATA KOŹMIŃSKIEGO, PREZBITERA, głównego patrona diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "10-14",
+    "tytul": "Św. Kaliksta I, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-14",
+    "tytul": "Św. Małgorzaty Marii Alacoque, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-14",
+    "tytul": "Bł. Radzima Gaudentego, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej:",
+    "diecezje": [
+      "gnieźnieńska"
+    ]
+  },
+  {
+    "data": "10-14",
+    "tytul": "Św. Teresy od Jezusa, dziewicy i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji łódzkiej:",
+    "diecezje": [
+      "łódzka"
+    ]
+  },
+  {
+    "data": "10-14",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W ŁOWICZU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "10-15",
+    "tytul": "Św. Teresy od Jezusa, dziewicy i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-15",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W ŁODZI",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji łódzkiej:",
+    "diecezje": [
+      "łódzka"
+    ]
+  },
+  {
+    "data": "10-16",
+    "tytul": "Św. Jadwigi Śląskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-16",
+    "tytul": "W metropolii katowickiej i wrocławskiej: ŚW. JADWIGI ŚLĄSKIEJ, głównej patronki Śląska i archidiecezji wrocławskiej",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-17",
+    "tytul": "Św. Ignacego Antiocheńskiego, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-18",
+    "tytul": "ŚW. ŁUKASZA, EWANGELISTY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-19",
+    "tytul": "Świętych męczenników Jana de Brébeuf, Izaaka Jogues’a, prezbiterów, i Towarzyszy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-19",
+    "tytul": "Św. Pawła od Krzyża, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-19",
+    "tytul": "Bł. Jerzego Popiełuszki, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej i warszawskiej oraz diecezji legnickiej, warszawsko-praskiej, włocławskiej i Ordynariacie Polowym Wojska Polskiego:",
+    "diecezje": [
+      "białostocka",
+      "warszawska",
+      "legnicka",
+      "warszawsko-praska",
+      "włocławska",
+      "Ordynariat Polowy Wojska Polskiego"
+    ]
+  },
+  {
+    "data": "10-20",
+    "tytul": "Św. Jana Kantego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-20",
+    "tytul": "ŚW. JANA KANTEGO, PREZBITERA, głównego patrona archidiecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej:",
+    "diecezje": [
+      "krakowska"
+    ]
+  },
+  {
+    "data": "10-20",
+    "tytul": "Św. Jana Kantego, prezbitera, patrona archidiecezji i diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji lubelskiej i diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "lubelska",
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "10-21",
+    "tytul": "Bł. Jakuba Strzemię, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "10-22",
+    "tytul": "Św. Jana Pawła II, papieża",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-22",
+    "tytul": "W parafiach należących do województwa kujawsko-pomorskiego i małopolskiego: ŚW. JANA PAWŁA II, PAPIEŻA, głównego patrona województwa",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-22",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W SANDOMIERZU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sandomierskiej:",
+    "diecezje": [
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "10-23",
+    "tytul": "Św. Jana Kapistrana, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-23",
+    "tytul": "Św. Józefa Bilczewskiego, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-24",
+    "tytul": "Św. Antoniego Marii Clareta, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-24",
+    "tytul": "Bł. Jana Wojciecha Balickiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "10-25",
+    "tytul": "Przeniesienie relikwii św. Wojciecha",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji gnieźnieńskiej:",
+    "diecezje": [
+      "gnieźnieńska"
+    ]
+  },
+  {
+    "data": "10-25",
+    "tytul": "Św. Antoniego Marii Clareta, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji przemyskiej:",
+    "diecezje": [
+      "przemyska"
+    ]
+  },
+  {
+    "data": "10-25",
+    "tytul": "Św. Jana Pawła II, papieża",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sandomierskiej:",
+    "diecezje": [
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "10-25",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W KOSZALINIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "10-26",
+    "tytul": "Bł. Celiny Borzęckiej, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej i diecezji bielsko-żywieckiej:",
+    "diecezje": [
+      "krakowska",
+      "bielsko-żywiecka"
+    ]
+  },
+  {
+    "data": "10-28",
+    "tytul": "ŚWIĘTYCH APOSTOŁÓW SZYMONA I JUDY TADEUSZA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "10-28",
+    "tytul": "ŚWIĘTYCH APOSTOŁÓW SZYMONA I JUDY TADEUSZA, głównych patronów diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "10-29",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI ARCHIKATEDRALNEJ W CZĘSTOCHOWIE",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji częstochowskiej:",
+    "diecezje": [
+      "częstochowska"
+    ]
+  },
+  {
+    "data": "10-30",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA ARCHIKATEDRALNEGO W KATOWICACH",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "11-01",
+    "tytul": "WSZYSTKICH ŚWIĘTYCH",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-02",
+    "tytul": "WSPOMNIENIE WSZYSTKICH WIERNYCH ZMARŁYCH",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny",
+    "uwaga": "Wspomnienie Wszystkich Wiernych Zmarłych – pierwszeństwo przed niedzielą zwykłą"
+  },
+  {
+    "data": "11-03",
+    "tytul": "Św. Marcina de Porres, zakonnika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-04",
+    "tytul": "Św. Karola Boromeusza, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-08",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI KATEDRALNEJ W PŁOCKU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji płockiej:",
+    "diecezje": [
+      "płocka"
+    ]
+  },
+  {
+    "data": "11-09",
+    "tytul": "ROCZNICA POŚWIĘCENIA BAZYLIKI LATERAŃSKIEJ",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-10",
+    "tytul": "Św. Leona Wielkiego, papieża i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-10",
+    "tytul": "Św. Leona Wielkiego, papieża i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "11-10",
+    "tytul": "Św. Marcina z Tours, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "11-11",
+    "tytul": "Św. Marcina z Tours, biskupa",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-11",
+    "tytul": "ŚW. WIKTORII, DZIEWICY I MĘCZENNICY, głównej patronki diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji łowickiej:",
+    "diecezje": [
+      "łowicka"
+    ]
+  },
+  {
+    "data": "11-12",
+    "tytul": "Św. Jozafata, biskupa i męczennika",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-12",
+    "tytul": "Św. Jozafata, biskupa i męczennika, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji siedleckiej:",
+    "diecezje": [
+      "siedlecka"
+    ]
+  },
+  {
+    "data": "11-13",
+    "tytul": "Świętych Benedykta, Jana, Mateusza, Izaaka i Krystyna, pierwszych męczenników Polski",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-13",
+    "tytul": "ŚWIĘTYCH BENEDYKTA, JANA, MATEUSZA, IZAAKA I KRYSTYNA, PIERWSZYCH MĘCZENNIKÓW POLSKI, patronów diecezji",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji zielonogórsko-gorzowskiej:",
+    "diecezje": [
+      "zielonogórsko-gorzowska"
+    ]
+  },
+  {
+    "data": "11-14",
+    "tytul": "Bł. Marii Luizy Merkert, dziewicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "11-14",
+    "tytul": "Bł. Marii Luizy Merkert, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej i wrocławskiej:",
+    "diecezje": [
+      "katowicka",
+      "wrocławska"
+    ]
+  },
+  {
+    "data": "11-15",
+    "tytul": "Św. Alberta Wielkiego, biskupa i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-16",
+    "tytul": "Rocznica poświęcenia rzymskich bazylik Świętych Apostołów Piotra i Pawła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-16",
+    "tytul": "Św. Małgorzaty Szkockiej",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-16",
+    "tytul": "Św. Gertrudy, dziewicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-16",
+    "tytul": "NAJŚW. MARYI PANNY OSTROBRAMSKIEJ, MATKI MIŁOSIERDZIA, głównej patronki archidiecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji białostockiej:",
+    "diecezje": [
+      "białostocka"
+    ]
+  },
+  {
+    "data": "11-16",
+    "tytul": "NAJŚW. MARYI PANNY OSTROBRAMSKIEJ, MATKI MIŁOSIERDZIA",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej oraz diecezji drohiczyńskiej, ełckiej i łomżyńskiej:",
+    "diecezje": [
+      "warmińska",
+      "drohiczyńska",
+      "ełcka",
+      "łomżyńska"
+    ]
+  },
+  {
+    "data": "11-16",
+    "tytul": "Najśw. Maryi Panny Ostrobramskiej, Matki Miłosierdzia",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "11-16",
+    "tytul": "Najśw. Maryi Panny Ostrobramskiej, Matki Miłosierdzia",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej i diecezji koszalińsko-kołobrzeskiej:",
+    "diecezje": [
+      "warszawska",
+      "koszalińsko-kołobrzeska"
+    ]
+  },
+  {
+    "data": "11-16",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA ARCHIKATEDRALNEGO WE WROCŁAWIU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji wrocławskiej:",
+    "diecezje": [
+      "wrocławska"
+    ]
+  },
+  {
+    "data": "11-16",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W OPOLU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji opolskiej:",
+    "diecezje": [
+      "opolska"
+    ]
+  },
+  {
+    "data": "11-17",
+    "tytul": "Św. Elżbiety Węgierskiej, zakonnicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-18",
+    "tytul": "Bł. Karoliny Kózkówny, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-18",
+    "tytul": "Bł. Karoliny Kózkowny, dziewicy i męczennicy, patronki diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji rzeszowskiej:",
+    "diecezje": [
+      "rzeszowska"
+    ]
+  },
+  {
+    "data": "11-18",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W ZAMOŚCIU",
+    "ranga": "swieto",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji zamojsko-lubaczowskiej:",
+    "diecezje": [
+      "zamojsko-lubaczowska"
+    ]
+  },
+  {
+    "data": "11-19",
+    "tytul": "Bł. Salomei, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji krakowskiej oraz diecezji kieleckiej i sandomierskiej:",
+    "diecezje": [
+      "krakowska",
+      "kielecka",
+      "sandomierska"
+    ]
+  },
+  {
+    "data": "11-20",
+    "tytul": "Św. Rafała Kalinowskiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-20",
+    "tytul": "Św. Rafała Kalinowskiego, prezbitera, patrona diecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji sosnowieckiej:",
+    "diecezje": [
+      "sosnowiecka"
+    ]
+  },
+  {
+    "data": "11-21",
+    "tytul": "Ofiarowanie Najśw. Maryi Panny",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-22",
+    "tytul": "Św. Cecylii, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-23",
+    "tytul": "Św. Klemensa I, papieża i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-23",
+    "tytul": "Św. Kolumbana, opata",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-24",
+    "tytul": "Świętych męczenników Andrzeja Dung-Lac, prezbitera, i Towarzyszy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-25",
+    "tytul": "Św. Katarzyny Aleksandryjskiej, dziewicy i męczennicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-25",
+    "tytul": "Bł. Marii od Pana Jezusa Dobrego Pasterza, zakonnicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warszawskiej i diecezji łowickiej:",
+    "diecezje": [
+      "warszawska",
+      "łowicka"
+    ]
+  },
+  {
+    "data": "11-30",
+    "tytul": "ŚW. ANDRZEJA, APOSTOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "11-30",
+    "tytul": "ŚW. ANDRZEJA, APOSTOŁA, głównego patrona archidiecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji warmińskiej:",
+    "diecezje": [
+      "warmińska"
+    ]
+  },
+  {
+    "data": "12-02",
+    "tytul": "Bł. Jana Franciszka Machy, prezbitera i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "12-02",
+    "tytul": "Bł. Rafała Chylińskiego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji łódzkiej:",
+    "diecezje": [
+      "łódzka"
+    ]
+  },
+  {
+    "data": "12-02",
+    "tytul": "Bł. Rafała Chylińskiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji poznańskiej:",
+    "diecezje": [
+      "poznańska"
+    ]
+  },
+  {
+    "data": "12-03",
+    "tytul": "Św. Franciszka Ksawerego, prezbitera",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-04",
+    "tytul": "Św. Jana Damasceńskiego, prezbitera i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-04",
+    "tytul": "Św. Barbary, dziewicy i męczennicy",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-04",
+    "tytul": "Św. Barbary, dziewicy i męczennicy, patronki archidiecezji",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji katowickiej:",
+    "diecezje": [
+      "katowicka"
+    ]
+  },
+  {
+    "data": "12-04",
+    "tytul": "Św. Barbary, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji gliwickiej i sosnowieckiej:",
+    "diecezje": [
+      "gliwicka",
+      "sosnowiecka"
+    ]
+  },
+  {
+    "data": "12-06",
+    "tytul": "Św. Mikołaja, biskupa",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-07",
+    "tytul": "Św. Ambrożego, biskupa i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-08",
+    "tytul": "NIEPOKALANE POCZĘCIE NAJŚW. MARYI PANNY",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-09",
+    "tytul": "Św. Jana Diego Cuauhtlatoatzin",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-10",
+    "tytul": "Najśw. Maryi Panny Loretańskiej",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-10",
+    "tytul": "Najśw. Maryi Panny Loretańskiej",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "diecezja",
+    "zakres_raw": "W diecezji warszawsko-praskiej:",
+    "diecezje": [
+      "warszawsko-praska"
+    ]
+  },
+  {
+    "data": "12-11",
+    "tytul": "Św. Damazego I, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-12",
+    "tytul": "Najśw. Maryi Panny z Guadalupe",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-13",
+    "tytul": "Św. Łucji, dziewicy i męczennicy",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-14",
+    "tytul": "Św. Jana od Krzyża, prezbitera i doktora Kościoła",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-21",
+    "tytul": "Św. Piotra Kanizjusza, prezbitera i doktora Kościoła",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-25",
+    "tytul": "NARODZENIE PAŃSKIE",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-26",
+    "tytul": "ŚW. SZCZEPANA, PIERWSZEGO MĘCZENNIKA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-27",
+    "tytul": "ŚW. JANA, APOSTOŁA I EWANGELISTY",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-28",
+    "tytul": "ŚW. MŁODZIANKÓW, MĘCZENNIKÓW",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-29",
+    "tytul": "Św. Tomasza Becketa, biskupa i męczennika",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  },
+  {
+    "data": "12-31",
+    "tytul": "Św. Sylwestra I, papieża",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny"
+  }
+]

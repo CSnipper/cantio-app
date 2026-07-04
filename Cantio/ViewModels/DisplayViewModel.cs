@@ -45,6 +45,7 @@ public partial class DisplayViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
+        SongSortMode = await _db.GetSettingAsync("song_sort") ?? "number";
         await LoadCategoriesAsync();
         await OpenProjectionWindowAsync();
 
@@ -1081,11 +1082,13 @@ public partial class DisplayViewModel : ObservableObject
         {
             var date = today.AddDays(i);
             var day = LiturgicalCalendarService.GetDay(date);
+            // Kalendarz diecezji: uroczystość/święto (lub ręczny wybór formularza) wypiera nazwę dnia
+            var name = DiocesanCalendarService.EffectiveSetlistName(date, day);
             await _db.EnsureGroupAsync(day.Group);
-            var existing = await _db.GetSetlistByNameAndGroupAsync(day.SetlistName, day.Group);
+            var existing = await _db.GetSetlistByNameAndGroupAsync(name, day.Group);
             if (existing == null)
             {
-                var newSetlist = new Setlist { Name = day.SetlistName, Group = day.Group, IsPinned = true };
+                var newSetlist = new Setlist { Name = name, Group = day.Group, IsPinned = true };
                 await _db.SaveSetlistAsync(newSetlist);
             }
             else if (!existing.IsPinned)
@@ -1113,6 +1116,65 @@ public partial class DisplayViewModel : ObservableObject
         await _db.SaveSetlistAsync(setlist);
         if (setlist.Id == _loadedSetlistId) IsCurrentSetlistPinned = false;
         await LoadPinnedSetlistsAsync();
+    }
+
+    // ─── Lista „Ostatnie" (ostatnio wyświetlane pieśni) ───────────────────────
+
+    [ObservableProperty] private ObservableCollection<Song> _recentSongs = [];
+    [ObservableProperty] private bool _isRecentPopupOpen;
+
+    [RelayCommand]
+    private async Task OpenRecentSongs()
+    {
+        RecentSongs = new ObservableCollection<Song>(await _db.GetRecentSongsAsync(10));
+        IsRecentPopupOpen = true;
+    }
+
+    [RelayCommand]
+    private async Task DisplayRecentSong(Song song)
+    {
+        IsRecentPopupOpen = false;
+        await LoadVersesAsync(song.Id);
+    }
+
+    // ─── Notatka dla zmienników ────────────────────────────────────────────────
+
+    [ObservableProperty] private string _operatorNote = "";
+    [ObservableProperty] private bool _isNotePopupOpen;
+    [ObservableProperty] private bool _isNoteUnread;
+
+    private string _noteAtOpen = "";
+
+    public bool HasOperatorNote => !string.IsNullOrWhiteSpace(OperatorNote);
+    partial void OnOperatorNoteChanged(string value) => OnPropertyChanged(nameof(HasOperatorNote));
+
+    public async Task LoadOperatorNoteAsync()
+    {
+        OperatorNote = await _db.GetSettingAsync("operator_note") ?? "";
+        IsNoteUnread = HasOperatorNote && await _db.GetSettingAsync("operator_note_unread") == "1";
+    }
+
+    [RelayCommand]
+    private void ToggleNotePopup() => IsNotePopupOpen = !IsNotePopupOpen;
+
+    /// <summary>Otwarcie popupu = przeczytanie: gaśnie czerwone podświetlenie.</summary>
+    public void MarkNoteOpened()
+    {
+        _noteAtOpen = OperatorNote;
+        IsNoteUnread = false;
+        _ = _db.SaveSettingAsync("operator_note_unread", "0");
+    }
+
+    [RelayCommand]
+    private async Task SaveOperatorNote()
+    {
+        await _db.SaveSettingAsync("operator_note", OperatorNote ?? "");
+        if (OperatorNote != _noteAtOpen)
+        {
+            // Zmieniona treść przy zamknięciu → nieprzeczytana dla następnej osoby (pusta nie świeci)
+            IsNoteUnread = HasOperatorNote;
+            await _db.SaveSettingAsync("operator_note_unread", IsNoteUnread ? "1" : "0");
+        }
     }
 
     [RelayCommand]
@@ -1306,10 +1368,34 @@ public partial class DisplayViewModel : ObservableObject
         RefreshCategoryMoveFlags();
     }
 
+    // ─── Sortowanie list pieśni ───────────────────────────────────────────────
+
+    /// SQLite sortuje binarnie (Ś/Ł/Ż za "Z") — sortujemy po stronie klienta polską kulturą
+    private static readonly StringComparer PlComparer =
+        StringComparer.Create(new System.Globalization.CultureInfo("pl-PL"), ignoreCase: true);
+
+    /// "number" (śpiewnik: numerowane rosnąco, potem reszta alfabetycznie) lub "alpha"
+    [ObservableProperty] private string _songSortMode = "number";
+
+    partial void OnSongSortModeChanged(string value)
+    {
+        _ = _db.SaveSettingAsync("song_sort", value);
+        Songs = new ObservableCollection<Song>(SortSongs(Songs));
+    }
+
+    [RelayCommand] private void SetSongSort(string mode) => SongSortMode = mode;
+
+    private IEnumerable<Song> SortSongs(IEnumerable<Song> songs) =>
+        SongSortMode == "alpha"
+            ? songs.OrderBy(s => s.Title, PlComparer)
+            : songs.OrderBy(s => s.Number == 0 ? 1 : 0)
+                   .ThenBy(s => s.Number)
+                   .ThenBy(s => s.Title, PlComparer);
+
     private async Task LoadSongsAsync(int categoryId)
     {
         var list = await _db.GetSongsByCategoryAsync(categoryId);
-        Songs = new ObservableCollection<Song>(list);
+        Songs = new ObservableCollection<Song>(SortSongs(list));
     }
 
     private async Task RunDebouncedSearchAsync(string query)
@@ -1332,7 +1418,7 @@ public partial class DisplayViewModel : ObservableObject
             return;
         }
         var list = await _db.SearchSongsAsync(query, ct);
-        Songs = new ObservableCollection<Song>(list);
+        Songs = new ObservableCollection<Song>(SortSongs(list));
     }
 
     private async Task LoadVersesAsync(int songId, bool goToLast = false, int restoreSlide = -1)
@@ -1342,6 +1428,7 @@ public partial class DisplayViewModel : ObservableObject
         if (song == null) { _loadingVerses = false; return; }
         SelectedSong = song;
         _loadingVerses = false;
+        _ = _db.TouchSongUsageAsync(songId); // lista „Ostatnie" — fire-and-forget
 
         var baseVerses = song.Verses.OrderBy(v => v.Position).ToList();
         List<Verse> ordered = baseVerses;

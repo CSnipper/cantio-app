@@ -220,6 +220,27 @@ public partial class SzablonViewModel : ObservableObject
 
     [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
 
+    // Diecezja (kalendarz diecezji polskich)
+
+    /// <summary>Wywoływane po zmianie diecezji — MainWindow odświeża zegar/formularze.</summary>
+    public event Action? DioceseChanged;
+
+    public IReadOnlyList<string> DioceseOptions { get; } =
+        new[] { "— kalendarz ogólny —" }.Concat(DiocesanCalendarService.Diecezje).ToList();
+
+    [ObservableProperty] private string _selectedDioceseOption = "— kalendarz ogólny —";
+
+    private bool _dioceseLoading;
+
+    partial void OnSelectedDioceseOptionChanged(string value)
+    {
+        var diocese = value == "— kalendarz ogólny —" ? "" : value;
+        DiocesanCalendarService.CurrentDiocese = diocese;
+        if (_dioceseLoading) return;
+        _ = _db.SaveSettingAsync("diocese", diocese);
+        DioceseChanged?.Invoke();
+    }
+
     // Tagi formatowania
 
     [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
@@ -584,6 +605,12 @@ public partial class SzablonViewModel : ObservableObject
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
         RunOnStartup = WinReg.CurrentUser.OpenSubKey(RunKey)?.GetValue("Cantio") != null;
+
+        _dioceseLoading = true;
+        var diocese = await _db.GetSettingAsync("diocese") ?? "";
+        SelectedDioceseOption = diocese.Length > 0 && DioceseOptions.Contains(diocese)
+            ? diocese : "— kalendarz ogólny —";
+        _dioceseLoading = false;
 
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";

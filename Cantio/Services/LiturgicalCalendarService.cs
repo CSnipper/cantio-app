@@ -20,7 +20,7 @@ public static class LiturgicalCalendarService
             string dayAbbr = GetDayAbbr(date);
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "adwent");
+            return new LiturgicalDay(name, "adwent", isSunday ? cycle : "");
         }
 
         if (date.Month == 12 && date.Day >= 24)
@@ -41,7 +41,7 @@ public static class LiturgicalCalendarService
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string cycle = GetSundayCycle(year);
             string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "wielki_post");
+            return new LiturgicalDay(name, "wielki_post", isSunday ? cycle : "");
         }
 
         // Wielkanoc: Niedziela Wielkanocna do Zesłania Ducha Świętego (49 dni)
@@ -53,7 +53,7 @@ public static class LiturgicalCalendarService
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string cycle = GetSundayCycle(year);
             string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "wielkanoc");
+            return new LiturgicalDay(name, "wielkanoc", isSunday ? cycle : "");
         }
 
         // Zwykły
@@ -62,7 +62,9 @@ public static class LiturgicalCalendarService
             string dayAbbr = GetDayAbbr(date);
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string name = isSunday ? $"{week} {dayAbbr} {GetSundayCycle(year)}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "zwykly");
+            // Cykl powszedni I/II wg roku kalendarzowego (okres zwykły nie przechodzi przez Nowy Rok)
+            string cycle = isSunday ? GetSundayCycle(year) : (year % 2 == 1 ? "I" : "II");
+            return new LiturgicalDay(name, "zwykly", cycle);
         }
     }
 

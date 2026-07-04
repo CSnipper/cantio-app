@@ -10,6 +10,20 @@
     <sys:String x:Key="Tab.Support">SUPPORT</sys:String>
     <sys:String x:Key="Tab.Pilot">REMOTE</sys:String>
     <sys:String x:Key="Pilot.RememberState">Remember remote state — start automatically on app launch</sys:String>
+    <sys:String x:Key="Season.adwent">Advent</sys:String>
+    <sys:String x:Key="Season.boznarodzenie">Christmas</sys:String>
+    <sys:String x:Key="Season.wielki_post">Lent</sys:String>
+    <sys:String x:Key="Season.wielkanoc">Easter</sys:String>
+    <sys:String x:Key="Season.zwykly">Ordinary Time</sys:String>
+    <sys:String x:Key="Btn.RecentSongs">Recently displayed</sys:String>
+    <sys:String x:Key="Recent.Empty">No recently displayed songs.</sys:String>
+    <sys:String x:Key="Note.Title">Note for substitutes</sys:String>
+    <sys:String x:Key="Note.Tip">Note — a short message for other organists</sys:String>
+    <sys:String x:Key="Clock.Year">year</sys:String>
+    <sys:String x:Key="Sort.ByNumber">Sort by number</sys:String>
+    <sys:String x:Key="Sort.ByAlpha">Sort alphabetically</sys:String>
+    <sys:String x:Key="Settings.Diocese">Diocese</sys:String>
+    <sys:String x:Key="Settings.DioceseDesc">Diocesan proper celebrations in the calendar (formularies next to the clock, pinned setlist names).</sys:String>
 
     <!-- About -->
     <sys:String x:Key="About.Subtitle">Song projection software</sys:String>

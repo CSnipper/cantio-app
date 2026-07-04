@@ -10,6 +10,7 @@ public class Song
     public Category? Category { get; set; }
     public string? PlayOrderJson { get; set; }
     public double? FontSizeOverride { get; set; }
+    public DateTime? LastUsedAt { get; set; }
     public ICollection<Verse> Verses { get; set; } = [];
     public ICollection<SetlistItem> SetlistItems { get; set; } = [];
 }
