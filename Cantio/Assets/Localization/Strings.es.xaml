@@ -22,6 +22,9 @@
     <sys:String x:Key="Clock.Year">año</sys:String>
     <sys:String x:Key="Sort.ByNumber">Ordenar por número</sys:String>
     <sys:String x:Key="Sort.ByAlpha">Ordenar alfabéticamente</sys:String>
+    <sys:String x:Key="Settings.BlankScreen">Pantalla en negro</sys:String>
+    <sys:String x:Key="Settings.BlankScreenDesc">Color o imagen personalizada (p. ej. el logotipo de la parroquia) en lugar de la pantalla negra.</sys:String>
+    <sys:String x:Key="Settings.BlankColor">Color</sys:String>
     <sys:String x:Key="Settings.Diocese">Diócesis</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Celebraciones propias de la diócesis en el calendario (formularios junto al reloj, nombres de las listas fijadas).</sys:String>
 

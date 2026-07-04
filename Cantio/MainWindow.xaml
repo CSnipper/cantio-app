@@ -3714,6 +3714,61 @@
                                            Foreground="#9aa3b8" FontSize="11" Margin="0,2,0,0"/>
                             </StackPanel>
 
+                            <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,10,0,16"/>
+
+                            <!-- Wygaszony ekran -->
+                            <TextBlock Text="{DynamicResource Settings.BlankScreen}" FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="SemiBold" Foreground="#c9a84c" Margin="0,0,0,6"/>
+                            <TextBlock Text="{DynamicResource Settings.BlankScreenDesc}"
+                                       Foreground="#959fb9" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="{DynamicResource Settings.BlankColor}" Foreground="#959fb9" FontSize="16"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Button Width="36" Height="30" Cursor="Hand"
+                                        ToolTip="{DynamicResource Btn.PickColor}"
+                                        Command="{Binding PickBlankColorCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border BorderBrush="#555" BorderThickness="1"
+                                                    Background="{Binding BlankColor}"/>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBox Text="{Binding BlankColor, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource DarkTextBox}"
+                                         Width="90" FontFamily="Consolas" FontSize="16" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="#1e2535" BorderBrush="#2a3347"
+                                        BorderThickness="1" Padding="10,8">
+                                    <TextBlock TextTrimming="CharacterEllipsis" FontSize="16">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text"       Value="{Binding BlankImagePath}"/>
+                                                <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding BlankImagePath}" Value="{x:Null}">
+                                                        <Setter Property="Text"       Value="{DynamicResource Settings.NoImage}"/>
+                                                        <Setter Property="Foreground" Value="#959fb9"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                                <Button Grid.Column="2" Content="{DynamicResource Btn.Browse}" Style="{StaticResource GoldBtn}"
+                                        Padding="12,8" Command="{Binding SelectBlankImageCommand}"/>
+                                <Button Grid.Column="4" Content="&#x2715;" Style="{StaticResource RedBtn}"
+                                        Padding="10,8" Command="{Binding RemoveBlankImageCommand}"/>
+                            </Grid>
+
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
@@ -3891,7 +3946,11 @@
 
             <!-- TAB: O PROGRAMIE -->
             <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="#0f1117">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="420">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="420">
 
                     <!-- Nazwa -->
                     <TextBlock Text="Cantio" FontFamily="{StaticResource HeaderFont}" FontSize="56"
@@ -3953,18 +4012,16 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Changelog (tylko gdy dostępna aktualizacja i są release notes) -->
-                    <Border Background="#181b24" CornerRadius="6" Padding="14,12" Margin="0,0,0,8"
-                            Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.Changelog}"
-                                       Foreground="#8a8e9e" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
-                            <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto">
-                                <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap"
-                                           FontSize="12" Foreground="#9aa3b8" LineHeight="18"/>
-                            </ScrollViewer>
+                    <!-- GitHub -->
+                    <Button Style="{StaticResource OutlineBtn}" HorizontalAlignment="Stretch"
+                            Height="44" Margin="0,0,0,8"
+                            Command="{Binding OpenGitHubCommand}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE943;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                       VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="github.com/CSnipper/cantio-app" FontSize="15" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
                     <!-- Zainstaluj aktualizację (tylko gdy dostępna) -->
                     <Button Style="{StaticResource GoldBtn}" HorizontalAlignment="Stretch"
@@ -3996,6 +4053,19 @@
                                  Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"/>
 
                 </StackPanel>
+
+                <!-- Changelog — pełna szerokość na dole (tylko gdy dostępna aktualizacja) -->
+                <Border Grid.Row="1" Background="#181b24" CornerRadius="6" Padding="20,16" Margin="24,0,24,24"
+                        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource About.Changelog}"
+                                   Foreground="#8a8e9e" FontSize="22" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding ReleaseNotes}" TextWrapping="Wrap"
+                                       FontSize="24" Foreground="#9aa3b8" LineHeight="36"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
             </Grid>
 
         </Grid>

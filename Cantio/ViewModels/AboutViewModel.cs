@@ -160,4 +160,8 @@ public partial class AboutViewModel : ObservableObject
     [RelayCommand]
     private static void OpenWebsite() =>
         Process.Start(new ProcessStartInfo("https://cantio.app") { UseShellExecute = true });
+
+    [RelayCommand]
+    private static void OpenGitHub() =>
+        Process.Start(new ProcessStartInfo("https://github.com/CSnipper/cantio-app/") { UseShellExecute = true });
 }

@@ -29,6 +29,10 @@ public partial class ProjectionViewModel : ObservableObject
     [ObservableProperty] private string? _slideBackgroundImagePath;
     [ObservableProperty] private double _backgroundImageOpacity = 1.0;
 
+    // Wygaszony ekran — własny kolor/obrazek zamiast czerni
+    [ObservableProperty] private Brush _blankBrush = Brushes.Black;
+    [ObservableProperty] private string? _blankImagePath;
+
     public string? ActiveBackgroundImagePath => SlideBackgroundImagePath ?? BackgroundImagePath;
 
     partial void OnBackgroundImagePathChanged(string? value) =>

@@ -22,6 +22,9 @@
     <sys:String x:Key="Clock.Year">rok</sys:String>
     <sys:String x:Key="Sort.ByNumber">Sortuj według numeru</sys:String>
     <sys:String x:Key="Sort.ByAlpha">Sortuj alfabetycznie</sys:String>
+    <sys:String x:Key="Settings.BlankScreen">Wygaszony ekran</sys:String>
+    <sys:String x:Key="Settings.BlankScreenDesc">Własny kolor lub obrazek (np. logo parafii) zamiast czarnego ekranu podczas wygaszenia.</sys:String>
+    <sys:String x:Key="Settings.BlankColor">Kolor</sys:String>
     <sys:String x:Key="Settings.Diocese">Diecezja</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Obchody własne diecezji w kalendarzu (formularze przy zegarze, nazwy przypinanych zestawów).</sys:String>
 

@@ -333,6 +333,45 @@ public partial class SzablonViewModel : ObservableObject
         if (dlg.ShowDialog() == true) setter(dlg.SelectedHex);
     }
 
+    // ─── Wygaszony ekran (własny kolor/obrazek zamiast czerni) ────────────────
+
+    [ObservableProperty] private string _blankColor = "#000000";
+    [ObservableProperty] private string? _blankImagePath;
+
+    private bool _blankLoading;
+
+    partial void OnBlankColorChanged(string value) => ApplyBlank();
+    partial void OnBlankImagePathChanged(string? value) => ApplyBlank();
+
+    private void ApplyBlank()
+    {
+        Brush brush;
+        try { brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(BlankColor)); }
+        catch { brush = Brushes.Black; }
+        brush.Freeze();
+        _projection.BlankBrush = brush;
+        // W settings trzymamy ścieżkę relatywną; projektor potrzebuje absolutnej
+        _projection.BlankImagePath = BlankImagePath == null ? null : ImageStorage.Resolve(BlankImagePath);
+        if (_blankLoading) return;
+        _ = _db.SaveSettingAsync("blank_color", BlankColor);
+        _ = _db.SaveSettingAsync("blank_image_path", BlankImagePath ?? "");
+    }
+
+    [RelayCommand] private void PickBlankColor() => PickColor(c => BlankColor = c, BlankColor);
+
+    [RelayCommand]
+    private void SelectBlankImage()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Filter = "Obrazki (*.jpg;*.jpeg;*.png;*.bmp;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.webp|Wszystkie pliki (*.*)|*.*"
+        };
+        if (dlg.ShowDialog() != true) return;
+        BlankImagePath = ImageStorage.Import(dlg.FileName);
+    }
+
+    [RelayCommand] private void RemoveBlankImage() => BlankImagePath = null;
+
     [RelayCommand] private void AddTag() => TextTags.Add(new TextFormatTag { Name = "tag" });
 
     [RelayCommand] private void RemoveTag(TextFormatTag tag) => TextTags.Remove(tag);
@@ -611,6 +650,13 @@ public partial class SzablonViewModel : ObservableObject
         SelectedDioceseOption = diocese.Length > 0 && DioceseOptions.Contains(diocese)
             ? diocese : "— kalendarz ogólny —";
         _dioceseLoading = false;
+
+        _blankLoading = true;
+        BlankColor = await _db.GetSettingAsync("blank_color") ?? "#000000";
+        var blankImg = await _db.GetSettingAsync("blank_image_path");
+        BlankImagePath = string.IsNullOrEmpty(blankImg) ? null : blankImg;
+        _blankLoading = false;
+        ApplyBlank();
 
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";

@@ -22,6 +22,9 @@
     <sys:String x:Key="Clock.Year">year</sys:String>
     <sys:String x:Key="Sort.ByNumber">Sort by number</sys:String>
     <sys:String x:Key="Sort.ByAlpha">Sort alphabetically</sys:String>
+    <sys:String x:Key="Settings.BlankScreen">Blank screen</sys:String>
+    <sys:String x:Key="Settings.BlankScreenDesc">Custom color or image (e.g. parish logo) instead of a black screen when blanked.</sys:String>
+    <sys:String x:Key="Settings.BlankColor">Color</sys:String>
     <sys:String x:Key="Settings.Diocese">Diocese</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Diocesan proper celebrations in the calendar (formularies next to the clock, pinned setlist names).</sys:String>
 

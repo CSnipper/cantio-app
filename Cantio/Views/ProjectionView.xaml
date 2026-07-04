@@ -65,9 +65,11 @@
                    VerticalAlignment="Center"/>
         </Border>
 
-        <!-- Overlay pusty ekran (ukryty w trybie podglądu operatora) -->
+        <!-- Overlay pusty ekran (ukryty w trybie podglądu operatora) — własny kolor/obrazek -->
         <Border x:Name="BlankOverlay"
-                Background="#000000"
-                Visibility="{Binding IsBlank, Converter={StaticResource BoolToVis}}"/>
+                Background="{Binding BlankBrush}"
+                Visibility="{Binding IsBlank, Converter={StaticResource BoolToVis}}">
+            <Image Source="{Binding BlankImagePath}" Stretch="UniformToFill"/>
+        </Border>
     </Grid>
 </UserControl>
