@@ -469,6 +469,56 @@ public class DatabaseService
         };
     }
 
+    // Aliasy znormalizowanych nazw grup (przez NormalizeGroupKey) → klucz okresu.
+    // Klucze okresów pochodzą z LiturgicalCalendarService.GetDay (day.Group).
+    // Uwzględnia lokalizacje pl/en/es z Season.* oraz warianty pisowni.
+    private static readonly Dictionary<string, string> _seasonAliases = new()
+    {
+        // zwykly — pl "Okres Zwykły", en "Ordinary Time", es "Tiempo Ordinario"
+        ["okres zwykly"] = "zwykly",
+        ["ordinary time"] = "zwykly",
+        ["tiempo ordinario"] = "zwykly",
+        // adwent — pl "Adwent", en "Advent", es "Adviento"
+        ["advent"] = "adwent",
+        ["adviento"] = "adwent",
+        // wielki_post — pl "Wielki Post", en "Lent", es "Cuaresma"
+        ["lent"] = "wielki_post",
+        ["cuaresma"] = "wielki_post",
+        // wielkanoc — pl "Wielkanoc", en "Easter", es "Pascua"
+        ["easter"] = "wielkanoc",
+        ["pascua"] = "wielkanoc",
+        // boznarodzenie — pl "Boże Narodzenie", en "Christmas", es "Navidad"
+        ["christmas"] = "boznarodzenie",
+        ["navidad"] = "boznarodzenie",
+    };
+
+    // Zbiór znormalizowanych postaci wszystkich kluczy okresów (self-mapping).
+    // NormalizeGroupKey("wielki_post") == "wielki post" itd.
+    private static readonly HashSet<string> _seasonKeyNorms = new()
+    {
+        NormalizeGroupKey("zwykly"),
+        NormalizeGroupKey("adwent"),
+        NormalizeGroupKey("wielki_post"),
+        NormalizeGroupKey("wielkanoc"),
+        NormalizeGroupKey("boznarodzenie"),
+    };
+
+    // Zwraca klucz okresu dla nazwy grupy, gdy jej znormalizowana postać jest
+    // samym kluczem lub aliasem; inaczej null. NormalizeGroupKey już mapuje
+    // "boze narodzenie" → "boznarodzenie", więc self-mapping obejmuje ten wariant.
+    public static string? SeasonKeyFromGroupName(string? groupName)
+    {
+        if (string.IsNullOrWhiteSpace(groupName)) return null;
+        var norm = NormalizeGroupKey(groupName);
+        if (_seasonKeyNorms.Contains(norm))
+            return norm switch
+            {
+                "wielki post" => "wielki_post",
+                _ => norm
+            };
+        return _seasonAliases.TryGetValue(norm, out var key) ? key : null;
+    }
+
     // Zwraca istniejącą pisownię grupy pasującej po normalizacji do klucza,
     // albo klucz bez zmian gdy żadna nie pasuje.
     public async Task<string> ResolveGroupNameAsync(string key)
@@ -493,10 +543,33 @@ public class DatabaseService
         }
 
         foreach (var c in candidates)
-            if (NormalizeGroupKey(c) == target)
+            if (NormalizeGroupKey(c) == target || SeasonKeyFromGroupName(c) == key)
                 return c;
 
         return key;
+    }
+
+    // Lookup dla „Przypnij tydzień": dopasowanie po nazwie + kluczu okresu.
+    // 1) nazwa == oraz SeasonKey == seasonKey; 2) fallback: nazwa == oraz
+    // SeasonKeyFromGroupName(Group) == seasonKey (stare zestawy) + backfill SeasonKey.
+    public async Task<Setlist?> GetSetlistForPinAsync(string name, string seasonKey)
+    {
+        await using var db = new CantioDbContext();
+        var candidates = await db.Setlists.AsNoTracking().ToListAsync();
+
+        var match = candidates.FirstOrDefault(s =>
+            NameEquals(s.Name, name) && s.SeasonKey == seasonKey);
+        if (match != null) return match;
+
+        var fallback = candidates.FirstOrDefault(s =>
+            NameEquals(s.Name, name) && SeasonKeyFromGroupName(s.Group) == seasonKey);
+        if (fallback != null)
+        {
+            fallback.SeasonKey = seasonKey;
+            db.Setlists.Update(fallback);
+            await db.SaveChangesAsync();
+        }
+        return fallback;
     }
 
     public async Task<Setlist?> GetSetlistByNameAndGroupAsync(string name, string group)

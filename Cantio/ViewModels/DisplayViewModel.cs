@@ -1095,10 +1095,10 @@ public partial class DisplayViewModel : ObservableObject
             var name = DiocesanCalendarService.EffectiveSetlistName(date, day);
             var group = await _db.ResolveGroupNameAsync(day.Group);
             await _db.EnsureGroupAsync(group);
-            var existing = await _db.GetSetlistByNameAndGroupAsync(name, group);
+            var existing = await _db.GetSetlistForPinAsync(name, day.Group);
             if (existing == null)
             {
-                var newSetlist = new Setlist { Name = name, Group = group, IsPinned = true };
+                var newSetlist = new Setlist { Name = name, Group = group, SeasonKey = day.Group, IsPinned = true };
                 await _db.SaveSetlistAsync(newSetlist);
             }
             else if (!existing.IsPinned)
