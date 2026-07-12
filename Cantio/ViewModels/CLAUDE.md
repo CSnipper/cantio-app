@@ -81,6 +81,7 @@ bool isChorus = block.StartsWith("Refren:", ...) || block.StartsWith("Aklamacja:
 - `SetBlanked(true)` zapisuje pending slide, `SetBlanked(false)` go aplikuje
 - ESC w `OnPreviewKeyDown` zachowuje stan blanku
 - `HandleKey` w DisplayViewModel obsługuje ←→ (slajdy) i ↑↓ (pieśni w zestawie)
+- `PrevSong` (↑) ładuje poprzednią pieśń od PIERWSZEGO slajdu; `PrevSongLastSlide()` (tylko fallback z `PrevSlide` ←) — od ostatniego slajdu. Nie scalać ich z powrotem.
 - `HandleKey` musi być wywoływany zanim sprawdzimy fokus list — blokuje go tylko aktywny TextBox/RichTextBox
 - `RelativeSource=AncestorType` w `MultiDataTrigger.Conditions` jest zawodne w WPF — używaj code-behind z DP i subskrypcją PropertyChanged
 

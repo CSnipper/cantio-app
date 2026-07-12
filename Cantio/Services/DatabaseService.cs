@@ -435,14 +435,78 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    // Porównanie po stronie klienta: SQLite lower() obsługuje tylko ASCII,
+    // więc polskie znaki w nazwach dni ("11 Śro") nie były dopasowywane.
+    private static readonly System.Globalization.CompareInfo _plCompare =
+        new System.Globalization.CultureInfo("pl-PL").CompareInfo;
+
+    private static bool NameEquals(string? a, string? b) =>
+        _plCompare.Compare((a ?? "").Trim(), (b ?? "").Trim(),
+            System.Globalization.CompareOptions.IgnoreCase) == 0;
+
+    // Normalizacja klucza grupy: trim, lowercase (pl-PL), '_'→spacja, pl→ASCII.
+    // "zwykly" ≡ "Zwykły", "wielki_post" ≡ "Wielki Post".
+    public static string NormalizeGroupKey(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "";
+        var lower = s.Trim().ToLower(new System.Globalization.CultureInfo("pl-PL")).Replace('_', ' ');
+        var sb = new StringBuilder(lower.Length);
+        foreach (var ch in lower)
+        {
+            sb.Append(ch switch
+            {
+                'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n',
+                'ó' => 'o', 'ś' => 's', 'ź' => 'z', 'ż' => 'z',
+                _ => ch
+            });
+        }
+        var norm = sb.ToString();
+        // Aliasy: klucz okresu → alternatywne pisownie grup
+        return norm switch
+        {
+            "boze narodzenie" => "boznarodzenie",
+            _ => norm
+        };
+    }
+
+    // Zwraca istniejącą pisownię grupy pasującej po normalizacji do klucza,
+    // albo klucz bez zmian gdy żadna nie pasuje.
+    public async Task<string> ResolveGroupNameAsync(string key)
+    {
+        var target = NormalizeGroupKey(key);
+
+        var candidates = new List<string>();
+        var csv = await GetSettingAsync("setlist_groups") ?? string.Empty;
+        candidates.AddRange(csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                               .Select(g => g.Trim())
+                               .Where(g => !string.IsNullOrEmpty(g)));
+
+        await using (var db = new CantioDbContext())
+        {
+            var dbGroups = await db.Setlists.AsNoTracking()
+                .Select(s => s.Group)
+                .Distinct()
+                .ToListAsync();
+            candidates.AddRange(dbGroups
+                .Where(g => !string.IsNullOrWhiteSpace(g))
+                .Select(g => g!));
+        }
+
+        foreach (var c in candidates)
+            if (NormalizeGroupKey(c) == target)
+                return c;
+
+        return key;
+    }
+
     public async Task<Setlist?> GetSetlistByNameAndGroupAsync(string name, string group)
     {
         await using var db = new CantioDbContext();
-        var nameLower  = name.ToLower();
-        var groupLower = group.ToLower();
-        return await db.Setlists.AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Name.ToLower() == nameLower &&
-                                      (s.Group != null ? s.Group.ToLower() : "") == groupLower);
+        var candidates = await db.Setlists.AsNoTracking().ToListAsync();
+        var groupKey = NormalizeGroupKey(group);
+        return candidates.FirstOrDefault(s =>
+            NameEquals(s.Name, name) &&
+            NormalizeGroupKey(s.Group) == groupKey);
     }
 
     public async Task EnsureGroupAsync(string group)

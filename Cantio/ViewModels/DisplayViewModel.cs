@@ -919,7 +919,7 @@ public partial class DisplayViewModel : ObservableObject
         if (CanGoPrev)
             GoToSlide(CurrentSlideIndex - 1);
         else
-            PrevSong(); // pierwszy slajd → poprzednia pieśń (ostatni slajd)
+            PrevSongLastSlide(); // pierwszy slajd → poprzednia pieśń (ostatni slajd)
     }
 
     [RelayCommand]
@@ -933,6 +933,15 @@ public partial class DisplayViewModel : ObservableObject
 
     [RelayCommand]
     private void PrevSong()
+    {
+        if (SelectedSetlistItem == null) return;
+        var idx = SetlistItems.IndexOf(SelectedSetlistItem);
+        if (idx > 0)
+            LoadSongFromSetlist(SetlistItems[idx - 1]);
+    }
+
+    // Fallback z PrevSlide(): cofanie slajdami z pierwszego slajdu → ostatni slajd poprzedniej pieśni
+    private void PrevSongLastSlide()
     {
         if (SelectedSetlistItem == null) return;
         var idx = SetlistItems.IndexOf(SelectedSetlistItem);
@@ -1084,11 +1093,12 @@ public partial class DisplayViewModel : ObservableObject
             var day = LiturgicalCalendarService.GetDay(date);
             // Kalendarz diecezji: uroczystość/święto (lub ręczny wybór formularza) wypiera nazwę dnia
             var name = DiocesanCalendarService.EffectiveSetlistName(date, day);
-            await _db.EnsureGroupAsync(day.Group);
-            var existing = await _db.GetSetlistByNameAndGroupAsync(name, day.Group);
+            var group = await _db.ResolveGroupNameAsync(day.Group);
+            await _db.EnsureGroupAsync(group);
+            var existing = await _db.GetSetlistByNameAndGroupAsync(name, group);
             if (existing == null)
             {
-                var newSetlist = new Setlist { Name = name, Group = day.Group, IsPinned = true };
+                var newSetlist = new Setlist { Name = name, Group = group, IsPinned = true };
                 await _db.SaveSetlistAsync(newSetlist);
             }
             else if (!existing.IsPinned)
