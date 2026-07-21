@@ -331,6 +331,16 @@
                 </ItemsControl>
                 <TextBlock Text="{Binding PairStatus}" Foreground="#c9a84c"
                            FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+
+                <Separator Background="#1e2535" Margin="0,16,0,12"/>
+                <TextBlock Text="{DynamicResource Devices.ManualIpLabel}" Foreground="#959fb9"
+                           FontSize="12" Margin="0,0,0,6"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <Button Content="{DynamicResource Devices.PairManual}" Style="{StaticResource OutlineBtn}"
+                        HorizontalAlignment="Left"
+                        Command="{Binding PairManualCommand}"/>
             </StackPanel>
 
             <!-- ── PJLink ── -->

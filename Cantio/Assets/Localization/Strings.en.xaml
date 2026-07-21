@@ -25,6 +25,10 @@
     <sys:String x:Key="Devices.PairAdd">Pair and add</sys:String>
     <sys:String x:Key="Devices.PairConfirmOnTv">Confirm the connection on the TV screen…</sys:String>
     <sys:String x:Key="Devices.PairFailed">Pairing failed</sys:String>
+    <sys:String x:Key="Devices.ManualIpLabel">or enter the IP address manually</sys:String>
+    <sys:String x:Key="Devices.PairManual">Connect and pair</sys:String>
+    <sys:String x:Key="Devices.Connecting">Connecting…</sys:String>
+    <sys:String x:Key="Devices.ErrNoConnection">Could not connect to this IP — check that the computer and TV are on the same network</sys:String>
     <sys:String x:Key="Devices.Test">Test</sys:String>
     <sys:String x:Key="Devices.Name">Name</sys:String>
     <sys:String x:Key="Devices.Ip">IP address</sys:String>

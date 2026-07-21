@@ -25,6 +25,10 @@
     <sys:String x:Key="Devices.PairAdd">Emparejar y añadir</sys:String>
     <sys:String x:Key="Devices.PairConfirmOnTv">Confirma la conexión en la pantalla del televisor…</sys:String>
     <sys:String x:Key="Devices.PairFailed">El emparejamiento falló</sys:String>
+    <sys:String x:Key="Devices.ManualIpLabel">o introduce la dirección IP manualmente</sys:String>
+    <sys:String x:Key="Devices.PairManual">Conectar y emparejar</sys:String>
+    <sys:String x:Key="Devices.Connecting">Conectando…</sys:String>
+    <sys:String x:Key="Devices.ErrNoConnection">No se pudo conectar a esta IP — comprueba que el ordenador y el televisor están en la misma red</sys:String>
     <sys:String x:Key="Devices.Test">Probar</sys:String>
     <sys:String x:Key="Devices.Name">Nombre</sys:String>
     <sys:String x:Key="Devices.Ip">Dirección IP</sys:String>

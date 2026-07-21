@@ -25,6 +25,10 @@
     <sys:String x:Key="Devices.PairAdd">Sparuj i dodaj</sys:String>
     <sys:String x:Key="Devices.PairConfirmOnTv">Potwierdź połączenie na ekranie telewizora…</sys:String>
     <sys:String x:Key="Devices.PairFailed">Parowanie nie powiodło się</sys:String>
+    <sys:String x:Key="Devices.ManualIpLabel">albo podaj adres IP ręcznie</sys:String>
+    <sys:String x:Key="Devices.PairManual">Połącz i sparuj</sys:String>
+    <sys:String x:Key="Devices.Connecting">Łączę…</sys:String>
+    <sys:String x:Key="Devices.ErrNoConnection">Nie można połączyć z IP — sprawdź, czy komputer i TV są w tej samej sieci</sys:String>
     <sys:String x:Key="Devices.Test">Testuj</sys:String>
     <sys:String x:Key="Devices.Name">Nazwa</sys:String>
     <sys:String x:Key="Devices.Ip">Adres IP</sys:String>

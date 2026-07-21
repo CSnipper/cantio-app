@@ -252,7 +252,6 @@ public partial class DevicesViewModel : ObservableObject
     private async Task PairAndAdd(DiscoveredTv? tv)
     {
         if (tv is null) return;
-        PairStatus = LocalizationManager.Get("Devices.PairConfirmOnTv");
         var device = new ProjectionDevice
         {
             Type = "samsung",
@@ -260,6 +259,48 @@ public partial class DevicesViewModel : ObservableObject
             Ip = tv.Ip,
             Mac = tv.Mac
         };
+        if (await PairAndAddDeviceAsync(device))
+            Discovered.Remove(tv);
+    }
+
+    /// <summary>Ręczne dodanie Samsunga po IP — omija SSDP (dla sieci blokujących multicast).</summary>
+    [RelayCommand]
+    private async Task PairManual()
+    {
+        var ip = NewIp.Trim();
+        if (ip.Length == 0)
+        {
+            PairStatus = LocalizationManager.Get("Devices.ErrIp");
+            return;
+        }
+
+        PairStatus = LocalizationManager.Get("Devices.Connecting");
+        var (name, mac) = await SamsungTvDriver.GetInfoAsync(ip);
+        if (name is null)
+        {
+            PairStatus = LocalizationManager.Get("Devices.ErrNoConnection");
+            return;
+        }
+
+        var newName = NewName.Trim();
+        var device = new ProjectionDevice
+        {
+            Type = "samsung",
+            Name = newName.Length > 0 ? newName : (name.Length > 0 ? name : ip),
+            Ip = ip,
+            Mac = mac ?? ""
+        };
+        if (await PairAndAddDeviceAsync(device))
+            ClearForm();
+    }
+
+    /// <summary>
+    /// Wspólna logika parowania (WS handshake) + dodania do listy + zapisu.
+    /// Zwraca true jeśli sparowano i zapisano.
+    /// </summary>
+    private async Task<bool> PairAndAddDeviceAsync(ProjectionDevice device)
+    {
+        PairStatus = LocalizationManager.Get("Devices.PairConfirmOnTv");
         try
         {
             var (ok, token, error) = await _samsung.PairAsync(device);
@@ -268,18 +309,19 @@ public partial class DevicesViewModel : ObservableObject
                 PairStatus = string.IsNullOrEmpty(error)
                     ? LocalizationManager.Get("Devices.PairFailed")
                     : error;
-                return;
+                return false;
             }
             device.Token = token ?? "";
             Devices.Add(new DeviceItemViewModel(device));
             await PersistAsync();
-            Discovered.Remove(tv);
             PairStatus = "";
             _ = RefreshStatesInternalAsync();
+            return true;
         }
         catch (Exception ex)
         {
             PairStatus = ex.Message;
+            return false;
         }
     }
 
