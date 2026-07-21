@@ -1,0 +1,406 @@
+<UserControl x:Class="Cantio.Views.DevicesPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:Cantio.Helpers"
+             Background="#0f1117">
+    <UserControl.Resources>
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+        <helpers:InverseBoolConverter x:Key="InverseBool"/>
+
+        <ControlTemplate x:Key="DarkComboToggle" TargetType="ToggleButton">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}">
+                <Grid>
+                    <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    <Path Data="M0,0 L4,4 L8,0" x:Name="Arrow"
+                          Stroke="#959fb9" StrokeThickness="1.5"
+                          HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Margin="0,0,12,0"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#3a4a65"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="#c9a84c"/>
+                    <Setter TargetName="Arrow" Property="Stroke" Value="#c9a84c"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#1e2535"/>
+            <Setter Property="Foreground" Value="#e8eaf0"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Template="{StaticResource DarkComboToggle}"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          Padding="{TemplateBinding Padding}"
+                                          Focusable="False" ClickMode="Press"/>
+                            <ContentPresenter x:Name="ContentSite"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False"
+                                   Placement="Bottom"
+                                   PlacementTarget="{Binding ElementName=ToggleButton}"
+                                   MinWidth="{Binding ActualWidth, ElementName=ToggleButton}"
+                                   StaysOpen="False">
+                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1" Margin="0,2,0,0">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#e8eaf0"/>
+                        <Setter Property="Padding" Value="10,7"/>
+                        <Setter Property="FontSize" Value="13"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#252d3d"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#2a3347"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkTextBox" TargetType="TextBox">
+            <Setter Property="Background"      Value="#1e2535"/>
+            <Setter Property="Foreground"      Value="#e8eaf0"/>
+            <Setter Property="BorderBrush"     Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="8,6"/>
+            <Setter Property="FontSize"        Value="14"/>
+            <Setter Property="CaretBrush"      Value="#c9a84c"/>
+            <Setter Property="SelectionBrush"  Value="#c9a84c"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#3a4a65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GoldBtn" TargetType="Button">
+            <Setter Property="Background" Value="#c9a84c"/>
+            <Setter Property="Foreground" Value="#0f1117"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#e8c97a"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="OutlineBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9aa3b8"/>
+            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="Foreground" Value="#c9a84c"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Mały kwadratowy przycisk ikonowy (⏻ / ⭘ / ✎ / ✕) -->
+        <Style x:Key="IconBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,20,24,20">
+
+            <!-- Nagłówek sekcji -->
+            <TextBlock Text="{DynamicResource Devices.Section}"
+                       Foreground="#c9a84c"
+                       FontFamily="{StaticResource HeaderFont}"
+                       FontSize="20" Margin="0,0,0,4"/>
+            <TextBlock Text="{DynamicResource Devices.SectionDesc}"
+                       Foreground="#959fb9" FontSize="12"
+                       TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+            <!-- Lista urządzeń -->
+            <ItemsControl ItemsSource="{Binding Devices}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                Padding="10,8" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Ellipse Grid.Column="0" Width="10" Height="10"
+                                         VerticalAlignment="Center" Margin="0,0,10,0"
+                                         Fill="{Binding State, Converter={StaticResource PowerStateToBrush}}"/>
+
+                                <!-- Nazwa + typ / edycja inline -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <!-- Tryb podglądu -->
+                                    <StackPanel Orientation="Horizontal"
+                                                Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
+                                        <TextBlock Text="{Binding Name}" Foreground="#e8eaf0"
+                                                   FontSize="15" VerticalAlignment="Center"/>
+                                        <Button Content="✎" Style="{StaticResource IconBtn}"
+                                                ToolTip="{DynamicResource Devices.Rename}"
+                                                Command="{Binding DataContext.StartRenameCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                    <!-- Tryb edycji -->
+                                    <StackPanel Orientation="Horizontal"
+                                                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
+                                        <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource DarkTextBox}" Width="150" FontSize="13"/>
+                                        <Button Content="✓" Style="{StaticResource IconBtn}"
+                                                Command="{Binding DataContext.CommitRenameCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding TypeLabel}" Foreground="#6b7488"
+                                               FontSize="11" Margin="0,1,0,0"/>
+                                </StackPanel>
+
+                                <!-- Akcje -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}">
+                                    <Button Content="⏻" Style="{StaticResource IconBtn}"
+                                            ToolTip="{DynamicResource Devices.On}"
+                                            Command="{Binding DataContext.PowerOnCommand,
+                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                    <Button Content="⭘" Style="{StaticResource IconBtn}"
+                                            ToolTip="{DynamicResource Devices.Off}"
+                                            Command="{Binding DataContext.PowerOffCommand,
+                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                    <Button Content="✕" Style="{StaticResource IconBtn}"
+                                            ToolTip="{DynamicResource Devices.Remove}"
+                                            Command="{Binding DataContext.RemoveDeviceCommand,
+                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Przyciski zbiorcze -->
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,16"
+                        Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
+                <Button Content="{DynamicResource Devices.AllOn}" Style="{StaticResource OutlineBtn}"
+                        Command="{Binding PowerAllOnCommand}" Margin="0,0,8,0"/>
+                <Button Content="{DynamicResource Devices.AllOff}" Style="{StaticResource OutlineBtn}"
+                        Command="{Binding PowerAllOffCommand}" Margin="0,0,8,0"/>
+                <Button Content="{DynamicResource Devices.Refresh}" Style="{StaticResource OutlineBtn}"
+                        Command="{Binding RefreshStatesCommand}"/>
+            </StackPanel>
+
+            <Separator Background="#1e2535" Margin="0,0,0,16"/>
+
+            <!-- Dodawanie urządzenia -->
+            <TextBlock Text="{DynamicResource Devices.Add}"
+                       Foreground="#c9a84c"
+                       FontFamily="{StaticResource HeaderFont}"
+                       FontSize="16" Margin="0,0,0,8"/>
+
+            <ComboBox Style="{StaticResource DarkCombo}" Height="34"
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding AddType, Mode=TwoWay}" Margin="0,0,0,12">
+                <ComboBoxItem Tag="samsung" Content="{DynamicResource Devices.TypeSamsung}"/>
+                <ComboBoxItem Tag="pjlink" Content="{DynamicResource Devices.TypePjlink}"/>
+                <ComboBoxItem Tag="sony" Content="{DynamicResource Devices.TypeSony}"/>
+                <ComboBoxItem Tag="wol" Content="{DynamicResource Devices.TypeWol}"/>
+            </ComboBox>
+
+            <!-- ── Samsung ── -->
+            <StackPanel Visibility="{Binding IsSamsung, Converter={StaticResource BoolToVis}}">
+                <Button Content="{DynamicResource Devices.Discover}" Style="{StaticResource GoldBtn}"
+                        HorizontalAlignment="Left" Height="36"
+                        Command="{Binding DiscoverCommand}"
+                        IsEnabled="{Binding IsDiscovering, Converter={StaticResource InverseBool}}"/>
+                <TextBlock Text="{Binding DiscoverStatus}" Foreground="#959fb9"
+                           FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                <ItemsControl ItemsSource="{Binding Discovered}" Margin="0,8,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                    Padding="10,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" Foreground="#e8eaf0" FontSize="14"/>
+                                        <TextBlock Text="{Binding Ip}" Foreground="#6b7488" FontSize="11"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="{DynamicResource Devices.PairAdd}"
+                                            Style="{StaticResource OutlineBtn}" VerticalAlignment="Center"
+                                            Command="{Binding DataContext.PairAndAddCommand,
+                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding PairStatus}" Foreground="#c9a84c"
+                           FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- ── PJLink ── -->
+            <StackPanel Visibility="{Binding IsPjlink, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Port}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewPort, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="90" HorizontalAlignment="Left" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Password}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewPassword, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="{DynamicResource Devices.Test}" Style="{StaticResource OutlineBtn}"
+                            Command="{Binding TestPjLinkCommand}" Margin="0,0,8,0"/>
+                    <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
+                            Command="{Binding AddDeviceCommand}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding TestResult}" Foreground="#959fb9"
+                           FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                           FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- ── Sony Bravia ── -->
+            <StackPanel Visibility="{Binding IsSony, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{DynamicResource Devices.SonyHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Psk}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewPassword, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.MacOptional}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="{DynamicResource Devices.Test}" Style="{StaticResource OutlineBtn}"
+                            Command="{Binding TestSonyCommand}" Margin="0,0,8,0"/>
+                    <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
+                            Command="{Binding AddDeviceCommand}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding TestResult}" Foreground="#959fb9"
+                           FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                           FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- ── Wake-on-LAN ── -->
+            <StackPanel Visibility="{Binding IsWol, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Mac}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
+                <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
+                        HorizontalAlignment="Left" Command="{Binding AddDeviceCommand}"/>
+                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                           FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

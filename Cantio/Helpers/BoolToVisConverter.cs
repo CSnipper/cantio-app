@@ -47,6 +47,25 @@ public class FileNameConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>Mapuje <see cref="Cantio.Services.Devices.DevicePowerState"/> na kolor kropki stanu.</summary>
+public class PowerStateToBrushConverter : IValueConverter
+{
+    private static readonly SolidColorBrush On = new((Color)ColorConverter.ConvertFromString("#3d8b40")!);
+    private static readonly SolidColorBrush Off = new((Color)ColorConverter.ConvertFromString("#9aa3b8")!);
+    private static readonly SolidColorBrush Unknown = new((Color)ColorConverter.ConvertFromString("#2a3347")!);
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value switch
+        {
+            Cantio.Services.Devices.DevicePowerState.On => On,
+            Cantio.Services.Devices.DevicePowerState.Off => Off,
+            _ => Unknown
+        };
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 [ValueConversion(typeof(string), typeof(Color))]
 public class HexToColorConverter : IValueConverter
 {

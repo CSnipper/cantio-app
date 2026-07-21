@@ -736,6 +736,95 @@
                             </StackPanel>
                         </Border>
                     </Popup>
+
+                    <!-- Sterowanie urządzeniami projekcyjnymi (DataContext = DevicesViewModel) -->
+                    <Grid x:Name="DevicesBarHost">
+                        <Button x:Name="BtnDevices" Content="🔌"
+                                ToolTip="{DynamicResource Devices.PopupTitle}"
+                                BorderThickness="0" FontSize="15" Cursor="Hand"
+                                Padding="8,4" Margin="10,0,0,0" VerticalAlignment="Center"
+                                Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}"
+                                Command="{Binding ToggleDevicePopupCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#252d3d"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#3a4a65"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Popup IsOpen="{Binding IsPopupOpen, Mode=TwoWay}"
+                               PlacementTarget="{Binding ElementName=BtnDevices}"
+                               Placement="Bottom" StaysOpen="False"
+                               AllowsTransparency="True">
+                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                    Padding="10" Width="320">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Devices.PopupTitle}"
+                                               FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="16" FontWeight="Medium"
+                                               Foreground="#c9a84c" Margin="0,0,0,8"/>
+                                    <ItemsControl ItemsSource="{Binding Devices}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Ellipse Grid.Column="0" Width="10" Height="10"
+                                                             VerticalAlignment="Center" Margin="0,0,8,0"
+                                                             Fill="{Binding State, Converter={StaticResource PowerStateToBrush}}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                                               Foreground="#e8eaf0" FontSize="14"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}">
+                                                        <Button Content="⏻" FontSize="14" Padding="8,2" Cursor="Hand"
+                                                                ToolTip="{DynamicResource Devices.On}"
+                                                                Style="{StaticResource OutlineBtn}"
+                                                                Command="{Binding DataContext.PowerOnCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <Button Content="⭘" FontSize="14" Padding="8,2" Margin="4,0,0,0" Cursor="Hand"
+                                                                ToolTip="{DynamicResource Devices.Off}"
+                                                                Style="{StaticResource OutlineBtn}"
+                                                                Command="{Binding DataContext.PowerOffCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,4,0,8"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="{DynamicResource Devices.AllOn}" Style="{StaticResource OutlineBtn}"
+                                                Padding="12,5" Margin="0,0,8,0"
+                                                Command="{Binding PowerAllOnCommand}"/>
+                                        <Button Content="{DynamicResource Devices.AllOff}" Style="{StaticResource OutlineBtn}"
+                                                Padding="12,5"
+                                                Command="{Binding PowerAllOffCommand}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
@@ -2851,9 +2940,19 @@
                 </Border>
 
 
-                <!-- COL 2: Pilot -->
+                <!-- COL 2: Pilot + Urządzenia -->
                 <Border Grid.Row="0" Grid.Column="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
-                    <views:RemoteControlTab x:Name="PilotPanel"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <views:RemoteControlTab Grid.Row="0" x:Name="PilotPanel"/>
+                        <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,1,0,0"
+                                MaxHeight="420">
+                            <views:DevicesPanel x:Name="DevicesPanelView"/>
+                        </Border>
+                    </Grid>
                 </Border>
                 <!-- COL 3: Import -->
                 <Border x:Name="ImportColumn" Grid.Row="0" Grid.Column="2" BorderBrush="#2a3347" BorderThickness="0,0,0,0">

@@ -23,6 +23,8 @@ public partial class MainWindow : Window
     private readonly ShortcutsViewModel _shortcutsVm;
     private readonly AboutViewModel _aboutVm = new();
     private RemoteControlViewModel _remoteControl = null!;
+    private DeviceControlService _deviceControl = null!;
+    private DevicesViewModel _devicesVm = null!;
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
@@ -153,6 +155,11 @@ public partial class MainWindow : Window
 
         _remoteControl = new RemoteControlViewModel(db);
         PilotPanel.DataContext = _remoteControl;
+
+        _deviceControl = new DeviceControlService(db);
+        _devicesVm = new DevicesViewModel(_deviceControl);
+        DevicesPanelView.DataContext = _devicesVm;
+        DevicesBarHost.DataContext = _devicesVm;
 
         _remoteControl.NextRequested  += (_, _) =>
             Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
@@ -421,6 +428,7 @@ public partial class MainWindow : Window
             RefreshLitDay();
             RestoreWindowPosition();
             await _remoteControl.InitAsync();
+            await _devicesVm.InitAsync();
             await _aboutVm.CheckAndPromptAsync();
 
             var updateTimer = new System.Windows.Threading.DispatcherTimer
