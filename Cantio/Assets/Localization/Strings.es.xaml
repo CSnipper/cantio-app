@@ -10,10 +10,19 @@
     <sys:String x:Key="Tab.Support">APOYAR</sys:String>
     <sys:String x:Key="Tab.Pilot">MANDO</sys:String>
     <sys:String x:Key="Pilot.RememberState">Recordar el estado del mando — iniciar automáticamente al abrir la aplicación</sys:String>
+    <sys:String x:Key="Pilot.RequirePin">Exigir PIN al vincular el teléfono (recomendado)</sys:String>
+    <sys:String x:Key="Pilot.Pin">PIN de vinculación:</sys:String>
+    <sys:String x:Key="Pilot.NewPin">Nuevo PIN</sys:String>
+    <sys:String x:Key="Pilot.PinHint">El código QR vincula sin escribir el PIN. Si escribes la dirección a mano, el teléfono pedirá el PIN. Un PIN nuevo desvincula todos los dispositivos.</sys:String>
+    <sys:String x:Key="Pilot.NoPinWarning">Atención: sin PIN cualquiera en esta red Wi-Fi puede tomar el control de la proyección.</sys:String>
+    <sys:String x:Key="Pilot.QrHint">Escanea el código QR o escribe la dirección en el navegador del teléfono.</sys:String>
+    <sys:String x:Key="Pilot.Rejected">Dispositivo no vinculado rechazado:</sys:String>
     <!-- Dispositivos de proyección (TV/proyectores) -->
     <sys:String x:Key="Devices.Section">Dispositivos de proyección</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Enciende y apaga televisores y proyectores desde la aplicación.</sys:String>
-    <sys:String x:Key="Devices.PopupTitle">Dispositivos</sys:String>
+    <sys:String x:Key="Devices.Label">Etiqueta corta</sys:String>
+    <sys:String x:Key="Devices.LabelHint">Etiqueta corta (máx. 4 caracteres) mostrada en el botón de la barra superior. Vacía = número del dispositivo.</sys:String>
+    <sys:String x:Key="Devices.BarPowerAll">Encender / apagar todos los dispositivos</sys:String>
     <sys:String x:Key="Devices.Add">Añadir dispositivo</sys:String>
     <sys:String x:Key="Devices.TypeSamsung">Televisor Samsung</sys:String>
     <sys:String x:Key="Devices.TypePjlink">Proyector (PJLink)</sys:String>
@@ -93,6 +102,7 @@
     <sys:String x:Key="Btn.Cancel">Cancelar</sys:String>
     <sys:String x:Key="Btn.Blank">OCULTAR</sys:String>
     <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
+    <sys:String x:Key="Btn.LoopTooltip">Bucle de diapositivas — avance automático (cualquier acción del operador lo detiene)</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ MOSTRAR</sys:String>
@@ -129,7 +139,7 @@
     <sys:String x:Key="Btn.SaveShortcuts">Guardar atajos</sys:String>
 
     <!-- Marcadores de posición -->
-    <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones...</sys:String>
+    <sys:String x:Key="Placeholder.SearchSongs">Buscar canciones o número...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nombre de categoría...</sys:String>
     <sys:String x:Key="Placeholder.SetlistGroup">Grupo (opcional)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nombre de la lista (opcional)...</sys:String>
@@ -193,6 +203,7 @@
     <sys:String x:Key="About.Changelog">Novedades:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
+    <sys:String x:Key="Settings.LoopInterval">Bucle de diapositivas — intervalo (segundos, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
     <sys:String x:Key="Settings.SectionFont">FUENTE</sys:String>
     <sys:String x:Key="Settings.SectionColors">COLORES</sys:String>
@@ -305,5 +316,16 @@
     <sys:String x:Key="Inline.FontSizeTip">Tamaño de fuente fijo para esta canción</sys:String>
     <sys:String x:Key="Inline.FontSizeHard">fijo</sys:String>
     <sys:String x:Key="Inline.FontSizeHardTip">Activado: ignora el ajuste automático y los ajustes globales, usa el tamaño escrito tal cual. Desactivado: usa los ajustes de la pestaña Apariencia.</sys:String>
+
+    <sys:String x:Key="Setlist.AddText">Añadir texto puntual</sys:String>
+    <sys:String x:Key="TextItem.Header">Texto puntual</sys:String>
+    <sys:String x:Key="TextItem.TitleLabel">Título (etiqueta en la lista)</sys:String>
+    <sys:String x:Key="TextItem.ContentLabel">Contenido</sys:String>
+    <sys:String x:Key="TextItem.ContentHint">Una línea en blanco separa las diapositivas. Las etiquetas de formato funcionan igual que en las estrofas.</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlist">Añadir a la lista</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlistHint">Puntual: el texto queda en esta lista y NO crea un canto en la base de datos.</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabase">Guardar en la base</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabaseHint">Permanente: crea un canto en la categoría elegida y lo añade a la lista.</sys:String>
+    <sys:String x:Key="TextItem.Edit">Editar texto puntual</sys:String>
 
 </ResourceDictionary>

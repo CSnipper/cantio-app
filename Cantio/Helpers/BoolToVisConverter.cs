@@ -66,6 +66,37 @@ public class PowerStateToBrushConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>
+/// Mapuje <see cref="Cantio.Services.Devices.DevicePowerState"/> na kolory przycisku urządzenia
+/// na pasku górnym. Parametr: <c>bg</c> (tło) lub <c>fg</c> (tekst).
+/// Włączone = złoty akcent, wyłączone = szary, nieznany = przygaszony pośredni.
+/// </summary>
+public class PowerStateToButtonBrushConverter : IValueConverter
+{
+    private static SolidColorBrush B(string hex) => new((Color)ColorConverter.ConvertFromString(hex)!);
+
+    private static readonly SolidColorBrush OnBg = B("#c9a84c");
+    private static readonly SolidColorBrush OnFg = B("#1b2030");
+    private static readonly SolidColorBrush OffBg = B("#252d3d");
+    private static readonly SolidColorBrush OffFg = B("#9aa3b8");
+    private static readonly SolidColorBrush UnknownBg = B("#4a4230");
+    private static readonly SolidColorBrush UnknownFg = B("#c9bd93");
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        bool fg = string.Equals(parameter as string, "fg", StringComparison.OrdinalIgnoreCase);
+        return value switch
+        {
+            Cantio.Services.Devices.DevicePowerState.On => fg ? OnFg : OnBg,
+            Cantio.Services.Devices.DevicePowerState.Off => fg ? OffFg : OffBg,
+            _ => fg ? UnknownFg : UnknownBg
+        };
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 [ValueConversion(typeof(string), typeof(Color))]
 public class HexToColorConverter : IValueConverter
 {

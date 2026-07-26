@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -15,6 +16,33 @@ public sealed class RemoteControlServer : IDisposable
     private readonly List<WebSocket> _clients = [];
     private readonly Lock _lock = new();
 
+    // ─── Parowanie PIN-em ───────────────────────────────────────────────
+    /// <summary>Maksymalna liczba nieudanych prób w ramach jednego połączenia.</summary>
+    public const int MaxAttemptsPerConnection = 5;
+    /// <summary>Maksymalna liczba przechowywanych tokenów sparowanych urządzeń.</summary>
+    public const int MaxTokens = 20;
+
+    private readonly HashSet<string> _tokens = [];
+    private readonly Dictionary<string, IpFailure> _ipFailures = [];
+
+    private sealed class IpFailure { public int Count; public DateTime LockedUntil; public DateTime LastFail; }
+
+    /// <summary>Gdy false — serwer działa bez uwierzytelniania (jak przed v1.56).</summary>
+    public bool RequirePin { get; set; } = true;
+    /// <summary>4-cyfrowy PIN parowania.</summary>
+    public string Pin { get; set; } = "";
+    /// <summary>Po ilu nieudanych próbach z jednego IP włącza się blokada.</summary>
+    public int MaxIpFailures { get; set; } = 10;
+    /// <summary>Czas blokady adresu IP po przekroczeniu limitu prób.</summary>
+    public TimeSpan IpLockout { get; set; } = TimeSpan.FromMinutes(5);
+    /// <summary>Czas na uwierzytelnienie od nawiązania połączenia.</summary>
+    public TimeSpan AuthTimeout { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>Nowy token wydany sparowanemu urządzeniu — do zapisania w ustawieniach.</summary>
+    public event Action<string>? TokenIssued;
+    /// <summary>Odrzucono niesparowane urządzenie (IP + powód) — do logu/UI.</summary>
+    public event Action<string>? ClientRejected;
+
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
     public event EventHandler? BlankRequested;
@@ -31,6 +59,7 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, int>? OpenSetlistRequested;  // ws, setlistId
     public event Action<WebSocket, int>? GetSetlistDetailRequested; // ws, setlistId
     public event Action<WebSocket, string>? SetlistSyncPushRequested; // ws, raw json
+    public event Action<bool>? DevicesPowerAllRequested;            // on/off wszystkie urządzenia
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -48,6 +77,40 @@ public sealed class RemoteControlServer : IDisposable
         _ = UdpDiscoveryLoopAsync(_cts.Token);
     }
 
+    /// <summary>Wczytuje tokeny sparowanych urządzeń (z ustawień).</summary>
+    public void SetTokens(IEnumerable<string> tokens)
+    {
+        lock (_lock)
+        {
+            _tokens.Clear();
+            foreach (var t in tokens)
+                if (!string.IsNullOrWhiteSpace(t)) _tokens.Add(t);
+        }
+    }
+
+    /// <summary>Unieważnia wszystkie sparowane urządzenia (wywoływane przy zmianie PIN-u).</summary>
+    public void ClearTokens()
+    {
+        lock (_lock) _tokens.Clear();
+    }
+
+    /// <summary>Rozłącza wszystkich klientów — muszą się uwierzytelnić od nowa.</summary>
+    public void DisconnectAllClients()
+    {
+        List<WebSocket> toClose;
+        lock (_lock) { toClose = [.. _clients]; _clients.Clear(); }
+        foreach (var ws in toClose)
+            try { ws.Abort(); } catch { }
+    }
+
+    /// <summary>Losowy 4-cyfrowy PIN (kryptograficznie).</summary>
+    public static string GeneratePin() => RandomNumberGenerator.GetInt32(0, 10000).ToString("D4");
+
+    /// <summary>Losowy token urządzenia (256 bitów, base64url).</summary>
+    public static string GenerateToken() =>
+        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+
     public void Stop()
     {
         _cts.Cancel();
@@ -57,7 +120,7 @@ public sealed class RemoteControlServer : IDisposable
         _udpDiscovery = null;
         IsRunning = false;
         List<WebSocket> toClose;
-        lock (_lock) { toClose = [.. _clients]; _clients.Clear(); }
+        lock (_lock) { toClose = [.. _clients]; _clients.Clear(); _ipFailures.Clear(); }
         foreach (var ws in toClose)
             try { ws.Dispose(); } catch { }
     }
@@ -84,6 +147,13 @@ public sealed class RemoteControlServer : IDisposable
             activeIndex,
             songs = songs.Select(s => new { id = s.id, title = s.title }).ToList()
         });
+        await BroadcastRawAsync(json);
+    }
+
+    /// <summary>Rozgłasza zbiorczy stan urządzeń projekcyjnych do pilotów.</summary>
+    public async Task BroadcastDevicesAsync(string state, int count)
+    {
+        var json = JsonSerializer.Serialize(new { type = "devices", state, count });
         await BroadcastRawAsync(json);
     }
 
@@ -158,9 +228,8 @@ public sealed class RemoteControlServer : IDisposable
                 var ws = WebSocket.CreateFromStream(stream,
                     isServer: true, subProtocol: null,
                     keepAliveInterval: TimeSpan.FromSeconds(30));
-                lock (_lock) _clients.Add(ws);
-                ClientConnected?.Invoke(ws);
-                try { await ReceiveLoopAsync(ws, ct); }
+                var ip = (client.Client.RemoteEndPoint as IPEndPoint)?.Address.ToString() ?? "?";
+                try { await ReceiveLoopAsync(ws, ip, ct); }
                 finally
                 {
                     lock (_lock) _clients.Remove(ws);
@@ -231,10 +300,26 @@ public sealed class RemoteControlServer : IDisposable
         await stream.WriteAsync(body, ct);
     }
 
-    private async Task ReceiveLoopAsync(WebSocket ws, CancellationToken ct)
+    private async Task ReceiveLoopAsync(WebSocket ws, string ip, CancellationToken ct)
     {
+        using var authCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        bool authed = !RequirePin;
+        int attempts = 0;
+
+        if (authed)
+        {
+            lock (_lock) _clients.Add(ws);
+            ClientConnected?.Invoke(ws);
+        }
+        else
+        {
+            authCts.CancelAfter(AuthTimeout);
+            await SafeSendAsync(ws, """{"type":"auth_required"}""");
+        }
+
+        var loopCt = authCts.Token;
         var buf = new byte[1024];
-        while (ws.State == WebSocketState.Open && !ct.IsCancellationRequested)
+        while (ws.State == WebSocketState.Open && !loopCt.IsCancellationRequested)
         {
             using var ms = new System.IO.MemoryStream();
             WebSocketReceiveResult result;
@@ -242,16 +327,79 @@ public sealed class RemoteControlServer : IDisposable
             {
                 do
                 {
-                    result = await ws.ReceiveAsync(buf, ct);
+                    result = await ws.ReceiveAsync(buf, loopCt);
                     if (result.MessageType == WebSocketMessageType.Close) return;
                     ms.Write(buf, 0, result.Count);
                 } while (!result.EndOfMessage);
             }
-            catch { break; }
+            catch
+            {
+                // Klient (np. stara wersja Pilota) nie odpowiedział na auth_required
+                if (!authed && authCts.IsCancellationRequested && !ct.IsCancellationRequested)
+                {
+                    Reject(ip, $"brak uwierzytelnienia w {AuthTimeout.TotalSeconds:0} s");
+                    await CloseRejectedAsync(ws);
+                }
+                break;
+            }
+
             try
             {
                 var doc = JsonDocument.Parse(ms.ToArray());
                 var type = doc.RootElement.GetProperty("type").GetString();
+
+                if (type == "auth")
+                {
+                    if (authed)
+                    {
+                        // PIN wyłączony albo już uwierzytelniony — wydaj token na przyszłość
+                        await SendAuthOkAsync(ws, IssueToken());
+                        continue;
+                    }
+                    int retryAfter = LockRemainingSeconds(ip);
+                    if (retryAfter > 0)
+                    {
+                        await SafeSendAsync(ws, AuthFailedJson(retryAfter));
+                        Reject(ip, $"adres zablokowany na {retryAfter} s");
+                        await CloseRejectedAsync(ws);
+                        return;
+                    }
+
+                    string? token = doc.RootElement.TryGetProperty("token", out var tEl)
+                        ? tEl.GetString() : null;
+                    string? pin = doc.RootElement.TryGetProperty("pin", out var pEl)
+                        ? pEl.GetString() : null;
+
+                    string? accepted = null;
+                    if (!string.IsNullOrEmpty(token) && TokenKnown(token)) accepted = token;
+                    else if (!string.IsNullOrEmpty(pin) && PinMatches(pin)) accepted = IssueToken();
+
+                    if (accepted != null)
+                    {
+                        authed = true;
+                        authCts.CancelAfter(Timeout.InfiniteTimeSpan);
+                        ClearIpFailures(ip);
+                        await SendAuthOkAsync(ws, accepted);
+                        lock (_lock) _clients.Add(ws);
+                        ClientConnected?.Invoke(ws);
+                    }
+                    else
+                    {
+                        attempts++;
+                        RegisterIpFailure(ip);
+                        await SafeSendAsync(ws, AuthFailedJson(LockRemainingSeconds(ip)));
+                        if (attempts >= MaxAttemptsPerConnection)
+                        {
+                            Reject(ip, $"{attempts} nieudanych prób PIN");
+                            await CloseRejectedAsync(ws);
+                            return;
+                        }
+                    }
+                    continue;
+                }
+
+                if (!authed) continue;   // komendy przed uwierzytelnieniem — ignorowane
+
                 if (type == "next") NextRequested?.Invoke(this, EventArgs.Empty);
                 else if (type == "prev") PrevRequested?.Invoke(this, EventArgs.Empty);
                 else if (type == "blank") BlankRequested?.Invoke(this, EventArgs.Empty);
@@ -326,9 +474,107 @@ public sealed class RemoteControlServer : IDisposable
                     var rawJson = Encoding.UTF8.GetString(ms.ToArray());
                     SetlistSyncPushRequested?.Invoke(ws, rawJson);
                 }
+                else if (type == "devices_power_all")
+                {
+                    if (doc.RootElement.TryGetProperty("on", out var onEl))
+                        DevicesPowerAllRequested?.Invoke(onEl.GetBoolean());
+                }
             }
             catch { }
         }
+    }
+
+    // ─── Uwierzytelnianie: pomocnicze ───────────────────────────────────
+
+    private bool TokenKnown(string token)
+    {
+        lock (_lock) return _tokens.Contains(token);
+    }
+
+    private bool PinMatches(string pin)
+    {
+        var expected = Pin ?? "";
+        if (expected.Length == 0) return false;
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(pin), Encoding.UTF8.GetBytes(expected));
+    }
+
+    private string IssueToken()
+    {
+        var token = GenerateToken();
+        lock (_lock)
+        {
+            _tokens.Add(token);
+            while (_tokens.Count > MaxTokens) _tokens.Remove(_tokens.First());
+        }
+        TokenIssued?.Invoke(token);
+        return token;
+    }
+
+    private Task SendAuthOkAsync(WebSocket ws, string token) =>
+        SafeSendAsync(ws, JsonSerializer.Serialize(new { type = "auth_ok", token }));
+
+    private static string AuthFailedJson(int retryAfter) =>
+        JsonSerializer.Serialize(new { type = "auth_failed", retryAfter });
+
+    private int LockRemainingSeconds(string ip)
+    {
+        lock (_lock)
+        {
+            if (!_ipFailures.TryGetValue(ip, out var f)) return 0;
+            var left = f.LockedUntil - DateTime.UtcNow;
+            return left > TimeSpan.Zero ? (int)Math.Ceiling(left.TotalSeconds) : 0;
+        }
+    }
+
+    private void RegisterIpFailure(string ip)
+    {
+        lock (_lock)
+        {
+            if (!_ipFailures.TryGetValue(ip, out var f))
+                _ipFailures[ip] = f = new IpFailure();
+            // Licznik wygasa po okresie blokady bez nowych prób
+            if (DateTime.UtcNow - f.LastFail > IpLockout) f.Count = 0;
+            f.Count++;
+            f.LastFail = DateTime.UtcNow;
+            if (f.Count >= MaxIpFailures)
+            {
+                f.LockedUntil = DateTime.UtcNow + IpLockout;
+                f.Count = 0;
+            }
+        }
+    }
+
+    private void ClearIpFailures(string ip)
+    {
+        lock (_lock) _ipFailures.Remove(ip);
+    }
+
+    private void Reject(string ip, string reason)
+    {
+        Debug.WriteLine($"[Pilot] Odrzucono urządzenie {ip}: {reason}");
+        ClientRejected?.Invoke($"{ip} — {reason}");
+    }
+
+    private static async Task CloseRejectedAsync(WebSocket ws)
+    {
+        try
+        {
+            await ws.CloseOutputAsync(WebSocketCloseStatus.PolicyViolation,
+                "auth", CancellationToken.None);
+        }
+        catch { }
+    }
+
+    private static async Task SafeSendAsync(WebSocket ws, string json)
+    {
+        if (ws.State != WebSocketState.Open) return;
+        try
+        {
+            await ws.SendAsync(Encoding.UTF8.GetBytes(json),
+                WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch { }
     }
 
     private static string GetHtml() => """
@@ -356,9 +602,30 @@ public sealed class RemoteControlServer : IDisposable
                  border: 2px solid #c9a84c; border-radius: 14px; color: #c9a84c;
                  cursor: pointer; touch-action: manipulation; user-select: none; }
           .btn:active { background: #c9a84c22; }
+          #auth { position: fixed; inset: 0; background: #0f1117; z-index: 10;
+                  display: none; flex-direction: column; align-items: center;
+                  justify-content: center; gap: 18px; padding: 24px; }
+          #auth.show { display: flex; }
+          #auth h1 { color: #c9a84c; font-size: 22px; font-weight: 600; }
+          #auth p { color: #959fb9; font-size: 14px; text-align: center; }
+          #pin { width: 220px; height: 70px; text-align: center; letter-spacing: 14px;
+                 font-size: 38px; background: #161b25; color: #e8eaf0;
+                 border: 2px solid #2a3347; border-radius: 14px; }
+          #pin:focus { outline: none; border-color: #c9a84c; }
+          #pinBtn { width: 220px; height: 56px; font-size: 18px; font-weight: 600;
+                    background: #c9a84c; color: #0f1117; border: 0; border-radius: 14px;
+                    cursor: pointer; touch-action: manipulation; }
+          #pinErr { color: #e05555; font-size: 14px; min-height: 20px; text-align: center; }
         </style>
         </head>
         <body>
+        <div id="auth">
+          <h1>Cantio Pilot</h1>
+          <p>Wpisz PIN parowania<br>(Cantio → USTAWIENIA → Pilot mobilny)</p>
+          <input id="pin" type="tel" inputmode="numeric" maxlength="4" autocomplete="off">
+          <button id="pinBtn" onclick="sendPin()">Połącz</button>
+          <div id="pinErr"></div>
+        </div>
         <div id="status">Łączenie...</div>
         <div id="song"></div>
         <div id="slide">—</div>
@@ -368,30 +635,75 @@ public sealed class RemoteControlServer : IDisposable
           <button class="btn" onclick="send('next')">&#8594;</button>
         </div>
         <script>
-          let ws, timer;
+          let ws, timer, lastTry = null;
+          const urlPin = new URLSearchParams(location.search).get('pin');
+          const $ = id => document.getElementById(id);
+          const showAuth = on => $('auth').classList.toggle('show', on);
+
           function connect() {
             ws = new WebSocket('ws://' + location.host + '/ws');
             ws.onopen = () => {
-              document.getElementById('status').textContent = 'Połączono ✓';
-              document.getElementById('status').className = 'ok';
+              $('status').textContent = 'Połączono ✓';
+              $('status').className = 'ok';
               clearTimeout(timer);
             };
             ws.onmessage = e => {
               const d = JSON.parse(e.data);
-              if (d.type === 'slide') {
-                document.getElementById('slide').textContent = d.text || '—';
-                document.getElementById('song').textContent = d.songTitle || '';
-                document.getElementById('counter').textContent =
+              if (d.type === 'auth_required') {
+                const token = localStorage.getItem('cantio_token');
+                if (token) auth({token: token}, 'token');
+                else if (urlPin) auth({pin: urlPin}, 'urlpin');
+                else { showAuth(true); $('pin').focus(); }
+              } else if (d.type === 'auth_ok') {
+                if (d.token) localStorage.setItem('cantio_token', d.token);
+                showAuth(false);
+                $('pinErr').textContent = '';
+              } else if (d.type === 'auth_failed') {
+                if (d.retryAfter > 0) {
+                  showAuth(true);
+                  $('pinErr').textContent = 'Za dużo prób — odczekaj ' + d.retryAfter + ' s';
+                } else if (lastTry === 'token') {
+                  localStorage.removeItem('cantio_token');
+                  if (urlPin) auth({pin: urlPin}, 'urlpin');
+                  else { showAuth(true); $('pinErr').textContent = 'Urządzenie odparowane — wpisz PIN'; }
+                } else {
+                  showAuth(true);
+                  $('pin').value = '';
+                  $('pin').focus();
+                  $('pinErr').textContent = 'Błędny PIN';
+                }
+              } else if (d.type === 'slide') {
+                $('slide').textContent = d.text || '—';
+                $('song').textContent = d.songTitle || '';
+                $('counter').textContent =
                   d.total > 0 ? (d.index + 1) + ' / ' + d.total : '';
               }
             };
             ws.onclose = () => {
-              document.getElementById('status').textContent = 'Rozłączono — ponawianie...';
-              document.getElementById('status').className = '';
+              $('status').textContent = 'Rozłączono — ponawianie...';
+              $('status').className = '';
               timer = setTimeout(connect, 2000);
             };
             ws.onerror = () => ws.close();
           }
+          function auth(payload, kind) {
+            lastTry = kind;
+            payload.type = 'auth';
+            if (ws && ws.readyState === 1) ws.send(JSON.stringify(payload));
+          }
+          function sendPin() {
+            const v = $('pin').value.trim();
+            if (v.length < 4) { $('pinErr').textContent = 'PIN ma 4 cyfry'; return; }
+            $('pinErr').textContent = '';
+            auth({pin: v}, 'pin');
+          }
+          document.addEventListener('DOMContentLoaded', () => {
+            $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') sendPin(); });
+            $('pin').addEventListener('input', e => {
+              e.target.value = e.target.value.replace(/\D/g, '');
+              if (e.target.value.length === 4) sendPin();
+            });
+          });
           function send(a) {
             if (ws && ws.readyState === 1) ws.send(JSON.stringify({type: a}));
           }

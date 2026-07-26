@@ -222,6 +222,13 @@
                                     <!-- Tryb podglądu -->
                                     <StackPanel Orientation="Horizontal"
                                                 Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
+                                        <!-- Krótkie oznaczenie (jeśli nadane) — to samo, co na pasku górnym -->
+                                        <Border Background="#252d3d" CornerRadius="3" Padding="6,1"
+                                                Margin="0,0,8,0" VerticalAlignment="Center"
+                                                Visibility="{Binding HasLabel, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="{Binding Label}" Foreground="#c9a84c"
+                                                       FontSize="12" FontWeight="Bold"/>
+                                        </Border>
                                         <TextBlock Text="{Binding Name}" Foreground="#e8eaf0"
                                                    FontSize="15" VerticalAlignment="Center"/>
                                         <Button Content="✎" Style="{StaticResource IconBtn}"
@@ -235,6 +242,11 @@
                                                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
                                         <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource DarkTextBox}" Width="150" FontSize="13"/>
+                                        <TextBox Text="{Binding EditLabel, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource DarkTextBox}" Width="52" FontSize="13"
+                                                 MaxLength="4" Margin="6,0,0,0"
+                                                 TextAlignment="Center"
+                                                 ToolTip="{DynamicResource Devices.LabelHint}"/>
                                         <Button Content="✓" Style="{StaticResource IconBtn}"
                                                 Command="{Binding DataContext.CommitRenameCommand,
                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -299,6 +311,13 @@
 
             <!-- ── Samsung ── -->
             <StackPanel Visibility="{Binding IsSamsung, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
                 <Button Content="{DynamicResource Devices.Discover}" Style="{StaticResource GoldBtn}"
                         HorizontalAlignment="Left" Height="36"
                         Command="{Binding DiscoverCommand}"
@@ -348,6 +367,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
@@ -376,6 +402,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
@@ -402,6 +435,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Mac}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>

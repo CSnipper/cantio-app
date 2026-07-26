@@ -172,6 +172,49 @@
                 </StackPanel>
             </StackPanel>
 
+            <!-- PIN parowania -->
+            <StackPanel Margin="0,0,0,16">
+                <CheckBox IsChecked="{Binding RequirePin}" Margin="0,0,0,8"
+                          VerticalContentAlignment="Center">
+                    <TextBlock Text="{DynamicResource Pilot.RequirePin}"
+                               Foreground="#e8eaf0" FontSize="13" TextWrapping="Wrap"/>
+                </CheckBox>
+
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding RequirePin, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{DynamicResource Pilot.Pin}" Foreground="#959fb9"
+                               FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Pin}" Foreground="#c9a84c"
+                               FontSize="26" FontWeight="Bold"
+                               FontFamily="Consolas" VerticalAlignment="Center"
+                               Margin="0,0,14,0"/>
+                    <Button Content="{DynamicResource Pilot.NewPin}"
+                            Command="{Binding NewPinCommand}"
+                            Style="{StaticResource OutlineBtn}"
+                            Padding="12,4" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock Text="{DynamicResource Pilot.PinHint}"
+                           Visibility="{Binding RequirePin, Converter={StaticResource BoolToVis}}"
+                           Foreground="#959fb9" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                <Border Background="#3a1e1e" BorderBrush="#7a3030" BorderThickness="1"
+                        Padding="10,8" Margin="0,6,0,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding RequirePin}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{DynamicResource Pilot.NoPinWarning}"
+                               Foreground="#e0a0a0" FontSize="12" TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+
             <!-- QR code (visible when running) -->
             <Image Source="{Binding QrCode}"
                    Width="200" Height="200"
@@ -181,8 +224,24 @@
                    Margin="0,0,0,12"/>
 
             <TextBlock Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"
-                       Text="Zeskanuj kod QR lub wpisz adres w przeglądarce telefonu."
+                       Text="{DynamicResource Pilot.QrHint}"
                        Foreground="#959fb9" FontSize="12" TextWrapping="Wrap"/>
+
+            <!-- Odrzucone urządzenie -->
+            <TextBlock Foreground="#e0a0a0" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding LastRejected}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+                <Run Text="{DynamicResource Pilot.Rejected}"/>
+                <Run Text="{Binding LastRejected, Mode=OneWay}"/>
+            </TextBlock>
 
         </StackPanel>
     </ScrollViewer>

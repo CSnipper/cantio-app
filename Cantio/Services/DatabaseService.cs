@@ -65,23 +65,11 @@ public class DatabaseService
             .ToListAsync();
     }
 
+    /// <summary>Szuka po tytule i/lub numerze ze śpiewnika — logika w <see cref="SongSearch"/>.</summary>
     public async Task<List<Song>> SearchSongsAsync(string query, CancellationToken ct = default)
     {
-        // Usuń znaki przestankowe, zostaw litery/cyfry/spacje
-        var sb = new StringBuilder();
-        foreach (var c in query)
-            if (char.IsLetterOrDigit(c) || c == ' ') sb.Append(c);
-        var normalized = sb.ToString().Trim();
-        if (string.IsNullOrWhiteSpace(normalized)) return [];
-
-        var words = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
         await using var db = new CantioDbContext();
-        var q = db.Songs.AsNoTracking().AsQueryable();
-        foreach (var word in words)
-            q = q.Where(s => EF.Functions.Like(s.Title, $"%{word}%"));
-
-        return await q.OrderBy(s => s.Title).Take(100).ToListAsync(ct);
+        return await SongSearch.SearchAsync(db.Songs.AsNoTracking(), query, ct);
     }
 
     public async Task<Song?> GetSongWithVersesAsync(int songId)
@@ -660,18 +648,7 @@ public class DatabaseService
         var old = db.SetlistItems.Where(i => i.SetlistId == setlistId);
         db.SetlistItems.RemoveRange(old);
 
-        var newItems = items.Select(item => new SetlistItem
-        {
-            SetlistId = setlistId,
-            SongId = item.SongId,
-            Position = item.Position,
-            Type = item.Type,
-            SelectedVerses = item.SelectedVerses,
-            ImagePath = item.ImagePath,
-            Notes = item.Notes
-        }).ToList();
-
-        db.SetlistItems.AddRange(newItems);
+        db.SetlistItems.AddRange(SetlistSnapshot.ForSave(items, setlistId));
         await db.SaveChangesAsync();
     }
 

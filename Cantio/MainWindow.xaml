@@ -52,7 +52,7 @@
             <Setter Property="Foreground" Value="#e8eaf0"/>
             <Setter Property="BorderBrush" Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Padding" Value="30,7"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -132,7 +132,7 @@
             <Setter Property="Foreground"      Value="#e8eaf0"/>
             <Setter Property="BorderBrush"     Value="#2a3347"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding"         Value="8,6"/>
+            <Setter Property="Padding"         Value="2"/>
             <Setter Property="FontSize"        Value="14"/>
             <Setter Property="CaretBrush"      Value="#c9a84c"/>
             <Setter Property="SelectionBrush"  Value="#c9a84c"/>
@@ -738,92 +738,65 @@
                     </Popup>
 
                     <!-- Sterowanie urządzeniami projekcyjnymi (DataContext = DevicesViewModel) -->
-                    <Grid x:Name="DevicesBarHost">
-                        <Button x:Name="BtnDevices" Content="🔌"
-                                ToolTip="{DynamicResource Devices.PopupTitle}"
-                                BorderThickness="0" FontSize="15" Cursor="Hand"
-                                Padding="8,4" Margin="10,0,0,0" VerticalAlignment="Center"
-                                Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}"
-                                Command="{Binding ToggleDevicePopupCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#252d3d"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#3a4a65"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Popup IsOpen="{Binding IsPopupOpen, Mode=TwoWay}"
-                               PlacementTarget="{Binding ElementName=BtnDevices}"
-                               Placement="Bottom" StaysOpen="False"
-                               AllowsTransparency="True">
-                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
-                                    Padding="10" Width="320">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Devices.PopupTitle}"
-                                               FontFamily="{StaticResource HeaderFont}"
-                                               FontSize="16" FontWeight="Medium"
-                                               Foreground="#c9a84c" Margin="0,0,0,8"/>
-                                    <ItemsControl ItemsSource="{Binding Devices}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="0,0,0,6">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Ellipse Grid.Column="0" Width="10" Height="10"
-                                                             VerticalAlignment="Center" Margin="0,0,8,0"
-                                                             Fill="{Binding State, Converter={StaticResource PowerStateToBrush}}"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Name}"
-                                                               Foreground="#e8eaf0" FontSize="14"
-                                                               VerticalAlignment="Center"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                    <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}">
-                                                        <Button Content="⏻" FontSize="14" Padding="8,2" Cursor="Hand"
-                                                                ToolTip="{DynamicResource Devices.On}"
-                                                                Style="{StaticResource OutlineBtn}"
-                                                                Command="{Binding DataContext.PowerOnCommand,
-                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                CommandParameter="{Binding}"/>
-                                                        <Button Content="⭘" FontSize="14" Padding="8,2" Margin="4,0,0,0" Cursor="Hand"
-                                                                ToolTip="{DynamicResource Devices.Off}"
-                                                                Style="{StaticResource OutlineBtn}"
-                                                                Command="{Binding DataContext.PowerOffCommand,
-                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                    <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,4,0,8"/>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="{DynamicResource Devices.AllOn}" Style="{StaticResource OutlineBtn}"
-                                                Padding="12,5" Margin="0,0,8,0"
-                                                Command="{Binding PowerAllOnCommand}"/>
-                                        <Button Content="{DynamicResource Devices.AllOff}" Style="{StaticResource OutlineBtn}"
-                                                Padding="12,5"
-                                                Command="{Binding PowerAllOffCommand}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-                        </Popup>
+                    <Grid x:Name="DevicesBarHost"
+                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
+                        <Grid.Resources>
+                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
+                            <Style x:Key="DeviceBarBtn" TargetType="Button">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="MinWidth" Value="30"/>
+                                <Setter Property="Padding" Value="8,4"/>
+                                <Setter Property="Margin" Value="6,0,0,0"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Grid.Resources>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
+                            <ItemsControl ItemsSource="{Binding Devices}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource DeviceBarBtn}"
+                                                Content="{Binding BarLabel}"
+                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                                                Command="{Binding DataContext.ToggleDeviceCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Style="{StaticResource DeviceBarBtn}" Content="⏻"
+                                    Margin="10,0,0,0"
+                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
+                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                    Command="{Binding TogglePowerAllCommand}"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
 
@@ -1031,6 +1004,28 @@
                                     <ColumnDefinition Width="5"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+
+                                <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
+                                <Button Grid.Column="0" Content="🔁" Margin="5,0,0,0"
+                                        Width="70" Height="108" FontSize="30"
+                                        IsEnabled="{Binding CanLoop}"
+                                        Command="{Binding ToggleLoopCommand}"
+                                        ToolTip="{DynamicResource Btn.LoopTooltip}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLooping}" Value="True">
+                                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                                    <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                </DataTrigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value="#4a5266"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
 
                                 <!-- POKAŻ / WYGAŚ button -->
                                 <Grid Grid.Column="1" Margin="0,8">
@@ -2104,7 +2099,17 @@
                                                                TextWrapping="Wrap" VerticalAlignment="Center"
                                                                HorizontalAlignment="Stretch"
                                                                FontSize="20" Padding="10"
-                                                               Visibility="{Binding IsImageItem, Converter={StaticResource InverseBoolToVis}}"/>
+                                                               Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"/>
+                                                    <!-- Tekst jednorazowy: 📝 + tytuł -->
+                                                    <StackPanel Orientation="Horizontal"
+                                                                VerticalAlignment="Center" Margin="6,0"
+                                                                Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}">
+                                                        <TextBlock Text="📝" FontSize="16" Margin="0,0,8,0"
+                                                                   VerticalAlignment="Center" Foreground="#c9a84c"/>
+                                                        <TextBlock Text="{Binding CustomTitle}"
+                                                                   VerticalAlignment="Center" FontSize="20"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
                                                     <!-- Image item: miniatura + nazwa pliku -->
                                                     <StackPanel Orientation="Horizontal"
                                                                 VerticalAlignment="Center"
@@ -2121,7 +2126,7 @@
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" FontSize="16" Cursor="Hand"
-                                                        Visibility="{Binding IsImageItem, Converter={StaticResource InverseBoolToVis}}"
+                                                        Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
                                                         IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         Command="{Binding DataContext.OpenInlineEditorCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}">
@@ -2145,12 +2150,38 @@
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
+                                                <!-- Edycja tekstu jednorazowego (ten sam edytor co przy dodawaniu) -->
+                                                <Button Grid.Column="2" Content="✏"
+                                                        Width="30" Height="30"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                        ToolTip="{DynamicResource TextItem.Edit}"
+                                                        Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}"
+                                                        Command="{Binding DataContext.EditTextItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="Transparent">
+                                                                <TextBlock Text="✏"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           FontSize="15"
+                                                                           Foreground="{TemplateBinding Foreground}"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
                                                 <Button Grid.Column="3"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
                                                         Foreground="#959fb9" Cursor="Hand"
                                                         ToolTip="Pełny edytor"
-                                                        Visibility="{Binding IsImageItem, Converter={StaticResource InverseBoolToVis}}"
+                                                        Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
                                                         Command="{Binding DataContext.OpenFullEditorFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}">
                                                     <Button.Template>
@@ -2222,6 +2253,7 @@
                                     BorderThickness="1,1,0,0" Padding="6,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -2323,6 +2355,93 @@
                                             </ControlTemplate>
                                         </Button.Template>
                                     </Button>
+                                    <!-- Tekst jednorazowy w zestawie -->
+                                    <Button x:Name="BtnAddTextItem" Grid.Column="5" FontSize="16"
+                                            ToolTip="{DynamicResource Setlist.AddText}"
+                                            Background="Transparent" BorderThickness="0"
+                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Command="{Binding OpenTextItemEditorCommand}">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}">
+                                                    <TextBlock Text="📝" FontSize="16"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                    <Popup IsOpen="{Binding IsTextItemEditorOpen, Mode=TwoWay}"
+                                           PlacementTarget="{Binding ElementName=BtnAddTextItem}"
+                                           Placement="Top" HorizontalOffset="-320"
+                                           StaysOpen="False" AllowsTransparency="True"
+                                           Opened="TextItemPopup_Opened">
+                                        <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                                Width="440" Padding="12">
+                                            <StackPanel>
+                                                <TextBlock Text="{DynamicResource TextItem.Header}"
+                                                           FontFamily="{StaticResource HeaderFont}"
+                                                           FontSize="16" Foreground="#c9a84c"
+                                                           Margin="0,0,0,8"/>
+                                                <TextBlock Text="{DynamicResource TextItem.TitleLabel}"
+                                                           FontSize="13" Foreground="#9aa3b8" Margin="0,0,0,2"/>
+                                                <TextBox x:Name="TxtTextItemTitle"
+                                                         Style="{StaticResource DarkTextBox}"
+                                                         Text="{Binding TextItemTitle, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="16" Height="32" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{DynamicResource TextItem.ContentLabel}"
+                                                           FontSize="13" Foreground="#9aa3b8" Margin="0,0,0,2"/>
+                                                <TextBox Style="{StaticResource DarkTextBox}"
+                                                         Text="{Binding TextItemContent, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="15" Height="180"
+                                                         AcceptsReturn="True" AcceptsTab="False"
+                                                         TextWrapping="Wrap"
+                                                         VerticalContentAlignment="Top"
+                                                         VerticalScrollBarVisibility="Auto"
+                                                         Margin="0,0,0,4"/>
+                                                <TextBlock Text="{DynamicResource TextItem.ContentHint}"
+                                                           FontSize="12" Foreground="#7080a0"
+                                                           TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                                <Button Content="{DynamicResource TextItem.AddToSetlist}"
+                                                        Style="{StaticResource GoldBtn}"
+                                                        HorizontalAlignment="Stretch" Height="36" FontSize="15"
+                                                        Command="{Binding AddTextItemToSetlistCommand}"/>
+                                                <TextBlock Text="{DynamicResource TextItem.AddToSetlistHint}"
+                                                           FontSize="12" Foreground="#7080a0"
+                                                           TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                                <Grid Margin="0,0,0,2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ComboBox Grid.Column="0"
+                                                              Style="{StaticResource DarkCombo}"
+                                                              ItemsSource="{Binding Categories}"
+                                                              DisplayMemberPath="Name"
+                                                              SelectedItem="{Binding TextItemCategory, Mode=TwoWay}"
+                                                              Foreground="#e8eaf0"
+                                                              FontSize="14" Height="34" Margin="0,0,6,0"/>
+                                                    <Button Grid.Column="1"
+                                                            Content="{DynamicResource TextItem.SaveToDatabase}"
+                                                            Style="{StaticResource OutlineBtn}"
+                                                            Height="34" FontSize="15" Padding="10,0"
+                                                            Command="{Binding SaveTextItemAsSongCommand}"/>
+                                                </Grid>
+                                                <TextBlock Text="{DynamicResource TextItem.SaveToDatabaseHint}"
+                                                           FontSize="12" Foreground="#7080a0"
+                                                           TextWrapping="Wrap" Margin="0,4,0,10"/>
+                                                <Button Content="{DynamicResource Btn.Cancel}"
+                                                        Style="{StaticResource OutlineBtn}"
+                                                        HorizontalAlignment="Right" Height="30" FontSize="14"
+                                                        Padding="12,0"
+                                                        Command="{Binding CloseTextItemEditorCommand}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Popup>
                                 </Grid>
                             </Border>
 
@@ -2345,7 +2464,7 @@
                                                   FontSize="16" Height="34"/>
                                         <TextBlock Text="{DynamicResource Placeholder.SetlistGroup}"
                                                    Foreground="#ffffff" FontSize="16"
-                                                   Padding="7,3" IsHitTestVisible="False" VerticalAlignment="Center">
+                                                   Padding="3" IsHitTestVisible="False" VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -2596,7 +2715,7 @@
                                             <!-- Czcionka min -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                                 <TextBlock Text="Czcionka:" Foreground="#7080a0" FontSize="11"
-                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                           VerticalAlignment="Center" Margin="0,0,0,0"/>
                                                 <TextBox Text="{Binding InlineEditorFontSize, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
                                                          FontSize="13" Width="50"
@@ -2605,7 +2724,7 @@
                                                 <CheckBox IsChecked="{Binding InlineEditorFontSizeHard}"
                                                           Content="{DynamicResource Inline.FontSizeHard}"
                                                           Foreground="#9aa3b8" FontSize="11"
-                                                          VerticalAlignment="Center" Margin="8,0,0,0"
+                                                          VerticalAlignment="Center" Margin="0,0,0,0"
                                                           ToolTip="{DynamicResource Inline.FontSizeHardTip}"/>
                                             </StackPanel>
                                         </Grid>
@@ -2813,6 +2932,12 @@
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.FontAutoFit}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
+
+                            <TextBlock Text="{DynamicResource Settings.LoopInterval}"
+                                       Foreground="#959fb9" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>
+                            <TextBox Style="{StaticResource DarkTextBox}" Width="80" HorizontalAlignment="Left"
+                                     FontSize="14" Height="30"
+                                     Text="{Binding LoopIntervalSeconds, UpdateSourceTrigger=LostFocus, Mode=TwoWay, FallbackValue=10}"/>
 
                             <TextBlock Text="{DynamicResource Settings.PsalmCategory}"
                                        Foreground="#959fb9" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>

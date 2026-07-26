@@ -161,6 +161,17 @@ public partial class MainWindow : Window
         DevicesPanelView.DataContext = _devicesVm;
         DevicesBarHost.DataContext = _devicesVm;
 
+        // Pilot: sterowanie urządzeniami (włącz/wyłącz wszystkie) + rozgłaszanie stanu
+        _remoteControl.DevicesPowerAllRequested += async on =>
+        {
+            await _devicesVm.SetAllPowerFromRemoteAsync(on);
+        };
+        _devicesVm.DevicesChanged += async () =>
+        {
+            var (state, count) = _devicesVm.GetAggregateState();
+            try { await _remoteControl.BroadcastDevicesAsync(state, count); } catch { }
+        };
+
         _remoteControl.NextRequested  += (_, _) =>
             Dispatcher.Invoke(() => _vm.NextSlideCommand.Execute(null));
         _remoteControl.PrevRequested  += (_, _) =>
@@ -345,6 +356,9 @@ public partial class MainWindow : Window
                 await _remoteControl.SendToClientAsync(ws, catsJson);
                 await BroadcastCurrentStateToAsync(ws);
                 await BroadcastSetlistStateToAsync(ws);
+                var (devState, devCount) = _devicesVm.GetAggregateState();
+                var devJson = JsonSerializer.Serialize(new { type = "devices", state = devState, count = devCount });
+                await _remoteControl.SendToClientAsync(ws, devJson);
             }
             catch { }
         };
@@ -436,7 +450,7 @@ public partial class MainWindow : Window
             updateTimer.Tick += async (_, _) => await _aboutVm.CheckAndPromptAsync();
             updateTimer.Start();
         };
-        Closing += (_, _) => { SaveWindowPosition(); _remoteControl.Dispose(); };
+        Closing += (_, _) => { _vm.StopLoop(); SaveWindowPosition(); _remoteControl.Dispose(); };
         KeyDown += _vm.OnKeyDown;
 
         InitClock();
@@ -650,6 +664,9 @@ public partial class MainWindow : Window
 
     private void SetlistSearchPopup_Opened(object sender, EventArgs e)
         => SetlistSearchBox.Focus();
+
+    private void TextItemPopup_Opened(object sender, EventArgs e)
+        => TxtTextItemTitle.Focus();
 
     // Nawigacja strzałką w dół z pola wyszukiwania na listę
 
