@@ -8,6 +8,12 @@ public class ProjectionDevice
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; } = "";
+    /// <summary>
+    /// Krótkie oznaczenie (maks. 4 znaki) pokazywane na przycisku paska górnego.
+    /// Puste = fallback na numer porządkowy. Pole dodane po v1.55 — starsze wpisy JSON
+    /// go nie mają i deserializują się z pustą wartością.
+    /// </summary>
+    public string Label { get; set; } = "";
     /// <summary>"samsung" | "pjlink" | "wol"</summary>
     public string Type { get; set; } = "";
     public string Ip { get; set; } = "";

@@ -209,6 +209,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
@@ -217,8 +218,21 @@
                                          VerticalAlignment="Center" Margin="0,0,10,0"
                                          Fill="{Binding State, Converter={StaticResource PowerStateToBrush}}"/>
 
+                                <!-- Krótkie oznaczenie — zawsze widoczne, zapis po Enterze / utracie fokusu -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <TextBlock Text="{DynamicResource Devices.Label}"
+                                               Foreground="#6b7488" FontSize="9"
+                                               TextAlignment="Center" Margin="0,0,0,2"/>
+                                    <TextBox Text="{Binding Label, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource DarkTextBox}" Width="54" FontSize="13"
+                                             MaxLength="4" TextAlignment="Center"
+                                             KeyDown="DeviceLabel_KeyDown"
+                                             Unloaded="DeviceLabel_Unloaded"
+                                             ToolTip="{DynamicResource Devices.LabelHint}"/>
+                                </StackPanel>
+
                                 <!-- Nazwa + typ / edycja inline -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                     <!-- Tryb podglądu -->
                                     <StackPanel Orientation="Horizontal"
                                                 Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
@@ -230,7 +244,7 @@
                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>
-                                    <!-- Tryb edycji -->
+                                    <!-- Tryb edycji nazwy (oznaczenie ma własne pole obok) -->
                                     <StackPanel Orientation="Horizontal"
                                                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
                                         <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
@@ -245,7 +259,7 @@
                                 </StackPanel>
 
                                 <!-- Akcje -->
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
                                             IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}">
                                     <Button Content="⏻" Style="{StaticResource IconBtn}"
                                             ToolTip="{DynamicResource Devices.On}"
@@ -299,6 +313,13 @@
 
             <!-- ── Samsung ── -->
             <StackPanel Visibility="{Binding IsSamsung, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
                 <Button Content="{DynamicResource Devices.Discover}" Style="{StaticResource GoldBtn}"
                         HorizontalAlignment="Left" Height="36"
                         Command="{Binding DiscoverCommand}"
@@ -348,6 +369,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
@@ -376,6 +404,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
@@ -402,6 +437,13 @@
                 <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
+                         MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
+                         ToolTip="{DynamicResource Devices.LabelHint}"/>
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                           FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
                 <TextBlock Text="{DynamicResource Devices.Mac}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>

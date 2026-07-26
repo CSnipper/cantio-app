@@ -22,14 +22,52 @@ public partial class DeviceItemViewModel : ObservableObject
     [ObservableProperty] private bool _isEditing;
     [ObservableProperty] private string _editName = "";
 
+    /// <summary>Numer 1-based pokazywany na przycisku paska górnego; przeliczany przez VM.</summary>
+    [ObservableProperty] private int _number;
+
+    /// <summary>Oznaczenie zmienione w UI — sygnał dla <see cref="DevicesViewModel"/>, żeby je zapisał.</summary>
+    public event Action? LabelChanged;
+
     public DeviceItemViewModel(ProjectionDevice device)
     {
         Device = device;
         _editName = device.Name;
     }
 
+    partial void OnNumberChanged(int value) => OnPropertyChanged(nameof(BarLabel));
+
     public string Name => Device.Name;
     public string Type => Device.Type;
+
+    /// <summary>Normalizuje oznaczenie: trim + maks. 4 znaki (UI ma MaxLength, to zabezpieczenie modelu).</summary>
+    public static string TrimLabel(string? value)
+    {
+        var s = (value ?? "").Trim();
+        return s.Length > 4 ? s[..4] : s;
+    }
+
+    /// <summary>
+    /// Krótkie oznaczenie użytkownika (maks. 4 znaki); puste = brak. Edytowalne wprost na liście urządzeń —
+    /// zapis leci przez <see cref="LabelChanged"/> zaraz po utracie fokusu / Enterze, bez osobnego przycisku.
+    /// </summary>
+    public string Label
+    {
+        get => Device.Label;
+        set
+        {
+            var trimmed = TrimLabel(value);
+            if (trimmed == Device.Label) return;
+            Device.Label = trimmed;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(BarLabel));
+            LabelChanged?.Invoke();
+        }
+    }
+
+    /// <summary>Napis na przycisku paska górnego: oznaczenie, a gdy puste — numer porządkowy.</summary>
+    public string BarLabel => string.IsNullOrWhiteSpace(Device.Label)
+        ? Number.ToString()
+        : Device.Label;
 
     /// <summary>Czytelna etykieta typu do UI.</summary>
     public string TypeLabel => Device.Type switch
@@ -40,6 +78,7 @@ public partial class DeviceItemViewModel : ObservableObject
         _ => "Wake-on-LAN"
     };
 
+    /// <summary>Odświeża widok po zmianie nazwy w modelu.</summary>
     public void RefreshName()
     {
         OnPropertyChanged(nameof(Name));
@@ -70,12 +109,21 @@ public partial class DevicesViewModel : ObservableObject
     public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
     public ObservableCollection<DiscoveredTv> Discovered { get; } = [];
 
+    /// <summary>Zmiana listy lub stanu zasilania urządzeń — sygnał do rozgłoszenia pilotom.</summary>
+    public event Action? DevicesChanged;
+
     [ObservableProperty] private bool _hasDevices;
-    [ObservableProperty] private bool _isPopupOpen;
+
+    /// <summary>
+    /// Stan zbiorczy dla przycisku ⏻ na pasku: <c>On</c> = wszystkie włączone,
+    /// <c>Unknown</c> = część włączona („mixed"), <c>Off</c> = nic nie działa.
+    /// </summary>
+    [ObservableProperty] private DevicePowerState _aggregatePowerState = DevicePowerState.Off;
 
     // ─── Formularz dodawania ─────────────────────────────────────────────
     [ObservableProperty] private string _addType = "samsung";
     [ObservableProperty] private string _newName = "";
+    [ObservableProperty] private string _newLabel = "";
     [ObservableProperty] private string _newIp = "";
     [ObservableProperty] private string _newMac = "";
     [ObservableProperty] private string _newPassword = "";
@@ -93,6 +141,8 @@ public partial class DevicesViewModel : ObservableObject
     public bool IsWol => AddType == "wol";
 
     public DevicesViewModel(DeviceControlService control) => _control = control;
+
+    private static string TrimLabel(string? value) => DeviceItemViewModel.TrimLabel(value);
 
     partial void OnAddTypeChanged(string value)
     {
@@ -116,14 +166,72 @@ public partial class DevicesViewModel : ObservableObject
         var devices = await _control.GetDevicesAsync();
         Devices.Clear();
         foreach (var d in devices)
-            Devices.Add(new DeviceItemViewModel(d));
+            Devices.Add(CreateItem(d));
         HasDevices = Devices.Count > 0;
+        NotifyDevicesChanged();
+    }
+
+    /// <summary>
+    /// Jedyne miejsce tworzenia wierszy listy — podpina zapis oznaczenia edytowanego wprost na liście
+    /// (pole jest zawsze widoczne, zatwierdza je utrata fokusu / Enter, nie ma osobnego przycisku).
+    /// </summary>
+    private DeviceItemViewModel CreateItem(ProjectionDevice device)
+    {
+        var item = new DeviceItemViewModel(device);
+        item.LabelChanged += () => _ = PersistLabelAsync();
+        return item;
+    }
+
+    private async Task PersistLabelAsync()
+    {
+        try { await PersistAsync(); } catch { /* zapis ustawień nie może wywrócić UI */ }
     }
 
     private async Task PersistAsync()
     {
         await _control.SaveDevicesAsync(Devices.Select(i => i.Device).ToList());
         HasDevices = Devices.Count > 0;
+        NotifyDevicesChanged();
+    }
+
+    /// <summary>
+    /// Jedyna ścieżka powiadamiania o zmianie listy/stanu: przelicza numerację 1-based,
+    /// odświeża stan zbiorczy i rozgłasza zmianę pilotom.
+    /// </summary>
+    private void NotifyDevicesChanged()
+    {
+        for (int i = 0; i < Devices.Count; i++)
+            Devices[i].Number = i + 1;
+
+        var (state, count) = GetAggregateState();
+        AggregatePowerState = count == 0 ? DevicePowerState.Off : state switch
+        {
+            "on" => DevicePowerState.On,
+            "mixed" => DevicePowerState.Unknown,
+            _ => DevicePowerState.Off
+        };
+
+        DevicesChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Zbiorczy stan urządzeń dla pilota: <c>state</c> ∈ <c>on|off|mixed</c>, <c>count</c> = liczba urządzeń.
+    /// Cokolwiek włączone → traktowane jako „on/mixed" (przycisk pilota pokaże „wyłącz").
+    /// </summary>
+    public (string state, int count) GetAggregateState()
+    {
+        int count = Devices.Count;
+        if (count == 0) return ("off", 0);
+        int onCount = Devices.Count(d => d.State == DevicePowerState.On);
+        string state = onCount == 0 ? "off" : onCount == count ? "on" : "mixed";
+        return (state, count);
+    }
+
+    /// <summary>Włącza/wyłącza wszystkie urządzenia na żądanie pilota; po zmianie odświeża stany.</summary>
+    public async Task SetAllPowerFromRemoteAsync(bool on)
+    {
+        try { await _control.PowerAllAsync(on); } catch { }
+        await RefreshStatesInternalAsync();
     }
 
     // ─── Stany ───────────────────────────────────────────────────────────
@@ -139,6 +247,7 @@ public partial class DevicesViewModel : ObservableObject
             catch { /* stan pozostaje jak był */ }
         });
         await Task.WhenAll(tasks);
+        NotifyDevicesChanged();
     }
 
     // ─── Włączanie/wyłączanie ────────────────────────────────────────────
@@ -154,7 +263,7 @@ public partial class DevicesViewModel : ObservableObject
             item.State = await _control.GetStateAsync(item.Device);
         }
         catch { }
-        finally { item.IsBusy = false; }
+        finally { item.IsBusy = false; NotifyDevicesChanged(); }
     }
 
     [RelayCommand]
@@ -168,7 +277,7 @@ public partial class DevicesViewModel : ObservableObject
             item.State = await _control.GetStateAsync(item.Device);
         }
         catch { }
-        finally { item.IsBusy = false; }
+        finally { item.IsBusy = false; NotifyDevicesChanged(); }
     }
 
     [RelayCommand]
@@ -203,6 +312,10 @@ public partial class DevicesViewModel : ObservableObject
         item.IsEditing = true;
     }
 
+    /// <summary>
+    /// Zatwierdza edycję nazwy. Krótkie oznaczenie ma własne pole na liście (zawsze widoczne,
+    /// zapis po utracie fokusu/Enterze) — celowo NIE ma go tutaj, żeby nie było dwóch miejsc na to samo.
+    /// </summary>
     [RelayCommand]
     private async Task CommitRename(DeviceItemViewModel? item)
     {
@@ -214,14 +327,26 @@ public partial class DevicesViewModel : ObservableObject
         await PersistAsync();
     }
 
-    // ─── Popup na pasku górnym ───────────────────────────────────────────
+    // ─── Pasek górny: przyciski numerowane + zbiorczy ────────────────────
 
+    /// <summary>Przełącza jedno urządzenie: włączone → wyłącz, w innym razie (Off/Unknown) → włącz.</summary>
     [RelayCommand]
-    private async Task ToggleDevicePopup()
+    private Task ToggleDevice(DeviceItemViewModel? item)
     {
-        IsPopupOpen = !IsPopupOpen;
-        if (IsPopupOpen)
-            await RefreshStatesInternalAsync();
+        if (item is null) return Task.CompletedTask;
+        return item.State == DevicePowerState.On ? PowerOff(item) : PowerOn(item);
+    }
+
+    /// <summary>
+    /// Przycisk ⏻: cokolwiek włączone (on/mixed) → wyłącz wszystkie; nic → włącz wszystkie.
+    /// Ta sama reguła co przycisk zasilania w pilocie Android.
+    /// </summary>
+    [RelayCommand]
+    private Task TogglePowerAll()
+    {
+        var (state, count) = GetAggregateState();
+        if (count == 0) return Task.CompletedTask;
+        return state == "off" ? PowerAllOn() : PowerAllOff();
     }
 
     // ─── Wykrywanie / parowanie Samsung ──────────────────────────────────
@@ -256,11 +381,15 @@ public partial class DevicesViewModel : ObservableObject
         {
             Type = "samsung",
             Name = string.IsNullOrWhiteSpace(tv.Name) ? tv.Ip : tv.Name,
+            Label = TrimLabel(NewLabel),
             Ip = tv.Ip,
             Mac = tv.Mac
         };
         if (await PairAndAddDeviceAsync(device))
+        {
             Discovered.Remove(tv);
+            NewLabel = ""; // żeby to samo oznaczenie nie trafiło na kolejne urządzenie
+        }
     }
 
     /// <summary>Ręczne dodanie Samsunga po IP — omija SSDP (dla sieci blokujących multicast).</summary>
@@ -287,6 +416,7 @@ public partial class DevicesViewModel : ObservableObject
         {
             Type = "samsung",
             Name = newName.Length > 0 ? newName : (name.Length > 0 ? name : ip),
+            Label = TrimLabel(NewLabel),
             Ip = ip,
             Mac = mac ?? ""
         };
@@ -312,7 +442,7 @@ public partial class DevicesViewModel : ObservableObject
                 return false;
             }
             device.Token = token ?? "";
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
             await PersistAsync();
             PairStatus = "";
             _ = RefreshStatesInternalAsync();
@@ -391,11 +521,12 @@ public partial class DevicesViewModel : ObservableObject
             {
                 Type = "pjlink",
                 Name = name.Length > 0 ? name : ip,
+                Label = TrimLabel(NewLabel),
                 Ip = ip,
                 Password = NewPassword,
                 Port = int.TryParse(NewPort, out var p) && p > 0 ? p : 4352
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
         else if (AddType == "sony")
         {
@@ -413,11 +544,12 @@ public partial class DevicesViewModel : ObservableObject
             {
                 Type = "sony",
                 Name = name.Length > 0 ? name : ip,
+                Label = TrimLabel(NewLabel),
                 Ip = ip,
                 Password = NewPassword,
                 Mac = mac
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
         else // wol
         {
@@ -430,9 +562,10 @@ public partial class DevicesViewModel : ObservableObject
             {
                 Type = "wol",
                 Name = name.Length > 0 ? name : mac,
+                Label = TrimLabel(NewLabel),
                 Mac = mac
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
 
         await PersistAsync();
@@ -443,6 +576,7 @@ public partial class DevicesViewModel : ObservableObject
     private void ClearForm()
     {
         NewName = "";
+        NewLabel = "";
         NewIp = "";
         NewMac = "";
         NewPassword = "";

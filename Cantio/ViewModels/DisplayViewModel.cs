@@ -46,6 +46,7 @@ public partial class DisplayViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         SongSortMode = await _db.GetSettingAsync("song_sort") ?? "number";
+        LoopIntervalSeconds = SlideLoop.ParseInterval(await _db.GetSettingAsync("loop_interval"));
         await LoadCategoriesAsync();
         await OpenProjectionWindowAsync();
 
@@ -67,8 +68,81 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void ToggleBlank()
     {
+        StopLoop(); // wygaszenie/pokazanie ekranu = akcja operatora
         ScreenBlanked = !ScreenBlanked;
         _projection.SetBlanked(ScreenBlanked);
+    }
+
+    // ─── Pętla slajdów („tryb przed mszą") ────────────────────────────────────
+    // Automatyczne przewijanie slajdów aktualnego elementu w kółko, dla ludzi wchodzących
+    // do kościoła (czytania, ogłoszenia). KAŻDA akcja operatora natychmiast przerywa pętlę.
+    //
+    // Przerywanie jest realizowane jednym punktem: OnCurrentSlideIndexChanged wywołuje StopLoop(),
+    // chyba że zmiana pochodzi z tyknięcia timera (_loopAdvancing). Pokrywa to ◄ ►, skok cyfrowy,
+    // Home, zmianę pieśni/pozycji zestawu, kliknięcie zwrotki, przebudowę slajdów po edycji
+    // oraz komendy pilota (Goto ustawia CurrentSlideIndex wprost).
+    // Dodatkowo StopLoop() wołamy tam, gdzie akcja operatora NIE zmienia indeksu slajdu:
+    // ToggleBlank, wejście w edytory, element-obrazek, oraz no-op ◄ ► / ↑ ↓ na skraju zestawu.
+
+    private DispatcherTimer? _loopTimer;
+    private bool _loopAdvancing;
+
+    [ObservableProperty] private bool _isLooping;
+
+    [ObservableProperty] private int _loopIntervalSeconds = SlideLoop.DefaultIntervalSeconds;
+
+    /// <summary>
+    /// Pętla ma sens tylko gdy jest co przewijać i gdy projektor faktycznie pokazuje bieżący slajd.
+    /// W trybie psalm projektor trzyma refren, a zwrotki widzi wyłącznie operator — automatyczne
+    /// przewijanie nic by tam nie zmieniło na ekranie, za to zabrałoby operatorowi podgląd.
+    /// </summary>
+    public bool CanLoop => SlideLoop.CanLoop(IsPsalmMode, _slides.Count);
+
+    partial void OnIsPsalmModeChanged(bool value)
+    {
+        StopLoop();
+        OnPropertyChanged(nameof(CanLoop));
+    }
+
+    partial void OnLoopIntervalSecondsChanged(int value)
+    {
+        if (_loopTimer != null) _loopTimer.Interval = TimeSpan.FromSeconds(SlideLoop.ClampInterval(value));
+    }
+
+    [RelayCommand]
+    private void ToggleLoop()
+    {
+        if (IsLooping) { StopLoop(); return; }
+        // brak elementu / jeden slajd / tryb psalm / wygaszony ekran → nie ma co zapętlać
+        if (!SlideLoop.CanStart(IsPsalmMode, _slides.Count, ScreenBlanked)) return;
+        _loopTimer ??= CreateLoopTimer();
+        _loopTimer.Interval = TimeSpan.FromSeconds(SlideLoop.ClampInterval(LoopIntervalSeconds));
+        IsLooping = true;
+        _loopTimer.Start();
+    }
+
+    private DispatcherTimer CreateLoopTimer()
+    {
+        var timer = new DispatcherTimer();
+        timer.Tick += (_, _) => LoopTick();
+        return timer;
+    }
+
+    private void LoopTick()
+    {
+        if (!IsLooping) return;
+        int next = SlideLoop.NextIndex(CurrentSlideIndex, _slides.Count);
+        if (next < 0) { StopLoop(); return; }
+        _loopAdvancing = true;
+        try { GoToSlide(next); }
+        finally { _loopAdvancing = false; }
+    }
+
+    /// <summary>Zatrzymuje pętlę; bezpieczne do wielokrotnego wywołania. Publiczne — woła je też okno przy zamykaniu.</summary>
+    public void StopLoop()
+    {
+        _loopTimer?.Stop();
+        IsLooping = false;
     }
 
     // Kategorie
@@ -103,6 +177,8 @@ public partial class DisplayViewModel : ObservableObject
 
     partial void OnCurrentSlideIndexChanged(int value)
     {
+        // Wspólny punkt przerwania pętli: każda zmiana slajdu spoza timera = akcja operatora
+        if (!_loopAdvancing) StopLoop();
         if (value < 0 || value >= _slides.Count) return;
         var slide = _slides[value];
         if (slide.IsImageSlide)
@@ -293,6 +369,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenInlineEditorAsync(SetlistItem item)
     {
+        StopLoop(); // wejście w edycję = akcja operatora
         if (!item.SongId.HasValue) return;
         var song = await _db.GetSongWithVersesAsync(item.SongId.Value);
         if (song == null) return;
@@ -373,9 +450,10 @@ public partial class DisplayViewModel : ObservableObject
 
         IsInlineEditorOpen = false;
 
-        // Jeśli edytowana pieśń jest aktualnie wyświetlana — przeładuj z DB zachowując pozycję slajdu
+        // Edytowana pieśń jest na ekranie — przeładuj z DB i pokaż poprawkę OD RAZU (operator poprawia
+        // po wykonaniu zwrotki i musi zobaczyć efekt), zostając na tej samej zwrotce (kotwica).
         if (editedSongId.HasValue && SelectedSong?.Id == editedSongId.Value)
-            await LoadVersesAsync(editedSongId.Value, restoreSlide: CurrentSlideIndex);
+            await LoadVersesAsync(editedSongId.Value, keepPosition: true);
         else
             RebuildSlides();
     }
@@ -582,6 +660,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void NewSong()
     {
+        StopLoop();
         _editingSong = new Song { Id = 0 };
         EditTitle = string.Empty;
         EditNumber = string.Empty;
@@ -596,6 +675,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task EditSongAsync(Song song)
     {
+        StopLoop();
         _editingSong = song;
         EditTitle = song.Title;
         EditNumber = song.Number > 0 ? song.Number.ToString() : string.Empty;
@@ -670,12 +750,18 @@ public partial class DisplayViewModel : ObservableObject
             : null;
 
         await _db.SaveSongAsync(_editingSong);
+        int savedSongId = _editingSong.Id;
         await LoadCategoriesAsync();
         if (SelectedCategory != null)
             await LoadSongsAsync(SelectedCategory.Id);
         IsEditMode = false;
         IsEditDirty = false;
         _editingSong = null;
+
+        // Edytowana pieśń jest aktualnie wyświetlana — przebuduj slajdy i odśwież projektor od razu,
+        // zostając na tej samej zwrotce (kotwica)
+        if (savedSongId != 0 && SelectedSong?.Id == savedSongId)
+            await LoadVersesAsync(savedSongId, keepPosition: true);
     }
 
     [RelayCommand]
@@ -907,6 +993,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void NextSlide()
     {
+        StopLoop(); // także gdy poniższe okaże się no-op (skraj zestawu)
         if (CanGoNext)
             GoToSlide(CurrentSlideIndex + 1);
         else
@@ -916,6 +1003,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void PrevSlide()
     {
+        StopLoop();
         if (CanGoPrev)
             GoToSlide(CurrentSlideIndex - 1);
         else
@@ -925,6 +1013,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void NextSong()
     {
+        StopLoop();
         if (SelectedSetlistItem == null) return;
         var idx = SetlistItems.IndexOf(SelectedSetlistItem);
         if (idx >= 0 && idx < SetlistItems.Count - 1)
@@ -934,6 +1023,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void PrevSong()
     {
+        StopLoop();
         if (SelectedSetlistItem == null) return;
         var idx = SetlistItems.IndexOf(SelectedSetlistItem);
         if (idx > 0)
@@ -1031,16 +1121,8 @@ public partial class DisplayViewModel : ObservableObject
         SetlistGroup = string.Empty;
     }
 
-    // Tworzymy nowe obiekty bez nav property Song — inaczej EF próbuje wstawić istniejące piosenki
-    private List<SetlistItem> BuildItems() =>
-        SetlistItems.Select((item, i) => new SetlistItem
-        {
-            SongId = item.SongId,
-            ImagePath = item.ImagePath,
-            Position = i + 1,
-            Type = item.Type,
-            SelectedVerses = item.SelectedVerses
-        }).ToList();
+    // Kopia do zapisu (bez nav property Song, pozycje 1..N) — komplet pól w SetlistSnapshot
+    private List<SetlistItem> BuildItems() => SetlistSnapshot.ForSave(SetlistItems);
 
     [RelayCommand]
     private void AddImageToSetlist()
@@ -1057,6 +1139,144 @@ public partial class DisplayViewModel : ObservableObject
         else SetlistItems.Add(newItem);
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
         LoadSongFromSetlist(newItem);
+    }
+
+    // ─── Tekst jednorazowy w zestawie ─────────────────────────────────────────
+    // Treść żyje wyłącznie w SetlistItem (CustomTitle/CustomText) — nie zakłada pieśni w bazie,
+    // więc nie zaśmieca wyszukiwarki ani list kategorii.
+
+    [ObservableProperty] private bool _isTextItemEditorOpen;
+    [ObservableProperty] private string _textItemTitle = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddTextItemToSetlistCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveTextItemAsSongCommand))]
+    private string _textItemContent = string.Empty;
+
+    [ObservableProperty] private Category? _textItemCategory;
+
+    /// <summary>Edytowany element jednorazowy; null = tworzymy nowy.</summary>
+    private SetlistItem? _editedTextItem;
+
+    private bool CanSaveTextItem() => !string.IsNullOrWhiteSpace(TextItemContent);
+
+    [RelayCommand]
+    private void OpenTextItemEditor()
+    {
+        StopLoop();
+        _editedTextItem = null;
+        TextItemTitle = string.Empty;
+        TextItemContent = string.Empty;
+        TextItemCategory = SelectedCategory ?? Categories.FirstOrDefault();
+        IsTextItemEditorOpen = true;
+    }
+
+    [RelayCommand]
+    private void EditTextItem(SetlistItem item)
+    {
+        StopLoop();
+        if (!item.IsTextItem) return;
+        _editedTextItem = item;
+        TextItemTitle = item.CustomTitle ?? string.Empty;
+        TextItemContent = item.CustomText ?? string.Empty;
+        TextItemCategory = SelectedCategory ?? Categories.FirstOrDefault();
+        IsTextItemEditorOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseTextItemEditor()
+    {
+        IsTextItemEditorOpen = false;
+        _editedTextItem = null;
+    }
+
+    /// <summary>Tytuł wpisany ręcznie, a gdy pusty — pierwsza linia treści (max 40 znaków).</summary>
+    private string ResolveTextItemTitle()
+    {
+        var title = TextItemTitle.Trim();
+        if (title.Length > 0) return title;
+        var firstLine = TextItemContent
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => l.Trim())
+            .FirstOrDefault(l => l.Length > 0) ?? string.Empty;
+        return firstLine.Length > 40 ? firstLine[..40].TrimEnd() + "…" : firstLine;
+    }
+
+    /// <summary>Pusta linia rozdziela zwrotki — dalej dzieli już SlideLayoutService (jak przy pieśni).</summary>
+    private static List<Verse> SplitTextToVerses(string? text)
+    {
+        var blocks = (text ?? string.Empty)
+            .Replace("\r\n", "\n")
+            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+            .Select(b => b.Trim())
+            .Where(b => b.Length > 0)
+            .ToList();
+        return blocks.Select((b, i) => new Verse { Type = "v", Text = b, Position = i }).ToList();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSaveTextItem))]
+    private void AddTextItemToSetlist()
+    {
+        var title = ResolveTextItemTitle();
+        var content = TextItemContent.Trim();
+
+        if (_editedTextItem != null)
+        {
+            var edited = _editedTextItem;
+            edited.CustomTitle = title;
+            edited.CustomText = content;
+            CloseTextItemEditor();
+            if (ReferenceEquals(SelectedSetlistItem, edited)) LoadTextFromSetlist(edited);
+            return;
+        }
+
+        var newItem = new SetlistItem { Type = "text", CustomTitle = title, CustomText = content };
+        bool projectionActive = SelectedSetlistItem != null;
+        SetlistItems.Add(newItem);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
+        CloseTextItemEditor();
+        // W trakcie projekcji nie przełączamy ekranu — nowa pozycja tylko ląduje w zestawie
+        if (projectionActive) SelectedSetlistItem = newItem;
+        else LoadSongFromSetlist(newItem);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSaveTextItem))]
+    private async Task SaveTextItemAsSongAsync()
+    {
+        var category = TextItemCategory ?? SelectedCategory ?? Categories.FirstOrDefault();
+        if (category == null) return;
+
+        var song = new Song
+        {
+            Title = ResolveTextItemTitle(),
+            CategoryId = category.Id,
+            Verses = SplitTextToVerses(TextItemContent)
+        };
+        await _db.SaveSongAsync(song);
+
+        var newItem = new SetlistItem { Song = song, SongId = song.Id, Type = "song" };
+        // Edycja elementu jednorazowego → zamień go w miejscu na pieśń z bazy
+        var idx = _editedTextItem != null ? SetlistItems.IndexOf(_editedTextItem) : -1;
+        bool wasSelected = _editedTextItem != null && ReferenceEquals(SelectedSetlistItem, _editedTextItem);
+        if (idx >= 0)
+        {
+            SetlistItems.RemoveAt(idx);
+            SetlistItems.Insert(idx, newItem);
+        }
+        else
+        {
+            SetlistItems.Add(newItem);
+        }
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
+
+        bool projectionActive = SelectedSetlistItem != null;
+        CloseTextItemEditor();
+
+        await LoadCategoriesAsync();
+        if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
+
+        if (wasSelected || !projectionActive) LoadSongFromSetlist(newItem);
+        else SelectedSetlistItem = newItem;
     }
 
     [RelayCommand]
@@ -1428,10 +1648,18 @@ public partial class DisplayViewModel : ObservableObject
             return;
         }
         var list = await _db.SearchSongsAsync(query, ct);
-        Songs = new ObservableCollection<Song>(SortSongs(list));
+        // Wyszukiwanie po numerze ma własny porządek (dokładne trafienie pierwsze) — nie przesortowuj
+        var hasNumber = SongSearch.Parse(query).NumberPrefix != null;
+        Songs = new ObservableCollection<Song>(hasNumber ? list : SortSongs(list));
     }
 
-    private async Task LoadVersesAsync(int songId, bool goToLast = false, int restoreSlide = -1)
+    /// <param name="keepPosition">
+    /// true = przeładowanie tej samej, właśnie poprawionej pieśni: pozycję slajdu ustala kotwica
+    /// zwrotka/część w <see cref="RebuildSlides"/> (operator zostaje na swojej zwrotce), więc nie
+    /// przestawiamy potem indeksu ani na początek, ani na <paramref name="restoreSlide"/>.
+    /// </param>
+    private async Task LoadVersesAsync(
+        int songId, bool goToLast = false, int restoreSlide = -1, bool keepPosition = false)
     {
         _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
@@ -1460,6 +1688,8 @@ public partial class DisplayViewModel : ObservableObject
 
         Verses = new ObservableCollection<Verse>(ordered);
         RebuildSlides();
+        // Kotwica w RebuildSlides już ustawiła slajd i wypchnęła go na projektor
+        if (keepPosition) return;
         if (_slides.Count > 0)
         {
             if (restoreSlide >= 0)
@@ -1471,9 +1701,17 @@ public partial class DisplayViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<Slide> _slideList = [];
 
+    /// <summary>
+    /// Przebudowuje listę slajdów i wypycha bieżący slajd na projektor OD RAZU (zmiana wyglądu i poprawka
+    /// treści muszą być widoczne natychmiast). Pozycję utrzymuje kotwica zwrotka/część (<see cref="SlideAnchor"/>).
+    /// </summary>
     public void RebuildSlides()
     {
         int prevIndex = CurrentSlideIndex;
+        // Kotwica pozycji: trzymamy zwrotkę/część, bo po edycji treści indeks może wskazać inną zwrotkę
+        var anchor = prevIndex >= 0 && prevIndex < _slides.Count
+            ? (_slides[prevIndex].VerseIndex, _slides[prevIndex].PartIndex)
+            : (VerseIndex: -1, PartIndex: 0);
         var dbSettings = _db.GetSettings();
         var settings = BuildLayoutSettings(dbSettings);
         bool hardFont = SelectedSong?.FontSizeOverride.HasValue == true;
@@ -1674,10 +1912,15 @@ public partial class DisplayViewModel : ObservableObject
         }
 
         SlideList = new ObservableCollection<Slide>(_slides);
-        CurrentSlideIndex = -1;
+        OnPropertyChanged(nameof(CanLoop));
+
+        int restored = SlideAnchor.Resolve(
+            anchor.VerseIndex, anchor.PartIndex, prevIndex,
+            _slides.Select(s => (s.VerseIndex, s.PartIndex)).ToList());
+
+        CurrentSlideIndex = -1; // wymuś wypchnięcie nawet gdy indeks się nie zmienił (nowe obiekty Slide)
         OnPropertyChanged(nameof(SlideInfo));
-        if (prevIndex >= 0 && _slides.Count > 0)
-            GoToSlide(Math.Min(prevIndex, _slides.Count - 1));
+        if (restored >= 0) GoToSlide(restored);
     }
 
     private void GoToSlide(int index)
@@ -1694,6 +1937,11 @@ public partial class DisplayViewModel : ObservableObject
             LoadImageFromSetlist(item);
             return;
         }
+        if (item.IsTextItem)
+        {
+            LoadTextFromSetlist(item, goToLast);
+            return;
+        }
         if (!item.SongId.HasValue) return;
         bool sameSong = SelectedSong?.Id == item.SongId.Value;
         _loadingFromSetlist = true;
@@ -1702,11 +1950,29 @@ public partial class DisplayViewModel : ObservableObject
         _ = LoadVersesAsync(item.SongId.Value, goToLast, restoreSlide: sameSong ? CurrentSlideIndex : -1);
     }
 
+    /// <summary>
+    /// Tekst jednorazowy: zwrotki budowane w pamięci (bez zapisu w bazie),
+    /// dalej ta sama ścieżka co przy pieśni — RebuildSlides → SlideLayoutService (tagi, preview-only, auto-fit).
+    /// </summary>
+    private void LoadTextFromSetlist(SetlistItem item, bool goToLast = false)
+    {
+        SelectedSetlistItem = item;
+        // Transient Song (Id = 0, nigdy nie zapisywany) — żeby pasek/pilot pokazały tytuł elementu
+        SelectedSong = new Song { Id = 0, Title = item.CustomTitle ?? string.Empty };
+        IsPsalmMode = false;
+        ProjectedSlide = null;
+        Verses = new ObservableCollection<Verse>(SplitTextToVerses(item.CustomText));
+        RebuildSlides();
+        if (_slides.Count > 0) GoToSlide(goToLast ? _slides.Count - 1 : 0);
+    }
+
     private void LoadImageFromSetlist(SetlistItem item)
     {
+        StopLoop(); // element-obrazek nie ma slajdów, więc indeks się nie zmieni
         Verses.Clear();
         _slides.Clear();
         SlideList = new ObservableCollection<Slide>();
+        OnPropertyChanged(nameof(CanLoop));
         _projection.ClearOperatorSlide();
         _projection.SetImageSlide(item.ImagePath!);
     }

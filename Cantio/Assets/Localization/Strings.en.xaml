@@ -10,10 +10,19 @@
     <sys:String x:Key="Tab.Support">SUPPORT</sys:String>
     <sys:String x:Key="Tab.Pilot">REMOTE</sys:String>
     <sys:String x:Key="Pilot.RememberState">Remember remote state — start automatically on app launch</sys:String>
+    <sys:String x:Key="Pilot.RequirePin">Require a PIN when pairing a phone (recommended)</sys:String>
+    <sys:String x:Key="Pilot.Pin">Pairing PIN:</sys:String>
+    <sys:String x:Key="Pilot.NewPin">New PIN</sys:String>
+    <sys:String x:Key="Pilot.PinHint">The QR code pairs without typing the PIN. Entering the address manually will ask for it. A new PIN unpairs all devices.</sys:String>
+    <sys:String x:Key="Pilot.NoPinWarning">Warning: without a PIN anyone on this Wi-Fi network can take over the projection.</sys:String>
+    <sys:String x:Key="Pilot.QrHint">Scan the QR code or type the address in your phone's browser.</sys:String>
+    <sys:String x:Key="Pilot.Rejected">Rejected unpaired device:</sys:String>
     <!-- Projection devices (TVs/projectors) -->
     <sys:String x:Key="Devices.Section">Projection devices</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Turn TVs and projectors on and off from within the app.</sys:String>
-    <sys:String x:Key="Devices.PopupTitle">Devices</sys:String>
+    <sys:String x:Key="Devices.Label">Short label</sys:String>
+    <sys:String x:Key="Devices.LabelHint">Short label (max 4 characters) shown on the top bar button. Empty = device number.</sys:String>
+    <sys:String x:Key="Devices.BarPowerAll">Turn all devices on / off</sys:String>
     <sys:String x:Key="Devices.Add">Add device</sys:String>
     <sys:String x:Key="Devices.TypeSamsung">Samsung TV</sys:String>
     <sys:String x:Key="Devices.TypePjlink">Projector (PJLink)</sys:String>
@@ -93,6 +102,7 @@
     <sys:String x:Key="Btn.Cancel">Cancel</sys:String>
     <sys:String x:Key="Btn.Blank">BLANK</sys:String>
     <sys:String x:Key="Btn.ShowText">SHOW</sys:String>
+    <sys:String x:Key="Btn.LoopTooltip">Slide loop — automatic cycling (any operator action stops it)</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">SAVE SET</sys:String>
     <sys:String x:Key="Btn.Clear">CLEAR</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ DISPLAY</sys:String>
@@ -129,7 +139,7 @@
     <sys:String x:Key="Btn.SaveShortcuts">Save shortcuts</sys:String>
 
     <!-- Placeholders -->
-    <sys:String x:Key="Placeholder.SearchSongs">Search songs...</sys:String>
+    <sys:String x:Key="Placeholder.SearchSongs">Search songs or number...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Category name...</sys:String>
     <sys:String x:Key="Placeholder.SetlistGroup">Group (optional)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Set name (optional)...</sys:String>
@@ -193,6 +203,7 @@
     <sys:String x:Key="About.Changelog">What's new:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Automatic font size fitting</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Responsorial psalm category</sys:String>
+    <sys:String x:Key="Settings.LoopInterval">Slide loop — interval (seconds, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
     <sys:String x:Key="Settings.SectionFont">FONT</sys:String>
     <sys:String x:Key="Settings.SectionColors">COLORS</sys:String>
@@ -305,5 +316,16 @@
     <sys:String x:Key="Inline.FontSizeTip">Fixed font size for this song</sys:String>
     <sys:String x:Key="Inline.FontSizeHard">fixed</sys:String>
     <sys:String x:Key="Inline.FontSizeHardTip">On: ignores auto-fit and global settings, uses the typed size as-is. Off: uses settings from the Appearance tab.</sys:String>
+
+    <sys:String x:Key="Setlist.AddText">Add one-off text</sys:String>
+    <sys:String x:Key="TextItem.Header">One-off text</sys:String>
+    <sys:String x:Key="TextItem.TitleLabel">Title (label in the setlist)</sys:String>
+    <sys:String x:Key="TextItem.ContentLabel">Content</sys:String>
+    <sys:String x:Key="TextItem.ContentHint">A blank line separates slides. Formatting tags work the same as in verses.</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlist">Add to setlist</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlistHint">One-off — the text stays in this setlist and does NOT create a song in the database.</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabase">Save to database</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabaseHint">Permanent — creates a song in the selected category and adds it to the setlist.</sys:String>
+    <sys:String x:Key="TextItem.Edit">Edit one-off text</sys:String>
 
 </ResourceDictionary>

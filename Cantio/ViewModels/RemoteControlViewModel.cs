@@ -21,6 +21,11 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     [ObservableProperty] private BitmapSource? _qrCode;
     [ObservableProperty] private int         _port     = 8765;
     [ObservableProperty] private bool        _rememberState;
+    [ObservableProperty] private string      _pin        = "";
+    [ObservableProperty] private bool        _requirePin = true;
+    [ObservableProperty] private string      _lastRejected = "";
+
+    private List<string> _tokens = [];
 
     public event EventHandler? NextRequested;
     public event EventHandler? PrevRequested;
@@ -39,6 +44,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? GetSetlistDetailRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
+    public event Action<bool>? DevicesPowerAllRequested;
 
     public RemoteControlViewModel(DatabaseService? db = null)
     {
@@ -60,6 +66,34 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);
         _server.GetSetlistDetailRequested   += (ws, id)   => GetSetlistDetailRequested?.Invoke(ws, id);
         _server.SetlistSyncPushRequested    += (ws, json) => SetlistSyncPushRequested?.Invoke(ws, json);
+        _server.DevicesPowerAllRequested    += on         => DevicesPowerAllRequested?.Invoke(on);
+        _server.TokenIssued                 += OnTokenIssued;
+        _server.ClientRejected              += info =>
+        {
+            var msg = $"{DateTime.Now:HH:mm} — {info}";
+            var disp = System.Windows.Application.Current?.Dispatcher;
+            if (disp != null) disp.Invoke(() => LastRejected = msg);
+            else LastRejected = msg;
+        };
+    }
+
+    private void OnTokenIssued(string token)
+    {
+        lock (_tokens)
+        {
+            if (_tokens.Contains(token)) return;
+            _tokens.Add(token);
+            while (_tokens.Count > RemoteControlServer.MaxTokens) _tokens.RemoveAt(0);
+        }
+        SaveTokens();
+    }
+
+    private void SaveTokens()
+    {
+        if (_db == null) return;
+        string json;
+        lock (_tokens) json = System.Text.Json.JsonSerializer.Serialize(_tokens);
+        _ = _db.SaveSettingAsync("pilot_tokens", json);
     }
 
     [RelayCommand]
@@ -74,6 +108,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         }
         else
         {
+            ApplyAuthConfig();
             try
             {
                 _server.Start(Port);
@@ -84,11 +119,58 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
                 return;
             }
             IsRunning = true;
+            LastRejected = "";
             var ip = GetLocalIp();
             LocalUrl = $"http://{ip}:{Port}";
-            QrCode = GenerateQr(LocalUrl);
+            QrCode = GenerateQr(PairingUrl);
         }
         PersistState();
+    }
+
+    /// <summary>Adres w kodzie QR — z PIN-em, żeby skanowanie parowało bez przepisywania.</summary>
+    public string PairingUrl =>
+        RequirePin && Pin.Length == 4 ? $"{LocalUrl}/?pin={Pin}" : LocalUrl;
+
+    /// <summary>Przenosi PIN/tokeny/tryb do serwera; generuje PIN gdy go brak.</summary>
+    private void ApplyAuthConfig()
+    {
+        if (string.IsNullOrEmpty(Pin))
+        {
+            Pin = RemoteControlServer.GeneratePin();
+            _ = _db?.SaveSettingAsync("pilot_pin", Pin);
+        }
+        _server.RequirePin = RequirePin;
+        _server.Pin = Pin;
+        lock (_tokens) _server.SetTokens(_tokens);
+    }
+
+    /// <summary>Nowy PIN — unieważnia wszystkie sparowane urządzenia.</summary>
+    [RelayCommand]
+    private void NewPin()
+    {
+        Pin = RemoteControlServer.GeneratePin();
+        lock (_tokens) _tokens.Clear();
+        _server.ClearTokens();
+        _server.Pin = Pin;
+        if (_db != null) _ = _db.SaveSettingAsync("pilot_pin", Pin);
+        SaveTokens();
+        _server.DisconnectAllClients();   // stare sesje też tracą ważność
+        RefreshQr();
+    }
+
+    private void RefreshQr()
+    {
+        OnPropertyChanged(nameof(PairingUrl));
+        if (IsRunning) QrCode = GenerateQr(PairingUrl);
+    }
+
+    partial void OnRequirePinChanged(bool value)
+    {
+        _server.RequirePin = value;
+        if (_initializing || _db == null) return;
+        _ = _db.SaveSettingAsync("pilot_require_pin", value ? "1" : "0");
+        if (value) _server.DisconnectAllClients();   // wymuś parowanie już podłączonych
+        RefreshQr();
     }
 
     /// <summary>Wczytuje zapamiętany stan i auto-startuje serwer, jeśli działał przy zamknięciu.</summary>
@@ -100,12 +182,35 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         {
             RememberState = await _db.GetSettingAsync("pilot_remember") == "1";
             if (int.TryParse(await _db.GetSettingAsync("pilot_port"), out var port)) Port = port;
+
+            RequirePin = await _db.GetSettingAsync("pilot_require_pin") != "0";  // domyślnie włączone
+            Pin = await _db.GetSettingAsync("pilot_pin") ?? "";
+            if (Pin.Length != 4)
+            {
+                Pin = RemoteControlServer.GeneratePin();
+                await _db.SaveSettingAsync("pilot_pin", Pin);
+            }
+            var tokensJson = await _db.GetSettingAsync("pilot_tokens");
+            if (!string.IsNullOrWhiteSpace(tokensJson))
+            {
+                try
+                {
+                    _tokens = System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(tokensJson) ?? [];
+                }
+                catch { _tokens = []; }
+            }
+            ApplyAuthConfig();
+
             if (RememberState && !IsRunning &&
                 await _db.GetSettingAsync("pilot_was_running") == "1")
                 ToggleServer();
         }
         finally { _initializing = false; }
     }
+
+    partial void OnPinChanged(string value) => OnPropertyChanged(nameof(PairingUrl));
+    partial void OnLocalUrlChanged(string value) => OnPropertyChanged(nameof(PairingUrl));
 
     partial void OnRememberStateChanged(bool value)
     {
@@ -134,6 +239,11 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public Task BroadcastSetlistAsync(IList<(int id, string title)> songs, int activeIndex)
         => _server.IsRunning
             ? _server.BroadcastSetlistAsync(songs, activeIndex)
+            : Task.CompletedTask;
+
+    public Task BroadcastDevicesAsync(string state, int count)
+        => _server.IsRunning
+            ? _server.BroadcastDevicesAsync(state, count)
             : Task.CompletedTask;
 
     public Task SendToClientAsync(System.Net.WebSockets.WebSocket ws, string json)

@@ -18,6 +18,31 @@ public class SetlistItem : INotifyPropertyChanged
     public string? ImagePath { get; set; }
     public bool IsImageItem => !string.IsNullOrEmpty(ImagePath);
 
+    // Tekst jednorazowy — treść żyje wyłącznie w zestawie, nie zakłada pieśni w bazie
+    private string? _customTitle;
+    public string? CustomTitle
+    {
+        get => _customTitle;
+        set { _customTitle = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomTitle))); }
+    }
+
+    private string? _customText;
+    public string? CustomText
+    {
+        get => _customText;
+        set
+        {
+            _customText = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CustomText)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTextItem)));
+        }
+    }
+
+    public bool IsTextItem => !string.IsNullOrEmpty(CustomText);
+
+    /// <summary>Element „zwykły" (pieśń z bazy) — nie obrazek i nie tekst jednorazowy.</summary>
+    public bool IsSongItem => !IsImageItem && !IsTextItem;
+
     private string? _notes;
     public string? Notes
     {

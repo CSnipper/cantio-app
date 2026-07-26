@@ -10,10 +10,19 @@
     <sys:String x:Key="Tab.Support">WESPRZYJ</sys:String>
     <sys:String x:Key="Tab.Pilot">PILOT</sys:String>
     <sys:String x:Key="Pilot.RememberState">Pamiętaj stan pilota — uruchom automatycznie przy starcie aplikacji</sys:String>
+    <sys:String x:Key="Pilot.RequirePin">Wymagaj PIN-u przy parowaniu telefonu (zalecane)</sys:String>
+    <sys:String x:Key="Pilot.Pin">PIN parowania:</sys:String>
+    <sys:String x:Key="Pilot.NewPin">Nowy PIN</sys:String>
+    <sys:String x:Key="Pilot.PinHint">Kod QR paruje bez wpisywania PIN-u. Po ręcznym wpisaniu adresu telefon zapyta o PIN. Nowy PIN odłącza wszystkie sparowane urządzenia.</sys:String>
+    <sys:String x:Key="Pilot.NoPinWarning">Uwaga: bez PIN-u każdy w tej sieci Wi-Fi może przejąć sterowanie projekcją.</sys:String>
+    <sys:String x:Key="Pilot.QrHint">Zeskanuj kod QR lub wpisz adres w przeglądarce telefonu.</sys:String>
+    <sys:String x:Key="Pilot.Rejected">Odrzucono niesparowane urządzenie:</sys:String>
     <!-- Urządzenia projekcyjne (TV/projektory) -->
     <sys:String x:Key="Devices.Section">Urządzenia projekcyjne</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Włączaj i wyłączaj telewizory oraz projektory z poziomu aplikacji.</sys:String>
-    <sys:String x:Key="Devices.PopupTitle">Urządzenia</sys:String>
+    <sys:String x:Key="Devices.Label">Oznaczenie</sys:String>
+    <sys:String x:Key="Devices.LabelHint">Krótkie oznaczenie (maks. 4 znaki) pokazywane na przycisku paska górnego. Puste = numer urządzenia.</sys:String>
+    <sys:String x:Key="Devices.BarPowerAll">Włącz / wyłącz wszystkie urządzenia</sys:String>
     <sys:String x:Key="Devices.Add">Dodaj urządzenie</sys:String>
     <sys:String x:Key="Devices.TypeSamsung">Telewizor Samsung</sys:String>
     <sys:String x:Key="Devices.TypePjlink">Projektor (PJLink)</sys:String>
@@ -93,6 +102,7 @@
     <sys:String x:Key="Btn.Cancel">Anuluj</sys:String>
     <sys:String x:Key="Btn.Blank">WYGAŚ</sys:String>
     <sys:String x:Key="Btn.ShowText">POKAŻ</sys:String>
+    <sys:String x:Key="Btn.LoopTooltip">Pętla slajdów — automatyczne przewijanie w kółko (dowolna akcja operatora przerywa)</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clear">WYCZYŚĆ</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
@@ -129,7 +139,7 @@
     <sys:String x:Key="Btn.SaveShortcuts">Zapisz skróty</sys:String>
 
     <!-- Placeholdery -->
-    <sys:String x:Key="Placeholder.SearchSongs">Szukaj pieśni...</sys:String>
+    <sys:String x:Key="Placeholder.SearchSongs">Szukaj pieśni lub numeru...</sys:String>
     <sys:String x:Key="Placeholder.NewCategory">Nazwa kategorii...</sys:String>
     <sys:String x:Key="Placeholder.SetlistGroup">Grupa (opcjonalnie)</sys:String>
     <sys:String x:Key="Placeholder.SetlistName">Nazwa zestawu (opcjonalna)...</sys:String>
@@ -194,6 +204,7 @@
     <sys:String x:Key="About.Changelog">Co nowego:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Kategoria psalmu responsoryjnego</sys:String>
+    <sys:String x:Key="Settings.LoopInterval">Pętla slajdów — odstęp (sekundy, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>
     <sys:String x:Key="Settings.SectionFont">CZCIONKA</sys:String>
     <sys:String x:Key="Settings.SectionColors">KOLORY</sys:String>
@@ -306,5 +317,16 @@
     <sys:String x:Key="Inline.FontSizeTip">Sztywny rozmiar czcionki dla tej pieśni</sys:String>
     <sys:String x:Key="Inline.FontSizeHard">dopasowanie</sys:String>
     <sys:String x:Key="Inline.FontSizeHardTip">Włączone: pomija auto-fit i ustawienia globalne, używa wpisanego rozmiaru sztywno. Wyłączone: używa ustawień z zakładki Wygląd.</sys:String>
+
+    <sys:String x:Key="Setlist.AddText">Dodaj tekst jednorazowy</sys:String>
+    <sys:String x:Key="TextItem.Header">Tekst jednorazowy</sys:String>
+    <sys:String x:Key="TextItem.TitleLabel">Tytuł (etykieta w zestawie)</sys:String>
+    <sys:String x:Key="TextItem.ContentLabel">Treść</sys:String>
+    <sys:String x:Key="TextItem.ContentHint">Pusta linia rozdziela slajdy. Tagi formatowania działają tak samo jak w zwrotkach.</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlist">Dodaj do zestawu</sys:String>
+    <sys:String x:Key="TextItem.AddToSetlistHint">Jednorazowo — treść zostaje w tym zestawie i NIE zakłada pieśni w bazie.</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabase">Zapisz w bazie</sys:String>
+    <sys:String x:Key="TextItem.SaveToDatabaseHint">Na stałe — zakłada pieśń w wybranej kategorii i dodaje ją do zestawu.</sys:String>
+    <sys:String x:Key="TextItem.Edit">Edytuj tekst jednorazowy</sys:String>
 
 </ResourceDictionary>

@@ -85,6 +85,65 @@ OSZ flow: `.osz` → `ZipFile` → `.osj` (szukaj pierwszego, nie tylko `service
 - `HttpListener` z `http://*:port/` wymaga admin lub rejestracji URL ACL — dla LAN serwera bez uprawnień używaj `TcpListener(IPAddress.Any, port)`
 - `WebSocket.CreateFromStream(stream, isServer: true, ...)` dostępne w .NET 10 bez dodatkowych paczek
 
+### Protokół WS desktop ↔ Pilot (jedno źródło prawdy)
+
+Serwer: `RemoteControlServer` (TcpListener + ręczny handshake WS). Discovery: UDP broadcast na `Port+1`, żądanie `{"type":"discover"}` → odpowiedź `{"type":"cantio","port":N}`.
+Każdy `type` w `ReceiveLoopAsync` → `event` → przepięcie w `RemoteControlViewModel` → handler w `MainWindow.xaml.cs`. Odczyt zawsze `TryGetProperty` (brak pola = ignoruj).
+
+#### Parowanie PIN-em (v1.56+) — OBOWIĄZKOWE przed jakąkolwiek komendą
+
+Handshake po nawiązaniu WS (gdy `RequirePin`, domyślnie tak):
+
+| kierunek | komunikat | opis |
+|---|---|---|
+| D→P | `{"type":"auth_required"}` | wysyłany natychmiast po połączeniu; do czasu auth serwer **ignoruje wszystkie komendy**, nie wywołuje `ClientConnected` i nie dodaje klienta do listy broadcastu |
+| P→D | `{"type":"auth","pin":"1234"}` | parowanie PIN-em (4 cyfry, ustawienie `pilot_pin`) |
+| P→D | `{"type":"auth","token":"<zapamiętany>"}` | logowanie zapamiętanym tokenem (bez PIN-u) |
+| D→P | `{"type":"auth_ok","token":"<token>"}` | sukces; klient ZAPISUJE token trwale. Zaraz potem lecą `categories_data`, `slide`, `setlist`, `devices` (jak dotąd na `ClientConnected`) |
+| D→P | `{"type":"auth_failed","retryAfter":N}` | błąd; `retryAfter` > 0 = adres IP zablokowany na N sekund (serwer zaraz zamknie połączenie) |
+
+Zasady serwera:
+- 5 nieudanych prób w jednym połączeniu (`MaxAttemptsPerConnection`) → zamknięcie WS
+- 10 nieudanych prób z jednego IP (`MaxIpFailures`) → blokada IP na 5 min (`IpLockout`); licznik kasuje się po udanym auth lub po okresie bez prób
+- brak uwierzytelnienia w 30 s (`AuthTimeout`) → zamknięcie + `ClientRejected` (log `[Pilot] Odrzucono urządzenie IP: …` + komunikat w panelu pilota) — tak wygląda stary, niezaktualizowany klient
+- tokeny: 256 bitów z `RandomNumberGenerator`, max 20 sztuk, ustawienie `pilot_tokens` (JSON array); „nowy PIN" (`NewPinCommand`) czyści je wszystkie
+- QR w panelu pilota koduje `http://IP:PORT/?pin=1234` → skan paruje bez przepisywania PIN-u; ręcznie wpisany adres pyta o PIN
+- `pilot_require_pin=0` → serwer działa jak przed v1.56 (bez auth); wysłany mimo to `{"type":"auth"}` dostaje `auth_ok` z tokenem (żeby późniejsze włączenie PIN-u nie odparowało urządzenia)
+
+Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pilot_remember`, `pilot_was_running`, `pilot_port`).
+
+**Pilot → Desktop (komendy):** wszystkie wymagają wcześniejszego `auth_ok`.
+
+| type | pola | akcja |
+|---|---|---|
+| `next` / `prev` / `blank` | — | nawigacja slajdami / wygaszenie |
+| `goto` | `index` | slajd nr index |
+| `goto_song` | `index` | pieśń nr index w zestawie |
+| `setlist_add` | `songId` | dodaj pieśń do zestawu |
+| `setlist_remove` | `index` | usuń pozycję |
+| `setlist_move` | `from`, `to` | przenieś pozycję |
+| `setlist_clear` | — | wyczyść zestaw |
+| `setlist_restore` | `songs[]` (`{id}`) | odtwórz zestaw z listy ID |
+| `get_songs` | `offset`, `limit` | → `songs_data` |
+| `get_setlists` | — | → `setlists_data` |
+| `open_setlist` | `id` | otwórz zestaw z bazy |
+| `get_setlist_detail` | `id` | → `setlist_detail` |
+| `sync_push` / `setlist_sync_push` | raw JSON | sync pieśni / zestawów (→ `*_ack`) |
+| `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
+
+**Desktop → Pilot (broadcast/odpowiedzi):**
+
+| type | pola | znaczenie |
+|---|---|---|
+| `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
+| `slide` | `text, songTitle, index, total, isBlank, slides[]` | bieżący slajd |
+| `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
+| `categories_data` | `categories[]` | kategorie (na `ClientConnected`) |
+| `songs_data` / `setlists_data` / `setlist_detail` / `*_ack` | — | dane sync |
+| `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
+
+Na `ClientConnected` (czyli po `auth_ok`, a przy wyłączonym PIN-ie od razu po połączeniu) desktop wysyła świeżemu klientowi: `categories_data`, `slide`, `setlist`, `devices`.
+
 ## Style WPF — zasoby w UserControl
 
 - Style `GoldBtn`, `OutlineBtn`, `DarkTextBox`, `TabBtn` są w `MainWindow.xaml` (nie `App.xaml`)

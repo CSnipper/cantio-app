@@ -241,6 +241,21 @@ public partial class SzablonViewModel : ObservableObject
         DioceseChanged?.Invoke();
     }
 
+    // Pętla slajdów („tryb przed mszą") — interwał w sekundach
+
+    [ObservableProperty] private int _loopIntervalSeconds = SlideLoop.DefaultIntervalSeconds;
+
+    private bool _loopIntervalLoading;
+
+    partial void OnLoopIntervalSecondsChanged(int value)
+    {
+        var clamped = SlideLoop.ClampInterval(value);
+        if (clamped != value) { LoopIntervalSeconds = clamped; return; }
+        _display.LoopIntervalSeconds = clamped;
+        if (_loopIntervalLoading) return;
+        _ = _db.SaveSettingAsync("loop_interval", clamped.ToString());
+    }
+
     // Tagi formatowania
 
     [ObservableProperty] private ObservableCollection<TextFormatTag> _textTags = [];
@@ -660,6 +675,10 @@ public partial class SzablonViewModel : ObservableObject
 
         var loadLast = await _db.GetSettingAsync("load_last_setlist");
         LoadLastSetlistOnStartup = loadLast == "1";
+
+        _loopIntervalLoading = true;
+        LoopIntervalSeconds = SlideLoop.ParseInterval(await _db.GetSettingAsync("loop_interval"));
+        _loopIntervalLoading = false;
         FontAutoFit = s.FontAutoFit;
 
         var allCategories = await _db.GetCategoriesAsync();
