@@ -21,16 +21,17 @@ public partial class DeviceItemViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private bool _isEditing;
     [ObservableProperty] private string _editName = "";
-    [ObservableProperty] private string _editLabel = "";
 
     /// <summary>Numer 1-based pokazywany na przycisku paska górnego; przeliczany przez VM.</summary>
     [ObservableProperty] private int _number;
+
+    /// <summary>Oznaczenie zmienione w UI — sygnał dla <see cref="DevicesViewModel"/>, żeby je zapisał.</summary>
+    public event Action? LabelChanged;
 
     public DeviceItemViewModel(ProjectionDevice device)
     {
         Device = device;
         _editName = device.Name;
-        _editLabel = device.Label;
     }
 
     partial void OnNumberChanged(int value) => OnPropertyChanged(nameof(BarLabel));
@@ -38,10 +39,30 @@ public partial class DeviceItemViewModel : ObservableObject
     public string Name => Device.Name;
     public string Type => Device.Type;
 
-    /// <summary>Krótkie oznaczenie użytkownika (maks. 4 znaki); puste = brak.</summary>
-    public string Label => Device.Label;
+    /// <summary>Normalizuje oznaczenie: trim + maks. 4 znaki (UI ma MaxLength, to zabezpieczenie modelu).</summary>
+    public static string TrimLabel(string? value)
+    {
+        var s = (value ?? "").Trim();
+        return s.Length > 4 ? s[..4] : s;
+    }
 
-    public bool HasLabel => !string.IsNullOrWhiteSpace(Device.Label);
+    /// <summary>
+    /// Krótkie oznaczenie użytkownika (maks. 4 znaki); puste = brak. Edytowalne wprost na liście urządzeń —
+    /// zapis leci przez <see cref="LabelChanged"/> zaraz po utracie fokusu / Enterze, bez osobnego przycisku.
+    /// </summary>
+    public string Label
+    {
+        get => Device.Label;
+        set
+        {
+            var trimmed = TrimLabel(value);
+            if (trimmed == Device.Label) return;
+            Device.Label = trimmed;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(BarLabel));
+            LabelChanged?.Invoke();
+        }
+    }
 
     /// <summary>Napis na przycisku paska górnego: oznaczenie, a gdy puste — numer porządkowy.</summary>
     public string BarLabel => string.IsNullOrWhiteSpace(Device.Label)
@@ -57,15 +78,11 @@ public partial class DeviceItemViewModel : ObservableObject
         _ => "Wake-on-LAN"
     };
 
-    /// <summary>Odświeża widok po zmianie nazwy/oznaczenia w modelu.</summary>
+    /// <summary>Odświeża widok po zmianie nazwy w modelu.</summary>
     public void RefreshName()
     {
         OnPropertyChanged(nameof(Name));
-        OnPropertyChanged(nameof(Label));
-        OnPropertyChanged(nameof(HasLabel));
-        OnPropertyChanged(nameof(BarLabel));
         EditName = Device.Name;
-        EditLabel = Device.Label;
     }
 }
 
@@ -125,12 +142,7 @@ public partial class DevicesViewModel : ObservableObject
 
     public DevicesViewModel(DeviceControlService control) => _control = control;
 
-    /// <summary>Normalizuje oznaczenie: trim + maks. 4 znaki (UI ma MaxLength, to zabezpieczenie modelu).</summary>
-    private static string TrimLabel(string? value)
-    {
-        var s = (value ?? "").Trim();
-        return s.Length > 4 ? s[..4] : s;
-    }
+    private static string TrimLabel(string? value) => DeviceItemViewModel.TrimLabel(value);
 
     partial void OnAddTypeChanged(string value)
     {
@@ -154,9 +166,25 @@ public partial class DevicesViewModel : ObservableObject
         var devices = await _control.GetDevicesAsync();
         Devices.Clear();
         foreach (var d in devices)
-            Devices.Add(new DeviceItemViewModel(d));
+            Devices.Add(CreateItem(d));
         HasDevices = Devices.Count > 0;
         NotifyDevicesChanged();
+    }
+
+    /// <summary>
+    /// Jedyne miejsce tworzenia wierszy listy — podpina zapis oznaczenia edytowanego wprost na liście
+    /// (pole jest zawsze widoczne, zatwierdza je utrata fokusu / Enter, nie ma osobnego przycisku).
+    /// </summary>
+    private DeviceItemViewModel CreateItem(ProjectionDevice device)
+    {
+        var item = new DeviceItemViewModel(device);
+        item.LabelChanged += () => _ = PersistLabelAsync();
+        return item;
+    }
+
+    private async Task PersistLabelAsync()
+    {
+        try { await PersistAsync(); } catch { /* zapis ustawień nie może wywrócić UI */ }
     }
 
     private async Task PersistAsync()
@@ -281,18 +309,19 @@ public partial class DevicesViewModel : ObservableObject
     {
         if (item is null) return;
         item.EditName = item.Device.Name;
-        item.EditLabel = item.Device.Label;
         item.IsEditing = true;
     }
 
-    /// <summary>Zatwierdza edycję nazwy i krótkiego oznaczenia (oznaczenie może być puste).</summary>
+    /// <summary>
+    /// Zatwierdza edycję nazwy. Krótkie oznaczenie ma własne pole na liście (zawsze widoczne,
+    /// zapis po utracie fokusu/Enterze) — celowo NIE ma go tutaj, żeby nie było dwóch miejsc na to samo.
+    /// </summary>
     [RelayCommand]
     private async Task CommitRename(DeviceItemViewModel? item)
     {
         if (item is null) return;
         var name = (item.EditName ?? "").Trim();
         if (name.Length > 0) item.Device.Name = name;
-        item.Device.Label = TrimLabel(item.EditLabel);
         item.IsEditing = false;
         item.RefreshName();
         await PersistAsync();
@@ -413,7 +442,7 @@ public partial class DevicesViewModel : ObservableObject
                 return false;
             }
             device.Token = token ?? "";
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
             await PersistAsync();
             PairStatus = "";
             _ = RefreshStatesInternalAsync();
@@ -497,7 +526,7 @@ public partial class DevicesViewModel : ObservableObject
                 Password = NewPassword,
                 Port = int.TryParse(NewPort, out var p) && p > 0 ? p : 4352
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
         else if (AddType == "sony")
         {
@@ -520,7 +549,7 @@ public partial class DevicesViewModel : ObservableObject
                 Password = NewPassword,
                 Mac = mac
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
         else // wol
         {
@@ -536,7 +565,7 @@ public partial class DevicesViewModel : ObservableObject
                 Label = TrimLabel(NewLabel),
                 Mac = mac
             };
-            Devices.Add(new DeviceItemViewModel(device));
+            Devices.Add(CreateItem(device));
         }
 
         await PersistAsync();

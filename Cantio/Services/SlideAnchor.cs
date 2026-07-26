@@ -1,24 +1,6 @@
 namespace Cantio.Services;
 
 /// <summary>
-/// Co zrobić z projektorem po przebudowie slajdów.
-/// </summary>
-public enum SlideRefresh
-{
-    /// <summary>
-    /// Wypchnij bieżący slajd na projektor od razu — zmiany wyglądu (czcionka, kolory, marginesy,
-    /// wymiary ekranu) operator ustawia patrząc na ekran, więc muszą być widoczne natychmiast.
-    /// </summary>
-    Immediate,
-
-    /// <summary>
-    /// Przebuduj slajdy w pamięci, ale ZOSTAW obraz na projektorze bez zmian. Poprawiona treść wejdzie
-    /// dopiero przy następnym przejściu slajdu — inaczej tekst skakałby wiernym w trakcie zwrotki.
-    /// </summary>
-    Deferred
-}
-
-/// <summary>
 /// Czysta logika utrzymania pozycji slajdu przy przebudowie listy — bez zależności od WPF, żeby dała się testować.
 /// Po edycji treści liczba i podział slajdów mogą się zmienić, więc goły indeks przestaje wskazywać tę samą
 /// zwrotkę. Kotwiczymy się na parze (zwrotka, część), a stary indeks jest dopiero ostatnią deską ratunku.

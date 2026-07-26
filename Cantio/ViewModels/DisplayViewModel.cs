@@ -180,17 +180,6 @@ public partial class DisplayViewModel : ObservableObject
         // Wspólny punkt przerwania pętli: każda zmiana slajdu spoza timera = akcja operatora
         if (!_loopAdvancing) StopLoop();
         if (value < 0 || value >= _slides.Count) return;
-        PushSlideToProjection(value);
-    }
-
-    /// <summary>
-    /// Jedyne miejsce, w którym slajd trafia na projektor. Wydzielone z settera indeksu, bo po odroczonej
-    /// przebudowie (edycja treści w trakcie projekcji) trzeba wypchnąć obraz również wtedy, gdy operator
-    /// wraca na TEN SAM indeks — setter by wtedy nie odpalił.
-    /// </summary>
-    private void PushSlideToProjection(int value)
-    {
-        _projectionOutdated = false;
         var slide = _slides[value];
         if (slide.IsImageSlide)
         {
@@ -286,34 +275,6 @@ public partial class DisplayViewModel : ObservableObject
 
     public bool CanGoPrev => CurrentSlideIndex > 0;
     public bool CanGoNext => CurrentSlideIndex < _slides.Count - 1;
-
-    /// <summary>
-    /// true = na projektorze wisi obraz sprzed ostatniej przebudowy slajdów (odroczona edycja treści).
-    /// Zdejmowane przy najbliższym wypchnięciu slajdu (<see cref="PushSlideToProjection"/>).
-    /// </summary>
-    private bool _projectionOutdated;
-
-    /// <summary>
-    /// Ustawia bieżący slajd BEZ wypychania obrazu na projektor (setter właściwości robi jedno i drugie).
-    /// Używane po odroczonej przebudowie: podgląd operatora i lista slajdów pokazują już nową treść,
-    /// projektor zostaje z poprzednim obrazem aż do najbliższego przejścia slajdu.
-    /// </summary>
-    private void SetCurrentSlideIndexSilently(int index)
-    {
-        // Celowo pole, nie właściwość — setter wypchnąłby slajd na projektor
-#pragma warning disable MVVMTK0034
-        _currentSlideIndex = index;
-#pragma warning restore MVVMTK0034
-        OnPropertyChanged(nameof(CurrentSlideIndex));
-        OnPropertyChanged(nameof(CurrentSlideText));
-        OnPropertyChanged(nameof(SlideInfo));
-        OnPropertyChanged(nameof(CanGoPrev));
-        OnPropertyChanged(nameof(CanGoNext));
-        // Złoty pasek „to jest na projektorze": stary obiekt Slide zniknął z listy po przebudowie,
-        // więc przenosimy znacznik na slajd w tej samej pozycji (na ekranie wciąż poprzednia treść).
-        if (ProjectedSlide != null && index >= 0 && index < _slides.Count)
-            ProjectedSlide = _slides[index];
-    }
 
     // Zestaw
 
@@ -489,10 +450,10 @@ public partial class DisplayViewModel : ObservableObject
 
         IsInlineEditorOpen = false;
 
-        // Edytowana pieśń jest na ekranie — przeładuj z DB zachowując pozycję slajdu, ale NIE podmieniaj
-        // obrazu pod nosem wiernych: poprawka wejdzie przy najbliższym przejściu slajdu
+        // Edytowana pieśń jest na ekranie — przeładuj z DB i pokaż poprawkę OD RAZU (operator poprawia
+        // po wykonaniu zwrotki i musi zobaczyć efekt), zostając na tej samej zwrotce (kotwica).
         if (editedSongId.HasValue && SelectedSong?.Id == editedSongId.Value)
-            await LoadVersesAsync(editedSongId.Value, refresh: SlideRefresh.Deferred);
+            await LoadVersesAsync(editedSongId.Value, keepPosition: true);
         else
             RebuildSlides();
     }
@@ -797,10 +758,10 @@ public partial class DisplayViewModel : ObservableObject
         IsEditDirty = false;
         _editingSong = null;
 
-        // Edytowana pieśń jest aktualnie wyświetlana — nowa treść do pamięci, obraz na projektorze
-        // zostaje bez zmian do najbliższego przejścia slajdu
+        // Edytowana pieśń jest aktualnie wyświetlana — przebuduj slajdy i odśwież projektor od razu,
+        // zostając na tej samej zwrotce (kotwica)
         if (savedSongId != 0 && SelectedSong?.Id == savedSongId)
-            await LoadVersesAsync(savedSongId, refresh: SlideRefresh.Deferred);
+            await LoadVersesAsync(savedSongId, keepPosition: true);
     }
 
     [RelayCommand]
@@ -1692,15 +1653,13 @@ public partial class DisplayViewModel : ObservableObject
         Songs = new ObservableCollection<Song>(hasNumber ? list : SortSongs(list));
     }
 
-    /// <param name="refresh">
-    /// <see cref="SlideRefresh.Deferred"/> = przeładowanie tej samej, właśnie poprawionej pieśni w trakcie
-    /// projekcji: nowa treść ląduje w pamięci i w podglądzie, ale obraz na projektorze zostaje bez zmian
-    /// (pozycję utrzymuje kotwica zwrotka/część w <see cref="RebuildSlides"/>, więc <paramref name="restoreSlide"/>
-    /// jest wtedy zbędne).
+    /// <param name="keepPosition">
+    /// true = przeładowanie tej samej, właśnie poprawionej pieśni: pozycję slajdu ustala kotwica
+    /// zwrotka/część w <see cref="RebuildSlides"/> (operator zostaje na swojej zwrotce), więc nie
+    /// przestawiamy potem indeksu ani na początek, ani na <paramref name="restoreSlide"/>.
     /// </param>
     private async Task LoadVersesAsync(
-        int songId, bool goToLast = false, int restoreSlide = -1,
-        SlideRefresh refresh = SlideRefresh.Immediate)
+        int songId, bool goToLast = false, int restoreSlide = -1, bool keepPosition = false)
     {
         _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
@@ -1725,16 +1684,12 @@ public partial class DisplayViewModel : ObservableObject
 
         var psalmCategoryId = _db.GetSettings().PsalmCategoryId;
         IsPsalmMode = psalmCategoryId > 0 && song.CategoryId == psalmCategoryId;
-        // Przy odroczeniu projektor dalej pokazuje slajd sprzed edycji — nie gasimy złotego paska
-        if (refresh == SlideRefresh.Immediate) ProjectedSlide = null;
+        ProjectedSlide = null;
 
         Verses = new ObservableCollection<Verse>(ordered);
-        if (refresh == SlideRefresh.Deferred)
-        {
-            RebuildSlides(SlideRefresh.Deferred);
-            return;
-        }
         RebuildSlides();
+        // Kotwica w RebuildSlides już ustawiła slajd i wypchnęła go na projektor
+        if (keepPosition) return;
         if (_slides.Count > 0)
         {
             if (restoreSlide >= 0)
@@ -1746,12 +1701,11 @@ public partial class DisplayViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<Slide> _slideList = [];
 
-    /// <param name="refresh">
-    /// <see cref="SlideRefresh.Immediate"/> (domyślnie) — zmiana wyglądu, obraz na projektorze odświeża się od razu.
-    /// <see cref="SlideRefresh.Deferred"/> — zmiana treści w trakcie projekcji: slajdy są przebudowane w pamięci,
-    /// ale projektor zostaje z dotychczasowym obrazem do najbliższego przejścia slajdu.
-    /// </param>
-    public void RebuildSlides(SlideRefresh refresh = SlideRefresh.Immediate)
+    /// <summary>
+    /// Przebudowuje listę slajdów i wypycha bieżący slajd na projektor OD RAZU (zmiana wyglądu i poprawka
+    /// treści muszą być widoczne natychmiast). Pozycję utrzymuje kotwica zwrotka/część (<see cref="SlideAnchor"/>).
+    /// </summary>
+    public void RebuildSlides()
     {
         int prevIndex = CurrentSlideIndex;
         // Kotwica pozycji: trzymamy zwrotkę/część, bo po edycji treści indeks może wskazać inną zwrotkę
@@ -1964,13 +1918,6 @@ public partial class DisplayViewModel : ObservableObject
             anchor.VerseIndex, anchor.PartIndex, prevIndex,
             _slides.Select(s => (s.VerseIndex, s.PartIndex)).ToList());
 
-        if (refresh == SlideRefresh.Deferred)
-        {
-            _projectionOutdated = true;
-            SetCurrentSlideIndexSilently(restored);
-            return;
-        }
-
         CurrentSlideIndex = -1; // wymuś wypchnięcie nawet gdy indeks się nie zmienił (nowe obiekty Slide)
         OnPropertyChanged(nameof(SlideInfo));
         if (restored >= 0) GoToSlide(restored);
@@ -1979,12 +1926,6 @@ public partial class DisplayViewModel : ObservableObject
     private void GoToSlide(int index)
     {
         if (index < 0 || index >= _slides.Count) return;
-        if (index == CurrentSlideIndex && _projectionOutdated)
-        {
-            // Ten sam indeks nie odpaliłby settera, a projektor ma jeszcze treść sprzed edycji
-            PushSlideToProjection(index);
-            return;
-        }
         CurrentSlideIndex = index; // OnCurrentSlideIndexChanged obsługuje projekcję
     }
 
