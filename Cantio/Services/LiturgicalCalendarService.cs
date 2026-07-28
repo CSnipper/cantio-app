@@ -36,12 +36,9 @@ public static class LiturgicalCalendarService
         var ashWednesday = easter.AddDays(-46);
         if (date >= ashWednesday && date < easter)
         {
-            int week = GetLentWeek(date, ashWednesday);
-            string dayAbbr = GetDayAbbr(date);
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string cycle = GetSundayCycle(year);
-            string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "wielki_post", isSunday ? cycle : "");
+            return new LiturgicalDay(GetLentName(date, easter, cycle), "wielki_post", isSunday ? cycle : "");
         }
 
         // Wielkanoc: Niedziela Wielkanocna do Zesłania Ducha Świętego (49 dni)
@@ -96,8 +93,43 @@ public static class LiturgicalCalendarService
     private static int GetAdventWeek(DateOnly date, DateOnly adventStart)
         => (date.DayNumber - adventStart.DayNumber) / 7 + 1;
 
-    private static int GetLentWeek(DateOnly date, DateOnly ashWednesday)
-        => (date.DayNumber - ashWednesday.DayNumber) / 7 + 1;
+    // Nazwa dnia Wielkiego Postu. Tygodnie liczone od 1. Niedzieli WP (Wielkanoc − 42),
+    // zgodnie z konwencją „dzień powszedni należy do tygodnia POPRZEDZAJĄCEJ niedzieli"
+    // (liczenie od Środy Popielcowej przesuwało numer w środę zamiast w niedzielę).
+    // Popielec, dni po Popielcu oraz Wielki Tydzień z Triduum mają nazwy własne.
+    private static string GetLentName(DateOnly date, DateOnly easter, string cycle)
+    {
+        var firstSunday = easter.AddDays(-42);   // 1. Niedziela Wielkiego Postu
+        var palmSunday = easter.AddDays(-7);     // Niedziela Palmowa
+
+        if (date < firstSunday)
+            return date.DayOfWeek switch
+            {
+                DayOfWeek.Wednesday => "Środa Popielcowa",
+                DayOfWeek.Thursday  => "Czwartek po Popielcu",
+                DayOfWeek.Friday    => "Piątek po Popielcu",
+                _                   => "Sobota po Popielcu",
+            };
+
+        if (date >= palmSunday)
+            return date.DayOfWeek switch
+            {
+                DayOfWeek.Sunday    => "Niedziela Palmowa",
+                DayOfWeek.Monday    => "Wielki Poniedziałek",
+                DayOfWeek.Tuesday   => "Wielki Wtorek",
+                DayOfWeek.Wednesday => "Wielka Środa",
+                DayOfWeek.Thursday  => "Wielki Czwartek",
+                DayOfWeek.Friday    => "Wielki Piątek",
+                _                   => "Wielka Sobota",
+            };
+
+        int week = GetLentWeek(date, firstSunday);
+        string dayAbbr = GetDayAbbr(date);
+        return date.DayOfWeek == DayOfWeek.Sunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
+    }
+
+    private static int GetLentWeek(DateOnly date, DateOnly firstSunday)
+        => (date.DayNumber - firstSunday.DayNumber) / 7 + 1;
 
     private static int GetOrdinaryWeek(DateOnly date, DateOnly easter, int year)
     {
