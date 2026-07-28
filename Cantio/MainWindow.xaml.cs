@@ -213,7 +213,7 @@ public partial class MainWindow : Window
         _remoteControl.SetlistClearRequested += () =>
             _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
 
-        _remoteControl.SetlistRestoreRequested += songIds =>
+        _remoteControl.SetlistRestoreRequested += (songIds, activeIndex) =>
             _ = Dispatcher.InvokeAsync(async () =>
             {
                 _vm.ClearSetlistCommand.Execute(null);
@@ -222,6 +222,10 @@ public partial class MainWindow : Window
                     var song = await db.GetSongWithVersesAsync(songId);
                     if (song != null) _vm.AddToSetlistCommand.Execute(song);
                 }
+                // AddToSetlist zostawia aktywną OSTATNIĄ dodaną pieśń (funkcja z v1.49);
+                // aktywna ma być ta podświetlona na telefonie, a bez activeIndex — pierwsza.
+                var idx = SetlistRestore.ResolveActiveIndex(activeIndex, _vm.SetlistItems.Count);
+                if (idx >= 0) _vm.DisplaySetlistItemCommand.Execute(_vm.SetlistItems[idx]);
             });
 
         _remoteControl.GetSetlistsRequested += async ws =>
@@ -290,15 +294,7 @@ public partial class MainWindow : Window
                 {
                     var setlist = await db.GetSetlistWithItemsAsync(setlistId);
                     if (setlist == null) return;
-                    _vm.ClearSetlistCommand.Execute(null);
-                    foreach (var item in setlist.Items.OrderBy(i => i.Position))
-                    {
-                        if (item.SongId.HasValue)
-                        {
-                            var song = await db.GetSongWithVersesAsync(item.SongId.Value);
-                            if (song != null) _vm.AddToSetlistCommand.Execute(song);
-                        }
-                    }
+                    await _vm.LoadPinnedSetlistCommand.ExecuteAsync(setlist);
                 }
                 catch { }
             });

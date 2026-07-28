@@ -38,7 +38,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SyncPushRequested;
     public event Action? SetlistClearRequested;
-    public event Action<int[]>? SetlistRestoreRequested;
+    public event Action<int[], int>? SetlistRestoreRequested; // songIds, activeIndex (-1 = brak pola)
     public event Action<System.Net.WebSockets.WebSocket>? ClientConnected;
     public event Action<System.Net.WebSockets.WebSocket>? GetSetlistsRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
@@ -61,7 +61,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
         _server.SyncPushRequested       += (ws, json)     => SyncPushRequested?.Invoke(ws, json);
         _server.SetlistClearRequested   += ()             => SetlistClearRequested?.Invoke();
-        _server.SetlistRestoreRequested += ids            => SetlistRestoreRequested?.Invoke(ids);
+        _server.SetlistRestoreRequested += (ids, active)  => SetlistRestoreRequested?.Invoke(ids, active);
         _server.ClientConnected         += ws             => ClientConnected?.Invoke(ws);
         _server.GetSetlistsRequested        += ws         => GetSetlistsRequested?.Invoke(ws);
         _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);

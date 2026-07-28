@@ -123,7 +123,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_remove` | `index` | usuń pozycję |
 | `setlist_move` | `from`, `to` | przenieś pozycję |
 | `setlist_clear` | — | wyczyść zestaw |
-| `setlist_restore` | `songs[]` (`{id}`) | odtwórz zestaw z listy ID |
+| `setlist_restore` | `songs[]` (`{id}`), **`activeIndex?`** | odtwórz zestaw z listy ID; `activeIndex` = pozycja podświetlona w Pilocie, przycinana do `0..count-1`. Zgodność wsteczna: brak pola (starszy Pilot) → aktywna PIERWSZA pozycja, nigdy ostatnia (`Services/SetlistRestore.ResolveActiveIndex`) |
 | `get_songs` | `offset`, `limit` | → `songs_data` |
 | `get_setlists` | — | → `setlists_data` |
 | `open_setlist` | `id` | otwórz zestaw z bazy |
