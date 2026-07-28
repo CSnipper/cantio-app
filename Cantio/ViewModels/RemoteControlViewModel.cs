@@ -38,12 +38,13 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SyncPushRequested;
     public event Action? SetlistClearRequested;
-    public event Action<int[]>? SetlistRestoreRequested;
+    public event Action<int[], int>? SetlistRestoreRequested; // songIds, activeIndex (-1 = brak pola)
     public event Action<System.Net.WebSockets.WebSocket>? ClientConnected;
     public event Action<System.Net.WebSockets.WebSocket>? GetSetlistsRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? GetSetlistDetailRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
+    public event Action<System.Net.WebSockets.WebSocket, int>? SetlistDeleteRequested;
     public event Action<bool>? DevicesPowerAllRequested;
 
     public RemoteControlViewModel(DatabaseService? db = null)
@@ -60,12 +61,13 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
         _server.SyncPushRequested       += (ws, json)     => SyncPushRequested?.Invoke(ws, json);
         _server.SetlistClearRequested   += ()             => SetlistClearRequested?.Invoke();
-        _server.SetlistRestoreRequested += ids            => SetlistRestoreRequested?.Invoke(ids);
+        _server.SetlistRestoreRequested += (ids, active)  => SetlistRestoreRequested?.Invoke(ids, active);
         _server.ClientConnected         += ws             => ClientConnected?.Invoke(ws);
         _server.GetSetlistsRequested        += ws         => GetSetlistsRequested?.Invoke(ws);
         _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);
         _server.GetSetlistDetailRequested   += (ws, id)   => GetSetlistDetailRequested?.Invoke(ws, id);
         _server.SetlistSyncPushRequested    += (ws, json) => SetlistSyncPushRequested?.Invoke(ws, json);
+        _server.SetlistDeleteRequested      += (ws, id)   => SetlistDeleteRequested?.Invoke(ws, id);
         _server.DevicesPowerAllRequested    += on         => DevicesPowerAllRequested?.Invoke(on);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>

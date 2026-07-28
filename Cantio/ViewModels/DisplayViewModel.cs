@@ -1407,6 +1407,23 @@ public partial class DisplayViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Zestaw usunięto poza aplikacją (Pilot). Treść na ekranie zostaje — tak jak przy usuwaniu
+    /// z wyszukiwarki — ale znika powiązanie z rekordem w bazie (kolejny ZAPISZ = nowy zestaw)
+    /// i odświeża się lista PRZYPIĘTE, żeby nie zostały kafelki wskazujące na nieistniejący zestaw.
+    /// </summary>
+    public async Task OnSetlistDeletedExternallyAsync(int setlistId)
+    {
+        if (_loadedSetlistId == setlistId)
+        {
+            _loadedSetlistId   = 0;
+            _loadedSetlistName = string.Empty;
+            IsCurrentSetlistPinned = false;
+            TogglePinSetlistCommand.NotifyCanExecuteChanged();
+        }
+        await LoadPinnedSetlistsAsync();
+    }
+
     [RelayCommand]
     private async Task LoadPinnedSetlistAsync(Setlist setlist)
     {

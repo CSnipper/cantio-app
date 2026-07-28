@@ -54,11 +54,12 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, int, int>? GetSongsRequested; // ws, offset, limit
     public event Action<WebSocket, string>? SyncPushRequested;  // ws, raw json
     public event Action? SetlistClearRequested;
-    public event Action<int[]>? SetlistRestoreRequested;        // songIds
+    public event Action<int[], int>? SetlistRestoreRequested;   // songIds, activeIndex (-1 = brak pola, starszy Pilot)
     public event Action<WebSocket>? GetSetlistsRequested;       // ws
     public event Action<WebSocket, int>? OpenSetlistRequested;  // ws, setlistId
     public event Action<WebSocket, int>? GetSetlistDetailRequested; // ws, setlistId
     public event Action<WebSocket, string>? SetlistSyncPushRequested; // ws, raw json
+    public event Action<WebSocket, int>? SetlistDeleteRequested;      // ws, desktopId
     public event Action<bool>? DevicesPowerAllRequested;            // on/off wszystkie urządzenia
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
@@ -452,7 +453,11 @@ public sealed class RemoteControlServer : IDisposable
                             .Select(s => s.TryGetProperty("id", out var idEl) ? idEl.GetInt32() : 0)
                             .Where(id => id > 0)
                             .ToArray();
-                        SetlistRestoreRequested?.Invoke(ids);
+                        // activeIndex opcjonalny — starszy Pilot go nie wysyła (-1 = brak)
+                        var activeIndex = doc.RootElement.TryGetProperty("activeIndex", out var aiEl)
+                                          && aiEl.ValueKind == JsonValueKind.Number
+                            ? aiEl.GetInt32() : -1;
+                        SetlistRestoreRequested?.Invoke(ids, activeIndex);
                     }
                 }
                 else if (type == "get_setlists")
@@ -473,6 +478,12 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     var rawJson = Encoding.UTF8.GetString(ms.ToArray());
                     SetlistSyncPushRequested?.Invoke(ws, rawJson);
+                }
+                else if (type == "setlist_delete")
+                {
+                    if (doc.RootElement.TryGetProperty("desktopId", out var idEl) &&
+                        idEl.ValueKind == JsonValueKind.Number)
+                        SetlistDeleteRequested?.Invoke(ws, idEl.GetInt32());
                 }
                 else if (type == "devices_power_all")
                 {

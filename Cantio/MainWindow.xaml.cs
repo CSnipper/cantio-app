@@ -213,7 +213,7 @@ public partial class MainWindow : Window
         _remoteControl.SetlistClearRequested += () =>
             _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
 
-        _remoteControl.SetlistRestoreRequested += songIds =>
+        _remoteControl.SetlistRestoreRequested += (songIds, activeIndex) =>
             _ = Dispatcher.InvokeAsync(async () =>
             {
                 _vm.ClearSetlistCommand.Execute(null);
@@ -222,6 +222,10 @@ public partial class MainWindow : Window
                     var song = await db.GetSongWithVersesAsync(songId);
                     if (song != null) _vm.AddToSetlistCommand.Execute(song);
                 }
+                // AddToSetlist zostawia aktywną OSTATNIĄ dodaną pieśń (funkcja z v1.49);
+                // aktywna ma być ta podświetlona na telefonie, a bez activeIndex — pierwsza.
+                var idx = SetlistRestore.ResolveActiveIndex(activeIndex, _vm.SetlistItems.Count);
+                if (idx >= 0) _vm.DisplaySetlistItemCommand.Execute(_vm.SetlistItems[idx]);
             });
 
         _remoteControl.GetSetlistsRequested += async ws =>
@@ -263,22 +267,22 @@ public partial class MainWindow : Window
         {
             try
             {
-                var doc       = System.Text.Json.JsonDocument.Parse(rawJson);
-                var root      = doc.RootElement;
-                int? desktopId = root.TryGetProperty("desktopId", out var dEl) && dEl.ValueKind == System.Text.Json.JsonValueKind.Number
-                    ? dEl.GetInt32() : null;
-                var name      = root.GetProperty("name").GetString() ?? "";
-                var updatedAt = root.GetProperty("updatedAt").GetInt64();
-                var songIds   = root.GetProperty("songs").EnumerateArray()
-                    .Select(s => s.GetProperty("id").GetInt32()).ToArray();
-                var assignedId = await db.CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAt, songIds);
-                var ackJson = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    type      = "setlist_sync_ack",
-                    desktopId = assignedId,
-                    name      = name
-                });
-                await _remoteControl.SendToClientAsync(ws, ackJson);
+                // Konflikt (zmiana po obu stronach) → PilotSetlistSync zwraca setlist_sync_conflict zamiast acka
+                var json = await PilotSetlistSync.HandlePushAsync(db, rawJson);
+                if (json != null) await _remoteControl.SendToClientAsync(ws, json);
+            }
+            catch { }
+        };
+
+        _remoteControl.SetlistDeleteRequested += async (ws, setlistId) =>
+        {
+            try
+            {
+                var (json, existed) = await PilotSetlistSync.HandleDeleteAsync(db, setlistId);
+                if (existed)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                        await _vm.OnSetlistDeletedExternallyAsync(setlistId));
+                await _remoteControl.SendToClientAsync(ws, json);
             }
             catch { }
         };
@@ -290,15 +294,7 @@ public partial class MainWindow : Window
                 {
                     var setlist = await db.GetSetlistWithItemsAsync(setlistId);
                     if (setlist == null) return;
-                    _vm.ClearSetlistCommand.Execute(null);
-                    foreach (var item in setlist.Items.OrderBy(i => i.Position))
-                    {
-                        if (item.SongId.HasValue)
-                        {
-                            var song = await db.GetSongWithVersesAsync(item.SongId.Value);
-                            if (song != null) _vm.AddToSetlistCommand.Execute(song);
-                        }
-                    }
+                    await _vm.LoadPinnedSetlistCommand.ExecuteAsync(setlist);
                 }
                 catch { }
             });
