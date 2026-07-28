@@ -349,6 +349,35 @@ public class DatabaseService
         return (sl.Id, sl.Name, sl.Group, updatedAt, songs);
     }
 
+    /// <summary>
+    /// Wynik synchronizacji zestawu z Pilota.
+    /// <paramref name="Conflict"/> = zestaw zmieniono po obu stronach; <paramref name="Songs"/> niesie wtedy wersję desktopową.
+    /// </summary>
+    public readonly record struct PilotSetlistSyncResult(
+        bool Conflict, int SetlistId, string Name, long UpdatedAt, List<(int SongId, string Title)> Songs);
+
+    /// <summary>
+    /// Zapis zestawu przysłanego przez Pilota z wykrywaniem konfliktu.
+    /// <para><paramref name="baseUpdatedAtMs"/> = `UpdatedAt` z chwili ostatniej synchronizacji Pilota.
+    /// Gdy zestaw na desktopie jest nowszy, NIE nadpisujemy — zwracamy wersję desktopową do rozstrzygnięcia
+    /// przez użytkownika. Brak `baseUpdatedAtMs` (stary Pilot) lub <paramref name="force"/> = nadpisz bezwarunkowo.</para>
+    /// </summary>
+    public async Task<PilotSetlistSyncResult> SyncSetlistFromPilotAsync(
+        int? desktopId, string name, long updatedAtMs, int[] songIds,
+        long? baseUpdatedAtMs = null, bool force = false)
+    {
+        if (!force && baseUpdatedAtMs.HasValue && desktopId is int existingId && existingId > 0)
+        {
+            var current = await GetSetlistDetailAsync(existingId);
+            if (current != null && current.Value.UpdatedAt > baseUpdatedAtMs.Value)
+                return new PilotSetlistSyncResult(
+                    true, current.Value.Id, current.Value.Name, current.Value.UpdatedAt, current.Value.Songs);
+        }
+
+        var assignedId = await CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAtMs, songIds);
+        return new PilotSetlistSyncResult(false, assignedId, name, updatedAtMs, []);
+    }
+
     public async Task<int> CreateOrUpdateSetlistFromPilotAsync(int? desktopId, string name, long updatedAtMs, int[] songIds)
     {
         await using var db = new CantioDbContext();
@@ -617,11 +646,18 @@ public class DatabaseService
         }
     }
 
-    public async Task DeleteSetlistAsync(int setlistId)
+    /// <summary>Usuwa zestaw wraz z jego pozycjami. Zwraca false, gdy zestawu już nie było.</summary>
+    public async Task<bool> DeleteSetlistAsync(int setlistId)
     {
         await using var db = new CantioDbContext();
-        var setlist = await db.Setlists.FindAsync(setlistId);
-        if (setlist is not null) { db.Setlists.Remove(setlist); await db.SaveChangesAsync(); }
+        var setlist = await db.Setlists
+            .Include(s => s.Items)
+            .FirstOrDefaultAsync(s => s.Id == setlistId);
+        if (setlist is null) return false;
+        db.SetlistItems.RemoveRange(setlist.Items);
+        db.Setlists.Remove(setlist);
+        await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task<List<Setlist>> GetAllSetlistsAsync()

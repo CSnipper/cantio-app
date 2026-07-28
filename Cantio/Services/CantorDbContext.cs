@@ -13,8 +13,20 @@ public class CantioDbContext : DbContext
     public DbSet<SetlistItem> SetlistItems { get; set; } = null!;
     public DbSet<AppSettings> Settings { get; set; } = null!;
 
+    /// <summary>
+    /// Ścieżka bazy inna niż domyślna (%LocalAppData%\Cantio\cantio.db).
+    /// Używane wyłącznie przez testy protokołu — aplikacja tego nie ustawia.
+    /// </summary>
+    public static string? DbPathOverride { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (!string.IsNullOrEmpty(DbPathOverride))
+        {
+            optionsBuilder.UseSqlite($"Data Source={DbPathOverride}");
+            return;
+        }
+
         string folder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Cantio");

@@ -59,6 +59,7 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, int>? OpenSetlistRequested;  // ws, setlistId
     public event Action<WebSocket, int>? GetSetlistDetailRequested; // ws, setlistId
     public event Action<WebSocket, string>? SetlistSyncPushRequested; // ws, raw json
+    public event Action<WebSocket, int>? SetlistDeleteRequested;      // ws, desktopId
     public event Action<bool>? DevicesPowerAllRequested;            // on/off wszystkie urządzenia
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
@@ -473,6 +474,12 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     var rawJson = Encoding.UTF8.GetString(ms.ToArray());
                     SetlistSyncPushRequested?.Invoke(ws, rawJson);
+                }
+                else if (type == "setlist_delete")
+                {
+                    if (doc.RootElement.TryGetProperty("desktopId", out var idEl) &&
+                        idEl.ValueKind == JsonValueKind.Number)
+                        SetlistDeleteRequested?.Invoke(ws, idEl.GetInt32());
                 }
                 else if (type == "devices_power_all")
                 {

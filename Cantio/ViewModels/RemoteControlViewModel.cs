@@ -44,6 +44,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? GetSetlistDetailRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
+    public event Action<System.Net.WebSockets.WebSocket, int>? SetlistDeleteRequested;
     public event Action<bool>? DevicesPowerAllRequested;
 
     public RemoteControlViewModel(DatabaseService? db = null)
@@ -66,6 +67,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);
         _server.GetSetlistDetailRequested   += (ws, id)   => GetSetlistDetailRequested?.Invoke(ws, id);
         _server.SetlistSyncPushRequested    += (ws, json) => SetlistSyncPushRequested?.Invoke(ws, json);
+        _server.SetlistDeleteRequested      += (ws, id)   => SetlistDeleteRequested?.Invoke(ws, id);
         _server.DevicesPowerAllRequested    += on         => DevicesPowerAllRequested?.Invoke(on);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
