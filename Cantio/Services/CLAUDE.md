@@ -164,6 +164,26 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 
 Na `ClientConnected` (czyli po `auth_ok`, a przy wyłączonym PIN-ie od razu po połączeniu) desktop wysyła świeżemu klientowi: `categories_data`, `slide`, `setlist`, `devices`.
 
+### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
+
+Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `desktop.updatedAt != lastSyncedUpdatedAt`), więc reguła jest sztywna:
+
+| metoda | podbija `UpdatedAt`? | dlaczego |
+|---|---|---|
+| `SaveSetlistAsync` | **TAK**, zawsze | zapis zestawu = zmiana treści |
+| `SaveSetlistItemsAsync` | **TAK** (zestaw nadrzędny, w tej samej transakcji) | dodanie/usunięcie/przeniesienie pieśni |
+| `CreateOrUpdateSetlistFromPilotAsync` | **NIE** — zapisuje znacznik **przysłany przez Pilota** | ta sama wartość wraca w `setlist_sync_ack` i staje się nową bazą `baseUpdatedAt`; własny czas desktopu = fałszywy konflikt przy każdej synchronizacji |
+| `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt |
+| `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
+
+**BUG, który to wymusił (naprawiony 2026-07-28):** `SaveSetlistAsync` nie dotykało znacznika, więc zwykły zapis zestawu w Cantio był dla Pilota niewidoczny i telefon **cicho nadpisywał pracę operatora**. Harness dawał 12 czerwonych asercji przed poprawką.
+
+### Korelacja `setlist_sync_push` ↔ `setlist_sync_ack` (zależność, o której trzeba pamiętać)
+
+Pilot NIE szuka rekordu po nazwie (tak było i przy duplikatach nazw ack przypinał `desktopId` do losowego zestawu). Koreluje przez `PendingPushRegistry` — kolejkę wysłanych żądań dopasowywaną po parze **`(name, updatedAt)`**, bo desktop echo'uje obie wartości bez zmian (`PilotSetlistSyncResult`).
+
+**Jeśli kiedykolwiek zmienisz desktop tak, żeby nadawał własny `updatedAt` przy zapisie z Pilota — korelacja przestanie działać dla NOWYCH zestawów** (brak `desktopId` do fallbacku). Wtedy trzeba dołożyć do protokołu własny identyfikator żądania (`clientRef`) echo'owany w acku.
+
 ## Style WPF — zasoby w UserControl
 
 - Style `GoldBtn`, `OutlineBtn`, `DarkTextBox`, `TabBtn` są w `MainWindow.xaml` (nie `App.xaml`)
