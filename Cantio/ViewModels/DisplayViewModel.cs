@@ -281,7 +281,21 @@ public partial class DisplayViewModel : ObservableObject
     private int _loadedSetlistId;
     private string _loadedSetlistName = string.Empty;
 
-    [ObservableProperty] private ObservableCollection<SetlistItem> _setlistItems = [];
+    /// <summary>
+    /// Pozycje zestawu. INSTANCJA KOLEKCJI NIGDY SIĘ NIE ZMIENIA (brak settera) — MainWindow podpina
+    /// się do `CollectionChanged` raz przy starcie, żeby rozgłaszać zmiany do Pilotów; podmiana kolekcji
+    /// osierociłaby tego obserwatora i zmiany po wczytaniu zestawu przestałyby lecieć do telefonów.
+    /// Wczytując zestaw używaj <see cref="ReplaceSetlistItems"/>.
+    /// </summary>
+    public ObservableCollection<SetlistItem> SetlistItems { get; } = [];
+
+    /// <summary>Podmienia ZAWARTOŚĆ kolekcji, zachowując jej instancję (i wszystkich obserwatorów).</summary>
+    private void ReplaceSetlistItems(IEnumerable<SetlistItem> items)
+    {
+        SetlistItems.Clear();
+        foreach (var item in items) SetlistItems.Add(item);
+    }
+
     [ObservableProperty] private string _setlistName = string.Empty;
     [ObservableProperty] private string _setlistGroup = string.Empty;
     [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
@@ -1296,7 +1310,7 @@ public partial class DisplayViewModel : ObservableObject
         var setlist = await _db.GetSetlistAsync(_loadedSetlistId);
         if (setlist == null) return;
         setlist.IsPinned = !setlist.IsPinned;
-        await _db.SaveSetlistAsync(setlist);
+        await _db.SetSetlistPinnedAsync(setlist.Id, setlist.IsPinned);
         IsCurrentSetlistPinned = setlist.IsPinned;
         await LoadPinnedSetlistsAsync();
     }
@@ -1322,10 +1336,7 @@ public partial class DisplayViewModel : ObservableObject
                 await _db.SaveSetlistAsync(newSetlist);
             }
             else if (!existing.IsPinned)
-            {
-                existing.IsPinned = true;
-                await _db.SaveSetlistAsync(existing);
-            }
+                await _db.SetSetlistPinnedAsync(existing.Id, true);
         }
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
@@ -1335,7 +1346,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task PinSetlistFromSearch(Setlist setlist)
     {
         setlist.IsPinned = true;
-        await _db.SaveSetlistAsync(setlist);
+        await _db.SetSetlistPinnedAsync(setlist.Id, true);
         await LoadPinnedSetlistsAsync();
     }
 
@@ -1343,7 +1354,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task UnpinSetlist(Setlist setlist)
     {
         setlist.IsPinned = false;
-        await _db.SaveSetlistAsync(setlist);
+        await _db.SetSetlistPinnedAsync(setlist.Id, false);
         if (setlist.Id == _loadedSetlistId) IsCurrentSetlistPinned = false;
         await LoadPinnedSetlistsAsync();
     }
@@ -1432,7 +1443,7 @@ public partial class DisplayViewModel : ObservableObject
         await _db.SaveSettingAsync("last_setlist_id", setlist.Id.ToString());
         _loadedSetlistId = full.Id;
         _loadedSetlistName = full.Name;
-        SetlistItems = new ObservableCollection<SetlistItem>(full.Items);
+        ReplaceSetlistItems(full.Items);
         SetlistName = full.Name;
         SetlistGroup = full.Group ?? string.Empty;
         IsCurrentSetlistPinned = full.IsPinned;

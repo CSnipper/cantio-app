@@ -388,9 +388,16 @@
   },
   {
     "data": "03-04",
-    "tytul": "W metropolii białostockiej oraz diecezji drohiczyńskiej, łomżyńskiej i radomskiej: ŚW. KAZIMIERZA, KRÓLEWICZA, głównego patrona metropolii i diecezji",
+    "tytul": "ŚW. KAZIMIERZA, KRÓLEWICZA, głównego patrona metropolii i diecezji",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii białostockiej oraz diecezji drohiczyńskiej, łomżyńskiej i radomskiej:",
+    "diecezje": [
+      "białostocka",
+      "drohiczyńska",
+      "łomżyńska",
+      "radomska"
+    ]
   },
   {
     "data": "03-04",
@@ -432,9 +439,13 @@
   },
   {
     "data": "03-12",
-    "tytul": "W Ordynariacie Polowym Wojska Polskiego: ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W WARSZAWIE",
+    "tytul": "ROCZNICA POŚWIĘCENIA KOŚCIOŁA KATEDRALNEGO W WARSZAWIE",
     "ranga": "swieto",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W Ordynariacie Polowym Wojska Polskiego:",
+    "diecezje": [
+      "Ordynariat Polowy Wojska Polskiego"
+    ]
   },
   {
     "data": "03-15",
@@ -664,9 +675,13 @@
   },
   {
     "data": "05-03",
-    "tytul": "W Ordynariacie Polowym Wojska Polskiego: NAJŚW. MARYI PANNY, KRÓLOWEJ POLSKI, HETMANKI ŻOŁNIERZA POLSKIEGO, głównej patronki Ordynariatu Polowego",
+    "tytul": "NAJŚW. MARYI PANNY, KRÓLOWEJ POLSKI, HETMANKI ŻOŁNIERZA POLSKIEGO, głównej patronki Ordynariatu Polowego",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W Ordynariacie Polowym Wojska Polskiego:",
+    "diecezje": [
+      "Ordynariat Polowy Wojska Polskiego"
+    ]
   },
   {
     "data": "05-04",
@@ -801,9 +816,15 @@
   },
   {
     "data": "05-16",
-    "tytul": "W metropolii warszawskiej: ŚW. ANDRZEJA BOBOLI, PREZBITERA I MĘCZENNIKA, patrona metropolii",
+    "tytul": "ŚW. ANDRZEJA BOBOLI, PREZBITERA I MĘCZENNIKA, patrona metropolii",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii warszawskiej:",
+    "diecezje": [
+      "warszawska",
+      "warszawsko-praska",
+      "płocka"
+    ]
   },
   {
     "data": "05-16",
@@ -902,9 +923,17 @@
   },
   {
     "data": "05-21",
-    "tytul": "W metropolii katowickiej oraz diecezji bielsko-żywieckiej i świdnickiej: Św. Jana Nepomucena, prezbitera i męczennika",
+    "tytul": "Św. Jana Nepomucena, prezbitera i męczennika",
     "ranga": "wsp_obowiazkowe",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii katowickiej oraz diecezji bielsko-żywieckiej i świdnickiej:",
+    "diecezje": [
+      "katowicka",
+      "gliwicka",
+      "opolska",
+      "bielsko-żywiecka",
+      "świdnicka"
+    ]
   },
   {
     "data": "05-21",
@@ -1591,12 +1620,12 @@
   },
   {
     "data": "06-12",
-    "tytul": "W Ordynariacie Polowym Wojska Polskiego: Błogosławionych męczenników Władysława Miegonia, prezbitera, i Towarzyszy",
+    "tytul": "Błogosławionych męczenników Władysława Miegonia, prezbitera, i Towarzyszy",
     "ranga": "wsp_dowolne",
     "zakres": "diecezja",
-    "zakres_raw": "W diecezji włocławskiej:",
+    "zakres_raw": "W Ordynariacie Polowym Wojska Polskiego:",
     "diecezje": [
-      "włocławska"
+      "Ordynariat Polowy Wojska Polskiego"
     ]
   },
   {
@@ -2478,9 +2507,15 @@
   },
   {
     "data": "08-17",
-    "tytul": "W metropolii katowickiej: ŚW. JACKA, PREZBITERA, głównego patrona metropolii",
+    "tytul": "ŚW. JACKA, PREZBITERA, głównego patrona metropolii",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii katowickiej:",
+    "diecezje": [
+      "katowicka",
+      "gliwicka",
+      "opolska"
+    ]
   },
   {
     "data": "08-17",
@@ -2598,9 +2633,15 @@
   },
   {
     "data": "08-26",
-    "tytul": "W metropolii częstochowskiej: NAJŚW. MARYI PANNY CZĘSTOCHOWSKIEJ, głównej patronki metropolii",
+    "tytul": "NAJŚW. MARYI PANNY CZĘSTOCHOWSKIEJ, głównej patronki metropolii",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii częstochowskiej:",
+    "diecezje": [
+      "częstochowska",
+      "radomska",
+      "sosnowiecka"
+    ]
   },
   {
     "data": "08-27",
@@ -3414,9 +3455,18 @@
   },
   {
     "data": "10-16",
-    "tytul": "W metropolii katowickiej i wrocławskiej: ŚW. JADWIGI ŚLĄSKIEJ, głównej patronki Śląska i archidiecezji wrocławskiej",
+    "tytul": "ŚW. JADWIGI ŚLĄSKIEJ, głównej patronki Śląska i archidiecezji wrocławskiej",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W metropolii katowickiej i wrocławskiej:",
+    "diecezje": [
+      "katowicka",
+      "gliwicka",
+      "opolska",
+      "wrocławska",
+      "legnicka",
+      "świdnicka"
+    ]
   },
   {
     "data": "10-17",
@@ -3502,9 +3552,25 @@
   },
   {
     "data": "10-22",
-    "tytul": "W parafiach należących do województwa kujawsko-pomorskiego i małopolskiego: ŚW. JANA PAWŁA II, PAPIEŻA, głównego patrona województwa",
+    "tytul": "ŚW. JANA PAWŁA II, PAPIEŻA, głównego patrona województwa",
     "ranga": "uroczystosc",
-    "zakres": "powszechny"
+    "zakres": "diecezja",
+    "zakres_raw": "W parafiach należących do województwa kujawsko-pomorskiego i małopolskiego:",
+    "diecezje": [
+      "bydgoska",
+      "toruńska",
+      "włocławska",
+      "pelplińska",
+      "gnieźnieńska",
+      "płocka",
+      "krakowska",
+      "tarnowska",
+      "kielecka",
+      "sosnowiecka",
+      "bielsko-żywiecka",
+      "rzeszowska"
+    ],
+    "uwaga": "Obchód patrona województwa — lista diecezji jest przybliżeniem terytorium (podział administracyjny państwa nie pokrywa się z kościelnym)"
   },
   {
     "data": "10-22",

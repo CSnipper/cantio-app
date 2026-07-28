@@ -444,11 +444,31 @@ public class DatabaseService
             .FirstOrDefaultAsync(sl => sl.Id == setlistId);
     }
 
+    /// <summary>
+    /// Zapis zestawu = ZMIANA TREŚCI, więc ZAWSZE odświeża <see cref="Setlist.UpdatedAt"/>.
+    /// Pilot porównuje ten znacznik z zapamiętanym przy ostatniej synchronizacji — bez odświeżenia
+    /// zmiana zrobiona w Cantio jest dla niego niewidoczna i zostaje po cichu nadpisana wersją z telefonu.
+    /// <para>Operacje, które NIE zmieniają treści (przypięcie), mają własne metody
+    /// (<see cref="SetSetlistPinnedAsync"/>) — inaczej przypinanie zgłaszałoby Pilotowi fałszywy konflikt.</para>
+    /// <para>Zapis z Pilota idzie osobną ścieżką (<see cref="CreateOrUpdateSetlistFromPilotAsync"/>)
+    /// i zachowuje znacznik przysłany przez telefon — to warunek działania round-tripu synchronizacji.</para>
+    /// </summary>
     public async Task SaveSetlistAsync(Setlist setlist)
     {
         await using var db = new CantioDbContext();
+        setlist.UpdatedAt = DateTime.UtcNow;
         if (setlist.Id == 0) db.Setlists.Add(setlist);
         else db.Setlists.Update(setlist);
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.</summary>
+    public async Task SetSetlistPinnedAsync(int setlistId, bool pinned)
+    {
+        await using var db = new CantioDbContext();
+        var setlist = await db.Setlists.FindAsync(setlistId);
+        if (setlist == null) return;
+        setlist.IsPinned = pinned;
         await db.SaveChangesAsync();
     }
 
@@ -685,6 +705,12 @@ public class DatabaseService
         db.SetlistItems.RemoveRange(old);
 
         db.SetlistItems.AddRange(SetlistSnapshot.ForSave(items, setlistId));
+
+        // Zmiana pozycji (dodanie/usunięcie/przeniesienie pieśni) to zmiana treści zestawu —
+        // bez odświeżenia znacznika Pilot nie wykryje jej i nadpisze swoją wersją.
+        var setlist = await db.Setlists.FindAsync(setlistId);
+        if (setlist != null) setlist.UpdatedAt = DateTime.UtcNow;
+
         await db.SaveChangesAsync();
     }
 
