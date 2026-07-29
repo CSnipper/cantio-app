@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json;
 using Cantio.Models;
 using Cantio.Services.Devices;
@@ -44,22 +43,55 @@ public sealed class DeviceControlService
         _ => _wol,
     };
 
+    /// <summary>
+    /// Opis urządzenia do logu. Log ma wskazywać KTÓRE urządzenie zawiodło —
+    /// samo „coś padło" nic nie dawało przy diagnozie u użytkownika.
+    /// </summary>
+    private static string Describe(ProjectionDevice device)
+    {
+        var name = string.IsNullOrWhiteSpace(device.Name) ? "(bez nazwy)" : device.Name;
+        var ip = string.IsNullOrWhiteSpace(device.Ip) ? device.Mac : device.Ip;
+        return string.IsNullOrWhiteSpace(ip) ? $"{name} [{device.Type}]" : $"{name} [{device.Type} {ip}]";
+    }
+
     public async Task<bool> PowerOnAsync(ProjectionDevice device, CancellationToken ct = default)
     {
-        try { return await GetDriver(device).PowerOnAsync(device, ct); }
-        catch (Exception ex) { Debug.WriteLine($"[DeviceControl] PowerOn: {ex.Message}"); return false; }
+        try
+        {
+            var ok = await GetDriver(device).PowerOnAsync(device, ct);
+            AppLog.Write("DeviceControl", $"PowerOn {Describe(device)} → {(ok ? "OK" : "nieudane")}");
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write("DeviceControl", $"PowerOn {Describe(device)} → wyjątek: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task<bool> PowerOffAsync(ProjectionDevice device, CancellationToken ct = default)
     {
-        try { return await GetDriver(device).PowerOffAsync(device, ct); }
-        catch (Exception ex) { Debug.WriteLine($"[DeviceControl] PowerOff: {ex.Message}"); return false; }
+        try
+        {
+            var ok = await GetDriver(device).PowerOffAsync(device, ct);
+            AppLog.Write("DeviceControl", $"PowerOff {Describe(device)} → {(ok ? "OK" : "nieudane")}");
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write("DeviceControl", $"PowerOff {Describe(device)} → wyjątek: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task<DevicePowerState> GetStateAsync(ProjectionDevice device, CancellationToken ct = default)
     {
         try { return await GetDriver(device).GetStateAsync(device, ct); }
-        catch (Exception ex) { Debug.WriteLine($"[DeviceControl] GetState: {ex.Message}"); return DevicePowerState.Unknown; }
+        catch (Exception ex)
+        {
+            AppLog.Write("DeviceControl", $"GetState {Describe(device)} → wyjątek: {ex.Message}");
+            return DevicePowerState.Unknown;
+        }
     }
 
     /// <summary>Włącza/wyłącza wszystkie zapisane urządzenia równolegle.</summary>

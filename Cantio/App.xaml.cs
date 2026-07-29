@@ -13,7 +13,8 @@ public partial class App : Application
         try
         {
             base.OnStartup(e);
-            var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
+            AppLog.WriteSessionStart();
+            var dbFolder =Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
             Directory.CreateDirectory(dbFolder); // ← musi być PRZED sprawdzeniem pliku
             var dbPath = Path.Combine(dbFolder, "cantio.db");
             bool isFirstRun = !File.Exists(dbPath);

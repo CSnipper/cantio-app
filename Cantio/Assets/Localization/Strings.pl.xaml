@@ -51,6 +51,8 @@
     <sys:String x:Key="Devices.Remove">Usuń</sys:String>
     <sys:String x:Key="Devices.Rename">Zmień nazwę</sys:String>
     <sys:String x:Key="Devices.Refresh">Odśwież stan</sys:String>
+    <sys:String x:Key="Devices.OpenLog">Otwórz folder logów</sys:String>
+    <sys:String x:Key="Devices.OpenLogHint">Zapis zdarzeń sterowania urządzeniami — przydatny przy zgłaszaniu problemu.</sys:String>
     <sys:String x:Key="Devices.ErrIp">Podaj adres IP</sys:String>
     <sys:String x:Key="Devices.ErrMac">Podaj adres MAC</sys:String>
     <sys:String x:Key="Devices.ErrPsk">Podaj klucz PSK</sys:String>

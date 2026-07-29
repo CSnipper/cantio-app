@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows.Threading;
 using Cantio.Helpers;
 using Cantio.Models;
 using Cantio.Services;
@@ -24,6 +26,13 @@ public partial class DeviceItemViewModel : ObservableObject
 
     /// <summary>Numer 1-based pokazywany na przycisku paska górnego; przeliczany przez VM.</summary>
     [ObservableProperty] private int _number;
+
+    /// <summary>
+    /// Liczba kolejnych odpytań bez odpowiedzi. Świadomie zwykłe pole, nie <c>[ObservableProperty]</c>
+    /// — UI go nie pokazuje, służy wyłącznie <see cref="DevicePollPolicy"/> do tolerancji jednej
+    /// zgubionej odpowiedzi przy odpytywaniu w tle.
+    /// </summary>
+    public int ConsecutivePollFailures;
 
     /// <summary>Oznaczenie zmienione w UI — sygnał dla <see cref="DevicesViewModel"/>, żeby je zapisał.</summary>
     public event Action? LabelChanged;
@@ -101,10 +110,17 @@ public sealed class DiscoveredTv
 /// </summary>
 public partial class DevicesViewModel : ObservableObject
 {
+    /// <summary>Co ile sekund odpytujemy urządzenia w tle.</summary>
+    private const int PollIntervalSeconds = 30;
+
     private readonly DeviceControlService _control;
     private readonly SamsungTvDriver _samsung = new();
     private readonly PjLinkDriver _pjlink = new();
     private readonly SonyBraviaDriver _sony = new();
+    private readonly DispatcherTimer _pollTimer;
+
+    /// <summary>Strażnik przed nakładaniem się cykli odpytywania.</summary>
+    private bool _refreshInFlight;
 
     public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
     public ObservableCollection<DiscoveredTv> Discovered { get; } = [];
@@ -140,7 +156,33 @@ public partial class DevicesViewModel : ObservableObject
     public bool IsSony => AddType == "sony";
     public bool IsWol => AddType == "wol";
 
-    public DevicesViewModel(DeviceControlService control) => _control = control;
+    public DevicesViewModel(DeviceControlService control)
+    {
+        _control = control;
+        // DispatcherTimer, bo tick dotyka kolekcji przypiętej do UI — System.Threading.Timer
+        // wchodziłby tu z wątku puli.
+        _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(PollIntervalSeconds) };
+        _pollTimer.Tick += (_, _) => _ = PollTickAsync();
+    }
+
+    /// <summary>Nie ma czego odpytywać, dopóki nie ma urządzeń.</summary>
+    partial void OnHasDevicesChanged(bool value)
+    {
+        if (value) _pollTimer.Start();
+        else _pollTimer.Stop();
+    }
+
+    /// <summary>
+    /// Cykliczne odpytanie w tle. Odpuszcza, gdy poprzednie jeszcze trwa (Samsung potrafi
+    /// wisieć na timeoucie — zadania by się kumulowały) albo gdy trwa akcja operatora
+    /// (odczyt w środku włączania dałby mylący wynik).
+    /// </summary>
+    private async Task PollTickAsync()
+    {
+        if (_refreshInFlight) return;
+        if (Devices.Any(d => d.IsBusy)) return;
+        await RefreshStatesInternalAsync(explicitPoll: false);
+    }
 
     private static string TrimLabel(string? value) => DeviceItemViewModel.TrimLabel(value);
 
@@ -239,15 +281,63 @@ public partial class DevicesViewModel : ObservableObject
     [RelayCommand]
     private Task RefreshStates() => RefreshStatesInternalAsync();
 
-    private async Task RefreshStatesInternalAsync()
+    /// <summary>
+    /// Otwiera folder z logiem — jedyna droga, żeby użytkownik w parafii mógł przysłać
+    /// ślad po awarii sieciowej (w release nie ma konsoli ani debuggera).
+    /// </summary>
+    [RelayCommand]
+    private static void OpenLogFolder()
     {
-        var tasks = Devices.Select(async item =>
+        try
         {
-            try { item.State = await _control.GetStateAsync(item.Device); }
-            catch { /* stan pozostaje jak był */ }
-        });
-        await Task.WhenAll(tasks);
-        NotifyDevicesChanged();
+            System.IO.Directory.CreateDirectory(AppLog.LogDirectory);
+            Process.Start(new ProcessStartInfo(AppLog.LogDirectory) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write("Devices", $"Nie udało się otworzyć folderu logów: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Odpytuje wszystkie urządzenia. <paramref name="explicitPoll"/> = akcja użytkownika
+    /// (przycisk, start programu, po włączeniu/wyłączeniu) — wynik stosowany od razu i zawsze
+    /// rozgłaszany pilotom. Odpytanie w tle stosuje tolerancję <see cref="DevicePollPolicy"/>
+    /// i rozgłasza tylko realne zmiany (inaczej co 30 s leciałby ruch bez powodu).
+    /// </summary>
+    private async Task RefreshStatesInternalAsync(bool explicitPoll = true)
+    {
+        _refreshInFlight = true;
+        try
+        {
+            var tasks = Devices.Select(item => PollDeviceAsync(item, explicitPoll));
+            var changes = await Task.WhenAll(tasks);
+            if (explicitPoll || changes.Any(c => c))
+                NotifyDevicesChanged();
+        }
+        finally { _refreshInFlight = false; }
+    }
+
+    /// <summary>
+    /// Odpytuje jedno urządzenie i stosuje decyzję <see cref="DevicePollPolicy"/>.
+    /// Zwraca true, gdy stan faktycznie się zmienił.
+    /// </summary>
+    private async Task<bool> PollDeviceAsync(DeviceItemViewModel item, bool explicitPoll)
+    {
+        DevicePowerState fresh;
+        try { fresh = await _control.GetStateAsync(item.Device); }
+        catch { fresh = DevicePowerState.Unknown; }
+
+        var decision = DevicePollPolicy.Decide(item.State, fresh, item.ConsecutivePollFailures, explicitPoll);
+        item.ConsecutivePollFailures = decision.Failures;
+        if (!decision.Changed) return false;
+
+        // Logujemy TYLKO zmiany — 2 wpisy na minutę razy kilka godzin to śmieci w logu.
+        AppLog.Write("Devices", decision.State == DevicePowerState.Unknown
+            ? $"{item.Name}: nieosiągalne po {decision.Failures} próbach ({item.State} → Unknown)"
+            : $"{item.Name}: {item.State} → {decision.State}");
+        item.State = decision.State;
+        return true;
     }
 
     // ─── Włączanie/wyłączanie ────────────────────────────────────────────
@@ -260,7 +350,7 @@ public partial class DevicesViewModel : ObservableObject
         try
         {
             await _control.PowerOnAsync(item.Device);
-            item.State = await _control.GetStateAsync(item.Device);
+            await PollDeviceAsync(item, explicitPoll: true);
         }
         catch { }
         finally { item.IsBusy = false; NotifyDevicesChanged(); }
@@ -274,7 +364,7 @@ public partial class DevicesViewModel : ObservableObject
         try
         {
             await _control.PowerOffAsync(item.Device);
-            item.State = await _control.GetStateAsync(item.Device);
+            await PollDeviceAsync(item, explicitPoll: true);
         }
         catch { }
         finally { item.IsBusy = false; NotifyDevicesChanged(); }

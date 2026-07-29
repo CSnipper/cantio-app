@@ -291,7 +291,10 @@
                 <Button Content="{DynamicResource Devices.AllOff}" Style="{StaticResource OutlineBtn}"
                         Command="{Binding PowerAllOffCommand}" Margin="0,0,8,0"/>
                 <Button Content="{DynamicResource Devices.Refresh}" Style="{StaticResource OutlineBtn}"
-                        Command="{Binding RefreshStatesCommand}"/>
+                        Command="{Binding RefreshStatesCommand}" Margin="0,0,8,0"/>
+                <Button Content="{DynamicResource Devices.OpenLog}" Style="{StaticResource OutlineBtn}"
+                        ToolTip="{DynamicResource Devices.OpenLogHint}"
+                        Command="{Binding OpenLogFolderCommand}"/>
             </StackPanel>
 
             <Separator Background="#1e2535" Margin="0,0,0,16"/>

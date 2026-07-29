@@ -51,6 +51,8 @@
     <sys:String x:Key="Devices.Remove">Eliminar</sys:String>
     <sys:String x:Key="Devices.Rename">Cambiar nombre</sys:String>
     <sys:String x:Key="Devices.Refresh">Actualizar estado</sys:String>
+    <sys:String x:Key="Devices.OpenLog">Abrir carpeta de registros</sys:String>
+    <sys:String x:Key="Devices.OpenLogHint">Registro de eventos del control de dispositivos — útil al informar de un problema.</sys:String>
     <sys:String x:Key="Devices.ErrIp">Introduce una dirección IP</sys:String>
     <sys:String x:Key="Devices.ErrMac">Introduce una dirección MAC</sys:String>
     <sys:String x:Key="Devices.ErrPsk">Introduce una clave PSK</sys:String>
