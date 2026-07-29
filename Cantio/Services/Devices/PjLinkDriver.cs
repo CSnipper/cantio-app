@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -128,7 +127,8 @@ public sealed class PjLinkDriver : IDisplayDeviceDriver
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[PjLinkDriver] {command} failed: {ex.Message}");
+            // Komenda nie zawiera hasła (leci osobno jako prefiks MD5) — bezpieczna w logu.
+            AppLog.Write("PjLinkDriver", $"{device.Ip}:{port} {command} failed: {ex.Message}");
             return (false, ex.Message);
         }
     }

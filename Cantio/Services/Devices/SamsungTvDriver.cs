@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -45,8 +44,12 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
         }
         catch
         {
-            // Timeout/brak odpowiedzi = TV w standby.
-            return DevicePowerState.Off;
+            // Brak odpowiedzi to "nie wiem", a nie "wyłączony". TV z włączonym
+            // zdalnym włączaniem trzyma moduł sieciowy żywy nawet w standby i
+            // ODPOWIADA wtedy "PowerState: standby" — realny standby wraca
+            // normalną ścieżką wyżej jako Off, nie przez ten catch. Tu wpada
+            // przede wszystkim zerwana sieć albo blokada na routerze.
+            return DevicePowerState.Unknown;
         }
     }
 
@@ -80,7 +83,7 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
         catch (OperationCanceledException) { return false; }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SamsungTvDriver] PowerOn failed: {ex.Message}");
+            AppLog.Write("SamsungTvDriver", $"{device.Ip} PowerOn failed: {ex.Message}");
             return false;
         }
     }
@@ -94,7 +97,7 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SamsungTvDriver] PowerOff failed: {ex.Message}");
+            AppLog.Write("SamsungTvDriver", $"{device.Ip} PowerOff failed: {ex.Message}");
             return false;
         }
     }
@@ -200,7 +203,8 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SamsungTvDriver] RemoteSession failed: {ex.Message}");
+            // Świadomie bez URL-a — zawiera token parowania, który jest sekretem.
+            AppLog.Write("SamsungTvDriver", $"{device.Ip} RemoteSession failed: {ex.Message}");
             return (false, null, ex.Message);
         }
     }
@@ -246,6 +250,9 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
 
         try
         {
+            // Wykrywanie zawodzi najczęściej na poziomie interfejsów (izolacja klientów, VPN,
+            // wirtualne karty) — bez tych trzech linii w logu nie da się tego zdiagnozować zdalnie.
+            var boundIps = new List<string>();
             foreach (var localIp in GetLocalIPv4Addresses())
             {
                 try
@@ -254,12 +261,15 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
                     udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     udp.Client.Bind(new IPEndPoint(localIp, 0));
                     clients.Add(udp);
+                    boundIps.Add(localIp.ToString());
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[SamsungTvDriver] Bind failed on {localIp}: {ex.Message}");
+                    AppLog.Write("SamsungTvDriver", $"Bind failed on {localIp}: {ex.Message}");
                 }
             }
+            AppLog.Write("SamsungTvDriver",
+                $"Discover: M-SEARCH z {boundIps.Count} interfejsów IPv4 [{string.Join(", ", boundIps)}]");
 
             // Brak wykrytych interfejsów z bramą (rzadkie) — spróbuj domyślnego socketu.
             if (clients.Count == 0)
@@ -273,7 +283,7 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[SamsungTvDriver] Fallback bind failed: {ex.Message}");
+                    AppLog.Write("SamsungTvDriver", $"Fallback bind failed: {ex.Message}");
                 }
             }
 
@@ -315,11 +325,14 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
                 catch (OperationCanceledException) { /* koniec okna zbierania */ }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[SamsungTvDriver] Receive failed: {ex.Message}");
+                    AppLog.Write("SamsungTvDriver", $"Receive failed: {ex.Message}");
                 }
             }, ct)).ToArray();
 
             await Task.WhenAll(receiveTasks);
+
+            AppLog.Write("SamsungTvDriver",
+                $"Discover: {candidateIps.Count} odpowiedzi SSDP [{string.Join(", ", candidateIps)}]");
 
             // Pobierz szczegóły per IP (równolegle) — weryfikuje, że to faktycznie Samsung TV.
             var tasks = candidateIps.Select(async ip =>
@@ -337,7 +350,7 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SamsungTvDriver] Discover failed: {ex.Message}");
+            AppLog.Write("SamsungTvDriver", $"Discover failed: {ex.Message}");
         }
         finally
         {
@@ -345,6 +358,8 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
                 try { udp.Dispose(); } catch { }
         }
 
+        AppLog.Write("SamsungTvDriver",
+            $"Discover: wykryto {results.Count} TV [{string.Join(", ", results.Select(r => r.ip))}]");
         return results;
     }
 
@@ -374,13 +389,13 @@ public sealed class SamsungTvDriver : IDisplayDeviceDriver
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[SamsungTvDriver] Interface enum failed: {ex.Message}");
+                    AppLog.Write("SamsungTvDriver", $"Interface enum failed: {ex.Message}");
                 }
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SamsungTvDriver] GetLocalIPv4Addresses failed: {ex.Message}");
+            AppLog.Write("SamsungTvDriver", $"GetLocalIPv4Addresses failed: {ex.Message}");
         }
         return addrs;
     }

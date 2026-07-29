@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -82,7 +81,7 @@ public sealed class SonyBraviaDriver : IDisplayDeviceDriver
         catch (OperationCanceledException) { return false; }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SonyBraviaDriver] PowerOn WoL fallback failed: {ex.Message}");
+            AppLog.Write("SonyBraviaDriver", $"{device.Ip} PowerOn WoL fallback failed: {ex.Message}");
             return false;
         }
     }
@@ -185,7 +184,8 @@ public sealed class SonyBraviaDriver : IDisplayDeviceDriver
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SonyBraviaDriver] POST failed: {ex.Message}");
+            // Klucz PSK leci w nagłówku — do logu trafia wyłącznie IP i komunikat błędu.
+            AppLog.Write("SonyBraviaDriver", $"{device.Ip} POST failed: {ex.Message}");
             return (false, ex.Message, false);
         }
     }

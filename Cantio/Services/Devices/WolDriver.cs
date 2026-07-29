@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using Cantio.Models;
@@ -26,7 +25,7 @@ public sealed class WolDriver : IDisplayDeviceDriver
         catch (OperationCanceledException) { return false; }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[WolDriver] PowerOn failed: {ex.Message}");
+            AppLog.Write("WolDriver", $"PowerOn failed: {ex.Message}");
             return false;
         }
     }
