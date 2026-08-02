@@ -2932,6 +2932,15 @@
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.FontAutoFit}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
+                            <CheckBox IsChecked="{Binding ServerMode}"
+                                      Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
+                                <TextBlock Text="{DynamicResource Settings.ServerMode}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
+                            </CheckBox>
+                            <TextBlock Text="{DynamicResource Settings.ServerModeHint}"
+                                       Foreground="#959fb9" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                            <TextBlock Text="{DynamicResource Settings.ServerModeRestart}"
+                                       Foreground="#c9a84c" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Visibility="{Binding ServerModeRestartHintVisible, Converter={StaticResource BoolToVis}}"/>
 
                             <TextBlock Text="{DynamicResource Settings.LoopInterval}"
                                        Foreground="#959fb9" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>

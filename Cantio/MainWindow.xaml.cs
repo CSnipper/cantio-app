@@ -339,6 +339,56 @@ public partial class MainWindow : Window
             }
             catch { }
         };
+        // ─── Ratunek dla mini PC bez klawiatury (status / restart / projekcja) ───
+        // Ack na restart/open/close wysyła sam RemoteControlServer, ZANIM tu dotrze —
+        // inaczej przy restarcie Pilot nigdy by się nie dowiedział, że komenda doszła.
+        _remoteControl.StatusRequested += async ws =>
+        {
+            try
+            {
+                var info = await Dispatcher.InvokeAsync(() => new PilotStatusInfo(
+                    Version:          PilotStatus.AppVersion(),
+                    Mode:             AppMode.ToSettingValue(AppMode.Current),
+                    ProjectionOpen:   _vm.IsProjectionOpen,
+                    ProjectionScreen: _vm.ProjectionScreenIndex,
+                    ScreenCount:      DisplayViewModel.ScreenCount,
+                    PairedDevices:    _remoteControl.PairedDeviceCount,
+                    UptimeSeconds:    PilotStatus.UptimeSeconds()));
+                await _remoteControl.SendToClientAsync(ws, PilotStatus.BuildStatusJson(info));
+            }
+            catch { }
+        };
+
+        _remoteControl.RestartAppRequested += ws =>
+            Dispatcher.InvokeAsync(() =>
+            {
+                AppLog.Write("Pilot", "Restart aplikacji na żądanie Pilota");
+                try
+                {
+                    System.Diagnostics.Process.Start(
+                        new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
+                        { UseShellExecute = true });
+                    Application.Current.Shutdown();
+                }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Restart nieudany: {ex.Message}"); }
+            });
+
+        _remoteControl.ProjectionRequested += (ws, open) =>
+            Dispatcher.InvokeAsync(async () =>
+            {
+                try
+                {
+                    if (open) await _vm.OpenProjectionFromRemoteAsync();
+                    else _vm.CloseProjectionFromRemote();
+                }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Projekcja z Pilota: {ex.Message}"); }
+            });
+
+        // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
+        // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
+        _remoteControl.PairingStateChanged += () =>
+            Dispatcher.InvokeAsync(RefreshPairingOverlay);
+
         _remoteControl.ClientConnected += async ws =>
         {
             try
@@ -441,6 +491,7 @@ public partial class MainWindow : Window
             RefreshLitDay();
             RestoreWindowPosition();
             await _remoteControl.InitAsync();
+            RefreshPairingOverlay();
             await _devicesVm.InitAsync();
             await _aboutVm.CheckAndPromptAsync();
 
@@ -453,6 +504,23 @@ public partial class MainWindow : Window
         KeyDown += _vm.OnKeyDown;
 
         InitClock();
+    }
+
+    /// <summary>
+    /// Przenosi stan parowania na warstwę w oknie projekcji (tryb serwerowy: jedyne wyjście HDMI
+    /// musi pokazać QR/PIN, bo nikt nie widzi okna Cantio). Decyzję podejmuje czysta reguła
+    /// <see cref="AppModeRules.ShouldShowPairingScreen(AppModeKind,int)"/> — tu jest tylko przepisanie.
+    /// </summary>
+    private void RefreshPairingOverlay()
+    {
+        var p = _vm.Projection;
+        var show = _remoteControl.ShouldShowPairingScreen;
+        p.ShowPairing = show;
+        if (!show) return;
+        p.PairingPin = _remoteControl.Pin;
+        p.PairingAddresses = new System.Collections.ObjectModel.ObservableCollection<string>(
+            _remoteControl.AllLocalUrls);
+        p.PairingQr = _remoteControl.PairingQrLarge;
     }
 
     // ─── Notatka dla zmienników ───────────────────────────────────────────────
@@ -598,8 +666,63 @@ public partial class MainWindow : Window
             Top  = primary.WorkingArea.Top  + (primary.WorkingArea.Height - Height) / 2;
         }
 
-        if (maxStr == "True")
+        // W trybie serwerowym okno ma zostać zminimalizowane — zapamiętane „zmaksymalizowane"
+        // wyciągnęłoby je z powrotem na projekcję.
+        if (maxStr == "True" && AppModeRules.ShouldShowMainWindow(AppMode.Current))
             WindowState = WindowState.Maximized;
+    }
+
+    // ─── Tryb serwerowy: powrót do okna dla technika (Ctrl+Alt+Shift+C) ────────
+    //
+    // Okno jest zminimalizowane i zdjęte z paska zadań, więc bez tego skrótu nie ma jak
+    // dostać się do USTAWIEŃ na mini PC (np. żeby wyłączyć tryb serwerowy albo zmienić PIN).
+    // Skrót globalny, bo okno nie ma fokusu — zwykły KeyBinding by nie zadziałał.
+
+    private const int HotkeyId = 0xC0DE;
+    private const int WmHotkey = 0x0312;
+    private const uint ModAlt = 0x0001, ModControl = 0x0002, ModShift = 0x0004, ModNoRepeat = 0x4000;
+    private const uint VkC = 0x43;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private System.Windows.Interop.HwndSource? _hotkeySource;
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        if (AppModeRules.ShouldShowMainWindow(AppMode.Current)) return;
+
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        _hotkeySource = System.Windows.Interop.HwndSource.FromHwnd(handle);
+        _hotkeySource?.AddHook(HotkeyHook);
+        bool ok = RegisterHotKey(handle, HotkeyId, ModControl | ModAlt | ModShift | ModNoRepeat, VkC);
+        AppLog.Write("App", ok
+            ? "Tryb serwerowy: skrót Ctrl+Alt+Shift+C przywraca okno główne."
+            : "Tryb serwerowy: NIE udało się zarejestrować Ctrl+Alt+Shift+C (skrót zajęty przez inny program).");
+        Closed += (_, _) =>
+        {
+            UnregisterHotKey(handle, HotkeyId);
+            _hotkeySource?.RemoveHook(HotkeyHook);
+        };
+    }
+
+    private IntPtr HotkeyHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WmHotkey || wParam.ToInt32() != HotkeyId) return IntPtr.Zero;
+        ShowInTaskbar = true;
+        WindowState = WindowState.Normal;
+        Show();
+        Activate();
+        // Projekcja w trybie serwerowym jest Topmost, więc okno techniczne też musi być —
+        // inaczej wróciłoby pod nią i skrót wyglądałby na niedziałający.
+        Topmost = true;
+        AppLog.Write("App", "Tryb serwerowy: okno główne przywrócone skrótem.");
+        handled = true;
+        return IntPtr.Zero;
     }
 
     // Tab switching

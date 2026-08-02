@@ -133,6 +133,10 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (`{id}`), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
 | `setlist_delete` | `desktopId` | usuń zestaw z bazy desktopu (→ `setlist_delete_ack`) |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
+| `status` | — | → `status_data` (diagnostyka zdalna) |
+| `restart_app` | — | restart procesu Cantio (→ `ack`) |
+| `open_projection` | — | otwórz okno projekcji (→ `ack`) |
+| `close_projection` | — | zamknij okno projekcji (→ `ack`) |
 
 ##### Zestawy: wykrywanie konfliktu (v1.61+)
 
@@ -162,6 +166,44 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
+| `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
+| `ack` | `command`, `ok` (bool) | przyjęto komendę `restart_app` / `open_projection` / `close_projection` |
+
+##### Komendy ratunkowe dla sprzętu bez klawiatury (v1.63+, tryb serwerowy)
+
+Mini PC w zakrystii nie ma ani klawiatury, ani operatora — jedyne wyjście z zawieszki prowadzi przez Pilota.
+
+- `status` → `status_data`:
+  `version` (np. `"1.62"`), `mode` (`dual`/`server`, ta sama wartość co ustawienie `app_mode`),
+  `projectionOpen` (bool), `projectionScreen` (indeks ekranu; **-1 gdy projekcja zamknięta**),
+  `screenCount` (liczba ekranów), `pairedDevices` (liczba tokenów), `uptimeSeconds` (czas pracy procesu).
+- `ack` potwierdza **PRZYJĘCIE** komendy, nie jej skutek. Wysyła go **sam `RemoteControlServer`, ZANIM** wywoła event —
+  przy `restart_app` proces zaraz znika i innej szansy na potwierdzenie nie ma. Skutek `open_projection` /
+  `close_projection` Pilot sprawdza kolejnym `status`.
+- Restart wykonuje **handler w `MainWindow`** (`Process.Start(Environment.ProcessPath)` + `Shutdown`), nie serwer —
+  dzięki temu harness protokołu może testować ack bez ubijania własnego procesu.
+- Wszystkie cztery komendy przechodzą normalną bramą auth (`if (!authed) continue;`) — przed `auth_ok` są
+  ignorowane bez żadnej odpowiedzi.
+- **Zgodność wsteczna:** to wyłącznie DOPISANE typy. Żaden istniejący komunikat nie zmienił kształtu
+  (test w harnessie porównuje pełne listy pól `slide`, `setlist`, `devices`, `auth_*`), a stary Pilot nowych
+  komend nie zna, więc ich nie wyśle i niczego nie traci.
+- Odpowiedzi składa **wyłącznie** `Services/PilotStatus` (`BuildStatusJson` / `BuildAckJson`) — jedna metoda na
+  komunikat, żeby nie powstały dwie niezależne listy pól (ten sam układ zgubił notatki pozycji zestawu w v1.6).
+
+##### Ekran parowania na projektorze (v1.63+, tryb serwerowy)
+
+Problem kury i jajka: skąd tablet weźmie PIN, skoro nikt nie widzi okna Cantio. Dopóki nie ma ani jednego
+sparowanego urządzenia, jedyne wyjście HDMI pokazuje pełnoekranowy ekran startowy z QR (`http://IP:PORT/?pin=1234`,
+ten sam generator co panel pilota), PIN-em i **wszystkimi** adresami IPv4 (mini PC bywa w LAN i Wi-Fi naraz).
+PIN zostaje obowiązkowy — sieć parafialna bywa otwarta.
+
+- Reguła: `AppModeRules.ShouldShowPairingScreen(mode, pairedCount)` — tryb serwerowy **i** zero sparowanych.
+  Wariant przyjmujący surowy JSON ustawienia `pilot_tokens` liczy tokeny przez `CountPairedDevices`;
+  pusty/uszkodzony/nie-tablicowy JSON = 0 (lepiej pokazać ekran raz za dużo niż zostawić parafię bez PIN-u).
+- Warstwa jest **wewnątrz `Views/ProjectionWindow.xaml`** (stan w `ProjectionViewModel.ShowPairing/PairingQr/
+  PairingPin/PairingAddresses`), nie w osobnym oknie — dwa okna biłyby się o `Topmost`.
+- Gaśnie po pierwszym udanym parowaniu **bez restartu**: `TokenIssued` → `RemoteControlViewModel.PairingStateChanged`
+  → `MainWindow.RefreshPairingOverlay`. Wraca po „nowym PIN-ie" (czyszczenie tokenów) tą samą drogą.
 
 Na `ClientConnected` (czyli po `auth_ok`, a przy wyłączonym PIN-ie od razu po połączeniu) desktop wysyła świeżemu klientowi: `categories_data`, `slide`, `setlist`, `devices`.
 

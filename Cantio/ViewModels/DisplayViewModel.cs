@@ -2005,6 +2005,21 @@ public partial class DisplayViewModel : ObservableObject
         _projection.SetImageSlide(item.ImagePath!);
     }
 
+    /// <summary>Czy okno projekcji jest otwarte (pole raportu <c>status_data</c> dla Pilota).</summary>
+    public bool IsProjectionOpen => _projectionWindow != null;
+
+    /// <summary>Ekran, na którym stoi projekcja; -1 gdy okno zamknięte.</summary>
+    public int ProjectionScreenIndex { get; private set; } = -1;
+
+    /// <summary>Liczba podłączonych ekranów — dla diagnostyki zdalnej.</summary>
+    public static int ScreenCount => WpfScreenHelper.Screen.AllScreens.Count();
+
+    /// <summary>Ratunek z Pilota: projekcja padła albo trzeba ją przenieść na inny ekran.</summary>
+    public Task OpenProjectionFromRemoteAsync() => OpenProjectionWindowAsync();
+
+    /// <summary>Ratunek z Pilota: zamknięcie okna projekcji.</summary>
+    public void CloseProjectionFromRemote() => CloseProjectionWindow();
+
     private async Task OpenProjectionWindowAsync()
     {
         if (_projectionWindow != null) return;
@@ -2020,13 +2035,16 @@ public partial class DisplayViewModel : ObservableObject
 
         _projectionWindow = new ProjectionWindow(_projection);
         _projectionWindow.ShowInTaskbar = false;
-        _projectionWindow.Closed += (_, _) => _projectionWindow = null;
+        // Tryb serwerowy: jedyny ekran JEST projekcją — nic nie może na nią wejść.
+        _projectionWindow.Topmost = AppModeRules.ShouldProjectionBeTopmost(AppMode.Current);
+        _projectionWindow.Closed += (_, _) => { _projectionWindow = null; ProjectionScreenIndex = -1; };
+        ProjectionScreenIndex = screenIndex < screens.Count ? screenIndex : screens.Count - 1;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
 
-        // Jeden monitor — zminimalizuj okno projekcji żeby nie przykrywało aplikacji.
+        // Jeden monitor (tylko tryb dual) — zminimalizuj okno projekcji żeby nie przykrywało aplikacji.
         // Użytkownik może je przywrócić z paska zadań lub podłączyć projektor i zmienić ustawienie ekranu.
-        if (screens.Count == 1)
+        if (AppModeRules.ShouldMinimizeProjection(AppMode.Current, screens.Count))
             _projectionWindow.WindowState = System.Windows.WindowState.Minimized;
 
         // Czekaj na Background — niższy priorytet niż Loaded (6), więc wykona się po wszystkich Loaded callbackach
@@ -2048,7 +2066,9 @@ public partial class DisplayViewModel : ObservableObject
         // Przebuduj slajdy z poprawnymi wymiarami ekranu (AutoFit używa ProjectionScreenWidth/Height)
         RebuildSlides();
 
-        Application.Current.MainWindow.Activate();
+        // W trybie serwerowym okno główne jest ukryte — nie wyciągaj go na wierzch projekcji.
+        if (AppModeRules.ShouldActivateMainWindow(AppMode.Current))
+            Application.Current.MainWindow.Activate();
         _projection.ApplySettings(_db.GetSettings());
         _projection.SetBlanked(ScreenBlanked);
         if (CurrentSlideIndex >= 0 && CurrentSlideIndex < _slides.Count)
@@ -2059,6 +2079,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         _projectionWindow?.Close();
         _projectionWindow = null;
+        ProjectionScreenIndex = -1;
     }
 
     public async Task LoadPinnedSetlistsAsync()
