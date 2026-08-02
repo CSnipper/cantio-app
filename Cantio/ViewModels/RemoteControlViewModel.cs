@@ -233,9 +233,10 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
 
     public Task BroadcastAsync(
         string text, string songTitle, int index, int total,
-        bool isBlank = false, IList<string>? slides = null)
+        bool isBlank = false, IList<string>? slides = null,
+        IList<string>? slideKinds = null, string? kind = null)
         => _server.IsRunning
-            ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides)
+            ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides, slideKinds, kind)
             : Task.CompletedTask;
 
     public Task BroadcastSetlistAsync(IList<(int id, string title)> songs, int activeIndex)

@@ -367,7 +367,10 @@ public partial class MainWindow : Window
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
             var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
-            try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides); }
+            var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
+            var kind    = index >= 0 && index < _vm.SlideList.Count
+                ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;
+            try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides, kinds, kind); }
             catch { }
         }
 
@@ -379,10 +382,10 @@ public partial class MainWindow : Window
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
             var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
-            var json = JsonSerializer.Serialize(new
-            {
-                type = "slide", text, songTitle = title, index, total, isBlank, slides
-            });
+            var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
+            var kind    = index >= 0 && index < _vm.SlideList.Count
+                ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;
+            var json = RemoteControlServer.BuildSlideJson(text, title, index, total, isBlank, slides, kinds, kind);
             await _remoteControl.SendToClientAsync(ws, json);
         }
 
