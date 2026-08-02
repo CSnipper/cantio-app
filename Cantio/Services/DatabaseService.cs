@@ -329,6 +329,22 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Ile ZAPISANYCH zestawów zawiera tę pieśń. Okno Cantio kasuje pieśń razem z jej pozycjami
+    /// w zestawach (<see cref="DeleteSongAsync"/>), a protokół WS używa tej liczby, żeby najpierw
+    /// odmówić kasowania z tabletu (<c>reason:"in_setlists"</c>) — na tablecie nie ma nikogo,
+    /// kto by zobaczył, ile zestawów przy okazji straci pozycję.
+    /// </summary>
+    public async Task<int> CountSetlistsWithSongAsync(int songId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.SetlistItems.AsNoTracking()
+            .Where(i => i.SongId == songId)
+            .Select(i => i.SetlistId)
+            .Distinct()
+            .CountAsync();
+    }
+
     public async Task DeleteSongAsync(int songId)
     {
         await using var db = new CantioDbContext();

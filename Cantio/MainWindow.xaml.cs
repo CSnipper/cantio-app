@@ -454,6 +454,31 @@ public partial class MainWindow : Window
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda ustawień wyglądu: {ex.Message}"); }
         };
 
+        // ─── Edytor pieśni z Pilota ───
+        // Logika siedzi w PilotSongEdit; tu zostaje wysyłka, broadcast `song_changed` i odświeżenie
+        // okna Cantio TĄ SAMĄ ścieżką co zapis w edytorze pieśni (listy + przeładowanie pieśni,
+        // która jest na ekranie, z kotwicą pozycji slajdu).
+        _remoteControl.SongEditCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotSongEdit.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Change != PilotSongEdit.SongChange.None)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            await _vm.OnSongEditedExternallyAsync(result.SongId,
+                                deleted: result.Change == PilotSongEdit.SongChange.Deleted);
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie pieśni: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda edytora pieśni: {ex.Message}"); }
+        };
+
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
         _remoteControl.PairingStateChanged += () =>

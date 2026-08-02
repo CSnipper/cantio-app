@@ -825,6 +825,26 @@ public partial class DisplayViewModel : ObservableObject
             await LoadVersesAsync(savedSongId, keepPosition: true);
     }
 
+    /// <summary>
+    /// Pieśń dodano/poprawiono/usunięto POZA oknem Cantio (edytor na tablecie). Odświeża listy
+    /// DOKŁADNIE tą samą ścieżką co zapis w edytorze okna (<c>SaveEditedSongAsync</c>) i — jeśli
+    /// poprawiona pieśń jest właśnie NA EKRANIE — przeładowuje ją z bazy, zostając na tej samej
+    /// zwrotce (kotwica w <see cref="RebuildSlides"/>).
+    ///
+    /// Poprawka MUSI wejść na ekran od razu: operator poprawia literówkę po wykonanej zwrotce
+    /// i chce ją zobaczyć, zanim ruszy dalej (odroczenie wejścia poprawki było już testowane
+    /// u organisty i zostało cofnięte — zob. v1.6 w CLAUDE.md).
+    /// Wołać z wątku UI.
+    /// </summary>
+    /// <param name="deleted">true = pieśni już nie ma w bazie (nie ma czego przeładowywać)</param>
+    public async Task OnSongEditedExternallyAsync(int songId, bool deleted = false)
+    {
+        await LoadCategoriesAsync();
+        await ReloadCurrentSongListAsync();
+        if (deleted || SelectedSong?.Id != songId) return;
+        await LoadVersesAsync(songId, keepPosition: true);
+    }
+
     [RelayCommand]
     private async Task DeleteEditedSongAsync()
     {

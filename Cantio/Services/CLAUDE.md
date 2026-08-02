@@ -143,6 +143,10 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_group_add` | `name` | nowa grupa zestawów |
 | `setlist_group_rename` | `name`, `newName` | zmiana nazwy grupy |
 | `setlist_group_delete` | `name` | usunięcie grupy |
+| `song_get` | `id` | → `song_data` **do nadawcy** (pełna treść pieśni do edycji) |
+| `song_create` | `title`, `number?`, `categoryId?`, `author?`, `verses[]` (`{type,text}`), `playOrderJson?` | nowa pieśń (→ `ack` z nadanym `id` + broadcast `song_changed`) |
+| `song_update` | `id` + te same pola co `song_create` | zastąpienie treści W CAŁOŚCI (→ `ack` + broadcast `song_changed`) |
+| `song_delete` | `id`, **`force?`** | usunięcie pieśni; pieśń w zapisanych zestawach wymaga `force:true` |
 | `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
 | `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
@@ -195,6 +199,8 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
+| `song_data` | `id, title, number, categoryId, author, verses[]` (`{type,text}`), `playOrderJson` | pełna treść pieśni — TYLKO na żądanie `song_get` (v1.63) |
+| `song_changed` | `id`, `action` (`created`/`updated`/`deleted`) | pieśń dodano/zmieniono/usunięto — broadcast do WSZYSTKICH, w tym do nadawcy (v1.63) |
 | `display_settings_data` | `settings` (23 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
@@ -430,6 +436,55 @@ operatora od obrazu, a to nie jest „wygląd”.
   Stary Pilot nowych komend nie zna, więc ich nie wyśle, a nieznanego `display_settings_data`
   po prostu zignoruje. Obie komendy przechodzą normalną bramą auth (przed `auth_ok` cisza).
 
+##### Edytor pieśni (v1.63+)
+
+Parafia z samym tabletem (tryb serwerowy) musi móc poprawić literówkę, dodać nową pieśń i usunąć
+zbędną — w BAZIE DESKTOPU, bo to ona jest źródłem prawdy dla projekcji. Kierunek prawdy jak przy
+kategoriach i wyglądzie: tablet wyłącznie komenduje, desktop zapisuje, odświeża własne UI tą samą
+ścieżką co po edycji lokalnej i rozgłasza wynik.
+
+- P→D `song_get {id}` → `song_data` **do nadawcy**. `categoryId: 0` dla pieśni bez kategorii
+  (ta sama konwencja co `songs_data` — stary Pilot ma tam twardy int); `author` i `playOrderJson`
+  **nigdy nie są null** (pusty string = brak).
+- P→D `song_create` / `song_update` → `ack {command, ok, id, title, verses}` do NADAWCY
+  + **mały** broadcast `song_changed {id, action}` do WSZYSTKICH. Pełnego `songs_data` NIE rozgłaszamy —
+  biblioteka pieśni bywa duża i leci wyłącznie na żądanie `get_songs`; Pilot po broadcaście dociąga sam.
+- **Zapis zastępuje treść w CAŁOŚCI** (komplet zwrotek), dokładnie jak przycisk ZAPISZ w edytorze okna:
+  `DatabaseService.SaveSongAsync` kasuje stare zwrotki i wstawia nowe z pozycjami 0..n-1.
+  Wyjątek: brak pola `author` w `song_update` zostawia dotychczasowego autora (telefon, który tego
+  pola nie pokazuje, nie ma prawa go wyczyścić po cichu).
+- Walidacja jest **uprzednia i atomowa** — jedna zła zwrotka i nie zapisujemy NICZEGO. Pieśń w pół
+  drogi (część zwrotek nowych, część starych) wygląda na projektorze jak awaria w środku mszy.
+- `reason` przy `ok:false`: `not_found` (pieśń albo `categoryId` > 0 bez pokrycia w bazie) ·
+  `empty_title` · `unsupported_type` (+ `verseType`) · `invalid_play_order` · `in_setlists` (+ `setlists`).
+- **Typy zwrotek z tabletu: tylko `v`/`c`/`b`/`p`.** `img` jest świadomie odrzucany
+  (`unsupported_type`) — obrazek wymaga pliku na dysku komputera, którego telefon nie widzi.
+  Brak pola `type` = `v`. Zwrotki-obrazki edytuje się w oknie Cantio.
+- `playOrderJson` to indeksy zwrotek jako JSON (tak trzyma to kolumna). Brak pola = kolejność
+  naturalna (`null`) — pełne zastąpienie treści unieważnia stare indeksy. Indeks poza zakresem
+  przysłanych zwrotek → `invalid_play_order`.
+- **`song_delete` — dlaczego inaczej niż w oknie.** Okno pyta tylko „Usunąć pieśń?" i kasuje razem
+  z pozycjami w ZAPISANYCH zestawach (`DeleteSongAsync` usuwa `SetlistItems`, bo FK ma RESTRICT).
+  Przy tablecie nie ma nikogo, kto by ten skutek przewidział, więc protokół najpierw **odmawia**:
+  `ok:false, reason:"in_setlists", setlists:N` i **nic nie rusza**. Dopiero `force:true` robi to samo,
+  co przycisk w oknie. Pieśń spoza zestawów kasuje się bez pytania. Liczbę zestawów podaje
+  `DatabaseService.CountSetlistsWithSongAsync` (distinct po `SetlistId`).
+- **Poprawka pieśni, która JEST NA EKRANIE, wchodzi natychmiast.** `MainWindow` woła
+  `DisplayViewModel.OnSongEditedExternallyAsync(id, deleted)` — odświeżenie list + (gdy `SelectedSong.Id`
+  się zgadza) `LoadVersesAsync(id, keepPosition: true)`, czyli DOKŁADNIE ogon `SaveEditedSongAsync`.
+  Pozycję trzyma kotwica zwrotka/część (`SlideAnchor`). Odraczania wejścia poprawki NIE wprowadzać —
+  było testowane u organisty i cofnięte (v1.6 w głównym CLAUDE.md).
+- Logika: `Services/PilotSongEdit.cs` (`IsCommand` → routing w `RemoteControlServer`, `HandleAsync` →
+  `Result(Response, Broadcast, Change, SongId)`). Handler w `MainWindow.xaml.cs` jest głupi:
+  wyślij → rozgłoś → `Dispatcher` odświeża UI. Komunikaty składa wyłącznie `PilotSongEdit.BuildSongDataJson`
+  / `BuildSongChangedJson` + `PilotStatus.BuildAckJson`.
+- **`sync_push` zostaje bez zmian** — to osobna, jednostronna ścieżka synchronizacji pieśni z Pilota;
+  nowe komendy żyją obok niej i jej nie dotykają.
+- **Zgodność wsteczna:** wyłącznie DOPISANE typy — żaden istniejący komunikat nie zmienił kształtu
+  (strażniki pełnych list pól w harnessie). Stary Pilot nowych komend nie zna, więc ich nie wyśle,
+  a nieznanego `song_changed` po prostu zignoruje. Wszystkie cztery komendy przechodzą normalną bramą
+  auth (przed `auth_ok` cisza).
+
 ### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
 
 Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `desktop.updatedAt != lastSyncedUpdatedAt`), więc reguła jest sztywna:
@@ -442,6 +497,7 @@ Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `deskt
 | `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt. **Dotyczy tak samo komendy `setlist_pin` z Pilota (v1.63)** — jedyna droga zapisu tej flagi to ta metoda, nigdy `SaveSetlistAsync` |
 | `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
 | `set_display_settings` (`PilotDisplaySettings`, v1.63) | **NIE** | wygląd projekcji to ustawienia aplikacji (tabela `settings`), nie treść zestawu — podbicie znacznika dałoby fałszywy konflikt na wszystkich zestawach naraz |
+| komendy edytora pieśni (`PilotSongEdit`, v1.63) | **NIE** — żadna | pieśń nie należy do zestawu; podbicie znacznika po poprawieniu literówki dałoby fałszywy konflikt na wszystkich zestawach, które tę pieśń zawierają. `song_delete {force:true}` kasuje pozycje zestawów przez `DeleteSongAsync` (parytet z oknem) i też NIE dotyka `UpdatedAt` |
 | komendy kategorii i grup (`PilotCategorySync`, v1.63) | **NIE** — żadna | kategorie nie należą do zestawu, a operacje na grupach ruszają wyłącznie ustawienie `setlist_groups`; zestawy nie są dotykane nawet przy `setlist_group_rename`/`delete` (parytet z UI), więc podbicie znacznika oznaczałoby fałszywy konflikt na wszystkich zestawach naraz |
 
 **BUG, który to wymusił (naprawiony 2026-07-28):** `SaveSetlistAsync` nie dotykało znacznika, więc zwykły zapis zestawu w Cantio był dla Pilota niewidoczny i telefon **cicho nadpisywał pracę operatora**. Harness dawał 12 czerwonych asercji przed poprawką.

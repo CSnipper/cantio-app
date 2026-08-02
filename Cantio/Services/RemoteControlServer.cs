@@ -70,6 +70,8 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, string>? SetlistPinCommandRequested;   // ws, raw json (setlist_pin)
     /// <summary>Ustawienia projekcji (wygląd) — get/set, surowy JSON.</summary>
     public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
+    /// <summary>Edytor pieśni (song_get/create/update/delete) — surowy JSON.</summary>
+    public event Action<WebSocket, string>? SongEditCommandRequested;
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -537,6 +539,11 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     // Ustawienia projekcji (wygląd) — logika w PilotDisplaySettings.
                     DisplaySettingsCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotSongEdit.IsCommand(type))
+                {
+                    // Edytor pieśni — logika w PilotSongEdit.
+                    SongEditCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {
