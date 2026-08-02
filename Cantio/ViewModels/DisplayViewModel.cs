@@ -1314,13 +1314,34 @@ public partial class DisplayViewModel : ObservableObject
         IsCurrentSetlistPinned = false;
     }
 
+    /// <summary>
+    /// Zmieniono przypięcie zestawu w OKNIE Cantio (pinezka, „Przypnij tydzień", ✕ na liście PRZYPIĘTE).
+    /// `MainWindow` rozgłasza to Pilotom jako `setlist_pinned`. Komenda przychodząca Z Pilota tędy NIE
+    /// idzie — jej broadcast składa `PilotSetlistPin` — żeby ten sam komunikat nie poleciał dwa razy.
+    /// </summary>
+    public event Action<int, bool>? SetlistPinChanged;
+
+    /// <summary>Zapis flagi przypięcia + powiadomienie Pilotów. BEZ dotykania `UpdatedAt` zestawu.</summary>
+    private async Task SetPinnedAsync(int setlistId, bool pinned)
+    {
+        await _db.SetSetlistPinnedAsync(setlistId, pinned);
+        SetlistPinChanged?.Invoke(setlistId, pinned);
+    }
+
+    /// <summary>Przypięcie przyszło z Pilota — odśwież UI dokładnie tak, jak po zmianie lokalnej.</summary>
+    public async Task ApplyExternalPinAsync(int setlistId, bool pinned)
+    {
+        if (setlistId == _loadedSetlistId) IsCurrentSetlistPinned = pinned;
+        await LoadPinnedSetlistsAsync();
+    }
+
     [RelayCommand(CanExecute = nameof(CanTogglePin))]
     private async Task TogglePinSetlist()
     {
         var setlist = await _db.GetSetlistAsync(_loadedSetlistId);
         if (setlist == null) return;
         setlist.IsPinned = !setlist.IsPinned;
-        await _db.SetSetlistPinnedAsync(setlist.Id, setlist.IsPinned);
+        await SetPinnedAsync(setlist.Id, setlist.IsPinned);
         IsCurrentSetlistPinned = setlist.IsPinned;
         await LoadPinnedSetlistsAsync();
     }
@@ -1344,9 +1365,10 @@ public partial class DisplayViewModel : ObservableObject
             {
                 var newSetlist = new Setlist { Name = name, Group = group, SeasonKey = day.Group, IsPinned = true };
                 await _db.SaveSetlistAsync(newSetlist);
+                SetlistPinChanged?.Invoke(newSetlist.Id, true);
             }
             else if (!existing.IsPinned)
-                await _db.SetSetlistPinnedAsync(existing.Id, true);
+                await SetPinnedAsync(existing.Id, true);
         }
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
@@ -1356,7 +1378,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task PinSetlistFromSearch(Setlist setlist)
     {
         setlist.IsPinned = true;
-        await _db.SetSetlistPinnedAsync(setlist.Id, true);
+        await SetPinnedAsync(setlist.Id, true);
         await LoadPinnedSetlistsAsync();
     }
 
@@ -1364,7 +1386,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task UnpinSetlist(Setlist setlist)
     {
         setlist.IsPinned = false;
-        await _db.SetSetlistPinnedAsync(setlist.Id, false);
+        await SetPinnedAsync(setlist.Id, false);
         if (setlist.Id == _loadedSetlistId) IsCurrentSetlistPinned = false;
         await LoadPinnedSetlistsAsync();
     }

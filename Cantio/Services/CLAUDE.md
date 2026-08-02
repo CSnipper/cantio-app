@@ -133,6 +133,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `sync_push` | raw JSON | sync pieśni (→ `sync_push_ack`) |
 | `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (`{id}`), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
 | `setlist_delete` | `desktopId` | usuń zestaw z bazy desktopu (→ `setlist_delete_ack`) |
+| `setlist_pin` | `desktopId`, `pinned` (bool) | przypnij/odepnij zestaw w panelu PRZYPIĘTE (→ `ack` + broadcast `setlist_pinned`) |
 | `get_categories` | — | → `categories_data` **do nadawcy** |
 | `category_add` | `name` | nowa kategoria na końcu kolejności |
 | `category_rename` | `id`, `name` | zmiana nazwy |
@@ -186,7 +187,9 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
 | `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
 | `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
-| `songs_data` / `setlists_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
+| `songs_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
+| `setlists_data` | `setlists[]` (`{id,name,group,songCount,updatedAt,`**`pinned`**`}`) | biblioteka zestawów — TYLKO na żądanie `get_setlists` (bywa duża); `pinned` dopisane w v1.63 |
+| `setlist_pinned` | `desktopId`, `pinned` | zmieniono przypięcie zestawu — broadcast do WSZYSTKICH (v1.63) |
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
@@ -250,6 +253,42 @@ Skąd biorą się poszczególne wartości:
 **Zgodność wsteczna (obowiązkowa — u użytkownika jest już zainstalowany stary Pilot):** oba pola są wyłącznie **dopisane** na końcu obiektu. `slides[]` pozostaje tablicą **stringów** (nie obiektów), a `text/songTitle/index/total/isBlank` nie zmieniają ani kształtu, ani znaczenia. Stary Pilot po prostu ignoruje nieznane pola i działa jak dotąd. Odwrotnie też jest bezpiecznie: `BroadcastAsync` wywołane bez nowych argumentów wysyła `slideKinds: []` i `kind: "verse"`.
 
 Komunikat składa **jedna** metoda `RemoteControlServer.BuildSlideJson` (broadcast i wysyłka do świeżego klienta na `ClientConnected`) — inaczej łatwo o rozjazd dwóch niezależnych list pól (ten sam błąd co przy notatkach pozycji zestawu w v1.6).
+
+##### Przypinanie zestawów (v1.63+)
+
+Panel PRZYPIĘTE w oknie Cantio to zestawy bieżącego tygodnia (`Setlist.IsPinned`, „Przypnij tydzień”).
+Stan jest **synchronizowany**: jedna prawda w bazie desktopu, widoczna tak samo w oknie i na każdym tablecie.
+
+> **`UpdatedAt` zestawu przy pin/unpin zostaje NIETKNIĘTE.** Przypięcie to flaga UI, nie zmiana treści.
+> Zapis idzie wyłącznie przez `DatabaseService.SetSetlistPinnedAsync` (nigdy `SaveSetlistAsync`) —
+> inaczej każde kliknięcie pinezki wyglądałoby dla Pilota jak edycja na komputerze i przy najbliższej
+> synchronizacji dawało fałszywy `setlist_sync_conflict`. Harness ma na to trzy asercje, w tym pełny
+> scenariusz „przypnij → push z Pilota z dawnym `baseUpdatedAt`” (zob. tabela `UpdatedAt` niżej).
+
+- P→D `setlist_pin {desktopId, pinned}` → `ack {command:"setlist_pin", ok, desktopId, pinned}` do NADAWCY.
+  Nieznany/brakujący `desktopId` → `ok:false, reason:"not_found"` i **żadnego broadcastu**.
+  Brak pola `pinned` = przypnij (najczęstsza intencja).
+- Po udanej zmianie leci **mały** broadcast `setlist_pinned {desktopId, pinned}` do **wszystkich klientów,
+  w tym do nadawcy** (potwierdzenie skutku, nie tylko przyjęcia). Świeżego `setlists_data` NIE rozgłaszamy —
+  ta lista bywa duża (u użytkownika ~270 zestawów) i leci wyłącznie na żądanie.
+- **Kierunek odwrotny działa tak samo:** pinezka kliknięta w oknie Cantio (`TogglePinSetlist`,
+  `PinSetlistFromSearch`, `UnpinSetlist`, `PinNextWeek`) też rozgłasza `setlist_pinned`. Wszystkie te
+  ścieżki przechodzą przez `DisplayViewModel.SetPinnedAsync` → event `SetlistPinChanged` → jedno
+  podpięcie w `MainWindow`. Komunikat składa **wyłącznie** `PilotSetlistPin.BuildPinnedJson` — jeden
+  builder, dwie ścieżki, żadnych dwóch list pól.
+- Komenda z Pilota odświeża okno Cantio przez `DisplayViewModel.ApplyExternalPinAsync` (panel PRZYPIĘTE
+  + stan pinezki, gdy dotyczy wczytanego zestawu) i **nie** przechodzi przez `SetlistPinChanged`, żeby
+  ten sam broadcast nie poleciał dwa razy.
+- Logika: `Services/PilotSetlistPin.cs` (`IsCommand` → routing w `RemoteControlServer`, `HandleAsync` →
+  `Result(Response, Broadcast, DesktopId, Pinned)`). Handler w `MainWindow.xaml.cs` jest głupi:
+  wyślij → rozgłoś → `Dispatcher` odświeża UI.
+- **Zgodność wsteczna:** `setlist_pin`/`setlist_pinned` to DOPISANE typy, a `pinned` w `setlists_data`
+  to DOPISANE pole na końcu elementu — `id`, `name`, `group`, `songCount`, `updatedAt` bez zmian
+  (strażnik pełnej listy pól w harnessie). Stary Pilot nadmiarowego pola nie widzi, nowych komend nie
+  wysyła i traci wyłącznie samą funkcję. `setlists_data` składa jedna metoda
+  `PilotSetlistSync.BuildSetlistsJsonAsync` (przeniesiona z inline'a w `MainWindow`).
+- Komenda przechodzi normalną bramą auth (`if (!authed) continue;`) — przed `auth_ok` jest ignorowana
+  bez odpowiedzi.
 
 ##### Kategorie pieśni i grupy zestawów (v1.63+)
 
@@ -316,7 +355,7 @@ Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `deskt
 | `SaveSetlistAsync` | **TAK**, zawsze | zapis zestawu = zmiana treści |
 | `SaveSetlistItemsAsync` | **TAK** (zestaw nadrzędny, w tej samej transakcji) | dodanie/usunięcie/przeniesienie pieśni |
 | `CreateOrUpdateSetlistFromPilotAsync` | **NIE** — zapisuje znacznik **przysłany przez Pilota** | ta sama wartość wraca w `setlist_sync_ack` i staje się nową bazą `baseUpdatedAt`; własny czas desktopu = fałszywy konflikt przy każdej synchronizacji |
-| `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt |
+| `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt. **Dotyczy tak samo komendy `setlist_pin` z Pilota (v1.63)** — jedyna droga zapisu tej flagi to ta metoda, nigdy `SaveSetlistAsync` |
 | `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
 | komendy kategorii i grup (`PilotCategorySync`, v1.63) | **NIE** — żadna | kategorie nie należą do zestawu, a operacje na grupach ruszają wyłącznie ustawienie `setlist_groups`; zestawy nie są dotykane nawet przy `setlist_group_rename`/`delete` (parytet z UI), więc podbicie znacznika oznaczałoby fałszywy konflikt na wszystkich zestawach naraz |
 

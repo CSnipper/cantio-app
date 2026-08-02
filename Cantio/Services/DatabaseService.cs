@@ -361,15 +361,15 @@ public class DatabaseService
             .ToListAsync();
     }
 
-    public async Task<List<(int Id, string Name, string? Group, int SongCount, long UpdatedAt)>> GetSetlistSummariesAsync()
+    public async Task<List<(int Id, string Name, string? Group, int SongCount, long UpdatedAt, bool IsPinned)>> GetSetlistSummariesAsync()
     {
         await using var db = new CantioDbContext();
         var rows = await db.Setlists.AsNoTracking()
             .OrderByDescending(sl => sl.UpdatedAt)
-            .Select(sl => new { sl.Id, sl.Name, sl.Group, SongCount = sl.Items.Count(i => i.SongId != null), sl.UpdatedAt })
+            .Select(sl => new { sl.Id, sl.Name, sl.Group, SongCount = sl.Items.Count(i => i.SongId != null), sl.UpdatedAt, sl.IsPinned })
             .ToListAsync();
         return rows.Select(r => (r.Id, r.Name, r.Group, r.SongCount,
-            new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds())).ToList();
+            new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds(), r.IsPinned)).ToList();
     }
 
     public async Task<(int Id, string Name, string? Group, long UpdatedAt, List<(int SongId, string Title)> Songs)?> GetSetlistDetailAsync(int setlistId)
@@ -501,14 +501,18 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    /// <summary>Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.</summary>
-    public async Task SetSetlistPinnedAsync(int setlistId, bool pinned)
+    /// <summary>
+    /// Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.
+    /// Zwraca `false`, gdy zestawu nie ma (protokół WS odsyła wtedy `reason:"not_found"`).
+    /// </summary>
+    public async Task<bool> SetSetlistPinnedAsync(int setlistId, bool pinned)
     {
         await using var db = new CantioDbContext();
         var setlist = await db.Setlists.FindAsync(setlistId);
-        if (setlist == null) return;
+        if (setlist == null) return false;
         setlist.IsPinned = pinned;
         await db.SaveChangesAsync();
+        return true;
     }
 
     // Porównanie po stronie klienta: SQLite lower() obsługuje tylko ASCII,

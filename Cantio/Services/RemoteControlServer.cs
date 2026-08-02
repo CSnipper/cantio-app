@@ -67,6 +67,7 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, bool>? ProjectionRequested;      // ws, true = otwórz / false = zamknij
     /// <summary>Kategorie i grupy zestawów — jeden event na całą rodzinę (ws, surowy JSON).</summary>
     public event Action<WebSocket, string>? CategoryCommandRequested;
+    public event Action<WebSocket, string>? SetlistPinCommandRequested;   // ws, raw json (setlist_pin)
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -518,6 +519,11 @@ public sealed class RemoteControlServer : IDisposable
                     if (doc.RootElement.TryGetProperty("desktopId", out var idEl) &&
                         idEl.ValueKind == JsonValueKind.Number)
                         SetlistDeleteRequested?.Invoke(ws, idEl.GetInt32());
+                }
+                else if (PilotSetlistPin.IsCommand(type))
+                {
+                    // Przypinanie zestawu — logika w PilotSetlistPin, serwer przekazuje surowy JSON.
+                    SetlistPinCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (PilotCategorySync.IsCommand(type))
                 {

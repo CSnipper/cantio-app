@@ -240,13 +240,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                var summaries = await db.GetSetlistSummariesAsync();
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    type     = "setlists_data",
-                    setlists = summaries.Select(s => new { id = s.Id, name = s.Name, group = s.Group ?? "", songCount = s.SongCount, updatedAt = s.UpdatedAt })
-                });
-                await _remoteControl.SendToClientAsync(ws, json);
+                await _remoteControl.SendToClientAsync(ws, await PilotSetlistSync.BuildSetlistsJsonAsync(db));
             }
             catch { }
         };
@@ -417,6 +411,30 @@ public partial class MainWindow : Window
             }
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda kategorii/grup: {ex.Message}"); }
         };
+
+        // ─── Przypinanie zestawów (panel PRZYPIĘTE) ───
+        // Stan jest wspólny: komenda z Pilota zmienia bazę i wraca do WSZYSTKICH klientów jako
+        // `setlist_pinned`, a okno Cantio odświeża panel tą samą metodą co po kliknięciu pinezki.
+        _remoteControl.SetlistPinCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotSetlistPin.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Changed)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try { await _vm.ApplyExternalPinAsync(result.DesktopId, result.Pinned); }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie PRZYPIĘTYCH: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda przypięcia: {ex.Message}"); }
+        };
+
+        // Pinezka kliknięta w oknie Cantio → ten sam komunikat do Pilotów (jeden builder, dwie ścieżki).
+        _vm.SetlistPinChanged += (setlistId, pinned) =>
+            _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned));
 
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
