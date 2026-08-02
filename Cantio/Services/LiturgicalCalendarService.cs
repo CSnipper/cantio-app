@@ -11,7 +11,10 @@ public static class LiturgicalCalendarService
 
         // Adwent
         var adventStart = GetAdventStart(year);
-        var christmasEnd = new DateOnly(year, 1, 13);
+        // Granica jest RUCHOMA: Boże Narodzenie kończy się Chrztem Pańskim (włącznie),
+        // nie sztywnym 13 stycznia — Chrzest wypada między 6 a 13 I zależnie od roku.
+        // Musi się stykać bez dziury/nakładki z GetOrdinaryWeek (`date > baptism`).
+        var christmasEnd = GetBaptismOfLord(year);
 
         if (date >= adventStart)
         {
