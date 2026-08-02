@@ -33,6 +33,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<int>? GotoRequested;
     public event Action<int>? GotoSongRequested;
     public event Action<int>? SetlistAddRequested;
+    public event Action<int>? ShowSongRequested;
     public event Action<int>? SetlistRemoveRequested;
     public event Action<int, int>? SetlistMoveRequested;
     public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
@@ -49,6 +50,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket>? StatusRequested;
     public event Action<System.Net.WebSockets.WebSocket>? RestartAppRequested;
     public event Action<System.Net.WebSockets.WebSocket, bool>? ProjectionRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? CategoryCommandRequested;
 
     /// <summary>
     /// Zmienił się stan parowania (start serwera, nowe urządzenie, „nowy PIN").
@@ -65,6 +67,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.GotoRequested           += idx            => GotoRequested?.Invoke(idx);
         _server.GotoSongRequested       += idx            => GotoSongRequested?.Invoke(idx);
         _server.SetlistAddRequested     += id             => SetlistAddRequested?.Invoke(id);
+        _server.ShowSongRequested       += id             => ShowSongRequested?.Invoke(id);
         _server.SetlistRemoveRequested  += idx            => SetlistRemoveRequested?.Invoke(idx);
         _server.SetlistMoveRequested    += (f, t)         => SetlistMoveRequested?.Invoke(f, t);
         _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
@@ -81,6 +84,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.StatusRequested             += ws         => StatusRequested?.Invoke(ws);
         _server.RestartAppRequested         += ws         => RestartAppRequested?.Invoke(ws);
         _server.ProjectionRequested         += (ws, open) => ProjectionRequested?.Invoke(ws, open);
+        _server.CategoryCommandRequested    += (ws, raw)  => CategoryCommandRequested?.Invoke(ws, raw);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
         {
@@ -285,6 +289,10 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         => _server.IsRunning
             ? _server.BroadcastDevicesAsync(state, count)
             : Task.CompletedTask;
+
+    /// <summary>Rozgłasza gotowy JSON (kategorie / grupy zestawów) — cisza, gdy serwer nie działa.</summary>
+    public Task BroadcastJsonAsync(string json)
+        => _server.IsRunning ? _server.BroadcastJsonAsync(json) : Task.CompletedTask;
 
     public Task SendToClientAsync(System.Net.WebSockets.WebSocket ws, string json)
         => _server.SendToClientAsync(ws, json);

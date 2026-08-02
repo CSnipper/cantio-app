@@ -54,8 +54,27 @@ public static class PilotStatus
     /// zadziała handler — przy <c>restart_app</c> to jedyna szansa, żeby Pilot dowiedział
     /// się, że komenda doszła, bo proces zaraz znika.
     /// </summary>
-    public static string BuildAckJson(string command, bool ok = true) =>
-        JsonSerializer.Serialize(new { type = AckType, command, ok });
+    /// <param name="extra">
+    /// Opcjonalne pola DOPISYWANE na końcu obiektu (v1.63+: <c>reason</c>, <c>id</c>, <c>name</c>,
+    /// <c>newName</c>, <c>number</c>, <c>songs</c>, <c>setlists</c>). Wywołanie bez nich daje
+    /// znak w znak dotychczasowy ack <c>{type,command,ok}</c> — stary Pilot niczego nie traci.
+    /// Wartości <c>null</c> są pomijane.
+    /// </param>
+    public static string BuildAckJson(string command, bool ok = true,
+                                      params (string Key, object? Value)[] extra)
+    {
+        // Dictionary&lt;string,object&gt; serializuje się w kolejności wstawiania — pierwsze trzy
+        // pola zostają dokładnie tam, gdzie były przed dopisaniem rozszerzeń.
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"]    = AckType,
+            ["command"] = command,
+            ["ok"]      = ok
+        };
+        foreach (var (key, value) in extra)
+            if (value != null) payload[key] = value;
+        return JsonSerializer.Serialize(payload);
+    }
 
     /// <summary>Wersja aplikacji z assembly; przy braku danych „?".</summary>
     public static string AppVersion()

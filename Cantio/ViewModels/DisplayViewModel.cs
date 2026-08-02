@@ -660,6 +660,16 @@ public partial class DisplayViewModel : ObservableObject
         await SaveCategoryOrderAsync();
     }
 
+    /// <summary>
+    /// Odświeżenie listy kategorii po zmianie zrobionej POZA oknem Cantio (komenda z Pilota).
+    /// Celowo ta sama ścieżka co po edycji lokalnej — inaczej powstałyby dwa różne stany UI.
+    /// Wołać z wątku UI.
+    /// </summary>
+    public Task RefreshCategoriesExternallyAsync() => ReloadCategoriesForEditorAsync();
+
+    /// <summary>Jak wyżej, dla grup zestawów (combo + lista w popupie).</summary>
+    public Task RefreshSetlistGroupsExternallyAsync() => LoadSetlistGroupsAsync();
+
     private async Task ReloadCategoriesForEditorAsync()
     {
         var prevId = SelectedCategoryItem?.Id ?? 0;

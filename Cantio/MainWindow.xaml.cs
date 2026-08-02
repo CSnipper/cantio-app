@@ -210,6 +210,14 @@ public partial class MainWindow : Window
                 var song = await db.GetSongWithVersesAsync(songId);
                 if (song != null) _vm.AddToSetlistCommand.Execute(song);
             });
+        // Gest „w lewo" na liście PIEŚNI w Pilocie tabletowym = odpowiednik oka 👁 w oknie Cantio:
+        // pieśń ląduje NA EKRANIE, ale NIE w zestawie (i nie rusza podświetlenia pozycji zestawu).
+        _remoteControl.ShowSongRequested += songId =>
+            _ = Dispatcher.InvokeAsync(async () =>
+            {
+                var song = await db.GetSongWithVersesAsync(songId);
+                if (song != null) _vm.DisplaySongCommand.Execute(song);
+            });
         _remoteControl.SetlistClearRequested += () =>
             _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
 
@@ -384,6 +392,32 @@ public partial class MainWindow : Window
                 catch (Exception ex) { AppLog.Write("Pilot", $"Projekcja z Pilota: {ex.Message}"); }
             });
 
+        // ─── Kategorie i grupy zestawów z Pilota ───
+        // Cała logika (parse → operacja → odpowiedź + broadcast) siedzi w PilotCategorySync;
+        // tu zostaje wyłącznie wysyłka i odświeżenie UI TĄ SAMĄ ścieżką co po edycji lokalnej.
+        _remoteControl.CategoryCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotCategorySync.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Scope != PilotCategorySync.RefreshScope.None)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            if (result.Scope == PilotCategorySync.RefreshScope.Categories)
+                                await _vm.RefreshCategoriesExternallyAsync();
+                            else
+                                await _vm.RefreshSetlistGroupsExternallyAsync();
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie list: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda kategorii/grup: {ex.Message}"); }
+        };
+
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
         _remoteControl.PairingStateChanged += () =>
@@ -394,12 +428,7 @@ public partial class MainWindow : Window
             try
             {
                 var cats = await db.GetCategoriesAsync();
-                var catsJson = JsonSerializer.Serialize(new
-                {
-                    type       = "categories_data",
-                    categories = cats.Select(c => new { id = c.Id, name = c.Name, number = c.Number })
-                });
-                await _remoteControl.SendToClientAsync(ws, catsJson);
+                await _remoteControl.SendToClientAsync(ws, PilotCategorySync.BuildCategoriesJson(cats));
                 await BroadcastCurrentStateToAsync(ws);
                 await BroadcastSetlistStateToAsync(ws);
                 var (devState, devCount) = _devicesVm.GetAggregateState();

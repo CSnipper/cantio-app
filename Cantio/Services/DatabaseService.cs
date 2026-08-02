@@ -54,6 +54,45 @@ public class DatabaseService
         return await db.Songs.CountAsync(s => s.CategoryId == id);
     }
 
+    public async Task<Category?> GetCategoryAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    /// <summary>
+    /// Kategoria o zgodnej nazwie (pl-PL, ignoreCase) albo null. Porównanie PO STRONIE KLIENTA —
+    /// SQLite <c>lower()</c> obsługuje tylko ASCII, więc „MARYJNE" i „Maryjne" nie zrównałyby się
+    /// w zapytaniu EF.
+    /// </summary>
+    public async Task<Category?> FindCategoryByNameAsync(string name)
+    {
+        await using var db = new CantioDbContext();
+        var all = await db.Categories.AsNoTracking().ToListAsync();
+        return all.FirstOrDefault(c => NameEquals(c.Name, name));
+    }
+
+    /// <summary>
+    /// Przesuwa kategorię o <paramref name="delta"/> pozycji w kolejności i PRZENUMEROWUJE całą
+    /// listę na 1..N — dokładnie to samo, co strzałki ▲▼ w oknie Cantio
+    /// (<c>DisplayViewModel.SaveCategoryOrderAsync</c>). Zwraca nowy <c>Number</c>
+    /// albo null, gdy kategorii nie ma lub ruch wychodzi poza zakres.
+    /// </summary>
+    public async Task<int?> MoveCategoryAsync(int id, int delta)
+    {
+        await using var db = new CantioDbContext();
+        var ordered = await db.Categories.OrderBy(c => c.Number).ThenBy(c => c.Id).ToListAsync();
+        int idx = ordered.FindIndex(c => c.Id == id);
+        if (idx < 0) return null;
+        int target = idx + delta;
+        if (target < 0 || target >= ordered.Count) return null;
+
+        (ordered[idx], ordered[target]) = (ordered[target], ordered[idx]);
+        for (int i = 0; i < ordered.Count; i++) ordered[i].Number = i + 1;
+        await db.SaveChangesAsync();
+        return target + 1;
+    }
+
     // Pieśni
 
     public async Task<List<Song>> GetSongsByCategoryAsync(int categoryId)
@@ -477,7 +516,7 @@ public class DatabaseService
     private static readonly System.Globalization.CompareInfo _plCompare =
         new System.Globalization.CultureInfo("pl-PL").CompareInfo;
 
-    private static bool NameEquals(string? a, string? b) =>
+    public static bool NameEquals(string? a, string? b) =>
         _plCompare.Compare((a ?? "").Trim(), (b ?? "").Trim(),
             System.Globalization.CompareOptions.IgnoreCase) == 0;
 
@@ -617,6 +656,32 @@ public class DatabaseService
         return candidates.FirstOrDefault(s =>
             NameEquals(s.Name, name) &&
             NormalizeGroupKey(s.Group) == groupKey);
+    }
+
+    /// <summary>
+    /// Grupy zestawów z ustawienia <c>setlist_groups</c> — kolejność DOKŁADNIE jak w CSV
+    /// (UI sortuje dopiero przy wyświetlaniu). Grupy nie są encją; ich jedynym nośnikiem
+    /// jest ten CSV, a <c>Setlist.Group</c> to luźny string.
+    /// </summary>
+    public async Task<List<string>> GetSetlistGroupsAsync()
+    {
+        var csv = await GetSettingAsync("setlist_groups") ?? string.Empty;
+        return [.. csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(g => g.Trim())
+                      .Where(g => !string.IsNullOrEmpty(g))];
+    }
+
+    public Task SaveSetlistGroupsAsync(IEnumerable<string> groups) =>
+        SaveSettingAsync("setlist_groups", string.Join(",", groups
+            .Select(g => (g ?? "").Trim())
+            .Where(g => g.Length > 0)));
+
+    /// <summary>Ile zestawów wskazuje na grupę o tej nazwie (porównanie pl-PL po stronie klienta).</summary>
+    public async Task<int> CountSetlistsInGroupAsync(string group)
+    {
+        await using var db = new CantioDbContext();
+        var groups = await db.Setlists.AsNoTracking().Select(s => s.Group).ToListAsync();
+        return groups.Count(g => NameEquals(g, group));
     }
 
     public async Task EnsureGroupAsync(string group)

@@ -49,6 +49,7 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<int>? GotoRequested;
     public event Action<int>? GotoSongRequested;
     public event Action<int>? SetlistAddRequested;      // songId
+    public event Action<int>? ShowSongRequested;        // songId — pokaż od razu, BEZ dodawania do zestawu
     public event Action<int>? SetlistRemoveRequested;   // index
     public event Action<int, int>? SetlistMoveRequested; // from, to
     public event Action<WebSocket, int, int>? GetSongsRequested; // ws, offset, limit
@@ -64,6 +65,8 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket>? StatusRequested;                // → status_data
     public event Action<WebSocket>? RestartAppRequested;            // restart procesu (ack leci PRZED)
     public event Action<WebSocket, bool>? ProjectionRequested;      // ws, true = otwórz / false = zamknij
+    /// <summary>Kategorie i grupy zestawów — jeden event na całą rodzinę (ws, surowy JSON).</summary>
+    public event Action<WebSocket, string>? CategoryCommandRequested;
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -176,6 +179,13 @@ public sealed class RemoteControlServer : IDisposable
         var json = JsonSerializer.Serialize(new { type = "devices", state, count });
         await BroadcastRawAsync(json);
     }
+
+    /// <summary>
+    /// Rozgłasza gotowy JSON do wszystkich uwierzytelnionych klientów. Używane przez komendy,
+    /// które zmieniają dane wspólne (kategorie, grupy zestawów) — treść składa serwis domenowy,
+    /// żeby nie powstała druga lista pól obok buildera.
+    /// </summary>
+    public Task BroadcastJsonAsync(string json) => BroadcastRawAsync(json);
 
     public Task SendToClientAsync(WebSocket ws, string json)
     {
@@ -438,6 +448,11 @@ public sealed class RemoteControlServer : IDisposable
                     if (doc.RootElement.TryGetProperty("songId", out var idEl))
                         SetlistAddRequested?.Invoke(idEl.GetInt32());
                 }
+                else if (type == "show_song")
+                {
+                    if (doc.RootElement.TryGetProperty("songId", out var idEl))
+                        ShowSongRequested?.Invoke(idEl.GetInt32());
+                }
                 else if (type == "setlist_remove")
                 {
                     if (doc.RootElement.TryGetProperty("index", out var idxEl))
@@ -503,6 +518,12 @@ public sealed class RemoteControlServer : IDisposable
                     if (doc.RootElement.TryGetProperty("desktopId", out var idEl) &&
                         idEl.ValueKind == JsonValueKind.Number)
                         SetlistDeleteRequested?.Invoke(ws, idEl.GetInt32());
+                }
+                else if (PilotCategorySync.IsCommand(type))
+                {
+                    // Kategorie / grupy zestawów — cała logika w PilotCategorySync,
+                    // serwer wyłącznie przekazuje surowy JSON.
+                    CategoryCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {

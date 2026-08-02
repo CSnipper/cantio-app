@@ -121,6 +121,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `goto` | `index` | slajd nr index |
 | `goto_song` | `index` | pieśń nr index w zestawie |
 | `setlist_add` | `songId` | dodaj pieśń do zestawu |
+| `show_song` | `songId` | pokaż pieśń NA EKRANIE bez dodawania jej do zestawu (odpowiednik 👁 w oknie Cantio) |
 | `setlist_remove` | `index` | usuń pozycję |
 | `setlist_move` | `from`, `to` | przenieś pozycję |
 | `setlist_clear` | — | wyczyść zestaw |
@@ -132,11 +133,34 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `sync_push` | raw JSON | sync pieśni (→ `sync_push_ack`) |
 | `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (`{id}`), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
 | `setlist_delete` | `desktopId` | usuń zestaw z bazy desktopu (→ `setlist_delete_ack`) |
+| `get_categories` | — | → `categories_data` **do nadawcy** |
+| `category_add` | `name` | nowa kategoria na końcu kolejności |
+| `category_rename` | `id`, `name` | zmiana nazwy |
+| `category_delete` | `id`, **`withSongs?`** | usunięcie; niepusta kategoria WYMAGA `withSongs:true` |
+| `category_move` | `id`, `direction` (`up`/`down`) | przesunięcie w kolejności (1:1 ze strzałkami ▲▼) |
+| `get_setlist_groups` | — | → `setlist_groups_data` **do nadawcy** |
+| `setlist_group_add` | `name` | nowa grupa zestawów |
+| `setlist_group_rename` | `name`, `newName` | zmiana nazwy grupy |
+| `setlist_group_delete` | `name` | usunięcie grupy |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
 | `status` | — | → `status_data` (diagnostyka zdalna) |
 | `restart_app` | — | restart procesu Cantio (→ `ack`) |
 | `open_projection` | — | otwórz okno projekcji (→ `ack`) |
 | `close_projection` | — | zamknij okno projekcji (→ `ack`) |
+
+##### `show_song` — pokaż pieśń bez dodawania do zestawu (v1.63+)
+
+Gest w lewo na wierszu listy PIEŚNI w układzie tabletowym Pilota. Handler w `MainWindow.xaml.cs` woła
+`DisplayViewModel.DisplaySongCommand` — dokładnie tę samą komendę co przycisk 👁 przy pieśni w oknie Cantio:
+`LoadVersesAsync(id, restoreSlide: CurrentSlideIndex)`.
+
+- **Zestaw NIE jest ruszany** — ani zawartość, ani `SelectedSetlistItem` (podświetlenie aktywnej pozycji
+  zostaje, tak samo jak w Windows). Do dodania pieśni służy osobna komenda `setlist_add`.
+- Nieistniejące `songId` → `GetSongWithVersesAsync` zwraca `null` i handler nic nie robi; brak `songId` w JSON →
+  komenda ignorowana (`TryGetProperty`).
+- **Zgodność wsteczna:** to wyłącznie DOPISANY typ. Stary desktop nieznanej komendy nie rozpozna i ją po cichu
+  pominie (łańcuch `else if` nie ma gałęzi domyślnej, połączenie zostaje otwarte), stary Pilot jej nie zna, więc
+  jej nie wyśle. Dlatego gest po stronie Pilota jest aktywny tylko przy połączeniu — offline nie ma odpowiednika.
 
 ##### Zestawy: wykrywanie konfliktu (v1.61+)
 
@@ -160,14 +184,15 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
 | `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`** | bieżący slajd (+ typ zwrotki, v1.63) |
 | `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
-| `categories_data` | `categories[]` | kategorie (na `ClientConnected`) |
+| `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
+| `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
 | `songs_data` / `setlists_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
-| `ack` | `command`, `ok` (bool) | przyjęto komendę `restart_app` / `open_projection` / `close_projection` |
+| `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
 
 ##### Komendy ratunkowe dla sprzętu bez klawiatury (v1.63+, tryb serwerowy)
 
@@ -226,6 +251,62 @@ Skąd biorą się poszczególne wartości:
 
 Komunikat składa **jedna** metoda `RemoteControlServer.BuildSlideJson` (broadcast i wysyłka do świeżego klienta na `ClientConnected`) — inaczej łatwo o rozjazd dwóch niezależnych list pól (ten sam błąd co przy notatkach pozycji zestawu w v1.6).
 
+##### Kategorie pieśni i grupy zestawów (v1.63+)
+
+Tablet ma zarządzać biblioteką bez chodzenia do komputera. Reguła kierunku prawdy jest sztywna:
+
+> **Baza desktopu jest JEDYNYM źródłem prawdy. Tablet wyłącznie komenduje; desktop wykonuje,
+> rozgłasza wynik do WSZYSTKICH klientów i odświeża własne UI tą samą ścieżką co po edycji lokalnej.**
+
+Pilot nigdy nie zakłada, że jego kopia listy jest aktualna — po mutacji czeka na broadcast
+`categories_data` / `setlist_groups_data`. Dwa tablety edytujące naraz nie mogą się więc rozjechać
+ani ze sobą, ani z oknem Cantio. `ack` idzie TYLKO do nadawcy (niesie wynik jego komendy),
+broadcast do wszystkich (niesie nowy stan listy).
+
+Cała logika: `Services/PilotCategorySync.cs` (`IsCommand` → routing w `RemoteControlServer`,
+`HandleAsync` → `(Response, Broadcast, Scope)`). Handler w `MainWindow.xaml.cs` jest głupi:
+wyślij → rozgłoś → `Dispatcher` odświeża `RefreshCategoriesExternallyAsync()` /
+`RefreshSetlistGroupsExternallyAsync()` (opakowania istniejących `ReloadCategoriesForEditorAsync` /
+`LoadSetlistGroupsAsync`). Komunikaty składa wyłącznie `PilotCategorySync.BuildCategoriesJson` /
+`BuildGroupsJson` + `PilotStatus.BuildAckJson` — **`categories_data` przestało być budowane inline
+w `ClientConnected`**, bo druga lista pól to dokładnie ten układ, który zgubił notatki w v1.6.
+
+`reason` przy `ok:false`: `duplicate` · `not_found` · `empty_name` · `not_empty` · `edge`.
+
+**Duplikaty nazw rozstrzyga WYŁĄCZNIE `DatabaseService.NameEquals`** (CompareInfo pl-PL,
+IgnoreCase, Trim) — nigdy SQLite `lower()`, który obsługuje tylko ASCII i przepuściłby
+„MARYJNE" obok „Maryjne". Zmiana samej wielkości liter to ten sam rekord, nie duplikat.
+
+**`category_delete` i pułapka CASCADE.** `Songs.CategoryId` jest w schemacie `NOT NULL`
+z `ON DELETE CASCADE` (`20260309140021_InitialCreate.cs:73-78`), a Microsoft.Data.Sqlite trzyma
+`PRAGMA foreign_keys=ON`. Skasowanie samej kategorii **zabiera ze sobą pieśni** — nie da się
+zostawić ich „bez kategorii" bez migracji schematu (test x5 w harnessie to udowadnia, nie zakłada).
+Dlatego protokół:
+
+- kategoria pusta → kasowana normalnie (`DeleteCategoryAsync`);
+- kategoria niepusta **bez** `withSongs:true` → `ok:false, reason:"not_empty", songs:N`, **nic się nie dzieje**;
+- kategoria niepusta z `withSongs:true` → `DeleteCategoryWithSongsAsync` (najpierw `SetlistItems`,
+  potem `Songs`, potem `Category` — inaczej pieśń w zapisanym zestawie wywraca całość na `RESTRICT`).
+
+Wariantu „usuń kategorię, zostaw pieśni" w protokole NIE MA i nie wolno go dopisać, dopóki
+`Song.CategoryId` nie stanie się nullable. **To samo dotyczy okna Cantio: gałąź dialogu
+„Nie — usuń tylko kategorię (pieśni pozostaną bez kategorii)" (`DisplayViewModel.cs:565-596`)
+kłamie — kasuje pieśni albo wybucha.** Naprawa wymaga migracji (`CategoryId` → nullable) i decyzji,
+gdzie w UI widać pieśń bez kategorii — dziś nigdzie poza wyszukiwarką.
+
+**Grupy zestawów = parytet z UI.** Grupa nie jest encją; jedynym nośnikiem jest CSV w ustawieniu
+`setlist_groups`, a `Setlist.Group` to luźny string. Zmiana nazwy i usunięcie grupy **NIE dotykają
+zestawów** — dokładnie jak `SaveGroupAsync`/`DeleteGroupAsync` w `DisplayViewModel`. Do acka trafia
+`setlists:N` = ile zestawów zostaje przy starej nazwie (ostrzeżenie dla tabletu, nie błąd).
+Identyfikatorem grupy jest jej nazwa. `setlist_group_rename` zachowuje POZYCJĘ w CSV i nie psuje
+`NormalizeGroupKey`/`ResolveGroupNameAsync` (czyli „Przypnij tydzień"), o ile nowa nazwa nadal
+normalizuje się do klucza okresu — zmiana „Zwykły" → „Okres Zwykły" jest bezpieczna, „Zwykły" →
+„Moje pieśni" odcina zestawy od automatu przypinania.
+
+**Zgodność wsteczna:** wyłącznie DOPISANE typy i DOPISANE pola w `ack`. `BuildAckJson` bez
+rozszerzeń daje bajt w bajt `{"type":"ack","command":"…","ok":true}` (strażnik w harnessie),
+`categories_data` nie zmieniło kształtu. Wszystkie dziewięć komend przechodzi normalną bramą auth.
+
 ### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
 
 Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `desktop.updatedAt != lastSyncedUpdatedAt`), więc reguła jest sztywna:
@@ -237,6 +318,7 @@ Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `deskt
 | `CreateOrUpdateSetlistFromPilotAsync` | **NIE** — zapisuje znacznik **przysłany przez Pilota** | ta sama wartość wraca w `setlist_sync_ack` i staje się nową bazą `baseUpdatedAt`; własny czas desktopu = fałszywy konflikt przy każdej synchronizacji |
 | `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt |
 | `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
+| komendy kategorii i grup (`PilotCategorySync`, v1.63) | **NIE** — żadna | kategorie nie należą do zestawu, a operacje na grupach ruszają wyłącznie ustawienie `setlist_groups`; zestawy nie są dotykane nawet przy `setlist_group_rename`/`delete` (parytet z UI), więc podbicie znacznika oznaczałoby fałszywy konflikt na wszystkich zestawach naraz |
 
 **BUG, który to wymusił (naprawiony 2026-07-28):** `SaveSetlistAsync` nie dotykało znacznika, więc zwykły zapis zestawu w Cantio był dla Pilota niewidoczny i telefon **cicho nadpisywał pracę operatora**. Harness dawał 12 czerwonych asercji przed poprawką.
 
