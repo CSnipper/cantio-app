@@ -128,15 +128,31 @@ public sealed class RemoteControlServer : IDisposable
 
     public async Task BroadcastAsync(
         string text, string songTitle, int index, int total,
-        bool isBlank = false, IList<string>? slides = null)
+        bool isBlank = false, IList<string>? slides = null,
+        IList<string>? slideKinds = null, string? kind = null)
     {
-        var json = JsonSerializer.Serialize(new
+        await BroadcastRawAsync(BuildSlideJson(text, songTitle, index, total, isBlank, slides, slideKinds, kind));
+    }
+
+    /// <summary>
+    /// Jedyne miejsce budowania komunikatu `slide` (broadcast i wysyłka do świeżego klienta).
+    /// `kind` / `slideKinds` są DOPISANE na końcu — stary Pilot ich nie zna i ignoruje,
+    /// kształt i znaczenie pozostałych pól bez zmian.
+    /// </summary>
+    public static string BuildSlideJson(
+        string text, string songTitle, int index, int total,
+        bool isBlank, IList<string>? slides,
+        IList<string>? slideKinds = null, string? kind = null)
+    {
+        var kinds = slideKinds ?? [];
+        return JsonSerializer.Serialize(new
         {
             type = "slide", text, songTitle, index, total,
             isBlank,
-            slides = slides ?? []
+            slides = slides ?? [],
+            kind = kind ?? (index >= 0 && index < kinds.Count ? kinds[index] : SlideKind.Verse),
+            slideKinds = kinds
         });
-        await BroadcastRawAsync(json);
     }
 
     public async Task BroadcastSetlistAsync(

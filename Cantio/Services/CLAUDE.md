@@ -47,7 +47,8 @@ Dzieli tekst pieśni na slajdy które mieszczą się na ekranie projekcji.
 - Rozmiar czcionki z ustawień to MINIMUM — jeśli tekst nie mieści się w jednym slajdzie, dziel dalej
 - Po zmianie ustawień szablonu: wywołaj `DisplayViewModel.RebuildSlides()`
 - `SlideLayoutSettings.ForceSingleSlide = true` — wyłącza dzielenie; cała zwrotka to jeden slajd, min. czcionka = 1px (używane w psalm mode)
-- `Slide.VerseType` — "v", "c", "b"; `Slide.IsChorusSlide` = `VerseType == "c"`
+- `Slide.VerseType` — "v", "c", "b", "p", "img"; `Slide.IsChorusSlide` = `VerseType == "c"`, `IsPrivateSlide` = `"p"`
+- Na protokół WS tłumaczy to WYŁĄCZNIE `SlideKind.FromSlide` (zob. „Typ zwrotki przy slajdzie") — nie powielać mapowania
 - `PsalmCategoryId` w `DisplaySettings` (klucz `psalm_category_id` w tabeli settings); 0 = wyłączone
 
 ## Import — ILyricsImporter
@@ -153,7 +154,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | type | pola | znaczenie |
 |---|---|---|
 | `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
-| `slide` | `text, songTitle, index, total, isBlank, slides[]` | bieżący slajd |
+| `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`** | bieżący slajd (+ typ zwrotki, v1.63) |
 | `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
 | `categories_data` | `categories[]` | kategorie (na `ClientConnected`) |
 | `songs_data` / `setlists_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
@@ -163,6 +164,25 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 
 Na `ClientConnected` (czyli po `auth_ok`, a przy wyłączonym PIN-ie od razu po połączeniu) desktop wysyła świeżemu klientowi: `categories_data`, `slide`, `setlist`, `devices`.
+
+##### Typ zwrotki przy slajdzie (v1.63+)
+
+Pilot ma pokazywać etykiety 1/2/3/R bez parsowania tekstu (dawniej jedyną poszlaką był prefiks `Refren:`/`Aklamacja:`, który w zwykłych pieśniach w ogóle nie występuje). Komunikat `slide` niesie więc typ **gotowy**:
+
+- `slideKinds[]` — tablica **równoległa do `slides[]`** (ta sama długość i kolejność), jedna wartość na slajd;
+- `kind` — typ slajdu wskazanego przez `index` (skrót, żeby Pilot nie musiał indeksować); gdy `index` jest poza zakresem → `"verse"`.
+
+Wartości: `verse` · `chorus` · `bridge` · `private` · `image`. Mapowanie z typu w bazie (`Verse.Type`: `v`/`c`/`b`/`p`/`img`) robi **jedna czysta funkcja** `Services/SlideKind.FromVerseType(verseType, hasImage)` (+ `FromSlide(slide)`), używana przez oba miejsca budujące komunikat. Nieznany/pusty typ → `verse`; pole **nigdy nie jest null**.
+
+Skąd biorą się poszczególne wartości:
+- **psalm**: bloki `Refren:` i `Aklamacja:` dostają w `DisplayViewModel` `Type = "c"`, więc wychodzą jako `chorus` bez osobnej reguły — Pilot nie musi patrzeć na prefiks;
+- **tekst jednorazowy** z zestawu (`SetlistItem.CustomText`, v1.6): `SplitTextToVerses` nadaje wszystkim blokom `Type = "v"` → `verse`;
+- **obrazek jako zwrotka pieśni** (`Type = "img"` / `Slide.ImagePath`) → `image`; obrazek wygrywa nad typem tekstowym;
+- **element-obrazek zestawu** (`SetlistItem.Type = "image"`) nie tworzy slajdów w ogóle (`LoadImageFromSetlist` czyści listę) → `slides` i `slideKinds` puste, `kind = "verse"`.
+
+**Zgodność wsteczna (obowiązkowa — u użytkownika jest już zainstalowany stary Pilot):** oba pola są wyłącznie **dopisane** na końcu obiektu. `slides[]` pozostaje tablicą **stringów** (nie obiektów), a `text/songTitle/index/total/isBlank` nie zmieniają ani kształtu, ani znaczenia. Stary Pilot po prostu ignoruje nieznane pola i działa jak dotąd. Odwrotnie też jest bezpiecznie: `BroadcastAsync` wywołane bez nowych argumentów wysyła `slideKinds: []` i `kind: "verse"`.
+
+Komunikat składa **jedna** metoda `RemoteControlServer.BuildSlideJson` (broadcast i wysyłka do świeżego klienta na `ClientConnected`) — inaczej łatwo o rozjazd dwóch niezależnych list pól (ten sam błąd co przy notatkach pozycji zestawu w v1.6).
 
 ### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
 
