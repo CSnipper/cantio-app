@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -98,6 +98,8 @@
 
     <!-- Sections -->
     <sys:String x:Key="Section.Categories">CATEGORIES</sys:String>
+    <!-- Virtual row in the CATEGORIES list: songs with CategoryId == NULL -->
+    <sys:String x:Key="Category.Uncategorized">No category</sys:String>
     <sys:String x:Key="Section.Songs">SONGS</sys:String>
     <sys:String x:Key="Section.Verses">VERSES</sys:String>
     <sys:String x:Key="Section.ScreenPreview">SCREEN PREVIEW</sys:String>

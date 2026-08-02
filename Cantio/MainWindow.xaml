@@ -1444,9 +1444,12 @@
                                                                    TextTrimming="CharacterEllipsis"
                                                                    Padding="5,0,0,0" FontSize="18"
                                                                    VerticalAlignment="Center"/>
+                                                        <!-- ▲▼✎✕ tylko dla PRAWDZIWYCH kategorii;
+                                                             „Bez kategorii" to pozycja wirtualna -->
                                                         <Button Grid.Column="1" Content="▲"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50"
+                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 IsEnabled="{Binding CanMoveUp}"
                                                                 Command="{Binding DataContext.MoveCategoryUpCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -1454,6 +1457,7 @@
                                                         <Button Grid.Column="2" Content="▼"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50"
+                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 IsEnabled="{Binding CanMoveDown}"
                                                                 Command="{Binding DataContext.MoveCategoryDownCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -1461,12 +1465,14 @@
                                                         <Button Grid.Column="3" Content="✎"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50"
+                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 Command="{Binding DataContext.StartEditCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Grid.Column="4" Content="✕"
                                                                 Style="{StaticResource SmallIconBtn}"
                                                                 Width="32" Height="50" Foreground="#d44a4a"
+                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 Command="{Binding DataContext.DeleteCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>

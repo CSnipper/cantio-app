@@ -34,6 +34,27 @@ public class DatabaseService
         if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
     }
 
+    /// <summary>
+    /// Usuwa kategorię, ale ZOSTAWIA pieśni — dostają <c>CategoryId = NULL</c> i widać je
+    /// w oknie Cantio pod wirtualną pozycją „Bez kategorii". Zwraca liczbę odczepionych pieśni.
+    ///
+    /// Odczepienie robimy JAWNIE, nie licząc na <c>ON DELETE SET NULL</c> w schemacie: dzięki temu
+    /// znamy liczbę pieśni do acka, a wynik nie zależy od tego, czy połączenie ma
+    /// <c>PRAGMA foreign_keys</c> włączone. Pozycje zestawów zostają nietknięte — pieśń dalej
+    /// istnieje, więc nie ma czego sprzątać (na tym wywracała się poprzednia implementacja,
+    /// która kasowała pieśń i uderzała w RESTRICT na SetlistItems).
+    /// </summary>
+    public async Task<int> DeleteCategoryKeepSongsAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        var songs = await db.Songs.Where(s => s.CategoryId == id).ToListAsync();
+        foreach (var s in songs) s.CategoryId = null;
+        var cat = await db.Categories.FindAsync(id);
+        if (cat != null) db.Categories.Remove(cat);
+        await db.SaveChangesAsync();
+        return songs.Count;
+    }
+
     public async Task DeleteCategoryWithSongsAsync(int id)
     {
         await using var db = new CantioDbContext();
@@ -102,6 +123,27 @@ public class DatabaseService
             .Where(s => s.CategoryId == categoryId)
             .OrderBy(s => s.Number)
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Pieśni bez kategorii (<c>CategoryId IS NULL</c>) — zawartość wirtualnej pozycji
+    /// „Bez kategorii" na liście KATEGORIE. Powstają wyłącznie przez
+    /// <see cref="DeleteCategoryKeepSongsAsync"/>.
+    /// </summary>
+    public async Task<List<Song>> GetUncategorizedSongsAsync()
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.AsNoTracking()
+            .Where(s => s.CategoryId == null)
+            .OrderBy(s => s.Number)
+            .ToListAsync();
+    }
+
+    /// <summary>Ile pieśni jest bez kategorii — 0 chowa wirtualną pozycję z listy.</summary>
+    public async Task<int> CountUncategorizedSongsAsync()
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.CountAsync(s => s.CategoryId == null);
     }
 
     /// <summary>Szuka po tytule i/lub numerze ze śpiewnika — logika w <see cref="SongSearch"/>.</summary>
@@ -185,21 +227,26 @@ public class DatabaseService
             var localId    = songEl.GetProperty("localId").GetInt32();
             var title      = songEl.GetProperty("title").GetString() ?? "";
             var author     = songEl.GetProperty("author").GetString() ?? "";
-            var categoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
+            var rawCategoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
 
-            // Sprawdź czy kategoria istnieje; fallback do pierwszej dostępnej
-            var categoryExists = categoryId > 0 &&
-                await db.Categories.AnyAsync(c => c.Id == categoryId);
-            if (!categoryExists)
+            // 0 (albo brak pola) = „bez kategorii" — dokładnie to, co desktop wysyła w `songs_data`
+            // dla pieśni z CategoryId == NULL. Bez tego pieśń bez kategorii wracałaby z telefonu
+            // jako DUPLIKAT w pierwszej kategorii (upsert szuka po tytule W TEJ SAMEJ kategorii).
+            // Niezerowe, ale nieistniejące ID = przestarzała lista kategorii w Pilocie → jak dotąd
+            // fallback do pierwszej kategorii.
+            int? categoryId = rawCategoryId > 0 ? rawCategoryId : null;
+            if (categoryId is int cid && !await db.Categories.AnyAsync(c => c.Id == cid))
             {
                 var firstCat = await db.Categories.OrderBy(c => c.Number).FirstOrDefaultAsync();
-                categoryId = firstCat?.Id ?? 0;
+                categoryId = firstCat?.Id;
             }
 
-            // Upsert: szukaj po tytule w tej samej kategorii
-            var song = await db.Songs
-                .Include(s => s.Verses)
-                .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == categoryId);
+            // Upsert: szukaj po tytule w tej samej kategorii (null == null też jest dopasowaniem)
+            var song = categoryId is null
+                ? await db.Songs.Include(s => s.Verses)
+                      .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == null)
+                : await db.Songs.Include(s => s.Verses)
+                      .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == categoryId);
 
             if (song == null)
             {

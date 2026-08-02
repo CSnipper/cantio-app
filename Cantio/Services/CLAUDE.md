@@ -137,7 +137,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `get_categories` | — | → `categories_data` **do nadawcy** |
 | `category_add` | `name` | nowa kategoria na końcu kolejności |
 | `category_rename` | `id`, `name` | zmiana nazwy |
-| `category_delete` | `id`, **`withSongs?`** | usunięcie; niepusta kategoria WYMAGA `withSongs:true` |
+| `category_delete` | `id`, **`withSongs?`**, **`keepSongs?`** | usunięcie; niepusta kategoria WYMAGA `withSongs:true` (kasuje pieśni) albo `keepSongs:true` (pieśni zostają bez kategorii) |
 | `category_move` | `id`, `direction` (`up`/`down`) | przesunięcie w kolejności (1:1 ze strzałkami ▲▼) |
 | `get_setlist_groups` | — | → `setlist_groups_data` **do nadawcy** |
 | `setlist_group_add` | `name` | nowa grupa zestawów |
@@ -316,22 +316,41 @@ w `ClientConnected`**, bo druga lista pól to dokładnie ten układ, który zgub
 IgnoreCase, Trim) — nigdy SQLite `lower()`, który obsługuje tylko ASCII i przepuściłby
 „MARYJNE" obok „Maryjne". Zmiana samej wielkości liter to ten sam rekord, nie duplikat.
 
-**`category_delete` i pułapka CASCADE.** `Songs.CategoryId` jest w schemacie `NOT NULL`
-z `ON DELETE CASCADE` (`20260309140021_InitialCreate.cs:73-78`), a Microsoft.Data.Sqlite trzyma
-`PRAGMA foreign_keys=ON`. Skasowanie samej kategorii **zabiera ze sobą pieśni** — nie da się
-zostawić ich „bez kategorii" bez migracji schematu (test x5 w harnessie to udowadnia, nie zakłada).
-Dlatego protokół:
+**`category_delete` — trzy warianty (v1.63+).** `Song.CategoryId` jest od migracji
+`ZmienCategoryIdNaNullableWSong` **nullable**, a FK ma **`ON DELETE SET NULL`** (dawniej `NOT NULL`
++ `ON DELETE CASCADE`). Dzięki temu istnieje wariant „usuń kategorię, zostaw pieśni":
 
-- kategoria pusta → kasowana normalnie (`DeleteCategoryAsync`);
-- kategoria niepusta **bez** `withSongs:true` → `ok:false, reason:"not_empty", songs:N`, **nic się nie dzieje**;
-- kategoria niepusta z `withSongs:true` → `DeleteCategoryWithSongsAsync` (najpierw `SetlistItems`,
-  potem `Songs`, potem `Category` — inaczej pieśń w zapisanym zestawie wywraca całość na `RESTRICT`).
+- kategoria pusta → kasowana normalnie (`DeleteCategoryAsync`), niezależnie od flag;
+- kategoria niepusta **bez żadnej flagi** → `ok:false, reason:"not_empty", songs:N`, **nic się nie dzieje**;
+- `withSongs:true` → `DeleteCategoryWithSongsAsync` (najpierw `SetlistItems`, potem `Songs`, potem
+  `Category` — inaczej pieśń w zapisanym zestawie wywraca całość na `RESTRICT`);
+- `keepSongs:true` → `DeleteCategoryKeepSongsAsync`: pieśni dostają `CategoryId = NULL`, pozycje
+  zestawów **zostają nietknięte** (pieśń dalej istnieje), ack niesie `songs:N` = ile odczepiono.
+  Odczepienie robimy JAWNIE w kodzie, nie licząc na `ON DELETE SET NULL` — stąd dokładna liczba
+  i niezależność od `PRAGMA foreign_keys`.
+- Gdy przyjdą OBIE flagi, **wygrywa `keepSongs`** — nieodwracalne kasowanie wymaga jednoznacznej
+  intencji. `withSongs:false` / `keepSongs:false` to NIE zgoda (liczy się wyłącznie jawne `true`).
 
-Wariantu „usuń kategorię, zostaw pieśni" w protokole NIE MA i nie wolno go dopisać, dopóki
-`Song.CategoryId` nie stanie się nullable. **To samo dotyczy okna Cantio: gałąź dialogu
-„Nie — usuń tylko kategorię (pieśni pozostaną bez kategorii)" (`DisplayViewModel.cs:565-596`)
-kłamie — kasuje pieśni albo wybucha.** Naprawa wymaga migracji (`CategoryId` → nullable) i decyzji,
-gdzie w UI widać pieśń bez kategorii — dziś nigdzie poza wyszukiwarką.
+To samo w oknie Cantio: gałąź dialogu „Nie — usuń tylko kategorię" idzie teraz przez
+`DeleteCategoryKeepSongsAsync` (do v1.62 wołała `DeleteCategoryAsync`, czyli kasowała pieśni
+kaskadą, a przy pieśni w zapisanym zestawie wywracała się na `RESTRICT` i nie robiła NIC).
+
+**Pieśni bez kategorii w UI i na łączu:**
+
+- Okno Cantio: na liście KATEGORIE dochodzi **wirtualna pozycja „Bez kategorii"**
+  (`CategoryEditorItem.IsVirtual`, `Id == -1`) — widoczna **tylko** gdy takie pieśni istnieją,
+  bez ▲▼✎✕, nie zapisywana przy przenumerowaniu kolejności. Klucz lokalizacji
+  `Category.Uncategorized` (pl/en/es). Dane: `DatabaseService.GetUncategorizedSongsAsync` /
+  `CountUncategorizedSongsAsync`.
+- **`categories_data` NIE zawiera tej pozycji** — to element UI desktopu, nie rekord. Wszystkie
+  `id` w komunikacie są > 0 (strażnik w harnessie). Pilot dostanie własny odpowiednik w swoim zadaniu.
+- `songs_data` (i tym samym `sync_push` w drugą stronę) niesie dla pieśni bez kategorii
+  **`categoryId: 0`, nigdy `null`** — stary Pilot, zainstalowany już u użytkownika, ma tam twardy
+  `int`. Komunikat składa wyłącznie `Services/PilotSongSync.BuildSongsDataJson`.
+- Symetrycznie `DatabaseService.SyncPushSongsAsync` czyta `categoryId <= 0` (albo brak pola) jako
+  **brak kategorii** i szuka pieśni po tytule wśród `CategoryId IS NULL`. Bez tego pieśń bez
+  kategorii wróciłaby z telefonu jako DUPLIKAT w pierwszej kategorii. Niezerowe, ale nieistniejące
+  ID (przestarzała lista kategorii w Pilocie) → jak dotąd fallback do pierwszej kategorii.
 
 **Grupy zestawów = parytet z UI.** Grupa nie jest encją; jedynym nośnikiem jest CSV w ustawieniu
 `setlist_groups`, a `Setlist.Group` to luźny string. Zmiana nazwy i usunięcie grupy **NIE dotykają

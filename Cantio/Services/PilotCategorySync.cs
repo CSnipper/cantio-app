@@ -137,10 +137,19 @@ public static class PilotCategorySync
     }
 
     /// <summary>
-    /// Kasowanie kategorii. Pusta — normalnie; NIEPUSTA wyłącznie z jawnym <c>withSongs:true</c>,
-    /// bo w schemacie `Songs.CategoryId` jest `NOT NULL` z `ON DELETE CASCADE`: usunięcie samej
-    /// kategorii zabrałoby ze sobą pieśni (a przy pieśni w zapisanym zestawie wywróciłoby się
-    /// na `RESTRICT`). Bez flagi odsyłamy `not_empty` + liczbę pieśni, żeby tablet mógł zapytać.
+    /// Kasowanie kategorii — TRZY warianty, bo niepustej kategorii nie wolno ruszyć bez decyzji
+    /// użytkownika (parytet z dialogiem Tak/Nie/Anuluj w oknie Cantio):
+    /// <list type="bullet">
+    /// <item>bez flagi + kategoria niepusta → <c>not_empty</c> + <c>songs:N</c>, NIC się nie dzieje;</item>
+    /// <item><c>withSongs:true</c> → kategoria i pieśni znikają (<see cref="DatabaseService.DeleteCategoryWithSongsAsync"/>);</item>
+    /// <item><c>keepSongs:true</c> → znika sama kategoria, pieśni dostają <c>CategoryId = NULL</c>
+    ///       (<see cref="DatabaseService.DeleteCategoryKeepSongsAsync"/>) i lądują pod wirtualną
+    ///       pozycją „Bez kategorii" w oknie Cantio.</item>
+    /// </list>
+    /// Wariant „bez pieśni" jest możliwy od v1.63 — wcześniej `Songs.CategoryId` było `NOT NULL`
+    /// z `ON DELETE CASCADE` i skasowanie samej kategorii zabierało pieśni.
+    /// Gdy przyjdą OBIE flagi, wygrywa <c>keepSongs</c> — nieodwracalne kasowanie wymaga
+    /// jednoznacznej intencji.
     /// </summary>
     private static async Task<Result> DeleteCategoryAsync(DatabaseService db, JsonElement root)
     {
@@ -151,14 +160,15 @@ public static class PilotCategorySync
         if (cat == null) return Deny(cmd, ReasonNotFound, ("id", id));
 
         int songs = await db.CountSongsInCategoryAsync(id);
-        bool withSongs = root.TryGetProperty("withSongs", out var wsEl) &&
-                         wsEl.ValueKind == JsonValueKind.True;
+        bool withSongs = Flag(root, "withSongs");
+        bool keepSongs = Flag(root, "keepSongs");
 
-        if (songs > 0 && !withSongs)
+        if (songs > 0 && !withSongs && !keepSongs)
             return Deny(cmd, ReasonNotEmpty, ("id", id), ("name", cat.Name), ("songs", songs));
 
-        if (songs > 0) await db.DeleteCategoryWithSongsAsync(id);
-        else           await db.DeleteCategoryAsync(id);
+        if (songs == 0)      await db.DeleteCategoryAsync(id);
+        else if (keepSongs)  await db.DeleteCategoryKeepSongsAsync(id);
+        else                 await db.DeleteCategoryWithSongsAsync(id);
 
         return await OkCategoriesAsync(db, cmd, ("id", id), ("name", cat.Name), ("songs", songs));
     }
@@ -261,6 +271,10 @@ public static class PilotCategorySync
     private static string Str(JsonElement root, string prop) =>
         root.TryGetProperty(prop, out var el) && el.ValueKind == JsonValueKind.String
             ? (el.GetString() ?? "").Trim() : "";
+
+    /// <summary>Flaga boolowska; wyłącznie jawne <c>true</c> jest zgodą (brak pola i <c>false</c> = nie).</summary>
+    private static bool Flag(JsonElement root, string prop) =>
+        root.TryGetProperty(prop, out var el) && el.ValueKind == JsonValueKind.True;
 
     private static bool TryInt(JsonElement root, string prop, out int value)
     {

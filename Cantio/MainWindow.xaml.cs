@@ -320,24 +320,9 @@ public partial class MainWindow : Window
             try
             {
                 var (total, items) = await db.GetSongsForSyncAsync(offset, limit);
-                var json = JsonSerializer.Serialize(new
-                {
-                    type = "songs_data",
-                    offset,
-                    total,
-                    items = items.Select(s => new
-                    {
-                        id         = s.Id,
-                        title      = s.Title,
-                        number     = s.Number,
-                        author     = s.Author ?? "",
-                        categoryId = s.CategoryId,
-                        parts      = s.Verses
-                            .OrderBy(v => v.Position)
-                            .Select(v => new { type = v.Type, text = v.Text })
-                    })
-                });
-                await _remoteControl.SendToClientAsync(ws, json);
+                // Kształt komunikatu (w tym CategoryId == NULL → 0) składa PilotSongSync
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotSongSync.BuildSongsDataJson(offset, total, items));
             }
             catch { }
         };

@@ -1,4 +1,4 @@
-using Cantio.Helpers;
+﻿using Cantio.Helpers;
 using Cantio.Models;
 using Cantio.Services;
 using Cantio.Views;
@@ -151,14 +151,25 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private Category? _selectedCategory;
     [ObservableProperty] private CategoryEditorItem? _selectedCategoryItem;
 
+    /// <summary>true = lista PIEŚNI pokazuje pieśni bez kategorii (wirtualna pozycja na liście).</summary>
+    private bool _showingUncategorized;
+
     partial void OnSelectedCategoryChanged(Category? value)
     {
-        if (value != null) _ = LoadSongsAsync(value.Id);
+        if (value != null) { _showingUncategorized = false; _ = LoadSongsAsync(value.Id); }
     }
 
     partial void OnSelectedCategoryItemChanged(CategoryEditorItem? value)
     {
         if (value == null || value.IsEditing || value.Id == 0) return;
+        if (value.IsVirtual)
+        {
+            // „Bez kategorii" zachowuje się jak zwykła kategoria, tylko nie ma rekordu w bazie
+            SelectedCategory = null;
+            _showingUncategorized = true;
+            _ = LoadSongsAsync(CategoryEditorItem.UncategorizedId);
+            return;
+        }
         var cat = Categories.FirstOrDefault(c => c.Id == value.Id);
         if (cat != null) SelectedCategory = cat;
     }
@@ -540,6 +551,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void StartEditCategory(CategoryEditorItem item)
     {
+        if (item.IsVirtual) return;   // „Bez kategorii" nie ma rekordu — nie ma czego edytować
         foreach (var c in CategoryItems) if (c != item) c.IsEditing = false;
         item.IsEditing = true;
     }
@@ -547,6 +559,7 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveCategoryAsync(CategoryEditorItem item)
     {
+        if (item.IsVirtual) return;   // zapis wirtualnej pozycji założyłby kategorię-widmo
         var name = item.EditName.Trim();
         if (string.IsNullOrEmpty(name)) return;
         await _db.SaveCategoryAsync(new Category
@@ -564,12 +577,14 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task DeleteCategoryAsync(CategoryEditorItem item)
     {
+        if (item.IsVirtual) return;   // „Bez kategorii" nie jest rekordem — nie ma czego kasować
         int songCount = await _db.CountSongsInCategoryAsync(item.Id);
         string msg = songCount > 0
             ? $"Usunąć kategorię \"{item.Name}\"?\n\n" +
               $"Zawiera {songCount} pieśni.\n\n" +
               "Tak — usuń kategorię RAZEM z pieśniami\n" +
-              "Nie — usuń tylko kategorię (pieśni pozostaną bez kategorii)\n" +
+              "Nie — usuń tylko kategorię; pieśni zostaną i znajdziesz je\n" +
+              "        na liście kategorii pod pozycją „Bez kategorii\"\n" +
               "Anuluj — rezygnuj"
             : $"Usunąć kategorię \"{item.Name}\"?";
 
@@ -582,7 +597,9 @@ public partial class DisplayViewModel : ObservableObject
             if (result == MessageBoxResult.Yes)
                 await _db.DeleteCategoryWithSongsAsync(item.Id);
             else if (result == MessageBoxResult.No)
-                await _db.DeleteCategoryAsync(item.Id);
+                // Pieśni zostają — dostają CategoryId = NULL i trafiają pod „Bez kategorii".
+                // (Do v1.63 szło tu DeleteCategoryAsync, czyli kaskada kasująca pieśni.)
+                await _db.DeleteCategoryKeepSongsAsync(item.Id);
             else
                 return;
         }
@@ -592,7 +609,15 @@ public partial class DisplayViewModel : ObservableObject
             await _db.DeleteCategoryAsync(item.Id);
         }
 
+        // Usunięta kategoria mogła być właśnie wybrana — lista PIEŚNI musi przestać ją pokazywać
+        if (SelectedCategory?.Id == item.Id)
+        {
+            SelectedCategory = null;
+            _showingUncategorized = false;
+            Songs = [];
+        }
         await ReloadCategoriesForEditorAsync();
+        await ReloadCurrentSongListAsync();
     }
 
     [RelayCommand]
@@ -620,9 +645,12 @@ public partial class DisplayViewModel : ObservableObject
 
     public async Task SaveCategoryOrderAsync()
     {
-        for (int i = 0; i < CategoryItems.Count; i++)
+        // Wirtualne „Bez kategorii" NIE jest rekordem — zapisane jako Category założyłoby
+        // w bazie kategorię-widmo.
+        var real = CategoryItems.Where(c => c.IsRealCategory).ToList();
+        for (int i = 0; i < real.Count; i++)
         {
-            var item = CategoryItems[i];
+            var item = real[i];
             item.Number = i + 1;
             await _db.SaveCategoryAsync(new Category { Id = item.Id, Name = item.Name, Number = i + 1 });
         }
@@ -632,19 +660,26 @@ public partial class DisplayViewModel : ObservableObject
 
     private void RefreshCategoryMoveFlags()
     {
-        int last = CategoryItems.Count - 1;
-        for (int i = 0; i < CategoryItems.Count; i++)
+        var real = CategoryItems.Where(c => c.IsRealCategory).ToList();
+        int last = real.Count - 1;
+        for (int i = 0; i < real.Count; i++)
         {
-            CategoryItems[i].CanMoveUp = i > 0;
-            CategoryItems[i].CanMoveDown = i < last;
+            real[i].CanMoveUp = i > 0;
+            real[i].CanMoveDown = i < last;
+        }
+        foreach (var v in CategoryItems.Where(c => c.IsVirtual))
+        {
+            v.CanMoveUp = false;
+            v.CanMoveDown = false;
         }
     }
 
     [RelayCommand]
     private async Task MoveCategoryUpAsync(CategoryEditorItem item)
     {
+        if (item.IsVirtual) return;
         int idx = CategoryItems.IndexOf(item);
-        if (idx <= 0) return;
+        if (idx <= 0 || CategoryItems[idx - 1].IsVirtual) return;
         CategoryItems.Move(idx, idx - 1);
         SelectedCategoryItem = item;
         await SaveCategoryOrderAsync();
@@ -653,8 +688,9 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task MoveCategoryDownAsync(CategoryEditorItem item)
     {
+        if (item.IsVirtual) return;
         int idx = CategoryItems.IndexOf(item);
-        if (idx < 0 || idx >= CategoryItems.Count - 1) return;
+        if (idx < 0 || idx >= CategoryItems.Count - 1 || CategoryItems[idx + 1].IsVirtual) return;
         CategoryItems.Move(idx, idx + 1);
         SelectedCategoryItem = item;
         await SaveCategoryOrderAsync();
@@ -674,7 +710,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         var prevId = SelectedCategoryItem?.Id ?? 0;
         await LoadCategoriesAsync();
-        if (prevId > 0)
+        if (prevId != 0)   // != 0, nie > 0 — „Bez kategorii" ma Id -1 i też ma zostać zaznaczone
         {
             var restored = CategoryItems.FirstOrDefault(c => c.Id == prevId);
             if (restored != null) SelectedCategoryItem = restored;
@@ -755,7 +791,9 @@ public partial class DisplayViewModel : ObservableObject
         if (_editingSong == null) return;
         _editingSong.Title = EditTitle.Trim();
         _editingSong.Number = int.TryParse(EditNumber, out var n) ? n : 0;
-        _editingSong.CategoryId = EditCategory?.Id ?? 0;
+        // null = pieśń zostaje „bez kategorii" (tak wraca z edytora pieśń odczepiona od usuniętej
+        // kategorii — nie wolno jej cicho wrzucić do przypadkowej kategorii)
+        _editingSong.CategoryId = EditCategory?.Id;
         int pos = 0;
         _editingSong.Verses = EditingVerses.Select(v => new Verse
         {
@@ -776,8 +814,7 @@ public partial class DisplayViewModel : ObservableObject
         await _db.SaveSongAsync(_editingSong);
         int savedSongId = _editingSong.Id;
         await LoadCategoriesAsync();
-        if (SelectedCategory != null)
-            await LoadSongsAsync(SelectedCategory.Id);
+        await ReloadCurrentSongListAsync();
         IsEditMode = false;
         IsEditDirty = false;
         _editingSong = null;
@@ -794,7 +831,7 @@ public partial class DisplayViewModel : ObservableObject
         if (_editingSong == null) return;
         if (!Confirm($"Usunąć pieśń \"{_editingSong.Title}\"?")) return;
         await _db.DeleteSongAsync(_editingSong.Id);
-        if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
+        await ReloadCurrentSongListAsync();
         IsEditMode = false;
         _editingSong = null;
     }
@@ -1297,7 +1334,7 @@ public partial class DisplayViewModel : ObservableObject
         CloseTextItemEditor();
 
         await LoadCategoriesAsync();
-        if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
+        await ReloadCurrentSongListAsync();
 
         if (wasSelected || !projectionActive) LoadSongFromSetlist(newItem);
         else SelectedSetlistItem = newItem;
@@ -1653,10 +1690,32 @@ public partial class DisplayViewModel : ObservableObject
     {
         var list = await _db.GetCategoriesAsync();
         Categories = new ObservableCollection<Category>(list);
-        CategoryItems = new ObservableCollection<CategoryEditorItem>(
-            list.Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name }));
+        var items = list
+            .Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name })
+            .ToList();
+
+        // Wirtualna pozycja „Bez kategorii" — TYLKO gdy takie pieśni istnieją. Inaczej pieśni
+        // odczepione od usuniętej kategorii byłyby niewidoczne poza wyszukiwarką.
+        if (await _db.CountUncategorizedSongsAsync() > 0)
+            items.Add(new CategoryEditorItem
+            {
+                Id       = CategoryEditorItem.UncategorizedId,
+                Number   = int.MaxValue,
+                Name     = Loc("Category.Uncategorized", "Bez kategorii"),
+                IsVirtual = true
+            });
+
+        CategoryItems = new ObservableCollection<CategoryEditorItem>(items);
         RefreshCategoryMoveFlags();
     }
+
+    /// <summary>
+    /// Tekst z zasobów lokalizacji (klucz w Strings.pl/en/es); fallback gdy klucza nie ma
+    /// albo gdy nie działamy pod aplikacją WPF (harness protokołu).
+    /// </summary>
+    private static string Loc(string key, string fallback) =>
+        System.Windows.Application.Current?.TryFindResource(key) as string is { Length: > 0 } s
+            ? s : fallback;
 
     // ─── Sortowanie list pieśni ───────────────────────────────────────────────
 
@@ -1684,8 +1743,21 @@ public partial class DisplayViewModel : ObservableObject
 
     private async Task LoadSongsAsync(int categoryId)
     {
-        var list = await _db.GetSongsByCategoryAsync(categoryId);
+        var list = categoryId == CategoryEditorItem.UncategorizedId
+            ? await _db.GetUncategorizedSongsAsync()
+            : await _db.GetSongsByCategoryAsync(categoryId);
         Songs = new ObservableCollection<Song>(SortSongs(list));
+    }
+
+    /// <summary>
+    /// Przeładowuje listę PIEŚNI dla tego, co jest wybrane w kolumnie KATEGORIE — łącznie
+    /// z wirtualną pozycją „Bez kategorii". JEDNO miejsce, bo rozsypanie tego po komendach
+    /// zostawiłoby listę „bez kategorii" nieodświeżoną po edycji pieśni.
+    /// </summary>
+    private async Task ReloadCurrentSongListAsync()
+    {
+        if (_showingUncategorized) await LoadSongsAsync(CategoryEditorItem.UncategorizedId);
+        else if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
     }
 
     private async Task RunDebouncedSearchAsync(string query)
@@ -1704,7 +1776,7 @@ public partial class DisplayViewModel : ObservableObject
         }
         if (string.IsNullOrWhiteSpace(query))
         {
-            if (SelectedCategory != null) await LoadSongsAsync(SelectedCategory.Id);
+            await ReloadCurrentSongListAsync();
             return;
         }
         var list = await _db.SearchSongsAsync(query, ct);
