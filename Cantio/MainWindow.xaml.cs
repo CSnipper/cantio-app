@@ -140,7 +140,15 @@ public partial class MainWindow : Window
         _importVm = new ImportViewModel(db);
 
         _szablonVm = new SzablonViewModel(db, _vm.Projection, _vm);
-        _szablonVm.Saved += () => _vm.RebuildSlides();
+        _szablonVm.Saved += () =>
+        {
+            _vm.RebuildSlides();
+            // „ZAPISZ USTAWIENIA" w zakładce WYGLĄD → ten sam komunikat do tabletów, co po
+            // zmianie z Pilota. Jeden builder, dwie ścieżki — bez drugiej listy pól.
+            // (Pole _remoteControl jest ustawiane niżej w tym samym konstruktorze; Saved
+            // odpala się dopiero po interakcji użytkownika, więc nigdy nie jest null.)
+            _ = _remoteControl.BroadcastJsonAsync(PilotDisplaySettings.BuildDataJson(db.GetSettings()));
+        };
         _szablonVm.DioceseChanged += RefreshLitDay;
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
@@ -420,6 +428,31 @@ public partial class MainWindow : Window
         // Pinezka kliknięta w oknie Cantio → ten sam komunikat do Pilotów (jeden builder, dwie ścieżki).
         _vm.SetlistPinChanged += (setlistId, pinned) =>
             _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned));
+
+        // ─── Ustawienia projekcji (wygląd) z Pilota ───
+        // Logika siedzi w PilotDisplaySettings; tu zostaje wysyłka, broadcast i odświeżenie
+        // desktopu DOKŁADNIE tą samą ścieżką co „ZAPISZ USTAWIENIA" w zakładce WYGLĄD
+        // (ApplySettings + RebuildSlides) — bez tego zmiana nie weszłaby na ekran.
+        _remoteControl.DisplaySettingsCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotDisplaySettings.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Changed)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            await _szablonVm.ApplyExternalSettingsAsync();
+                            _vm.RebuildSlides();
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie wyglądu: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda ustawień wyglądu: {ex.Message}"); }
+        };
 
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.

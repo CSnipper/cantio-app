@@ -460,6 +460,21 @@ public partial class SzablonViewModel : ObservableObject
         Saved?.Invoke();
     }
 
+    /// <summary>
+    /// Ustawienia zmieniono Z ZEWNĄTRZ (komenda <c>set_display_settings</c> z tabletu) — pola
+    /// zakładki WYGLĄD muszą pokazać nowy stan bazy, inaczej najbliższe „ZAPISZ USTAWIENIA"
+    /// w oknie cofnęłoby zmianę operatora przy tablecie.
+    ///
+    /// Świadomie NIE odpala <see cref="Saved"/>: ten event rozgłasza teraz <c>display_settings_data</c>
+    /// do Pilotów, a broadcast po komendzie z tabletu poszedł już z handlera — poleciałby drugi raz.
+    /// Przebudowę slajdów wywołuje `MainWindow` tuż po tej metodzie.
+    /// </summary>
+    public async Task ApplyExternalSettingsAsync()
+    {
+        await LoadAsync();
+        _projection.ApplySettings(_db.GetSettings());
+    }
+
     [RelayCommand]
     private async Task ResetAsync()
     {

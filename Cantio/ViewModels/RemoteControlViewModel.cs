@@ -52,6 +52,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, bool>? ProjectionRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? CategoryCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistPinCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? DisplaySettingsCommandRequested;
 
     /// <summary>
     /// Zmienił się stan parowania (start serwera, nowe urządzenie, „nowy PIN").
@@ -87,6 +88,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.ProjectionRequested         += (ws, open) => ProjectionRequested?.Invoke(ws, open);
         _server.CategoryCommandRequested    += (ws, raw)  => CategoryCommandRequested?.Invoke(ws, raw);
         _server.SetlistPinCommandRequested  += (ws, raw)  => SetlistPinCommandRequested?.Invoke(ws, raw);
+        _server.DisplaySettingsCommandRequested += (ws, raw) => DisplaySettingsCommandRequested?.Invoke(ws, raw);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
         {

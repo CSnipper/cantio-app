@@ -68,6 +68,8 @@ public sealed class RemoteControlServer : IDisposable
     /// <summary>Kategorie i grupy zestawów — jeden event na całą rodzinę (ws, surowy JSON).</summary>
     public event Action<WebSocket, string>? CategoryCommandRequested;
     public event Action<WebSocket, string>? SetlistPinCommandRequested;   // ws, raw json (setlist_pin)
+    /// <summary>Ustawienia projekcji (wygląd) — get/set, surowy JSON.</summary>
+    public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -530,6 +532,11 @@ public sealed class RemoteControlServer : IDisposable
                     // Kategorie / grupy zestawów — cała logika w PilotCategorySync,
                     // serwer wyłącznie przekazuje surowy JSON.
                     CategoryCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotDisplaySettings.IsCommand(type))
+                {
+                    // Ustawienia projekcji (wygląd) — logika w PilotDisplaySettings.
+                    DisplaySettingsCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {

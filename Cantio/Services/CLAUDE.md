@@ -143,6 +143,8 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_group_add` | `name` | nowa grupa zestawów |
 | `setlist_group_rename` | `name`, `newName` | zmiana nazwy grupy |
 | `setlist_group_delete` | `name` | usunięcie grupy |
+| `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
+| `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
 | `status` | — | → `status_data` (diagnostyka zdalna) |
 | `restart_app` | — | restart procesu Cantio (→ `ack`) |
@@ -193,6 +195,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
+| `display_settings_data` | `settings` (23 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
 | `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
@@ -365,6 +368,68 @@ normalizuje się do klucza okresu — zmiana „Zwykły" → „Okres Zwykły" j
 rozszerzeń daje bajt w bajt `{"type":"ack","command":"…","ok":true}` (strażnik w harnessie),
 `categories_data` nie zmieniło kształtu. Wszystkie dziewięć komend przechodzi normalną bramą auth.
 
+##### Ustawienia projekcji — wygląd (v1.63+)
+
+„Nie widać z ostatniej ławki” to reakcja na żywo, a nie powód do wstawania od tabletu. Cała zakładka
+WYGLĄD jest więc dostępna zdalnie. Kierunek prawdy jak przy kategoriach: **baza desktopu jest jedynym
+źródłem**, tablet wyłącznie komenduje, desktop zapisuje, przebudowuje slajdy i rozgłasza nowy stan.
+
+- P→D `get_display_settings` → `display_settings_data` **do nadawcy**.
+- P→D `set_display_settings {settings:{klucz:wartość,…}}` → `ack {command, ok, keys:N}` do NADAWCY
+  + broadcast `display_settings_data` do **WSZYSTKICH** (drugi tablet musi zobaczyć zmianę).
+- **Aktualizacja CZĘŚCIOWA, ale przyjmowana ATOMOWO.** Zapisywane są wyłącznie przysłane klucze;
+  jeden nieznany klucz albo jedna zła wartość i **nie zapisujemy NICZEGO** z pakietu (ack `ok:false`,
+  `reason`, `key` = winny klucz, **żadnego broadcastu**). Częściowy zapis zostawiłby projekcję
+  w stanie w pół drogi — a to wygląda jak awaria w trakcie mszy.
+- `reason`: `unknown_key` · `invalid_value` · `empty_payload`.
+
+**Biała lista (23 klucze — dokładnie te, których używa `DatabaseService.GetSettings`):**
+
+| klucz | typ JSON | dozwolone |
+|---|---|---|
+| `font_family` | string | czcionka **wbudowana albo zainstalowana w systemie** (literówka = fallback WPF na inny krój w środku mszy) |
+| `font_size` | number | 8–400 |
+| `font_bold`, `font_auto_fit`, `shadow_enabled`, `bg_gradient_enabled` | bool | wyłącznie `true`/`false` (string `"true"` odrzucany) |
+| `text_align` | string | `left` · `center` · `right` |
+| `text_position` | string | `top` · `center` · `bottom` |
+| `text_color`, `bg_color`, `bg_gradient_color1`, `bg_gradient_color2` | string | `#RRGGBB` albo `#AARRGGBB` |
+| `line_height` | number | 0,5–4 |
+| `shadow_blur` | number | 0–100 |
+| `shadow_depth` | number | 0–50 |
+| `shadow_opacity`, `bg_image_opacity` | number | 0–1 |
+| `bg_image` | string | `""` = wyłącz tło (jedyna sensowna zmiana z tabletu — telefon nie widzi dysku PC); niepusta ścieżka **musi istnieć** |
+| `text_margin_h`, `text_margin_v` | number | 0–1000 |
+| `bg_gradient_type` | string | `linear` · `radial` |
+| `bg_gradient_angle` | number | 0–360 |
+| `psalm_category_id` | number | ≥ 0 (0 = tryb psalm wyłączony) |
+
+Czego na liście NIE MA i nie będzie bez osobnej decyzji: `projection_screen`, `language`, `app_mode`,
+`pilot_*`, `blank_*`, `text_tags`. Zdalna zmiana ekranu projekcji albo trybu pracy potrafi odciąć
+operatora od obrazu, a to nie jest „wygląd”.
+
+- **Czcionki lecą w DWÓCH listach**, tak jak grupy w comboboksie okna Cantio: `fonts` (wbudowane —
+  te same na każdym komputerze) i `systemFonts` (zainstalowane w Windows). Systemowych świadomie
+  nie pomijamy: domyślne ustawienie parafii to „Segoe UI”, więc lista bez nich nie pozwoliłaby nawet
+  wrócić do stanu wyjściowego. Koszt zmierzony u użytkownika: **9,6 kB przy 602 czcionkach** — rząd
+  wielkości mniej niż `setlists_data`.
+- **Liczby zapisywane są w BIEŻĄCEJ kulturze** (`ToString(CultureInfo.CurrentCulture)`), bo tak
+  zapisuje je `SzablonViewModel.SaveAsync` i tak czyta `GetSettings`. Zapis „1.45” w pl-PL wróciłby
+  jako śmieć. Harness ma na to asercję round-tripu każdego z 23 kluczy.
+- **Po zapisie MUSI iść przebudowa slajdów.** `MainWindow` woła `SzablonViewModel.ApplyExternalSettingsAsync()`
+  (przeładowanie pól zakładki + `ProjectionViewModel.ApplySettings`) i `DisplayViewModel.RebuildSlides()`
+  — tę samą parę co „ZAPISZ USTAWIENIA”. Bez przeładowania zakładki najbliższy zapis w oknie cofnąłby
+  zmianę operatora przy tablecie.
+- **Kierunek odwrotny:** „ZAPISZ USTAWIENIA” w oknie Cantio też rozgłasza `display_settings_data` —
+  event `SzablonViewModel.Saved` w `MainWindow`. Komunikat składa **wyłącznie**
+  `PilotDisplaySettings.BuildDataJson`; `ApplyExternalSettingsAsync` celowo NIE odpala `Saved`,
+  żeby broadcast po komendzie z tabletu nie poleciał dwa razy.
+- Logika: `Services/PilotDisplaySettings.cs` (`IsCommand` → routing w `RemoteControlServer`,
+  `HandleAsync` → `Result(Response, Broadcast)`). Handler w `MainWindow.xaml.cs` jest głupi:
+  wyślij → rozgłoś → `Dispatcher` odświeża UI.
+- **Zgodność wsteczna:** wyłącznie DOPISANE typy — żaden istniejący komunikat nie zmienił kształtu.
+  Stary Pilot nowych komend nie zna, więc ich nie wyśle, a nieznanego `display_settings_data`
+  po prostu zignoruje. Obie komendy przechodzą normalną bramą auth (przed `auth_ok` cisza).
+
 ### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
 
 Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `desktop.updatedAt != lastSyncedUpdatedAt`), więc reguła jest sztywna:
@@ -376,6 +441,7 @@ Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `deskt
 | `CreateOrUpdateSetlistFromPilotAsync` | **NIE** — zapisuje znacznik **przysłany przez Pilota** | ta sama wartość wraca w `setlist_sync_ack` i staje się nową bazą `baseUpdatedAt`; własny czas desktopu = fałszywy konflikt przy każdej synchronizacji |
 | `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt. **Dotyczy tak samo komendy `setlist_pin` z Pilota (v1.63)** — jedyna droga zapisu tej flagi to ta metoda, nigdy `SaveSetlistAsync` |
 | `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
+| `set_display_settings` (`PilotDisplaySettings`, v1.63) | **NIE** | wygląd projekcji to ustawienia aplikacji (tabela `settings`), nie treść zestawu — podbicie znacznika dałoby fałszywy konflikt na wszystkich zestawach naraz |
 | komendy kategorii i grup (`PilotCategorySync`, v1.63) | **NIE** — żadna | kategorie nie należą do zestawu, a operacje na grupach ruszają wyłącznie ustawienie `setlist_groups`; zestawy nie są dotykane nawet przy `setlist_group_rename`/`delete` (parytet z UI), więc podbicie znacznika oznaczałoby fałszywy konflikt na wszystkich zestawach naraz |
 
 **BUG, który to wymusił (naprawiony 2026-07-28):** `SaveSetlistAsync` nie dotykało znacznika, więc zwykły zapis zestawu w Cantio był dla Pilota niewidoczny i telefon **cicho nadpisywał pracę operatora**. Harness dawał 12 czerwonych asercji przed poprawką.
