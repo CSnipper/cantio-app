@@ -303,6 +303,9 @@
     <sys:String x:Key="Section.CurrentSet">SET</sys:String>
     <sys:String x:Key="Section.Pinned">PINNED</sys:String>
     <sys:String x:Key="Pinned.Unpin">Unpin</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Title">Pin the week</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Header">Setlists pinned for the next 7 days:</sys:String>
+    <sys:String x:Key="PinWeek.Summary.NewCount">Newly pinned:</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Song Import</sys:String>

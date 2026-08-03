@@ -134,6 +134,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (`{id}`), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
 | `setlist_delete` | `desktopId` | usuń zestaw z bazy desktopu (→ `setlist_delete_ack`) |
 | `setlist_pin` | `desktopId`, `pinned` (bool) | przypnij/odepnij zestaw w panelu PRZYPIĘTE (→ `ack` + broadcast `setlist_pinned`) |
+| `pin_next_week` | — | „Przypnij tydzień”: przypina 7 kolejnych dni od dziś (→ `ack {pinned, days[]}` + broadcasty `setlist_pinned` i `pinned_celebrations`) |
 | `get_categories` | — | → `categories_data` **do nadawcy** |
 | `category_add` | `name` | nowa kategoria na końcu kolejności |
 | `category_rename` | `id`, `name` | zmiana nazwy |
@@ -196,6 +197,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `songs_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
 | `setlists_data` | `setlists[]` (`{id,name,group,songCount,updatedAt,`**`pinned`**`}`) | biblioteka zestawów — TYLKO na żądanie `get_setlists` (bywa duża); `pinned` dopisane w v1.63 |
 | `setlist_pinned` | `desktopId`, `pinned` | zmieniono przypięcie zestawu — broadcast do WSZYSTKICH (v1.63) |
+| `pinned_celebrations` | `items[]` (`{desktopId, celebration}`) | podpisy obchodów pod przypiętymi zestawami (np. „wsp. Św. Dominika, prezbitera”) — broadcast po KAŻDEJ zmianie pinów i na `ClientConnected`; wyłącznie wpisy z NIEPUSTYM podpisem, pusta lista = skasuj podpisy (v1.63) |
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
@@ -204,7 +206,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `display_settings_data` | `settings` (23 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
-| `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
+| `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists`, `pinned`, `days` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
 
 ##### Komendy ratunkowe dla sprzętu bez klawiatury (v1.63+, tryb serwerowy)
 
@@ -298,6 +300,51 @@ Stan jest **synchronizowany**: jedna prawda w bazie desktopu, widoczna tak samo 
   `PilotSetlistSync.BuildSetlistsJsonAsync` (przeniesiona z inline'a w `MainWindow`).
 - Komenda przechodzi normalną bramą auth (`if (!authed) continue;`) — przed `auth_ok` jest ignorowana
   bez odpowiedzi.
+
+##### „Przypnij tydzień” + podpisy obchodów (v1.63+)
+
+Problem, który to zamyka: `PinNextWeek` nazywa zestaw dniem temporalnym („18 Pon”), a nazwę zmienia
+tylko obchód, który REALNIE ją wypiera (uroczystość/święto). **Wspomnienie obowiązkowe nigdzie nie
+wypływało** — organista dowiadywał się o nim dopiero przy ołtarzu.
+
+> **Nazwa zestawu zostaje NIETKNIĘTA.** Podpis jest liczony PRZY WYŚWIETLANIU i nigdy nie trafia do
+> `Setlist.Name`: te same zestawy wracają co roku („18 Pon” w 2027 ma inne wspomnienie), więc doklejenie
+> obchodu do nazwy zerwałoby dopasowanie w `GetSetlistForPinAsync` przy kolejnym przypinaniu.
+> W modelu podpis żyje jako `[NotMapped] Setlist.Celebration` — do bazy nie ma jak wsiąknąć.
+
+- **Czysta funkcja:** `Services/PinnedCelebrations.cs` (bez bazy, bez WPF). `CaptionFor(date,
+  effectiveName, diocese)` bierze NAJWYŻSZY obchód rangi ≥ wspomnienie obowiązkowe i zwraca `""`, gdy:
+  (a) to on wyparł nazwę dnia — nazwa już nim jest, podpis byłby duplikatem; (b) jest niedziela, a ranga
+  < uroczystość — liturgicznie się tego nie obchodzi, więc podpis byłby fałszywą podpowiedzią.
+  Prefiks `wsp. ` tylko dla wspomnienia; święto/uroczystość mówią same za siebie.
+  `Build(pinned, from, days, diocese)` mapuje `id → podpis`, kojarząc zestaw z datą **po nazwie**
+  (`DatabaseService.NameEquals`, pl-PL — dokładnie to, po czym rozpoznaje zestawy samo przypinanie).
+- **Logika przypinania:** `Services/PilotPinWeek.cs` — JEDNO miejsce dla przycisku w oknie
+  (`DisplayViewModel.PinNextWeekAsync`) i komendy `pin_next_week`. Operacja jest **idempotentna**:
+  zestaw zakładany tylko gdy go nie ma, ponowne kliknięcie daje `pinned: 0`. Flaga idzie przez
+  `SetSetlistPinnedAsync`, więc `UpdatedAt` zostaje nietknięte (tabela niżej).
+- P→D `pin_next_week` (bez pól) → `ack {command:"pin_next_week", ok:true, pinned:N,
+  days:[{date:"2026-08-08", name:"18 Sob", celebration:"wsp. Św. Dominika, prezbitera"}, …]}`.
+  `days` ma **zawsze 7 pozycji**, `celebration` jest pomijane, gdy podpisu nie ma; `N` = ile zestawów
+  realnie przypięto/utworzono. Składa wyłącznie `PilotPinWeek.BuildAckJson`.
+- D→P broadcast `pinned_celebrations {items:[{desktopId, celebration}]}` — po każdej zmianie pinów
+  (pin / unpin / przypnij tydzień / zmiana diecezji / import) i na `ClientConnected`. Wysyłka wisi na
+  `DisplayViewModel.PinnedListRefreshed` (odpalane na końcu `LoadPinnedSetlistsAsync`), więc przy
+  przypinaniu tygodnia leci **jeden** komunikat, a nie siedem. Składa wyłącznie
+  `PilotPinWeek.BuildCelebrationsJson`.
+- **Diecezja** czytana z ustawienia `diocese` przez `PilotPinWeek.DioceseAsync` — kod bezgłowy
+  (komendy, testy) NIE może polegać na statyku `DiocesanCalendarService.CurrentDiocese`, który
+  ustawia okno. Stąd przeciążenia `ForDate(date, diocese)` i `EffectiveSetlistName(date, day, diocese)`.
+- **Okno Cantio:** panel PRZYPIĘTE ma drugi wiersz (mały, szary, `TextTrimming` + tooltip), widoczny
+  tylko przy niepustym podpisie. Po kliknięciu przycisku pojawia się podsumowanie 7 dni —
+  **w trybie serwerowym NIE** (`AppMode.IsServer`: zero blokujących okien na mini PC bez klawiatury;
+  Pilot i tak dostaje to samo ackiem).
+- **Zgodność wsteczna:** `pin_next_week` i `pinned_celebrations` to DOPISANE typy; stary Pilot ich nie
+  wysyła, a nadmiarowego broadcastu nie rozumie i ignoruje. Za bramą auth jak wszystko inne.
+- Harness: `PinWeekTests.cs` — czysta funkcja na SZTYWNYCH datach kalendarza (3 IX = wspomnienie
+  obowiązkowe, 8 IX = święto wypierające, 12 IX = wspomnienie diecezji gliwickiej, 13 IX 2026 =
+  niedziela) + komenda przez realny `ClientWebSocket`. Sabotaż potwierdzony: wycięcie obu strażników
+  w `CaptionFor` daje 2 FAIL.
 
 ##### Kategorie pieśni i grupy zestawów (v1.63+)
 

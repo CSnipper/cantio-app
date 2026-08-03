@@ -1405,31 +1405,33 @@ public partial class DisplayViewModel : ObservableObject
 
     private bool CanTogglePin() => _loadedSetlistId > 0;
 
-    [RelayCommand]
-    private async Task PinNextWeek()
+    /// <summary>
+    /// „Przypnij tydzień" wykonane — z podsumowaniem 7 dni. Okno pokazuje je w oknie dialogowym,
+    /// komenda z Pilota odsyła je ackiem; logika przypinania siedzi w <see cref="PilotPinWeek"/>,
+    /// więc obie ścieżki robią DOKŁADNIE to samo.
+    /// </summary>
+    public event Action<PilotPinWeek.Result>? WeekPinned;
+
+    /// <summary>
+    /// Wspólny rdzeń przycisku i komendy <c>pin_next_week</c>: przypięcie + odświeżenie UI
+    /// + rozgłoszenie zmian do Pilotów. Zwraca podsumowanie tygodnia.
+    /// </summary>
+    public async Task<PilotPinWeek.Result> PinNextWeekAsync(bool announce = true)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
-        for (int i = 0; i < 7; i++)
-        {
-            var date = today.AddDays(i);
-            var day = LiturgicalCalendarService.GetDay(date);
-            // Kalendarz diecezji: uroczystość/święto (lub ręczny wybór formularza) wypiera nazwę dnia
-            var name = DiocesanCalendarService.EffectiveSetlistName(date, day);
-            var group = await _db.ResolveGroupNameAsync(day.Group);
-            await _db.EnsureGroupAsync(group);
-            var existing = await _db.GetSetlistForPinAsync(name, day.Group);
-            if (existing == null)
-            {
-                var newSetlist = new Setlist { Name = name, Group = group, SeasonKey = day.Group, IsPinned = true };
-                await _db.SaveSetlistAsync(newSetlist);
-                SetlistPinChanged?.Invoke(newSetlist.Id, true);
-            }
-            else if (!existing.IsPinned)
-                await SetPinnedAsync(existing.Id, true);
-        }
+        var diocese = await PilotPinWeek.DioceseAsync(_db);
+        var result = await PilotPinWeek.RunAsync(_db, today, diocese);
+
+        foreach (var id in result.ChangedIds) SetlistPinChanged?.Invoke(id, true);
+
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
+        if (announce) WeekPinned?.Invoke(result);
+        return result;
     }
+
+    [RelayCommand]
+    private async Task PinNextWeek() => await PinNextWeekAsync();
 
     [RelayCommand]
     private async Task PinSetlistFromSearch(Setlist setlist)
@@ -2206,10 +2208,28 @@ public partial class DisplayViewModel : ObservableObject
         ProjectionScreenIndex = -1;
     }
 
+    /// <summary>
+    /// Lista PRZYPIĘTE została przeładowana (pin, unpin, „Przypnij tydzień", zmiana diecezji).
+    /// `MainWindow` rozgłasza wtedy Pilotom podpisy obchodów — JEDEN komunikat na zmianę,
+    /// zamiast siedmiu przy przypinaniu tygodnia.
+    /// </summary>
+    public event Action? PinnedListRefreshed;
+
     public async Task LoadPinnedSetlistsAsync()
     {
         var list = await _db.GetPinnedSetlistsAsync();
+
+        // Podpis obchodu liczony PRZY WYŚWIETLANIU — nazwa zestawu zostaje nietknięta,
+        // bo ten sam zestaw wraca w kolejnym roku z innym wspomnieniem.
+        var diocese = await PilotPinWeek.DioceseAsync(_db);
+        var captions = PinnedCelebrations.Build(
+            list.Select(s => new PinnedCelebrations.PinnedRef(s.Id, s.Name)),
+            DateOnly.FromDateTime(DateTime.Today), PilotPinWeek.Days, diocese);
+        foreach (var s in list)
+            s.Celebration = captions.TryGetValue(s.Id, out var c) ? c : "";
+
         PinnedSetlists = new ObservableCollection<Setlist>(list);
+        PinnedListRefreshed?.Invoke();
     }
 
     private SlideLayoutSettings BuildLayoutSettings(DisplaySettings? s = null)

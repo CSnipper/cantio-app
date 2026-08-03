@@ -68,6 +68,7 @@ public sealed class RemoteControlServer : IDisposable
     /// <summary>Kategorie i grupy zestawów — jeden event na całą rodzinę (ws, surowy JSON).</summary>
     public event Action<WebSocket, string>? CategoryCommandRequested;
     public event Action<WebSocket, string>? SetlistPinCommandRequested;   // ws, raw json (setlist_pin)
+    public event Action<WebSocket>? PinNextWeekRequested;                 // ws (pin_next_week)
     /// <summary>Ustawienia projekcji (wygląd) — get/set, surowy JSON.</summary>
     public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
     /// <summary>Edytor pieśni (song_get/create/update/delete) — surowy JSON.</summary>
@@ -528,6 +529,11 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     // Przypinanie zestawu — logika w PilotSetlistPin, serwer przekazuje surowy JSON.
                     SetlistPinCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotPinWeek.IsCommand(type))
+                {
+                    // „Przypnij tydzień" — logika w PilotPinWeek, komenda nie ma pól wejściowych.
+                    PinNextWeekRequested?.Invoke(ws);
                 }
                 else if (PilotCategorySync.IsCommand(type))
                 {

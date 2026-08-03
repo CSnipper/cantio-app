@@ -429,6 +429,44 @@ public partial class MainWindow : Window
         _vm.SetlistPinChanged += (setlistId, pinned) =>
             _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned));
 
+        // ─── „Przypnij tydzień" z Pilota ───
+        // Ta sama metoda co przycisk w oknie (PilotPinWeek.RunAsync pod spodem), więc UI desktopu
+        // odświeża się po drodze, a piny lecą istniejącymi broadcastami `setlist_pinned`.
+        // Dialogu podsumowania NIE pokazujemy — komenda dostaje go ackiem.
+        _remoteControl.PinNextWeekRequested += async ws =>
+        {
+            try
+            {
+                var result = await Dispatcher.InvokeAsync(() => _vm.PinNextWeekAsync(announce: false))
+                                             .Task.Unwrap();
+                await _remoteControl.SendToClientAsync(ws, PilotPinWeek.BuildAckJson(result));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda przypnij tydzień: {ex.Message}"); }
+        };
+
+        // Podpisy obchodów pod przypiętymi zestawami — JEDEN komunikat po każdym przeładowaniu
+        // listy PRZYPIĘTE (pin, unpin, przypnij tydzień, zmiana diecezji, import).
+        _vm.PinnedListRefreshed += () =>
+            _ = _remoteControl.BroadcastJsonAsync(
+                PilotPinWeek.BuildCelebrationsJson(BuildPinnedCaptions()));
+
+        // Zmiana diecezji zmienia obchody, więc i podpisy na liście PRZYPIĘTE.
+        _szablonVm.DioceseChanged += async () =>
+        {
+            try { await _vm.LoadPinnedSetlistsAsync(); }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie PRZYPIĘTYCH: {ex.Message}"); }
+        };
+
+        // Podsumowanie po kliknięciu „Przypnij tydzień" w oknie. W trybie serwerowym cisza —
+        // przy mini PC bez klawiatury nikt tego okna nie zamknie (zasada: zero blokujących dialogów).
+        _vm.WeekPinned += result =>
+        {
+            if (AppMode.IsServer) return;
+            MessageBox.Show(this, BuildPinWeekSummary(result),
+                TryFindResource("PinWeek.Summary.Title") as string ?? "Cantio",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        };
+
         // ─── Ustawienia projekcji (wygląd) z Pilota ───
         // Logika siedzi w PilotDisplaySettings; tu zostaje wysyłka, broadcast i odświeżenie
         // desktopu DOKŁADNIE tą samą ścieżką co „ZAPISZ USTAWIENIA" w zakładce WYGLĄD
@@ -492,6 +530,8 @@ public partial class MainWindow : Window
                 await _remoteControl.SendToClientAsync(ws, PilotCategorySync.BuildCategoriesJson(cats));
                 await BroadcastCurrentStateToAsync(ws);
                 await BroadcastSetlistStateToAsync(ws);
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotPinWeek.BuildCelebrationsJson(BuildPinnedCaptions()));
                 var (devState, devCount) = _devicesVm.GetAggregateState();
                 var devJson = JsonSerializer.Serialize(new { type = "devices", state = devState, count = devCount });
                 await _remoteControl.SendToClientAsync(ws, devJson);
@@ -676,6 +716,34 @@ public partial class MainWindow : Window
             "boznarodzenie" or "wielkanoc" => System.Windows.Media.Color.FromRgb(0xe8, 0xc9, 0x7a),
             _ => System.Windows.Media.Color.FromRgb(0x3d, 0x8b, 0x40),
         });
+    }
+
+    /// <summary>
+    /// Podpisy obchodów dla Pilotów — czytane z listy PRZYPIĘTE, którą ViewModel właśnie policzył
+    /// (bez drugiego zapytania do bazy i bez drugiej reguły; jedno źródło = <c>PinnedCelebrations</c>).
+    /// </summary>
+    private IEnumerable<KeyValuePair<int, string>> BuildPinnedCaptions() =>
+        _vm.PinnedSetlists.Where(s => s.HasCelebration)
+                          .Select(s => new KeyValuePair<int, string>(s.Id, s.Celebration))
+                          .ToList();
+
+    /// <summary>Tekst podsumowania „Przypnij tydzień" (7 dni: data · nazwa — obchód).</summary>
+    private string BuildPinWeekSummary(PilotPinWeek.Result result)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(TryFindResource("PinWeek.Summary.Header") as string ?? "");
+        sb.AppendLine();
+        foreach (var d in result.Days)
+        {
+            sb.Append(d.Date.ToString("dd.MM (ddd)", new System.Globalization.CultureInfo("pl-PL")))
+              .Append("  ").Append(d.Name);
+            if (d.Celebration.Length > 0) sb.Append("  —  ").Append(d.Celebration);
+            sb.AppendLine();
+        }
+        sb.AppendLine();
+        sb.Append(TryFindResource("PinWeek.Summary.NewCount") as string ?? "")
+          .Append(' ').Append(result.Pinned);
+        return sb.ToString();
     }
 
     private void BtnLitFormularies_Click(object sender, RoutedEventArgs e)

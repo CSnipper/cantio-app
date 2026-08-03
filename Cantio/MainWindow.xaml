@@ -1841,11 +1841,24 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Button Grid.Column="0" Content="{Binding Name}"
+                                                        <Button Grid.Column="0"
                                                                 Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                     RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
-                                                                Style="{StaticResource OutlineBtn}"/>
+                                                                Style="{StaticResource OutlineBtn}">
+                                                            <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
+                                                                 liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding Celebration}"
+                                                                           ToolTip="{Binding Celebration}"
+                                                                           FontSize="11" Foreground="#7d8798"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           Visibility="{Binding HasCelebration,
+                                                                               Converter={StaticResource BoolToVis}}"/>
+                                                            </StackPanel>
+                                                        </Button>
                                                         <Button Grid.Column="1" Content="✕"
                                                                 Margin="3,0,0,0" Padding="5,0"
                                                                 FontSize="11"

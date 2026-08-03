@@ -304,6 +304,9 @@
     <sys:String x:Key="Section.CurrentSet">ZESTAW</sys:String>
     <sys:String x:Key="Section.Pinned">PRZYPIĘTE</sys:String>
     <sys:String x:Key="Pinned.Unpin">Odepnij</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Title">Przypnij tydzień</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Header">Przypięte zestawy na najbliższe 7 dni:</sys:String>
+    <sys:String x:Key="PinWeek.Summary.NewCount">Nowo przypiętych:</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Import pieśni</sys:String>

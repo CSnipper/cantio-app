@@ -303,6 +303,9 @@
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
     <sys:String x:Key="Section.Pinned">FIJADOS</sys:String>
     <sys:String x:Key="Pinned.Unpin">Desfijar</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Title">Fijar la semana</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Header">Listas fijadas para los próximos 7 días:</sys:String>
+    <sys:String x:Key="PinWeek.Summary.NewCount">Nuevas fijadas:</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>
