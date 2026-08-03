@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using Cantio.Helpers;
 using Cantio.Services;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,20 @@ public partial class App : Application
         // inaczej awaria startu na mini PC skończyłaby się wiszącym MessageBoxem.
         var modeFileValue = AppMode.ReadConfigFile(dbFolder);
         AppMode.Initialize(AppMode.Resolve(null, modeFileValue));
+
+        // Rdzeń (Cantio.Core) nie zna WPF — czcionki systemowe wstrzykuje warstwa okienkowa.
+        // Bez tej rejestracji protokół wysyła pustą listę systemFonts (serwer na Linuksie
+        // zrobi to samo celowo). Leniwie: enumeracja odpala się przy pierwszym odczycie.
+        FontCatalog.RegisterSystemFonts(() =>
+        {
+            try
+            {
+                return System.Windows.Media.Fonts.SystemFontFamilies
+                    .Select(f => f.Source)
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
+            }
+            catch { return []; }
+        });
 
         try
         {

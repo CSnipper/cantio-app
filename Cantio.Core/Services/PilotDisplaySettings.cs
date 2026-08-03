@@ -1,8 +1,6 @@
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
-using System.Windows.Media;
-using Cantio.Helpers;
 
 namespace Cantio.Services;
 
@@ -118,8 +116,8 @@ public static class PilotDisplaySettings
         {
             type        = DataType,
             settings    = ToWire(s),
-            fonts       = EmbeddedFonts.Names,
-            systemFonts = SystemFontNames.Value
+            fonts       = FontCatalog.EmbeddedNames,
+            systemFonts = FontCatalog.SystemNames
         });
 
     /// <summary>
@@ -277,22 +275,5 @@ public static class PilotDisplaySettings
     /// oznaczałaby fallback WPF na domyślny krój w środku mszy.
     /// </summary>
     public static bool IsKnownFont(string v) =>
-        v.Length > 0 && (EmbeddedFonts.IsEmbedded(v) || SystemFontSet.Value.Contains(v));
-
-    private static readonly Lazy<string[]> SystemFontNames = new(() =>
-    {
-        try
-        {
-            return Fonts.SystemFontFamilies
-                .Select(f => f.Source)
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-        }
-        catch { return []; }
-    });
-
-    private static readonly Lazy<HashSet<string>> SystemFontSet =
-        new(() => new HashSet<string>(SystemFontNames.Value, StringComparer.OrdinalIgnoreCase));
+        v.Length > 0 && (FontCatalog.IsEmbedded(v) || FontCatalog.IsSystemFont(v));
 }

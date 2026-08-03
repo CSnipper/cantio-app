@@ -6,26 +6,16 @@ namespace Cantio.Helpers;
 
 public static class EmbeddedFonts
 {
-    public static readonly IReadOnlyList<string> Names = new[]
-    {
-        "Afacad",
-        "Alatsi",
-        "Barlow Semi Condensed",
-        "Grenze",
-        "Lato",
-        "Open Sans",
-        "Plus Jakarta Sans",
-        "Raleway",
-        "Roboto Slab",
-        "Signika",
-        "Sofia Sans Extra Condensed",
-    };
-
-    private static readonly HashSet<string> _set = new(Names, StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Jedno źródło prawdy o liście wbudowanych czcionek to rdzeń (`FontCatalog.EmbeddedNames`)
+    /// — protokół pilota wysyła ją tabletowi, więc lokalna kopia tutaj rozjechałaby się cicho.
+    /// Ta klasa dokłada wyłącznie część WPF: mapowanie nazwy na pack:// URI.
+    /// </summary>
+    public static IReadOnlyList<string> Names => Cantio.Services.FontCatalog.EmbeddedNames;
 
     private static readonly Uri _baseUri = new("pack://application:,,,/", UriKind.Absolute);
 
-    public static bool IsEmbedded(string name) => !string.IsNullOrWhiteSpace(name) && _set.Contains(name);
+    public static bool IsEmbedded(string name) => Cantio.Services.FontCatalog.IsEmbedded(name);
 
     public static FontFamily Resolve(string name)
     {
