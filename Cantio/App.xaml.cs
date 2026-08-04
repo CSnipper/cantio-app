@@ -47,9 +47,41 @@ public partial class App : Application
                     File.Copy(seedDb, dbPath);
             }
 
-            // Zastosuj pending migracje EF Core
+            // Migracje EF Core. Część z nich (np. ZmienCategoryIdNaNullableWSong) to w SQLite
+            // przebudowa tabeli — przerwana w połowie zostawia użytkownika bez śpiewnika,
+            // więc PRZED nią leci kopia bazy. Kontekst domykamy przed kopiowaniem, żeby nic
+            // nie trzymało dziennika.
+            List<string> pending;
             await using (var ctx = new CantioDbContext())
+                pending = (await ctx.Database.GetPendingMigrationsAsync()).ToList();
+
+            // Pierwsze uruchomienie: baza jest świeża (albo prosto z instalatora) — nie ma czego
+            // tracić, a kopia byłaby bliźniakiem pliku sprzed sekundy.
+            string? migrationBackup = isFirstRun
+                ? null
+                : DbBackup.CreateBeforeMigration(dbPath, pending);
+
+            try
+            {
+                await using var ctx = new CantioDbContext();
                 await ctx.Database.MigrateAsync();
+            }
+            catch (Exception mex)
+            {
+                // Awaria SAMEJ migracji ma być głośna — inaczej użytkownik zobaczy „coś nie działa"
+                // i nie dowie się, że obok leży kompletna kopia sprzed przebudowy.
+                var where = migrationBackup is null
+                    ? "Kopia zapasowa NIE powstała (szczegóły w logu)."
+                    : $"Kopia bazy sprzed migracji:\n{migrationBackup}";
+                AppLog.Write("App", $"BŁĄD MIGRACJI: {mex.Message}\n{where}\n{mex.StackTrace}");
+                if (AppModeRules.CanShowBlockingDialog(AppMode.Current))
+                    MessageBox.Show(
+                        $"Nie udało się zaktualizować bazy danych:\n{mex.Message}\n\n{where}\n\n" +
+                        "Kopię można wskazać w USTAWIENIA → Przywróć bazę danych.",
+                        "Cantio", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+                return;
+            }
 
             var db = new DatabaseService();
 
