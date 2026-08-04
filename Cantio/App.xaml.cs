@@ -107,6 +107,10 @@ public partial class App : Application
             AppMode.Initialize(AppMode.Resolve(await db.GetSettingAsync(AppMode.SettingKey), modeFileValue));
             AppLog.Write("App", $"Tryb pracy: {AppMode.ToSettingValue(AppMode.Current)}");
 
+            // Ślad po zestawach z nieistniejącego 5. tygodnia Adwentu (zob. AdventArtifactScan).
+            // Nic nie zmienia w bazie — u kogo takich zestawów nie ma, nie zapisuje nawet linii.
+            await AdventArtifactScan.ScanAndLogAsync(db);
+
             var window = new MainWindow(db);
             if (AppModeRules.ShouldShowMainWindow(AppMode.Current))
             {
