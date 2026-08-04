@@ -32,12 +32,19 @@ public static class PinnedCelebrations
     /// nie przenosi jej na poniedziałek, więc przypomnienie ma sens).</para>
     /// </summary>
     public static string CaptionFor(DateOnly date, string effectiveName, string diocese)
+        => CaptionFor(date, LiturgicalCalendarService.GetDay(date), effectiveName, diocese);
+
+    /// <summary>Jak wyżej, gdy dzień liturgiczny jest już policzony (unika drugiego liczenia).</summary>
+    public static string CaptionFor(DateOnly date, LiturgicalDay day, string effectiveName, string diocese)
     {
         var top = DiocesanCalendarService.ForDate(date, diocese)
             .FirstOrDefault(c => c.Ranga >= Ranga.WspObowiazkowe);
         if (top == null) return "";
         if (DatabaseService.NameEquals(top.Tytul, effectiveName)) return "";   // wyparł nazwę
         if (date.DayOfWeek == DayOfWeek.Sunday && top.Ranga < Ranga.Uroczystosc) return "";
+        // Dzień z własną rangą (obchód ruchomy) pochłania obchody nie wyższe od siebie —
+        // w Boże Ciało nie obchodzi się wspomnienia, więc podpowiadanie go byłoby fałszem.
+        if (top.Ranga <= day.Rank) return "";
         return Prefix(top.Ranga) + top.Tytul;
     }
 
@@ -59,7 +66,7 @@ public static class PinnedCelebrations
             var date = from.AddDays(i);
             var day = LiturgicalCalendarService.GetDay(date);
             var name = DiocesanCalendarService.EffectiveSetlistName(date, day, diocese);
-            var caption = CaptionFor(date, name, diocese);
+            var caption = CaptionFor(date, day, name, diocese);
             if (caption.Length == 0) continue;
             foreach (var p in list)
                 if (!result.ContainsKey(p.Id) && DatabaseService.NameEquals(p.Name, name))

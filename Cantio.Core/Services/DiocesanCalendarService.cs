@@ -7,6 +7,8 @@ namespace Cantio.Services;
 
 public enum Ranga
 {
+    /// <summary>Brak własnej rangi — dzień temporalny (zwykła niedziela, dzień powszedni okresu).</summary>
+    Brak = 0,
     WspDowolne = 30,
     WspObowiazkowe = 40,
     Swieto = 60,
@@ -116,7 +118,11 @@ public static class DiocesanCalendarService
     {
         Load();
         var mmdd = $"{date.Month:D2}-{date.Day:D2}";
-        if (_byDate == null || !_byDate.TryGetValue(mmdd, out var all)) return [];
+        // Wspomnienia RUCHOME (Niepokalane Serce NMP) idą przed wpisami z pliku: przy równej randze
+        // dedup i sortowanie są stabilne, więc obchód dnia wypływa jako pierwszy.
+        IEnumerable<Celebration> all = LiturgicalCalendarService.MovableCelebrations(date);
+        if (_byDate != null && _byDate.TryGetValue(mmdd, out var fixedList))
+            all = all.Concat(fixedList);
         diocese ??= "";
         var applicable = all.Where(c => c.Powszechny ||
             (diocese.Length > 0 && c.Diecezje.Contains(diocese)));
@@ -154,6 +160,10 @@ public static class DiocesanCalendarService
         bool displaces = isSunday
             ? top.Ranga == Ranga.Uroczystosc && day.Group == "zwykly"
             : top.Ranga >= Ranga.Swieto;
+        // Dzień z WŁASNĄ rangą (obchód ruchomy: Boże Ciało, Chrystus Król…) ustępuje tylko
+        // obchodowi WYŻSZEJ rangi. Bez tego warunku święto Nawiedzenia NMP (31 V) zabierało
+        // nazwę Bożemu Ciału w latach, w których oba wypadały tego samego dnia (2029, 2040).
+        if (top.Ranga <= day.Rank) displaces = false;
         return displaces ? top.Tytul : day.SetlistName;
     }
 }

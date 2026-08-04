@@ -88,7 +88,7 @@ public static class PilotPinWeek
                 }
             }
 
-            days.Add(new DayInfo(date, name, PinnedCelebrations.CaptionFor(date, name, diocese), id, created));
+            days.Add(new DayInfo(date, name, PinnedCelebrations.CaptionFor(date, day, name, diocese), id, created));
         }
 
         return new Result(days, changed);

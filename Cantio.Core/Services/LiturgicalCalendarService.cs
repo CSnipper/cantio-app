@@ -9,6 +9,14 @@ public static class LiturgicalCalendarService
         int year = date.Year;
         var easter = ComputeEaster(year);
 
+        // Obchody RUCHOME liczone od Wielkanocy (i Chrystus Król — od Adwentu). Sprawdzane jako
+        // PIERWSZE, bo mają własną nazwę i rangę; wszystkie leżą w przedziale
+        // [Wielkanoc+42, 1. Nd Adwentu−7], więc nie kolidują z gałęziami Adwentu/BN/Wielkiego Postu.
+        var movable = GetMovable(date, easter, year);
+        if (movable != null)
+            return new LiturgicalDay(movable.Value.Name, movable.Value.Group,
+                movable.Value.CycleDependent ? GetSundayCycle(year) : "", movable.Value.Rank);
+
         // Adwent
         var adventStart = GetAdventStart(year);
         // Granica jest RUCHOMA: Boże Narodzenie kończy się Chrztem Pańskim (włącznie),
@@ -66,6 +74,74 @@ public static class LiturgicalCalendarService
             string cycle = isSunday ? GetSundayCycle(year) : (year % 2 == 1 ? "I" : "II");
             return new LiturgicalDay(name, "zwykly", cycle);
         }
+    }
+
+    // ─── Obchody ruchome ──────────────────────────────────────────────────────────────
+    //
+    // Do wersji 1.63 rdzeń znał wyłącznie nazwy TEMPORALNE, więc Boże Ciało nazywało się
+    // „13 Czw”, a Chrystus Król „34 Nie C”. Cena była trojaka: zły dzień w pasku górnym,
+    // „Przypnij tydzień” zakładające zestaw pod nazwą dnia powszedniego (a więc inny zestaw
+    // co roku, bo numer tygodnia się przesuwa) i podpis obchodu nieświadomy uroczystości.
+    //
+    // Każdy wpis niesie RANGĘ, bo o pierwszeństwie wobec kalendarza diecezji
+    // (<see cref="DiocesanCalendarService.EffectiveSetlistName"/>) rozstrzyga ranga, a nie
+    // kolejność sprawdzeń — inaczej święto Nawiedzenia NMP (31 V) zabierało nazwę Bożemu Ciału
+    // w latach, w których oba wypadały tego samego dnia (np. 2029).
+    //
+    // Niepokalane Serce NMP (sobota po Sercu Jezusa) NIE jest tu obchodem dnia — to
+    // WSPOMNIENIE, więc wchodzi warstwą sanktoralną przez <see cref="MovableCelebrations"/>.
+    // Wpisanie go tutaj skasowałoby sobotę okresu zwykłego razem z jej czytaniami.
+
+    /// <param name="CycleDependent">czytania zależne od cyklu A/B/C (wtedy dzień niesie literę)</param>
+    private readonly record struct Movable(string Name, string Group, Ranga Rank, bool CycleDependent);
+
+    private static Movable? GetMovable(DateOnly date, DateOnly easter, int year)
+    {
+        var pentecost = easter.AddDays(49);
+        var corpusChristi = pentecost.AddDays(11);          // czwartek po Trójcy
+
+        // Wniebowstąpienie: w Polsce PRZENIESIONE na 7. Niedzielę Wielkanocy (KEP 2003),
+        // czyli Wielkanoc+42 — nie na czwartek Wielkanoc+39.
+        if (date == easter.AddDays(42))
+            return new("Wniebowstąpienie Pańskie", "wielkanoc", Ranga.Uroczystosc, true);
+        if (date == pentecost.AddDays(1))                   // poniedziałek po Zesłaniu
+            return new("NMP Matki Kościoła", "zwykly", Ranga.Swieto, false);
+        if (date == pentecost.AddDays(4))                   // czwartek po Zesłaniu
+            return new("Chrystus Najwyższy i Wieczny Kapłan", "zwykly", Ranga.Swieto, false);
+        if (date == pentecost.AddDays(7))                   // niedziela po Zesłaniu
+            return new("Trójca Przenajświętsza", "zwykly", Ranga.Uroczystosc, true);
+        if (date == corpusChristi)
+            return new("Boże Ciało", "zwykly", Ranga.Uroczystosc, true);
+        if (date == corpusChristi.AddDays(8))               // piątek po Bożym Ciele
+            return new("Najświętsze Serce Pana Jezusa", "zwykly", Ranga.Uroczystosc, true);
+        if (date == GetAdventStart(year).AddDays(-7))       // ostatnia niedziela roku liturgicznego
+            return new("Chrystus Król", "zwykly", Ranga.Uroczystosc, true);
+        return null;
+    }
+
+    /// <summary>Tytuł wspomnienia ruchomego — jedno źródło dla warstwy sanktoralnej i testów.</summary>
+    public const string ImmaculateHeartTitle = "Niepokalane Serce NMP";
+
+    /// <summary>
+    /// Wspomnienia RUCHOME wstrzykiwane do warstwy sanktoralnej
+    /// (<see cref="DiocesanCalendarService.ForDate(DateOnly, string)"/>) tą samą ścieżką, co
+    /// obchody z <c>kalendarz_diecezji.json</c>. Plik jest kluczowany przez MM-DD, więc obchodu
+    /// liczonego od Wielkanocy nie da się w nim zapisać — a zaparkowany pod stałą datą wychodziłby
+    /// co roku w złym dniu (regresja pilnowana przez <c>MovableCelebrationsTests</c>).
+    /// </summary>
+    public static IReadOnlyList<Celebration> MovableCelebrations(DateOnly date)
+    {
+        // Sobota po uroczystości Najświętszego Serca Pana Jezusa
+        if (date != ComputeEaster(date.Year).AddDays(69)) return [];
+        return
+        [
+            new Celebration(
+                Data: $"{date.Month:D2}-{date.Day:D2}",
+                Tytul: ImmaculateHeartTitle,
+                Ranga: Ranga.WspObowiazkowe,
+                Powszechny: true,
+                Diecezje: [])
+        ];
     }
 
     // Meeus-Jones-Butcher
