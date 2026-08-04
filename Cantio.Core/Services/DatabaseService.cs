@@ -32,6 +32,43 @@ public class DatabaseService
         await using var db = new CantioDbContext();
         var cat = await db.Categories.FindAsync(id);
         if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
+        await ClearPsalmCategoryIfDeletedAsync(id);
+    }
+
+    /// <summary>
+    /// Ustawienie <c>psalm_category_id</c> wskazujące na SKASOWANĄ kategorię cicho gasi tryb
+    /// psalm: <c>LoadVersesAsync</c> porównuje je z kategorią pieśni i nigdy już nie trafia.
+    /// Wołane z KAŻDEJ ścieżki kasowania kategorii (okno i protokół WS mają wspólne dno w
+    /// <c>DatabaseService</c>), więc nie da się dodać czwartej, która o tym zapomni.
+    /// </summary>
+    private async Task ClearPsalmCategoryIfDeletedAsync(int deletedCategoryId)
+    {
+        if (deletedCategoryId <= 0) return;
+        var current = await GetSettingAsync("psalm_category_id");
+        if (int.TryParse(current, out var id) && id == deletedCategoryId)
+            await SaveSettingAsync("psalm_category_id", "0");
+    }
+
+    /// <summary>
+    /// Usuwa kategorię, ale ZOSTAWIA pieśni — dostają <c>CategoryId = NULL</c> i widać je
+    /// w oknie Cantio pod wirtualną pozycją „Bez kategorii". Zwraca liczbę odczepionych pieśni.
+    ///
+    /// Odczepienie robimy JAWNIE, nie licząc na <c>ON DELETE SET NULL</c> w schemacie: dzięki temu
+    /// znamy liczbę pieśni do acka, a wynik nie zależy od tego, czy połączenie ma
+    /// <c>PRAGMA foreign_keys</c> włączone. Pozycje zestawów zostają nietknięte — pieśń dalej
+    /// istnieje, więc nie ma czego sprzątać (na tym wywracała się poprzednia implementacja,
+    /// która kasowała pieśń i uderzała w RESTRICT na SetlistItems).
+    /// </summary>
+    public async Task<int> DeleteCategoryKeepSongsAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        var songs = await db.Songs.Where(s => s.CategoryId == id).ToListAsync();
+        foreach (var s in songs) s.CategoryId = null;
+        var cat = await db.Categories.FindAsync(id);
+        if (cat != null) db.Categories.Remove(cat);
+        await db.SaveChangesAsync();
+        await ClearPsalmCategoryIfDeletedAsync(id);
+        return songs.Count;
     }
 
     public async Task DeleteCategoryWithSongsAsync(int id)
@@ -46,12 +83,52 @@ public class DatabaseService
         var cat = await db.Categories.FindAsync(id);
         if (cat != null) db.Categories.Remove(cat);
         await db.SaveChangesAsync();
+        await ClearPsalmCategoryIfDeletedAsync(id);
     }
 
     public async Task<int> CountSongsInCategoryAsync(int id)
     {
         await using var db = new CantioDbContext();
         return await db.Songs.CountAsync(s => s.CategoryId == id);
+    }
+
+    public async Task<Category?> GetCategoryAsync(int id)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    /// <summary>
+    /// Kategoria o zgodnej nazwie (pl-PL, ignoreCase) albo null. Porównanie PO STRONIE KLIENTA —
+    /// SQLite <c>lower()</c> obsługuje tylko ASCII, więc „MARYJNE" i „Maryjne" nie zrównałyby się
+    /// w zapytaniu EF.
+    /// </summary>
+    public async Task<Category?> FindCategoryByNameAsync(string name)
+    {
+        await using var db = new CantioDbContext();
+        var all = await db.Categories.AsNoTracking().ToListAsync();
+        return all.FirstOrDefault(c => NameEquals(c.Name, name));
+    }
+
+    /// <summary>
+    /// Przesuwa kategorię o <paramref name="delta"/> pozycji w kolejności i PRZENUMEROWUJE całą
+    /// listę na 1..N — dokładnie to samo, co strzałki ▲▼ w oknie Cantio
+    /// (<c>DisplayViewModel.SaveCategoryOrderAsync</c>). Zwraca nowy <c>Number</c>
+    /// albo null, gdy kategorii nie ma lub ruch wychodzi poza zakres.
+    /// </summary>
+    public async Task<int?> MoveCategoryAsync(int id, int delta)
+    {
+        await using var db = new CantioDbContext();
+        var ordered = await db.Categories.OrderBy(c => c.Number).ThenBy(c => c.Id).ToListAsync();
+        int idx = ordered.FindIndex(c => c.Id == id);
+        if (idx < 0) return null;
+        int target = idx + delta;
+        if (target < 0 || target >= ordered.Count) return null;
+
+        (ordered[idx], ordered[target]) = (ordered[target], ordered[idx]);
+        for (int i = 0; i < ordered.Count; i++) ordered[i].Number = i + 1;
+        await db.SaveChangesAsync();
+        return target + 1;
     }
 
     // Pieśni
@@ -63,6 +140,27 @@ public class DatabaseService
             .Where(s => s.CategoryId == categoryId)
             .OrderBy(s => s.Number)
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Pieśni bez kategorii (<c>CategoryId IS NULL</c>) — zawartość wirtualnej pozycji
+    /// „Bez kategorii" na liście KATEGORIE. Powstają wyłącznie przez
+    /// <see cref="DeleteCategoryKeepSongsAsync"/>.
+    /// </summary>
+    public async Task<List<Song>> GetUncategorizedSongsAsync()
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.AsNoTracking()
+            .Where(s => s.CategoryId == null)
+            .OrderBy(s => s.Number)
+            .ToListAsync();
+    }
+
+    /// <summary>Ile pieśni jest bez kategorii — 0 chowa wirtualną pozycję z listy.</summary>
+    public async Task<int> CountUncategorizedSongsAsync()
+    {
+        await using var db = new CantioDbContext();
+        return await db.Songs.CountAsync(s => s.CategoryId == null);
     }
 
     /// <summary>Szuka po tytule i/lub numerze ze śpiewnika — logika w <see cref="SongSearch"/>.</summary>
@@ -146,21 +244,26 @@ public class DatabaseService
             var localId    = songEl.GetProperty("localId").GetInt32();
             var title      = songEl.GetProperty("title").GetString() ?? "";
             var author     = songEl.GetProperty("author").GetString() ?? "";
-            var categoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
+            var rawCategoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
 
-            // Sprawdź czy kategoria istnieje; fallback do pierwszej dostępnej
-            var categoryExists = categoryId > 0 &&
-                await db.Categories.AnyAsync(c => c.Id == categoryId);
-            if (!categoryExists)
+            // 0 (albo brak pola) = „bez kategorii" — dokładnie to, co desktop wysyła w `songs_data`
+            // dla pieśni z CategoryId == NULL. Bez tego pieśń bez kategorii wracałaby z telefonu
+            // jako DUPLIKAT w pierwszej kategorii (upsert szuka po tytule W TEJ SAMEJ kategorii).
+            // Niezerowe, ale nieistniejące ID = przestarzała lista kategorii w Pilocie → jak dotąd
+            // fallback do pierwszej kategorii.
+            int? categoryId = rawCategoryId > 0 ? rawCategoryId : null;
+            if (categoryId is int cid && !await db.Categories.AnyAsync(c => c.Id == cid))
             {
                 var firstCat = await db.Categories.OrderBy(c => c.Number).FirstOrDefaultAsync();
-                categoryId = firstCat?.Id ?? 0;
+                categoryId = firstCat?.Id;
             }
 
-            // Upsert: szukaj po tytule w tej samej kategorii
-            var song = await db.Songs
-                .Include(s => s.Verses)
-                .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == categoryId);
+            // Upsert: szukaj po tytule w tej samej kategorii (null == null też jest dopasowaniem)
+            var song = categoryId is null
+                ? await db.Songs.Include(s => s.Verses)
+                      .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == null)
+                : await db.Songs.Include(s => s.Verses)
+                      .FirstOrDefaultAsync(s => s.Title == title && s.CategoryId == categoryId);
 
             if (song == null)
             {
@@ -243,6 +346,39 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Ile ZAPISANYCH zestawów zawiera tę pieśń. Okno Cantio kasuje pieśń razem z jej pozycjami
+    /// w zestawach (<see cref="DeleteSongAsync"/>), a protokół WS używa tej liczby, żeby najpierw
+    /// odmówić kasowania z tabletu (<c>reason:"in_setlists"</c>) — na tablecie nie ma nikogo,
+    /// kto by zobaczył, ile zestawów przy okazji straci pozycję.
+    /// </summary>
+    public async Task<int> CountSetlistsWithSongAsync(int songId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.SetlistItems.AsNoTracking()
+            .Where(i => i.SongId == songId)
+            .Select(i => i.SetlistId)
+            .Distinct()
+            .CountAsync();
+    }
+
+    /// <summary>
+    /// Ile ZAPISANYCH zestawów straciłoby pozycje, gdyby skasować kategorię RAZEM z pieśniami
+    /// (<see cref="DeleteCategoryWithSongsAsync"/>). Odpowiednik
+    /// <see cref="CountSetlistsWithSongAsync"/> dla całej kategorii — protokół WS używa tej
+    /// liczby, żeby odmówić kasowania z tabletu bez jawnego <c>force</c>.
+    /// </summary>
+    public async Task<int> CountSetlistsWithCategorySongsAsync(int categoryId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.SetlistItems.AsNoTracking()
+            .Where(i => i.SongId.HasValue &&
+                        db.Songs.Any(s => s.Id == i.SongId!.Value && s.CategoryId == categoryId))
+            .Select(i => i.SetlistId)
+            .Distinct()
+            .CountAsync();
+    }
+
     public async Task DeleteSongAsync(int songId)
     {
         await using var db = new CantioDbContext();
@@ -322,15 +458,15 @@ public class DatabaseService
             .ToListAsync();
     }
 
-    public async Task<List<(int Id, string Name, string? Group, int SongCount, long UpdatedAt)>> GetSetlistSummariesAsync()
+    public async Task<List<(int Id, string Name, string? Group, int SongCount, long UpdatedAt, bool IsPinned)>> GetSetlistSummariesAsync()
     {
         await using var db = new CantioDbContext();
         var rows = await db.Setlists.AsNoTracking()
             .OrderByDescending(sl => sl.UpdatedAt)
-            .Select(sl => new { sl.Id, sl.Name, sl.Group, SongCount = sl.Items.Count(i => i.SongId != null), sl.UpdatedAt })
+            .Select(sl => new { sl.Id, sl.Name, sl.Group, SongCount = sl.Items.Count(i => i.SongId != null), sl.UpdatedAt, sl.IsPinned })
             .ToListAsync();
         return rows.Select(r => (r.Id, r.Name, r.Group, r.SongCount,
-            new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds())).ToList();
+            new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds(), r.IsPinned)).ToList();
     }
 
     public async Task<(int Id, string Name, string? Group, long UpdatedAt, List<(int SongId, string Title)> Songs)?> GetSetlistDetailAsync(int setlistId)
@@ -462,14 +598,18 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    /// <summary>Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.</summary>
-    public async Task SetSetlistPinnedAsync(int setlistId, bool pinned)
+    /// <summary>
+    /// Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.
+    /// Zwraca `false`, gdy zestawu nie ma (protokół WS odsyła wtedy `reason:"not_found"`).
+    /// </summary>
+    public async Task<bool> SetSetlistPinnedAsync(int setlistId, bool pinned)
     {
         await using var db = new CantioDbContext();
         var setlist = await db.Setlists.FindAsync(setlistId);
-        if (setlist == null) return;
+        if (setlist == null) return false;
         setlist.IsPinned = pinned;
         await db.SaveChangesAsync();
+        return true;
     }
 
     // Porównanie po stronie klienta: SQLite lower() obsługuje tylko ASCII,
@@ -477,7 +617,7 @@ public class DatabaseService
     private static readonly System.Globalization.CompareInfo _plCompare =
         new System.Globalization.CultureInfo("pl-PL").CompareInfo;
 
-    private static bool NameEquals(string? a, string? b) =>
+    public static bool NameEquals(string? a, string? b) =>
         _plCompare.Compare((a ?? "").Trim(), (b ?? "").Trim(),
             System.Globalization.CompareOptions.IgnoreCase) == 0;
 
@@ -617,6 +757,32 @@ public class DatabaseService
         return candidates.FirstOrDefault(s =>
             NameEquals(s.Name, name) &&
             NormalizeGroupKey(s.Group) == groupKey);
+    }
+
+    /// <summary>
+    /// Grupy zestawów z ustawienia <c>setlist_groups</c> — kolejność DOKŁADNIE jak w CSV
+    /// (UI sortuje dopiero przy wyświetlaniu). Grupy nie są encją; ich jedynym nośnikiem
+    /// jest ten CSV, a <c>Setlist.Group</c> to luźny string.
+    /// </summary>
+    public async Task<List<string>> GetSetlistGroupsAsync()
+    {
+        var csv = await GetSettingAsync("setlist_groups") ?? string.Empty;
+        return [.. csv.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(g => g.Trim())
+                      .Where(g => !string.IsNullOrEmpty(g))];
+    }
+
+    public Task SaveSetlistGroupsAsync(IEnumerable<string> groups) =>
+        SaveSettingAsync("setlist_groups", string.Join(",", groups
+            .Select(g => (g ?? "").Trim())
+            .Where(g => g.Length > 0)));
+
+    /// <summary>Ile zestawów wskazuje na grupę o tej nazwie (porównanie pl-PL po stronie klienta).</summary>
+    public async Task<int> CountSetlistsInGroupAsync(string group)
+    {
+        await using var db = new CantioDbContext();
+        var groups = await db.Setlists.AsNoTracking().Select(s => s.Group).ToListAsync();
+        return groups.Count(g => NameEquals(g, group));
     }
 
     public async Task EnsureGroupAsync(string group)

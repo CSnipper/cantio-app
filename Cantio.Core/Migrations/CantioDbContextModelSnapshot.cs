@@ -144,7 +144,7 @@ namespace Cantio.Migrations
                     b.Property<string>("Author")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<double?>("FontSizeOverride")
@@ -227,8 +227,7 @@ namespace Cantio.Migrations
                     b.HasOne("Cantio.Models.Category", "Category")
                         .WithMany("Songs")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });

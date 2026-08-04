@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -17,6 +17,14 @@
     <sys:String x:Key="Pilot.NoPinWarning">Uwaga: bez PIN-u każdy w tej sieci Wi-Fi może przejąć sterowanie projekcją.</sys:String>
     <sys:String x:Key="Pilot.QrHint">Zeskanuj kod QR lub wpisz adres w przeglądarce telefonu.</sys:String>
     <sys:String x:Key="Pilot.Rejected">Odrzucono niesparowane urządzenie:</sys:String>
+    <!-- Ekran parowania na projektorze (tryb serwerowy) -->
+    <sys:String x:Key="Pairing.Title">Podłącz telefon lub tablet, żeby sterować projekcją</sys:String>
+    <sys:String x:Key="Pairing.Step1">1. Zeskanuj kod QR aparatem telefonu — połączy się sam.</sys:String>
+    <sys:String x:Key="Pairing.Step2">2. Albo otwórz w przeglądarce jeden z adresów i wpisz PIN:</sys:String>
+    <sys:String x:Key="Pairing.Pin">PIN</sys:String>
+    <sys:String x:Key="Pairing.Footer">Ten ekran zniknie sam, gdy pierwsze urządzenie się połączy.</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedTitle">Serwer pilota nie wystartował</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedHint">Najczęstsza przyczyna: port jest już zajęty przez inną kopię Cantio albo inny program. Zamknij drugą kopię Cantio i uruchom komputer ponownie; port można zmienić w USTAWIENIACH → Pilot.</sys:String>
     <!-- Urządzenia projekcyjne (TV/projektory) -->
     <sys:String x:Key="Devices.Section">Urządzenia projekcyjne</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Włączaj i wyłączaj telewizory oraz projektory z poziomu aplikacji.</sys:String>
@@ -92,6 +100,8 @@
 
     <!-- Sekcje -->
     <sys:String x:Key="Section.Categories">KATEGORIE</sys:String>
+    <!-- Wirtualna pozycja na liście KATEGORIE: pieśni z CategoryId == NULL -->
+    <sys:String x:Key="Category.Uncategorized">Bez kategorii</sys:String>
     <sys:String x:Key="Section.Songs">PIEŚNI</sys:String>
     <sys:String x:Key="Section.Verses">ZWROTKI</sys:String>
     <sys:String x:Key="Section.ScreenPreview">PODGLĄD EKRANU</sys:String>
@@ -205,6 +215,9 @@
     <sys:String x:Key="About.Downloading">Pobieranie...</sys:String>
     <sys:String x:Key="About.Changelog">Co nowego:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
+    <sys:String x:Key="Settings.ServerMode">Tryb serwerowy (sterowanie tylko z CantioPilota)</sys:String>
+    <sys:String x:Key="Settings.ServerModeHint">Dla komputera z jednym ekranem, który pokazuje wyłącznie projekcję. Okno Cantio jest ukryte, serwer pilota startuje automatycznie. Powrót do okna: Ctrl+Alt+Shift+C.</sys:String>
+    <sys:String x:Key="Settings.ServerModeRestart">Zmiana trybu zadziała po ponownym uruchomieniu Cantio.</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Kategoria psalmu responsoryjnego</sys:String>
     <sys:String x:Key="Settings.LoopInterval">Pętla slajdów — odstęp (sekundy, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>
@@ -293,6 +306,9 @@
     <sys:String x:Key="Section.CurrentSet">ZESTAW</sys:String>
     <sys:String x:Key="Section.Pinned">PRZYPIĘTE</sys:String>
     <sys:String x:Key="Pinned.Unpin">Odepnij</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Title">Przypnij tydzień</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Header">Przypięte zestawy na najbliższe 7 dni:</sys:String>
+    <sys:String x:Key="PinWeek.Summary.NewCount">Nowo przypiętych:</sys:String>
 
     <!-- Import -->
     <sys:String x:Key="Import.Title">Import pieśni</sys:String>

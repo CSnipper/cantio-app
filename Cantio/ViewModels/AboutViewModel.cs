@@ -1,3 +1,4 @@
+using Cantio.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
@@ -68,6 +69,14 @@ public partial class AboutViewModel : ObservableObject
             DownloadUrl       = result.Value.DownloadUrl;
             ReleaseNotes      = result.Value.ReleaseNotes;
             IsUpdateAvailable = true;
+
+            // Tryb serwerowy: brak operatora, więc pytanie „zainstalować?" zawiesiłoby aplikację
+            // na zawsze. Aktualizacji tu NIE automatyzujemy — zostaje ślad w logu.
+            if (!AppModeRules.CanShowBlockingDialog(AppMode.Current))
+            {
+                AppLog.Write("Update", $"Dostępna nowa wersja {LatestVersion} — pominięto pytanie (tryb serwerowy).");
+                return;
+            }
 
             var choice = MessageBox.Show(
                 $"Dostępna jest nowa wersja Cantio {LatestVersion}.\n\nCzy chcesz ją teraz zainstalować?",

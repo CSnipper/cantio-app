@@ -41,7 +41,11 @@ public static class AppLog
     /// <summary>Granica sesji w logu — bez tego nie widać, gdzie kończy się poprzednie uruchomienie.</summary>
     public static void WriteSessionStart()
     {
-        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "?";
+        // GetEntryAssembly = Cantio.exe. GetExecutingAssembly to Cantio.Core, który nie ma własnej
+        // wersji produktu i wypisywał w logu użytkownika stałe „1.0.0.0" (ta sama reguła co
+        // PilotStatus.AppVersion).
+        var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
+            .GetName().Version?.ToString() ?? "?";
         Write("App", $"─── Start Cantio {version} ───");
     }
 

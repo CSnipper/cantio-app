@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Cantio</RootNamespace>
+    <AssemblyName>Cantio.Core</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+  </ItemGroup>
+
+  <!-- Nazwy zasobów MUSZĄ zostać takie jak w Cantio.exe (kod ładuje je po stringu
+       "Cantio.Assets.Data.*"), a domyślna nazwa poszłaby od AssemblyName = Cantio.Core.
+       Stąd jawne LogicalName. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Data\psalmy.json.gz" LogicalName="Cantio.Assets.Data.psalmy.json.gz" />
+    <EmbeddedResource Include="Assets\Data\kalendarz_diecezji.json" LogicalName="Cantio.Assets.Data.kalendarz_diecezji.json" />
+  </ItemGroup>
+
+</Project>

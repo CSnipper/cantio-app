@@ -1,0 +1,112 @@
+[
+  {
+    "miesiac": 1,
+    "opis": "Niedziela po 6 stycznia",
+    "data": null,
+    "tytul": "Chrzest Pański",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 4,
+    "opis": "Niedziela w oktawie Wielkanocy",
+    "data": null,
+    "tytul": "2 NIEDZIELA WIELKANOCY, czyli MIŁOSIERDZIA BOŻEGO",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 5,
+    "opis": "7 Niedziela Wielkanocy",
+    "data": null,
+    "tytul": "WNIEBOWSTĄPIENIE PAŃSKIE",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 5,
+    "opis": "Poniedziałek po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 5,
+    "opis": "Poniedziałek po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA, głównej patronki archidiecezji i diecezji",
+    "ranga": "uroczystosc",
+    "zakres": "diecezja",
+    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej oraz diecezji drohiczyńskiej i ełckiej:",
+    "diecezje": [
+      "szczecińsko-kamieńska",
+      "drohiczyńska",
+      "ełcka"
+    ]
+  },
+  {
+    "miesiac": 5,
+    "opis": "Czwartek po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "JEZUSA CHRYSTUSA, NAJWYŻSZEGO I WIECZNEGO KAPŁANA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 5,
+    "opis": "Pierwsza niedziela po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "NAJŚWIĘTSZEJ TRÓJCY",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 5,
+    "opis": "Czwartek po Najświętszej Trójcy",
+    "data": null,
+    "tytul": "NAJŚWIĘTSZEGO CIAŁA I KRWI CHRYSTUSA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 6,
+    "opis": "Piątek po drugiej niedzieli po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "NAJŚWIĘTSZEGO SERCA PANA JEZUSA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 6,
+    "opis": "Sobota po drugiej niedzieli po Zesłaniu Ducha Świętego",
+    "data": null,
+    "tytul": "Niepokalanego Serca Najśw. Maryi Panny",
+    "ranga": "wsp_obowiazkowe",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 10,
+    "opis": "Ostatnia niedziela października",
+    "data": null,
+    "tytul": "W kościołach poświęconych, których data poświęcenia jest nieznana: ROCZNICA POŚWIĘCENIA KOŚCIOŁA WŁASNEGO",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 11,
+    "opis": "Ostatnia niedziela zwykła",
+    "data": null,
+    "tytul": "JEZUSA CHRYSTUSA, KRÓLA WSZECHŚWIATA",
+    "ranga": "uroczystosc",
+    "zakres": "powszechny"
+  },
+  {
+    "miesiac": 12,
+    "opis": "Niedziela w oktawie Narodzenia Pańskiego",
+    "data": null,
+    "tytul": "Jeśli 25 grudnia, a tym samym 1 stycznia, przypada w niedzielę, święto zostaje przeniesione na 30 grudnia. ŚWIĘTEJ RODZINY: JEZUSA, MARYI I JÓZEFA",
+    "ranga": "swieto",
+    "zakres": "powszechny"
+  }
+]

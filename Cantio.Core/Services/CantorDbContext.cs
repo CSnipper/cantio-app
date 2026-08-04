@@ -39,12 +39,15 @@ public class CantioDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Category → Songs (1:N)
+        // Category → Songs (1:N, opcjonalne — pieśń może być „bez kategorii")
+        // SET NULL, nie CASCADE: usunięcie kategorii NIE MOŻE zabierać ze sobą pieśni.
+        // (Do v1.63 było CASCADE i gałąź „usuń tylko kategorię" kasowała pieśni.)
         modelBuilder.Entity<Song>()
             .HasOne(s => s.Category)
             .WithMany(c => c.Songs)
             .HasForeignKey(s => s.CategoryId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Song → Verses (1:N), posortowane po Position
         modelBuilder.Entity<Verse>()

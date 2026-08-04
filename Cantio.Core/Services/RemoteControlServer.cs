@@ -49,6 +49,7 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<int>? GotoRequested;
     public event Action<int>? GotoSongRequested;
     public event Action<int>? SetlistAddRequested;      // songId
+    public event Action<int>? ShowSongRequested;        // songId — pokaż od razu, BEZ dodawania do zestawu
     public event Action<int>? SetlistRemoveRequested;   // index
     public event Action<int, int>? SetlistMoveRequested; // from, to
     public event Action<WebSocket, int, int>? GetSongsRequested; // ws, offset, limit
@@ -61,6 +62,17 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, string>? SetlistSyncPushRequested; // ws, raw json
     public event Action<WebSocket, int>? SetlistDeleteRequested;      // ws, desktopId
     public event Action<bool>? DevicesPowerAllRequested;            // on/off wszystkie urządzenia
+    public event Action<WebSocket>? StatusRequested;                // → status_data
+    public event Action<WebSocket>? RestartAppRequested;            // restart procesu (ack leci PRZED)
+    public event Action<WebSocket, bool>? ProjectionRequested;      // ws, true = otwórz / false = zamknij
+    /// <summary>Kategorie i grupy zestawów — jeden event na całą rodzinę (ws, surowy JSON).</summary>
+    public event Action<WebSocket, string>? CategoryCommandRequested;
+    public event Action<WebSocket, string>? SetlistPinCommandRequested;   // ws, raw json (setlist_pin)
+    public event Action<WebSocket>? PinNextWeekRequested;                 // ws (pin_next_week)
+    /// <summary>Ustawienia projekcji (wygląd) — get/set, surowy JSON.</summary>
+    public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
+    /// <summary>Edytor pieśni (song_get/create/update/delete) — surowy JSON.</summary>
+    public event Action<WebSocket, string>? SongEditCommandRequested;
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -173,6 +185,13 @@ public sealed class RemoteControlServer : IDisposable
         var json = JsonSerializer.Serialize(new { type = "devices", state, count });
         await BroadcastRawAsync(json);
     }
+
+    /// <summary>
+    /// Rozgłasza gotowy JSON do wszystkich uwierzytelnionych klientów. Używane przez komendy,
+    /// które zmieniają dane wspólne (kategorie, grupy zestawów) — treść składa serwis domenowy,
+    /// żeby nie powstała druga lista pól obok buildera.
+    /// </summary>
+    public Task BroadcastJsonAsync(string json) => BroadcastRawAsync(json);
 
     public Task SendToClientAsync(WebSocket ws, string json)
     {
@@ -435,6 +454,11 @@ public sealed class RemoteControlServer : IDisposable
                     if (doc.RootElement.TryGetProperty("songId", out var idEl))
                         SetlistAddRequested?.Invoke(idEl.GetInt32());
                 }
+                else if (type == "show_song")
+                {
+                    if (doc.RootElement.TryGetProperty("songId", out var idEl))
+                        ShowSongRequested?.Invoke(idEl.GetInt32());
+                }
                 else if (type == "setlist_remove")
                 {
                     if (doc.RootElement.TryGetProperty("index", out var idxEl))
@@ -501,10 +525,58 @@ public sealed class RemoteControlServer : IDisposable
                         idEl.ValueKind == JsonValueKind.Number)
                         SetlistDeleteRequested?.Invoke(ws, idEl.GetInt32());
                 }
+                else if (PilotSetlistPin.IsCommand(type))
+                {
+                    // Przypinanie zestawu — logika w PilotSetlistPin, serwer przekazuje surowy JSON.
+                    SetlistPinCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotPinWeek.IsCommand(type))
+                {
+                    // „Przypnij tydzień" — logika w PilotPinWeek, komenda nie ma pól wejściowych.
+                    PinNextWeekRequested?.Invoke(ws);
+                }
+                else if (PilotCategorySync.IsCommand(type))
+                {
+                    // Kategorie / grupy zestawów — cała logika w PilotCategorySync,
+                    // serwer wyłącznie przekazuje surowy JSON.
+                    CategoryCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotDisplaySettings.IsCommand(type))
+                {
+                    // Ustawienia projekcji (wygląd) — logika w PilotDisplaySettings.
+                    DisplaySettingsCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotSongEdit.IsCommand(type))
+                {
+                    // Edytor pieśni — logika w PilotSongEdit.
+                    SongEditCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
                 else if (type == "devices_power_all")
                 {
                     if (doc.RootElement.TryGetProperty("on", out var onEl))
                         DevicesPowerAllRequested?.Invoke(onEl.GetBoolean());
+                }
+                // ─── Ratunek dla sprzętu bez klawiatury (mini PC w zakrystii) ───
+                // Ack potwierdza PRZYJĘCIE komendy i leci ZAWSZE przed handlerem:
+                // przy restart_app proces zaraz znika, więc innej szansy nie ma.
+                else if (type == "status")
+                {
+                    StatusRequested?.Invoke(ws);
+                }
+                else if (type == "restart_app")
+                {
+                    await SafeSendAsync(ws, PilotStatus.BuildAckJson("restart_app"));
+                    RestartAppRequested?.Invoke(ws);
+                }
+                else if (type == "open_projection")
+                {
+                    await SafeSendAsync(ws, PilotStatus.BuildAckJson("open_projection"));
+                    ProjectionRequested?.Invoke(ws, true);
+                }
+                else if (type == "close_projection")
+                {
+                    await SafeSendAsync(ws, PilotStatus.BuildAckJson("close_projection"));
+                    ProjectionRequested?.Invoke(ws, false);
                 }
             }
             catch { }

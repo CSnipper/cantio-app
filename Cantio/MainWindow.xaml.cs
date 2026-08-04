@@ -132,15 +132,43 @@ public partial class MainWindow : Window
         _shortcutService = new ShortcutService();
 
         _vm = new DisplayViewModel(db, new ProjectionViewModel(), _shortcutService);
+        // Tryb serwerowy: mini PC nie ma operatora, a projekcja jest Topmost — modal schowałby się
+        // pod nią i zawiesił program. Odmawiamy (nic destrukcyjnego bez zgody) i logujemy.
         _vm.ConfirmRequested = msg =>
-            MessageBox.Show(msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
-            == MessageBoxResult.Yes;
+        {
+            if (!AppModeRules.CanShowBlockingDialog(AppMode.Current) && !IsVisible)
+            {
+                AppLog.Write("UI", $"Tryb serwerowy — pominięto pytanie „{msg}”, operacja odrzucona.");
+                return false;
+            }
+            return MessageBox.Show(this, msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
+                   == MessageBoxResult.Yes;
+        };
+        // Pieśń otwarta w edytorze skasowana z tabletu — edytor już się zamknął, operator
+        // musi się dowiedzieć, dlaczego zniknęła mu praca sprzed chwili.
+        _vm.NotifyEditorClosedExternally = songId =>
+        {
+            AppLog.Write("Pilot", $"Pieśń {songId} skasowana zdalnie — zamknięto otwarty edytor.");
+            if (AppModeRules.CanShowBlockingDialog(AppMode.Current) && IsVisible)
+                MessageBox.Show(this,
+                    "Edytowana pieśń została w międzyczasie usunięta z tabletu.\n" +
+                    "Edytor zamknięto — niezapisane zmiany przepadły.",
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+        };
         DataContext = _vm;
 
         _importVm = new ImportViewModel(db);
 
         _szablonVm = new SzablonViewModel(db, _vm.Projection, _vm);
-        _szablonVm.Saved += () => _vm.RebuildSlides();
+        _szablonVm.Saved += () =>
+        {
+            _vm.RebuildSlides();
+            // „ZAPISZ USTAWIENIA" w zakładce WYGLĄD → ten sam komunikat do tabletów, co po
+            // zmianie z Pilota. Jeden builder, dwie ścieżki — bez drugiej listy pól.
+            // (Pole _remoteControl jest ustawiane niżej w tym samym konstruktorze; Saved
+            // odpala się dopiero po interakcji użytkownika, więc nigdy nie jest null.)
+            _ = _remoteControl.BroadcastJsonAsync(PilotDisplaySettings.BuildDataJson(db.GetSettings()));
+        };
         _szablonVm.DioceseChanged += RefreshLitDay;
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
@@ -210,6 +238,14 @@ public partial class MainWindow : Window
                 var song = await db.GetSongWithVersesAsync(songId);
                 if (song != null) _vm.AddToSetlistCommand.Execute(song);
             });
+        // Gest „w lewo" na liście PIEŚNI w Pilocie tabletowym = odpowiednik oka 👁 w oknie Cantio:
+        // pieśń ląduje NA EKRANIE, ale NIE w zestawie (i nie rusza podświetlenia pozycji zestawu).
+        _remoteControl.ShowSongRequested += songId =>
+            _ = Dispatcher.InvokeAsync(async () =>
+            {
+                var song = await db.GetSongWithVersesAsync(songId);
+                if (song != null) _vm.DisplaySongCommand.Execute(song);
+            });
         _remoteControl.SetlistClearRequested += () =>
             _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
 
@@ -232,13 +268,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                var summaries = await db.GetSetlistSummariesAsync();
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    type     = "setlists_data",
-                    setlists = summaries.Select(s => new { id = s.Id, name = s.Name, group = s.Group ?? "", songCount = s.SongCount, updatedAt = s.UpdatedAt })
-                });
-                await _remoteControl.SendToClientAsync(ws, json);
+                await _remoteControl.SendToClientAsync(ws, await PilotSetlistSync.BuildSetlistsJsonAsync(db));
             }
             catch { }
         };
@@ -318,40 +348,237 @@ public partial class MainWindow : Window
             try
             {
                 var (total, items) = await db.GetSongsForSyncAsync(offset, limit);
-                var json = JsonSerializer.Serialize(new
-                {
-                    type = "songs_data",
-                    offset,
-                    total,
-                    items = items.Select(s => new
-                    {
-                        id         = s.Id,
-                        title      = s.Title,
-                        number     = s.Number,
-                        author     = s.Author ?? "",
-                        categoryId = s.CategoryId,
-                        parts      = s.Verses
-                            .OrderBy(v => v.Position)
-                            .Select(v => new { type = v.Type, text = v.Text })
-                    })
-                });
-                await _remoteControl.SendToClientAsync(ws, json);
+                // Kształt komunikatu (w tym CategoryId == NULL → 0) składa PilotSongSync
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotSongSync.BuildSongsDataJson(offset, total, items));
             }
             catch { }
         };
+        // ─── Ratunek dla mini PC bez klawiatury (status / restart / projekcja) ───
+        // Ack na restart/open/close wysyła sam RemoteControlServer, ZANIM tu dotrze —
+        // inaczej przy restarcie Pilot nigdy by się nie dowiedział, że komenda doszła.
+        _remoteControl.StatusRequested += async ws =>
+        {
+            try
+            {
+                var info = await Dispatcher.InvokeAsync(() => new PilotStatusInfo(
+                    Version:          PilotStatus.AppVersion(),
+                    Mode:             AppMode.ToSettingValue(AppMode.Current),
+                    ProjectionOpen:   _vm.IsProjectionOpen,
+                    ProjectionScreen: _vm.ProjectionScreenIndex,
+                    ScreenCount:      DisplayViewModel.ScreenCount,
+                    PairedDevices:    _remoteControl.PairedDeviceCount,
+                    UptimeSeconds:    PilotStatus.UptimeSeconds()));
+                await _remoteControl.SendToClientAsync(ws, PilotStatus.BuildStatusJson(info));
+            }
+            catch { }
+        };
+
+        _remoteControl.RestartAppRequested += ws =>
+            Dispatcher.InvokeAsync(() =>
+            {
+                AppLog.Write("Pilot", "Restart aplikacji na żądanie Pilota");
+                try
+                {
+                    // Port MUSI zostać zwolniony PRZED startem nowego procesu — inaczej świeża
+                    // kopia wchodzi na zajęte gniazdo, jej serwer pilota nie startuje i mini PC
+                    // zostaje bez żadnego interfejsu. Dotychczas kolejność była odwrotna.
+                    // `ack` poszedł już z RemoteControlServer, zanim ten handler ruszył.
+                    _remoteControl.StopForRestart();
+                    System.Diagnostics.Process.Start(
+                        new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
+                        { UseShellExecute = true });
+                    Application.Current.Shutdown();
+                }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Restart nieudany: {ex.Message}"); }
+            });
+
+        _remoteControl.ProjectionRequested += (ws, open) =>
+            Dispatcher.InvokeAsync(async () =>
+            {
+                try
+                {
+                    if (open) await _vm.OpenProjectionFromRemoteAsync();
+                    else _vm.CloseProjectionFromRemote();
+                }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Projekcja z Pilota: {ex.Message}"); }
+            });
+
+        // ─── Kategorie i grupy zestawów z Pilota ───
+        // Cała logika (parse → operacja → odpowiedź + broadcast) siedzi w PilotCategorySync;
+        // tu zostaje wyłącznie wysyłka i odświeżenie UI TĄ SAMĄ ścieżką co po edycji lokalnej.
+        _remoteControl.CategoryCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotCategorySync.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Scope != PilotCategorySync.RefreshScope.None)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            if (result.Scope == PilotCategorySync.RefreshScope.Categories)
+                                await _vm.RefreshCategoriesExternallyAsync();
+                            else
+                                await _vm.RefreshSetlistGroupsExternallyAsync();
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie list: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda kategorii/grup: {ex.Message}"); }
+        };
+
+        // ─── Przypinanie zestawów (panel PRZYPIĘTE) ───
+        // Stan jest wspólny: komenda z Pilota zmienia bazę i wraca do WSZYSTKICH klientów jako
+        // `setlist_pinned`, a okno Cantio odświeża panel tą samą metodą co po kliknięciu pinezki.
+        _remoteControl.SetlistPinCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotSetlistPin.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Changed)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try { await _vm.ApplyExternalPinAsync(result.DesktopId, result.Pinned); }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie PRZYPIĘTYCH: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda przypięcia: {ex.Message}"); }
+        };
+
+        // Pinezka kliknięta w oknie Cantio → ten sam komunikat do Pilotów (jeden builder, dwie ścieżki).
+        _vm.SetlistPinChanged += (setlistId, pinned) =>
+            _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned));
+
+        // ─── „Przypnij tydzień" z Pilota ───
+        // Ta sama metoda co przycisk w oknie (PilotPinWeek.RunAsync pod spodem), więc UI desktopu
+        // odświeża się po drodze, a piny lecą istniejącymi broadcastami `setlist_pinned`.
+        // Dialogu podsumowania NIE pokazujemy — komenda dostaje go ackiem.
+        _remoteControl.PinNextWeekRequested += async ws =>
+        {
+            try
+            {
+                var result = await Dispatcher.InvokeAsync(() => _vm.PinNextWeekAsync(announce: false))
+                                             .Task.Unwrap();
+                await _remoteControl.SendToClientAsync(ws, PilotPinWeek.BuildAckJson(result));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda przypnij tydzień: {ex.Message}"); }
+        };
+
+        // Podpisy obchodów pod przypiętymi zestawami — JEDEN komunikat po każdym przeładowaniu
+        // listy PRZYPIĘTE (pin, unpin, przypnij tydzień, zmiana diecezji, import).
+        _vm.PinnedListRefreshed += () =>
+            _ = _remoteControl.BroadcastJsonAsync(
+                PilotPinWeek.BuildCelebrationsJson(BuildPinnedCaptions()));
+
+        // Kategorie i grupy zestawów zmienione W OKNIE — ta sama obietnica protokołu, co przy
+        // komendach z tabletu: broadcast po KAŻDEJ mutacji, niezależnie od tego, kto ją zrobił.
+        // Komunikaty składa wyłącznie PilotCategorySync (jeden builder, dwie ścieżki).
+        _vm.CategoriesChangedLocally += async () =>
+        {
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotCategorySync.BuildCategoriesJson(await db.GetCategoriesAsync()));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast kategorii: {ex.Message}"); }
+        };
+        _vm.SetlistGroupsChangedLocally += async () =>
+        {
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotCategorySync.BuildGroupsJson(await db.GetSetlistGroupsAsync()));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast grup zestawów: {ex.Message}"); }
+        };
+
+        // Zmiana diecezji zmienia obchody, więc i podpisy na liście PRZYPIĘTE.
+        _szablonVm.DioceseChanged += async () =>
+        {
+            try { await _vm.LoadPinnedSetlistsAsync(); }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie PRZYPIĘTYCH: {ex.Message}"); }
+        };
+
+        // Podsumowanie po kliknięciu „Przypnij tydzień" w oknie. W trybie serwerowym cisza —
+        // przy mini PC bez klawiatury nikt tego okna nie zamknie (zasada: zero blokujących dialogów).
+        _vm.WeekPinned += result =>
+        {
+            if (AppMode.IsServer) return;
+            MessageBox.Show(this, BuildPinWeekSummary(result),
+                TryFindResource("PinWeek.Summary.Title") as string ?? "Cantio",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        };
+
+        // ─── Ustawienia projekcji (wygląd) z Pilota ───
+        // Logika siedzi w PilotDisplaySettings; tu zostaje wysyłka, broadcast i odświeżenie
+        // desktopu DOKŁADNIE tą samą ścieżką co „ZAPISZ USTAWIENIA" w zakładce WYGLĄD
+        // (ApplySettings + RebuildSlides) — bez tego zmiana nie weszłaby na ekran.
+        _remoteControl.DisplaySettingsCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotDisplaySettings.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Changed)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            await _szablonVm.ApplyExternalSettingsAsync();
+                            _vm.RebuildSlides();
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie wyglądu: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda ustawień wyglądu: {ex.Message}"); }
+        };
+
+        // ─── Edytor pieśni z Pilota ───
+        // Logika siedzi w PilotSongEdit; tu zostaje wysyłka, broadcast `song_changed` i odświeżenie
+        // okna Cantio TĄ SAMĄ ścieżką co zapis w edytorze pieśni (listy + przeładowanie pieśni,
+        // która jest na ekranie, z kotwicą pozycji slajdu).
+        _remoteControl.SongEditCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotSongEdit.HandleAsync(db, raw);
+                if (result.Response  != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Broadcast != null) await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+                if (result.Change != PilotSongEdit.SongChange.None)
+                    _ = Dispatcher.InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            await _vm.OnSongEditedExternallyAsync(result.SongId,
+                                deleted: result.Change == PilotSongEdit.SongChange.Deleted);
+                        }
+                        catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie pieśni: {ex.Message}"); }
+                    });
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda edytora pieśni: {ex.Message}"); }
+        };
+
+        // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
+        // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
+        _remoteControl.PairingStateChanged += () =>
+            Dispatcher.InvokeAsync(RefreshPairingOverlay);
+
         _remoteControl.ClientConnected += async ws =>
         {
             try
             {
                 var cats = await db.GetCategoriesAsync();
-                var catsJson = JsonSerializer.Serialize(new
-                {
-                    type       = "categories_data",
-                    categories = cats.Select(c => new { id = c.Id, name = c.Name, number = c.Number })
-                });
-                await _remoteControl.SendToClientAsync(ws, catsJson);
+                await _remoteControl.SendToClientAsync(ws, PilotCategorySync.BuildCategoriesJson(cats));
                 await BroadcastCurrentStateToAsync(ws);
                 await BroadcastSetlistStateToAsync(ws);
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotPinWeek.BuildCelebrationsJson(BuildPinnedCaptions()));
                 var (devState, devCount) = _devicesVm.GetAggregateState();
                 var devJson = JsonSerializer.Serialize(new { type = "devices", state = devState, count = devCount });
                 await _remoteControl.SendToClientAsync(ws, devJson);
@@ -441,6 +668,7 @@ public partial class MainWindow : Window
             RefreshLitDay();
             RestoreWindowPosition();
             await _remoteControl.InitAsync();
+            RefreshPairingOverlay();
             await _devicesVm.InitAsync();
             await _aboutVm.CheckAndPromptAsync();
 
@@ -453,6 +681,30 @@ public partial class MainWindow : Window
         KeyDown += _vm.OnKeyDown;
 
         InitClock();
+    }
+
+    /// <summary>
+    /// Przenosi stan parowania na warstwę w oknie projekcji (tryb serwerowy: jedyne wyjście HDMI
+    /// musi pokazać QR/PIN, bo nikt nie widzi okna Cantio). Decyzję podejmuje czysta reguła
+    /// <see cref="AppModeRules.ShouldShowPairingScreen(AppModeKind,int)"/> — tu jest tylko przepisanie.
+    /// </summary>
+    private void RefreshPairingOverlay()
+    {
+        var p = _vm.Projection;
+
+        // Awaria startu serwera wyprzedza ekran parowania: bez działającego serwera nie ma czego
+        // parować, a PIN na ekranie byłby kłamstwem.
+        p.ServerFailureReason = _remoteControl.StartFailure;
+        p.ShowServerFailure = AppModeRules.ShouldShowServerFailure(
+            AppMode.Current, _remoteControl.IsRunning, _remoteControl.StartFailure);
+
+        var show = _remoteControl.ShouldShowPairingScreen;
+        p.ShowPairing = show;
+        if (!show) return;
+        p.PairingPin = _remoteControl.Pin;
+        p.PairingAddresses = new System.Collections.ObjectModel.ObservableCollection<string>(
+            _remoteControl.AllLocalUrls);
+        p.PairingQr = _remoteControl.PairingQrLarge;
     }
 
     // ─── Notatka dla zmienników ───────────────────────────────────────────────
@@ -518,6 +770,34 @@ public partial class MainWindow : Window
             "boznarodzenie" or "wielkanoc" => System.Windows.Media.Color.FromRgb(0xe8, 0xc9, 0x7a),
             _ => System.Windows.Media.Color.FromRgb(0x3d, 0x8b, 0x40),
         });
+    }
+
+    /// <summary>
+    /// Podpisy obchodów dla Pilotów — czytane z listy PRZYPIĘTE, którą ViewModel właśnie policzył
+    /// (bez drugiego zapytania do bazy i bez drugiej reguły; jedno źródło = <c>PinnedCelebrations</c>).
+    /// </summary>
+    private IEnumerable<KeyValuePair<int, string>> BuildPinnedCaptions() =>
+        _vm.PinnedSetlists.Where(s => s.HasCelebration)
+                          .Select(s => new KeyValuePair<int, string>(s.Id, s.Celebration))
+                          .ToList();
+
+    /// <summary>Tekst podsumowania „Przypnij tydzień" (7 dni: data · nazwa — obchód).</summary>
+    private string BuildPinWeekSummary(PilotPinWeek.Result result)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(TryFindResource("PinWeek.Summary.Header") as string ?? "");
+        sb.AppendLine();
+        foreach (var d in result.Days)
+        {
+            sb.Append(d.Date.ToString("dd.MM (ddd)", new System.Globalization.CultureInfo("pl-PL")))
+              .Append("  ").Append(d.Name);
+            if (d.Celebration.Length > 0) sb.Append("  —  ").Append(d.Celebration);
+            sb.AppendLine();
+        }
+        sb.AppendLine();
+        sb.Append(TryFindResource("PinWeek.Summary.NewCount") as string ?? "")
+          .Append(' ').Append(result.Pinned);
+        return sb.ToString();
     }
 
     private void BtnLitFormularies_Click(object sender, RoutedEventArgs e)
@@ -598,8 +878,63 @@ public partial class MainWindow : Window
             Top  = primary.WorkingArea.Top  + (primary.WorkingArea.Height - Height) / 2;
         }
 
-        if (maxStr == "True")
+        // W trybie serwerowym okno ma zostać zminimalizowane — zapamiętane „zmaksymalizowane"
+        // wyciągnęłoby je z powrotem na projekcję.
+        if (maxStr == "True" && AppModeRules.ShouldShowMainWindow(AppMode.Current))
             WindowState = WindowState.Maximized;
+    }
+
+    // ─── Tryb serwerowy: powrót do okna dla technika (Ctrl+Alt+Shift+C) ────────
+    //
+    // Okno jest zminimalizowane i zdjęte z paska zadań, więc bez tego skrótu nie ma jak
+    // dostać się do USTAWIEŃ na mini PC (np. żeby wyłączyć tryb serwerowy albo zmienić PIN).
+    // Skrót globalny, bo okno nie ma fokusu — zwykły KeyBinding by nie zadziałał.
+
+    private const int HotkeyId = 0xC0DE;
+    private const int WmHotkey = 0x0312;
+    private const uint ModAlt = 0x0001, ModControl = 0x0002, ModShift = 0x0004, ModNoRepeat = 0x4000;
+    private const uint VkC = 0x43;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private System.Windows.Interop.HwndSource? _hotkeySource;
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        if (AppModeRules.ShouldShowMainWindow(AppMode.Current)) return;
+
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        _hotkeySource = System.Windows.Interop.HwndSource.FromHwnd(handle);
+        _hotkeySource?.AddHook(HotkeyHook);
+        bool ok = RegisterHotKey(handle, HotkeyId, ModControl | ModAlt | ModShift | ModNoRepeat, VkC);
+        AppLog.Write("App", ok
+            ? "Tryb serwerowy: skrót Ctrl+Alt+Shift+C przywraca okno główne."
+            : "Tryb serwerowy: NIE udało się zarejestrować Ctrl+Alt+Shift+C (skrót zajęty przez inny program).");
+        Closed += (_, _) =>
+        {
+            UnregisterHotKey(handle, HotkeyId);
+            _hotkeySource?.RemoveHook(HotkeyHook);
+        };
+    }
+
+    private IntPtr HotkeyHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WmHotkey || wParam.ToInt32() != HotkeyId) return IntPtr.Zero;
+        ShowInTaskbar = true;
+        WindowState = WindowState.Normal;
+        Show();
+        Activate();
+        // Projekcja w trybie serwerowym jest Topmost, więc okno techniczne też musi być —
+        // inaczej wróciłoby pod nią i skrót wyglądałby na niedziałający.
+        Topmost = true;
+        AppLog.Write("App", "Tryb serwerowy: okno główne przywrócone skrótem.");
+        handled = true;
+        return IntPtr.Zero;
     }
 
     // Tab switching

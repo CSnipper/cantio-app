@@ -25,6 +25,13 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool        _requirePin = true;
     [ObservableProperty] private string      _lastRejected = "";
 
+    /// <summary>
+    /// Powód, dla którego serwer pilota NIE wystartował (pusty = brak awarii). W trybie serwerowym
+    /// pokazywany na projekcji zamiast ekranu parowania — to jedyne wyjście obrazu na mini PC,
+    /// więc jedyne miejsce, w którym technik zobaczy, że port jest zajęty.
+    /// </summary>
+    [ObservableProperty] private string      _startFailure = "";
+
     private List<string> _tokens = [];
 
     public event EventHandler? NextRequested;
@@ -33,6 +40,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<int>? GotoRequested;
     public event Action<int>? GotoSongRequested;
     public event Action<int>? SetlistAddRequested;
+    public event Action<int>? ShowSongRequested;
     public event Action<int>? SetlistRemoveRequested;
     public event Action<int, int>? SetlistMoveRequested;
     public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
@@ -46,6 +54,20 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistSyncPushRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? SetlistDeleteRequested;
     public event Action<bool>? DevicesPowerAllRequested;
+    public event Action<System.Net.WebSockets.WebSocket>? StatusRequested;
+    public event Action<System.Net.WebSockets.WebSocket>? RestartAppRequested;
+    public event Action<System.Net.WebSockets.WebSocket, bool>? ProjectionRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? CategoryCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? SetlistPinCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket>? PinNextWeekRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? DisplaySettingsCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? SongEditCommandRequested;
+
+    /// <summary>
+    /// Zmienił się stan parowania (start serwera, nowe urządzenie, „nowy PIN").
+    /// Odpalane także z wątku serwera — subskrybent marshaluje na Dispatcher sam.
+    /// </summary>
+    public event Action? PairingStateChanged;
 
     public RemoteControlViewModel(DatabaseService? db = null)
     {
@@ -56,6 +78,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.GotoRequested           += idx            => GotoRequested?.Invoke(idx);
         _server.GotoSongRequested       += idx            => GotoSongRequested?.Invoke(idx);
         _server.SetlistAddRequested     += id             => SetlistAddRequested?.Invoke(id);
+        _server.ShowSongRequested       += id             => ShowSongRequested?.Invoke(id);
         _server.SetlistRemoveRequested  += idx            => SetlistRemoveRequested?.Invoke(idx);
         _server.SetlistMoveRequested    += (f, t)         => SetlistMoveRequested?.Invoke(f, t);
         _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
@@ -69,6 +92,14 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.SetlistSyncPushRequested    += (ws, json) => SetlistSyncPushRequested?.Invoke(ws, json);
         _server.SetlistDeleteRequested      += (ws, id)   => SetlistDeleteRequested?.Invoke(ws, id);
         _server.DevicesPowerAllRequested    += on         => DevicesPowerAllRequested?.Invoke(on);
+        _server.StatusRequested             += ws         => StatusRequested?.Invoke(ws);
+        _server.RestartAppRequested         += ws         => RestartAppRequested?.Invoke(ws);
+        _server.ProjectionRequested         += (ws, open) => ProjectionRequested?.Invoke(ws, open);
+        _server.CategoryCommandRequested    += (ws, raw)  => CategoryCommandRequested?.Invoke(ws, raw);
+        _server.SetlistPinCommandRequested  += (ws, raw)  => SetlistPinCommandRequested?.Invoke(ws, raw);
+        _server.PinNextWeekRequested        += ws         => PinNextWeekRequested?.Invoke(ws);
+        _server.DisplaySettingsCommandRequested += (ws, raw) => DisplaySettingsCommandRequested?.Invoke(ws, raw);
+        _server.SongEditCommandRequested    += (ws, raw)  => SongEditCommandRequested?.Invoke(ws, raw);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
         {
@@ -88,7 +119,27 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             while (_tokens.Count > RemoteControlServer.MaxTokens) _tokens.RemoveAt(0);
         }
         SaveTokens();
+        PairingStateChanged?.Invoke();   // pierwsze parowanie gasi ekran startowy na projektorze
     }
+
+    /// <summary>Liczba sparowanych urządzeń — wejście reguły ekranu parowania.</summary>
+    public int PairedDeviceCount { get { lock (_tokens) return _tokens.Count; } }
+
+    /// <summary>Czy na projektorze ma wisieć ekran parowania (tryb serwerowy + nikt niesparowany).</summary>
+    public bool ShouldShowPairingScreen =>
+        IsRunning && AppModeRules.ShouldShowPairingScreen(AppMode.Current, PairedDeviceCount);
+
+    /// <summary>
+    /// WSZYSTKIE adresy IPv4, pod którymi widać serwer. Mini PC bywa w sieci przewodowej
+    /// i Wi-Fi naraz — zgadywanie jednego adresu (jak <see cref="LocalUrl"/>) zostawiłoby
+    /// parafię z adresem, którego tablet nie widzi.
+    /// </summary>
+    public IReadOnlyList<string> AllLocalUrls =>
+        [.. AllLocalIps().Select(ip => $"http://{ip}:{Port}")];
+
+    /// <summary>Kod QR w rozmiarze projektorowym (ta sama treść co w panelu pilota).</summary>
+    public BitmapSource? PairingQrLarge =>
+        IsRunning ? GenerateQr(PairingUrl, pixelsPerModule: 20) : null;
 
     private void SaveTokens()
     {
@@ -117,9 +168,16 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             }
             catch (Exception ex) when (ex is ArgumentOutOfRangeException or System.Net.Sockets.SocketException)
             {
-                // Port invalid or already in use — do not set IsRunning
+                // Port zajęty albo nieprawidłowy. W trybie serwerowym to KONIEC świata: pilot jest
+                // jedynym interfejsem, a ekran parowania wisi na IsRunning — bez sygnału mini PC
+                // zostaje z projekcją, której nikt nie może przełączyć. Cisza tu kosztowała parafię
+                // całą mszę, więc: log + widoczny komunikat na projekcji.
+                StartFailure = $"Port {Port}: {ex.Message}";
+                AppLog.Write("Pilot", $"Serwer pilota NIE wystartował — {StartFailure}");
+                PairingStateChanged?.Invoke();
                 return;
             }
+            StartFailure = "";
             IsRunning = true;
             LastRejected = "";
             var ip = GetLocalIp();
@@ -127,6 +185,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             QrCode = GenerateQr(PairingUrl);
         }
         PersistState();
+        PairingStateChanged?.Invoke();
     }
 
     /// <summary>Adres w kodzie QR — z PIN-em, żeby skanowanie parowało bez przepisywania.</summary>
@@ -164,6 +223,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     {
         OnPropertyChanged(nameof(PairingUrl));
         if (IsRunning) QrCode = GenerateQr(PairingUrl);
+        PairingStateChanged?.Invoke();   // „nowy PIN" kasuje tokeny → ekran parowania wraca
     }
 
     partial void OnRequirePinChanged(bool value)
@@ -204,11 +264,14 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             }
             ApplyAuthConfig();
 
-            if (RememberState && !IsRunning &&
-                await _db.GetSettingAsync("pilot_was_running") == "1")
+            // Tryb serwerowy: pilot jest jedynym interfejsem, więc startuje zawsze.
+            var wasRunning = await _db.GetSettingAsync("pilot_was_running") == "1";
+            if (!IsRunning &&
+                AppModeRules.ShouldAutoStartPilotServer(AppMode.Current, RememberState, wasRunning))
                 ToggleServer();
         }
         finally { _initializing = false; }
+        PairingStateChanged?.Invoke();
     }
 
     partial void OnPinChanged(string value) => OnPropertyChanged(nameof(PairingUrl));
@@ -249,8 +312,40 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             ? _server.BroadcastDevicesAsync(state, count)
             : Task.CompletedTask;
 
+    /// <summary>Rozgłasza gotowy JSON (kategorie / grupy zestawów) — cisza, gdy serwer nie działa.</summary>
+    public Task BroadcastJsonAsync(string json)
+        => _server.IsRunning ? _server.BroadcastJsonAsync(json) : Task.CompletedTask;
+
     public Task SendToClientAsync(System.Net.WebSockets.WebSocket ws, string json)
         => _server.SendToClientAsync(ws, json);
+
+    /// <summary>Adresy IPv4 wszystkich działających interfejsów (bez loopbacku), bez duplikatów.</summary>
+    private static List<string> AllLocalIps()
+    {
+        var result = new List<string>();
+        try
+        {
+            foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
+                if (ni.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Loopback) continue;
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily != AddressFamily.InterNetwork) continue;
+                    var s = ua.Address.ToString();
+                    if (s.StartsWith("169.254.")) continue;   // APIPA — brak realnej sieci
+                    if (!result.Contains(s)) result.Add(s);
+                }
+            }
+        }
+        catch { }
+        if (result.Count == 0)
+        {
+            var fallback = GetLocalIp();
+            if (fallback != "localhost") result.Add(fallback);
+        }
+        return result;
+    }
 
     private static string GetLocalIp()
     {
@@ -263,13 +358,25 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         catch { return "localhost"; }
     }
 
+    /// <summary>
+    /// Zwalnia port PRZED uruchomieniem nowej kopii Cantio (komenda <c>restart_app</c>).
+    /// Świadomie NIE zapisuje <c>pilot_was_running</c> jako 0 — nowa kopia ma wstać z serwerem
+    /// dokładnie w tym stanie, w jakim serwer był przed restartem.
+    /// </summary>
+    public void StopForRestart()
+    {
+        if (!_server.IsRunning) return;
+        _server.Stop();
+        IsRunning = false;
+    }
+
     public void Dispose() => _server.Dispose();
 
-    private static BitmapSource GenerateQr(string url)
+    private static BitmapSource GenerateQr(string url, int pixelsPerModule = 8)
     {
         using var qrGenerator = new QRCodeGenerator();
         var data = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-        var png = new PngByteQRCode(data).GetGraphic(8,
+        var png = new PngByteQRCode(data).GetGraphic(pixelsPerModule,
             new byte[] { 201, 168, 76 },   // gold
             new byte[] { 15, 17, 23 });    // dark bg
         var img = new BitmapImage();

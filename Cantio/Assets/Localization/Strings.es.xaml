@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -16,6 +16,14 @@
     <sys:String x:Key="Pilot.PinHint">El código QR vincula sin escribir el PIN. Si escribes la dirección a mano, el teléfono pedirá el PIN. Un PIN nuevo desvincula todos los dispositivos.</sys:String>
     <sys:String x:Key="Pilot.NoPinWarning">Atención: sin PIN cualquiera en esta red Wi-Fi puede tomar el control de la proyección.</sys:String>
     <sys:String x:Key="Pilot.QrHint">Escanea el código QR o escribe la dirección en el navegador del teléfono.</sys:String>
+    <!-- Pantalla de vinculación en el proyector (modo servidor) -->
+    <sys:String x:Key="Pairing.Title">Conecta un teléfono o tableta para controlar la proyección</sys:String>
+    <sys:String x:Key="Pairing.Step1">1. Escanea el código QR con la cámara del teléfono — se conecta solo.</sys:String>
+    <sys:String x:Key="Pairing.Step2">2. O abre una de estas direcciones en el navegador e introduce el PIN:</sys:String>
+    <sys:String x:Key="Pairing.Pin">PIN</sys:String>
+    <sys:String x:Key="Pairing.Footer">Esta pantalla desaparecerá cuando se conecte el primer dispositivo.</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedTitle">El servidor del mando no se ha iniciado</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedHint">Lo más probable es que el puerto ya esté ocupado por otra copia de Cantio u otro programa. Cierre la otra copia y reinicie el equipo; el puerto se puede cambiar en AJUSTES → Mando.</sys:String>
     <sys:String x:Key="Pilot.Rejected">Dispositivo no vinculado rechazado:</sys:String>
     <!-- Dispositivos de proyección (TV/proyectores) -->
     <sys:String x:Key="Devices.Section">Dispositivos de proyección</sys:String>
@@ -92,6 +100,8 @@
 
     <!-- Secciones -->
     <sys:String x:Key="Section.Categories">CATEGORÍAS</sys:String>
+    <!-- Fila virtual en la lista CATEGORÍAS: canciones con CategoryId == NULL -->
+    <sys:String x:Key="Category.Uncategorized">Sin categoría</sys:String>
     <sys:String x:Key="Section.Songs">CANCIONES</sys:String>
     <sys:String x:Key="Section.Verses">ESTROFAS</sys:String>
     <sys:String x:Key="Section.ScreenPreview">VISTA PREVIA</sys:String>
@@ -204,6 +214,9 @@
     <sys:String x:Key="About.Downloading">Descargando...</sys:String>
     <sys:String x:Key="About.Changelog">Novedades:</sys:String>
     <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.ServerMode">Modo servidor (control solo desde CantioPilot)</sys:String>
+    <sys:String x:Key="Settings.ServerModeHint">Para un equipo con una sola pantalla que muestra únicamente la proyección. La ventana de Cantio queda oculta y el servidor del mando se inicia automáticamente. Para recuperar la ventana: Ctrl+Alt+Shift+C.</sys:String>
+    <sys:String x:Key="Settings.ServerModeRestart">El cambio de modo se aplicará al reiniciar Cantio.</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
     <sys:String x:Key="Settings.LoopInterval">Bucle de diapositivas — intervalo (segundos, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
@@ -292,6 +305,9 @@
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>
     <sys:String x:Key="Section.Pinned">FIJADOS</sys:String>
     <sys:String x:Key="Pinned.Unpin">Desfijar</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Title">Fijar la semana</sys:String>
+    <sys:String x:Key="PinWeek.Summary.Header">Listas fijadas para los próximos 7 días:</sys:String>
+    <sys:String x:Key="PinWeek.Summary.NewCount">Nuevas fijadas:</sys:String>
 
     <!-- Importar -->
     <sys:String x:Key="Import.Title">Importar canciones</sys:String>

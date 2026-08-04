@@ -29,6 +29,22 @@ public partial class ProjectionViewModel : ObservableObject
     [ObservableProperty] private string? _slideBackgroundImagePath;
     [ObservableProperty] private double _backgroundImageOpacity = 1.0;
 
+    // ─── Ekran parowania (tryb serwerowy, mini PC bez klawiatury) ─────────────
+    // Warstwa WEWNĄTRZ okna projekcji — osobne okno biłoby się z nią o Topmost.
+    // Widoczna dopóki nie sparuje się pierwsze urządzenie (reguła: AppModeRules.ShouldShowPairingScreen).
+    [ObservableProperty] private bool _showPairing;
+    [ObservableProperty] private System.Windows.Media.Imaging.BitmapSource? _pairingQr;
+    [ObservableProperty] private string _pairingPin = "";
+    /// <summary>Wszystkie adresy, pod którymi widać Cantio — mini PC bywa w LAN i Wi-Fi naraz.</summary>
+    [ObservableProperty] private ObservableCollection<string> _pairingAddresses = [];
+
+    // ─── Awaria startu serwera pilota (tryb serwerowy) ────────────────────────
+    // Reguła: AppModeRules.ShouldShowServerFailure. Bez tego awaria była NIEMA — pilot nie
+    // startował, ekran parowania (wiszący na IsRunning) też się nie pokazywał i mini PC
+    // zostawało bez ŻADNEGO interfejsu.
+    [ObservableProperty] private bool _showServerFailure;
+    [ObservableProperty] private string _serverFailureReason = "";
+
     // Wygaszony ekran — własny kolor/obrazek zamiast czerni
     [ObservableProperty] private Brush _blankBrush = Brushes.Black;
     [ObservableProperty] private string? _blankImagePath;

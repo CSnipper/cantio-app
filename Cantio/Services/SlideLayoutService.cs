@@ -1,96 +1,27 @@
-using Cantio.Models;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Cantio.Services;
 
-public class SlideLayoutSettings
-{
-    public string FontFamily { get; set; } = "Segoe UI";
-    public bool FontBold { get; set; } = false;
-    public double FontSize { get; set; } = 60;
-    public double LineHeightMultiplier { get; set; } = 1.35;
-    public double SlideWidth { get; set; } = 1920;
-    public double SlideHeight { get; set; } = 1080;
-    public double MarginH { get; set; } = 80;
-    public double MarginV { get; set; } = 60;
-    public bool AutoFit { get; set; } = true;
-    public bool ForceSingleSlide { get; set; } = false; // psalm mode: nigdy nie dziel, auto-fit bez minimum
-}
-
-public class Slide
-{
-    public string Text { get; set; } = string.Empty;
-    public double FontSize { get; set; }
-    public int VerseIndex { get; set; }
-    public int PartIndex { get; set; }
-    public string Label { get; set; } = string.Empty;
-    public string VerseType { get; set; } = string.Empty; // "v", "c", "b"
-    public string? ImagePath { get; set; }
-    public bool IsImageSlide => !string.IsNullOrEmpty(ImagePath);
-    public string? BackgroundImagePath { get; set; }
-    public bool IsChorusSlide => VerseType == "c";
-    public bool IsPrivateSlide => VerseType == "p";
-    // Gdy tag "tylko podgląd" jest obecny: pełny tekst dla operatora, Text ma go wystrippowany
-    public string OperatorText { get; set; } = string.Empty;
-    public double OperatorFontSize { get; set; }
-    public bool HasPreviewOnlyContent => !string.IsNullOrEmpty(OperatorText);
-    // Cała zwrotka jest preview-only (cały tekst w {tag}...{/tag}): projektor trzyma poprzedni slajd
-    public bool IsPreviewOnlySlide { get; set; }
-}
-
+/// <summary>
+/// Pomiar i podział tekstu na slajdy. JEDYNA część układu slajdów zależna od WPF
+/// (mierzy przez <see cref="TextBlock"/>/<see cref="FormattedText"/>) — czyste typy
+/// są w <c>Slide.cs</c>, czyste operacje tekstowe w <see cref="SlideText"/>.
+/// </summary>
 public static class SlideLayoutService
 {
-    // Regex do usuwania tagów inline ({tag} i {/tag}) przed pomiarem szerokości
-    private static readonly Regex _tagPattern = new(@"\{/?[a-zA-Z0-9]+\}", RegexOptions.Compiled);
-    private static string StripTags(string text) => _tagPattern.Replace(text, string.Empty);
-    public  static string StripFormatTags(string text) => _tagPattern.Replace(text, string.Empty);
+    private static string StripTags(string text) => SlideText.StripFormatTags(text);
 
-    /// <summary>
-    /// Wyciąga treść ze wszystkich bloków {tagname}...{/tagname} dla tagów preview-only.
-    /// Zwraca samą treść (bez markerów), złączoną "\n" gdy bloków jest wiele.
-    /// </summary>
+    // Dotychczasowe wejścia zachowane, żeby nie ruszać wywołań w ViewModels/MainWindow.
+    public static string StripFormatTags(string text) => SlideText.StripFormatTags(text);
+
     public static string ExtractPreviewOnlyContent(string text, IEnumerable<string> previewOnlyTagNames)
-    {
-        var parts = new List<string>();
-        foreach (var name in previewOnlyTagNames)
-        {
-            if (string.IsNullOrEmpty(name)) continue;
-            var escaped = Regex.Escape(name);
-            foreach (Match m in Regex.Matches(text,
-                $@"\{{{escaped}\}}(.*?)\{{/{escaped}\}}",
-                RegexOptions.Singleline | RegexOptions.IgnoreCase))
-            {
-                var content = m.Groups[1].Value.Trim();
-                if (!string.IsNullOrEmpty(content))
-                    parts.Add(content);
-            }
-        }
-        return string.Join("\n", parts);
-    }
+        => SlideText.ExtractPreviewOnlyContent(text, previewOnlyTagNames);
 
-    /// <summary>
-    /// Usuwa bloki {tagname}...{/tagname} dla tagów oznaczonych jako "tylko podgląd".
-    /// Wynik to tekst przeznaczony na projektor (bez treści tagu).
-    /// </summary>
     public static string StripPreviewOnlyTags(string text, IEnumerable<string> previewOnlyTagNames)
-    {
-        foreach (var name in previewOnlyTagNames)
-        {
-            if (string.IsNullOrEmpty(name)) continue;
-            var escaped = Regex.Escape(name);
-            text = Regex.Replace(text,
-                $@"\{{{escaped}\}}.*?\{{/{escaped}\}}",
-                string.Empty,
-                RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        }
-        // Usuń puste linie powstałe po wystrippowaniu
-        text = Regex.Replace(text, @"\n{2,}", "\n");
-        return text.Trim();
-    }
+        => SlideText.StripPreviewOnlyTags(text, previewOnlyTagNames);
 
     public static List<Slide> BuildSlides(IList<string> verseTexts, SlideLayoutSettings settings)
     {

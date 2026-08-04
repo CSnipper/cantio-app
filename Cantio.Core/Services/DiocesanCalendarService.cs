@@ -7,6 +7,8 @@ namespace Cantio.Services;
 
 public enum Ranga
 {
+    /// <summary>Brak własnej rangi — dzień temporalny (zwykła niedziela, dzień powszedni okresu).</summary>
+    Brak = 0,
     WspDowolne = 30,
     WspObowiazkowe = 40,
     Swieto = 60,
@@ -106,12 +108,22 @@ public static class DiocesanCalendarService
     /// Obchody na dzień: powszechne + diecezjalne wybranej diecezji, dedup po tytule
     /// (wyższa ranga wygrywa), sort malejąco wg rangi.
     /// </summary>
-    public static List<Celebration> ForDate(DateOnly date)
+    public static List<Celebration> ForDate(DateOnly date) => ForDate(date, CurrentDiocese);
+
+    /// <summary>
+    /// Jak <see cref="ForDate(DateOnly)"/>, ale z jawnie podaną diecezją — do kodu bezgłowego
+    /// (obsługa komend z Pilota, testy), który nie może polegać na statyku ustawianym przez okno.
+    /// </summary>
+    public static List<Celebration> ForDate(DateOnly date, string diocese)
     {
         Load();
         var mmdd = $"{date.Month:D2}-{date.Day:D2}";
-        if (_byDate == null || !_byDate.TryGetValue(mmdd, out var all)) return [];
-        var diocese = CurrentDiocese;
+        // Wspomnienia RUCHOME (Niepokalane Serce NMP) idą przed wpisami z pliku: przy równej randze
+        // dedup i sortowanie są stabilne, więc obchód dnia wypływa jako pierwszy.
+        IEnumerable<Celebration> all = LiturgicalCalendarService.MovableCelebrations(date);
+        if (_byDate != null && _byDate.TryGetValue(mmdd, out var fixedList))
+            all = all.Concat(fixedList);
+        diocese ??= "";
         var applicable = all.Where(c => c.Powszechny ||
             (diocese.Length > 0 && c.Diecezje.Contains(diocese)));
         var byTitle = new Dictionary<string, Celebration>(StringComparer.OrdinalIgnoreCase);
@@ -135,15 +147,23 @@ public static class DiocesanCalendarService
     /// uroczystość) > temporalna nazwa dnia.
     /// </summary>
     public static string EffectiveSetlistName(DateOnly date, LiturgicalDay day)
+        => EffectiveSetlistName(date, day, CurrentDiocese);
+
+    /// <summary>Jak wyżej, ale z jawnie podaną diecezją (kod bezgłowy — Pilot, testy).</summary>
+    public static string EffectiveSetlistName(DateOnly date, LiturgicalDay day, string diocese)
     {
         var ovr = GetOverride(date);
         if (ovr != null) return ovr;
-        var top = ForDate(date).FirstOrDefault();
+        var top = ForDate(date, diocese).FirstOrDefault();
         if (top == null) return day.SetlistName;
         bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
         bool displaces = isSunday
             ? top.Ranga == Ranga.Uroczystosc && day.Group == "zwykly"
             : top.Ranga >= Ranga.Swieto;
+        // Dzień z WŁASNĄ rangą (obchód ruchomy: Boże Ciało, Chrystus Król…) ustępuje tylko
+        // obchodowi WYŻSZEJ rangi. Bez tego warunku święto Nawiedzenia NMP (31 V) zabierało
+        // nazwę Bożemu Ciału w latach, w których oba wypadały tego samego dnia (2029, 2040).
+        if (top.Ranga <= day.Rank) displaces = false;
         return displaces ? top.Tytul : day.SetlistName;
     }
 }

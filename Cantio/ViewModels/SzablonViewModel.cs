@@ -460,6 +460,21 @@ public partial class SzablonViewModel : ObservableObject
         Saved?.Invoke();
     }
 
+    /// <summary>
+    /// Ustawienia zmieniono Z ZEWNĄTRZ (komenda <c>set_display_settings</c> z tabletu) — pola
+    /// zakładki WYGLĄD muszą pokazać nowy stan bazy, inaczej najbliższe „ZAPISZ USTAWIENIA"
+    /// w oknie cofnęłoby zmianę operatora przy tablecie.
+    ///
+    /// Świadomie NIE odpala <see cref="Saved"/>: ten event rozgłasza teraz <c>display_settings_data</c>
+    /// do Pilotów, a broadcast po komendzie z tabletu poszedł już z handlera — poleciałby drugi raz.
+    /// Przebudowę slajdów wywołuje `MainWindow` tuż po tej metodzie.
+    /// </summary>
+    public async Task ApplyExternalSettingsAsync()
+    {
+        await LoadAsync();
+        _projection.ApplySettings(_db.GetSettings());
+    }
+
     [RelayCommand]
     private async Task ResetAsync()
     {
@@ -494,6 +509,33 @@ public partial class SzablonViewModel : ObservableObject
         if (key == null) return;
         if (value) key.SetValue("Cantio", $"\"{Environment.ProcessPath}\"");
         else key.DeleteValue("Cantio", throwOnMissingValue: false);
+    }
+
+    // Tryb pracy (dual / serwer dla CantioPilota)
+
+    private bool _serverModeLoading;
+
+    [ObservableProperty] private bool _serverMode;
+
+    /// <summary>Zmiana działa po restarcie — tryb czytany jest raz, przy starcie aplikacji.</summary>
+    public bool ServerModeRestartHintVisible => ServerMode != AppMode.IsServer;
+
+    partial void OnServerModeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ServerModeRestartHintVisible));
+        if (_serverModeLoading) return;
+        // Zapis NATYCHMIAST — pole nie jest objęte globalnym „ZAPISZ USTAWIENIA",
+        // a cicho zgubiony wybór trybu oznacza mini PC, który po restarcie wraca do trybu dual.
+        _ = _db.SaveSettingAsync(
+            AppMode.SettingKey,
+            AppMode.ToSettingValue(value ? AppModeKind.Server : AppModeKind.Dual));
+
+        // Włączenie trybu serwerowego wymusza autostart (mini PC musi wstać sam po
+        // zaniku prądu) — świadomie ASYMETRYCZNE: wyłączenie trybu serwerowego NIE
+        // wyłącza autostartu, bo użytkownik mógł go chcieć niezależnie od trybu.
+        // Reużywa OnRunOnStartupChanged (ta sama ścieżka co checkbox autostartu),
+        // więc UI nie kłamie o stanie rejestru.
+        if (value) RunOnStartup = true;
     }
 
     // Baza danych
@@ -659,6 +701,12 @@ public partial class SzablonViewModel : ObservableObject
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
         RunOnStartup = WinReg.CurrentUser.OpenSubKey(RunKey)?.GetValue("Cantio") != null;
+
+        _serverModeLoading = true;
+        ServerMode = AppMode.Parse(await _db.GetSettingAsync(AppMode.SettingKey)
+                                   ?? AppMode.ToSettingValue(AppMode.Current)) == AppModeKind.Server;
+        _serverModeLoading = false;
+        OnPropertyChanged(nameof(ServerModeRestartHintVisible));
 
         _dioceseLoading = true;
         var diocese = await _db.GetSettingAsync("diocese") ?? "";

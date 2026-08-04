@@ -1095,42 +1095,6 @@
     "zakres": "powszechny"
   },
   {
-    "data": "05-31",
-    "tytul": "7 Niedziela Wielkanocy: WNIEBOWSTĄPIENIE PAŃSKIE",
-    "ranga": "uroczystosc",
-    "zakres": "powszechny"
-  },
-  {
-    "data": "05-31",
-    "tytul": "Poniedziałek po Zesłaniu Ducha Świętego: NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA",
-    "ranga": "swieto",
-    "zakres": "powszechny"
-  },
-  {
-    "data": "05-31",
-    "tytul": "NAJŚW. MARYI PANNY, MATKI KOŚCIOŁA, głównej patronki archidiecezji i diecezji",
-    "ranga": "uroczystosc",
-    "zakres": "diecezja",
-    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej oraz diecezji drohiczyńskiej i ełckiej:",
-    "diecezje": [
-      "szczecińsko-kamieńska",
-      "drohiczyńska",
-      "ełcka"
-    ]
-  },
-  {
-    "data": "05-31",
-    "tytul": "Czwartek po Zesłaniu Ducha Świętego: JEZUSA CHRYSTUSA, NAJWYŻSZEGO I WIECZNEGO KAPŁANA",
-    "ranga": "swieto",
-    "zakres": "diecezja",
-    "zakres_raw": "W archidiecezji szczecińsko-kamieńskiej oraz diecezji drohiczyńskiej i ełckiej:",
-    "diecezje": [
-      "szczecińsko-kamieńska",
-      "drohiczyńska",
-      "ełcka"
-    ]
-  },
-  {
     "data": "06-01",
     "tytul": "Św. Justyna, męczennika",
     "ranga": "wsp_obowiazkowe",
@@ -1868,18 +1832,6 @@
     "data": "06-30",
     "tytul": "Świętych Pierwszych Męczenników Kościoła rzymskiego",
     "ranga": "wsp_dowolne",
-    "zakres": "powszechny"
-  },
-  {
-    "data": "06-30",
-    "tytul": "Piątek po drugiej niedzieli po Zesłaniu Ducha Świętego: NAJŚWIĘTSZEGO SERCA PANA JEZUSA",
-    "ranga": "uroczystosc",
-    "zakres": "powszechny"
-  },
-  {
-    "data": "06-30",
-    "tytul": "Sobota po drugiej niedzieli po Zesłaniu Ducha Świętego: Niepokalanego Serca Najśw. Maryi Panny",
-    "ranga": "wsp_obowiazkowe",
     "zakres": "powszechny"
   },
   {

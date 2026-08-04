@@ -9,6 +9,30 @@ namespace Cantio.Services;
 public static class PilotSetlistSync
 {
     /// <summary>
+    /// `get_setlists` → `setlists_data`. Jedyne miejsce składania tego komunikatu.
+    /// <para>Pole `pinned` (v1.63) jest DOPISANE na końcu elementu — kształt reszty
+    /// (`id`, `name`, `group`, `songCount`, `updatedAt`) i kolejność pól bez zmian,
+    /// więc stary Pilot po prostu ignoruje nadmiarowe pole.</para>
+    /// </summary>
+    public static async Task<string> BuildSetlistsJsonAsync(DatabaseService db)
+    {
+        var summaries = await db.GetSetlistSummariesAsync();
+        return JsonSerializer.Serialize(new
+        {
+            type     = "setlists_data",
+            setlists = summaries.Select(s => new
+            {
+                id        = s.Id,
+                name      = s.Name,
+                group     = s.Group ?? "",
+                songCount = s.SongCount,
+                updatedAt = s.UpdatedAt,
+                pinned    = s.IsPinned
+            })
+        });
+    }
+
+    /// <summary>
     /// `setlist_sync_push` → `setlist_sync_ack` albo `setlist_sync_conflict` (JSON do odesłania).
     /// Zwraca null, gdy komunikat jest niepoprawny.
     /// </summary>

@@ -379,6 +379,11 @@ Cantio.Landing/
 *.bak
 songs.sqlite
 
+# ...ale narzedzia projektu MUSZA byc wersjonowane: parser kalendarza jest
+# jedynym zrodlem kalendarz_diecezji.json i musi dac sie uruchomic ponownie
+# przy nowszym snapshocie PDF.
+!skrypty/*.py
+
 # Wyniki buildu instalatora i wersja portable
 Installer/Output/
 Installer/publish/
@@ -389,3 +394,7 @@ Cantio/bin/Publish/
 
 # Dokumentacja lokalna
 docs/
+
+# Pliki towarzyszace SQLite (dziennik/pamiec wspoldzielona) - nigdy do repo
+*.db-shm
+*.db-wal
