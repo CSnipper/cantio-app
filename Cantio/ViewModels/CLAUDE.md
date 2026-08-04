@@ -77,6 +77,20 @@ bool isChorus = block.StartsWith("Refren:", ...) || block.StartsWith("Aklamacja:
 
 ## DisplayViewModel — pułapki
 
+- **Podmiana instancji `Categories` zeruje wybór w ComboBoksie edytora pieśni.** `ItemsSource` jest
+  związany z kolekcją, więc każde `Categories = new ObservableCollection<…>` każe WPF wpisać `null`
+  do `EditCategory`. Do v1.62 kończyło się to naruszeniem FK (głośno), po przejściu `Song.CategoryId`
+  na nullable — CICHYM odczepieniem pieśni od kategorii przy zapisie. Wyzwalacze są ZDALNE:
+  `RefreshCategoriesExternallyAsync` (każda komenda kategorii z tabletu) i `OnSongEditedExternallyAsync`
+  (każde `song_create/update/delete`). Dwie warstwy obrony, obie konieczne:
+  1. **jedno** miejsce podmieniające kolekcję (`ReplaceCategories`) przywraca wybór operatora;
+  2. zapis bierze `_editCategoryId` (zapamiętany WYBÓR), nie `EditCategory` (stan kontrolki) —
+     `null` nigdy nie jest wyborem operatora, bo ComboBox nie ma pozycji „bez kategorii".
+  Odczepienie od kategorii następuje jedną drogą: kategoria zniknęła z bazy.
+- **Modalne okna w trybie serwerowym** — `MessageBox` bez `AppModeRules.CanShowBlockingDialog`
+  i bez właściciela ląduje pod `Topmost` projekcją i zawiesza mini PC na dobre. W VM służą do tego
+  `CanPrompt(...)` i `Ask(...)`; `ConfirmRequested` w `MainWindow` odmawia i loguje, gdy okna nie widać.
+
 - `CurrentSlideIndex` zmiana wywołuje `_projection.SetSlide()` — nie rób tego ręcznie
 - `SetBlanked(true)` zapisuje pending slide, `SetBlanked(false)` go aplikuje
 - ESC w `OnPreviewKeyDown` zachowuje stan blanku

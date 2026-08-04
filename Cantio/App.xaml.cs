@@ -19,6 +19,8 @@ public partial class App : Application
         var modeFileValue = AppMode.ReadConfigFile(dbFolder);
         AppMode.Initialize(AppMode.Resolve(null, modeFileValue));
 
+        InstallGlobalExceptionHandlers();
+
         // Rdzeń (Cantio.Core) nie zna WPF — czcionki systemowe wstrzykuje warstwa okienkowa.
         // Bez tej rejestracji protokół wysyła pustą listę systemFonts (serwer na Linuksie
         // zrobi to samo celowo). Leniwie: enumeracja odpala się przy pierwszym odczycie.
@@ -126,5 +128,42 @@ public partial class App : Application
                 MessageBox.Show($"Błąd startu:\n{ex.Message}\n\n{ex.StackTrace}");
             Shutdown();
         }
+    }
+
+    /// <summary>
+    /// Siatka bezpieczeństwa na wyjątki, których nikt nie złapał. Do v1.62 ich NIE BYŁO: wyjątek
+    /// z komendy `AsyncRelayCommand` albo z handlera Pilota wywracał proces bez śladu w logu,
+    /// a w trybie serwerowym mini PC gasło w środku mszy bez żadnej informacji.
+    ///
+    /// Reguła: log ZAWSZE. Wyjątek na wątku UI da się przeżyć (stan aplikacji jest w bazie,
+    /// nie w pamięci), więc go tłumimy — w trybie dual po komunikacie, w serwerowym po cichu,
+    /// bo modal wylądowałby pod Topmost projekcją i zawiesił program na dobre.
+    /// </summary>
+    private void InstallGlobalExceptionHandlers()
+    {
+        DispatcherUnhandledException += (_, e) =>
+        {
+            AppLog.Write("App", $"NIEOBSŁUŻONY WYJĄTEK (UI): {e.Exception}");
+            e.Handled = true;   // nie ubijaj procesu — projekcja ma iść dalej
+            if (AppModeRules.CanShowBlockingDialog(AppMode.Current))
+                MessageBox.Show(
+                    $"Wystąpił nieoczekiwany błąd:\n{e.Exception.Message}\n\n" +
+                    "Aplikacja pracuje dalej. Szczegóły zapisano w logu (O programie → log).",
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+        };
+
+        // Zadanie, którego wyjątku nikt nie odebrał (np. `_ = SomethingAsync()`). Domyślnie tylko
+        // znika przy GC — z logiem widać przynajmniej, że coś padło.
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            AppLog.Write("App", $"NIEOBSŁUŻONY WYJĄTEK (Task): {e.Exception}");
+            e.SetObserved();
+        };
+
+        // Ostatnia deska ratunku: wyjątek z wątku tła, którego nie da się już przeżyć.
+        // Nie zatrzymamy procesu, ale ZOSTAWIMY ślad — bez tego zgłoszenie z parafii
+        // brzmi „samo się zamknęło" i nie ma czego szukać.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            AppLog.Write("App", $"WYJĄTEK KRYTYCZNY (terminating={e.IsTerminating}): {e.ExceptionObject}");
     }
 }

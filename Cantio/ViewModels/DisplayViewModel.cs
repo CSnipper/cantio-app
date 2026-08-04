@@ -27,6 +27,34 @@ public partial class DisplayViewModel : ObservableObject
     public Func<string, bool>? ConfirmRequested { get; set; }
     private bool Confirm(string message) => ConfirmRequested?.Invoke(message) ?? false;
 
+    /// <summary>
+    /// Czy wolno zatrzymać aplikację modalnym oknem. W trybie serwerowym mini PC nie ma ani
+    /// klawiatury, ani operatora, a projekcja jest <c>Topmost</c> — dialog schowałby się pod nią
+    /// i zawiesił program na dobre. Wtedy operację po prostu odmawiamy (nic destrukcyjnego
+    /// bez potwierdzenia) i zostawiamy ślad w logu.
+    /// </summary>
+    private static bool CanPrompt(string what)
+    {
+        if (AppModeRules.CanShowBlockingDialog(AppMode.Current)) return true;
+        AppLog.Write("UI", $"Tryb serwerowy — pominięto pytanie „{what}”, operacja odrzucona.");
+        return false;
+    }
+
+    /// <summary>Właściciel okien dialogowych — bez niego modal potrafi wylądować za projekcją.</summary>
+    private static Window? DialogOwner
+    {
+        get
+        {
+            var w = Application.Current?.MainWindow;
+            return w is { IsVisible: true } ? w : null;
+        }
+    }
+
+    private static MessageBoxResult Ask(string msg, string caption, MessageBoxButton buttons, MessageBoxImage icon) =>
+        DialogOwner is { } owner
+            ? MessageBox.Show(owner, msg, caption, buttons, icon)
+            : MessageBox.Show(msg, caption, buttons, icon);
+
     public DisplayViewModel(DatabaseService db, ProjectionViewModel projection, ShortcutService shortcuts)
     {
         _db = db;
@@ -361,8 +389,8 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private async Task DeleteSetlistFromSearchAsync(Setlist setlist)
     {
-        if (MessageBox.Show(
-                $"Usunąć zestaw \"{setlist.Name}\"?",
+        if (!CanPrompt("Usuń zestaw")) return;
+        if (Ask($"Usunąć zestaw \"{setlist.Name}\"?",
                 "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Warning)
             != MessageBoxResult.Yes) return;
         await _db.DeleteSetlistAsync(setlist.Id);
@@ -525,9 +553,32 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<PlayOrderEntry> _editPlayOrder = [];
     [ObservableProperty] private VerseEditorItem? _selectedPlayOrderAddVerse;
 
+    /// <summary>
+    /// Kategoria wybrana przez operatora w edytorze — JEDYNE źródło prawdy przy zapisie.
+    /// <see cref="EditCategory"/> jest tylko stanem kontrolki: ComboBox ma
+    /// <c>ItemsSource="{Binding Categories}"</c>, więc każda podmiana INSTANCJI kolekcji
+    /// (a robi ją <see cref="LoadCategoriesAsync"/>, wołane m.in. po KAŻDEJ komendzie kategorii
+    /// i KAŻDYM <c>song_create/update/delete</c> z tabletu) każe WPF wpisać tam null.
+    /// Do v1.62 kończyło się to naruszeniem FK — głośno; po przejściu <c>Song.CategoryId</c>
+    /// na nullable pieśń CICHO traciłaby kategorię przy zapisie.
+    /// </summary>
+    private int? _editCategoryId;
+
+    /// <summary>true = trwa przeładowanie listy kategorii; zmiany EditCategory nie są wtedy edycją.</summary>
+    private bool _reloadingCategories;
+
     partial void OnEditTitleChanged(string v) => IsEditDirty = true;
     partial void OnEditNumberChanged(string v) => IsEditDirty = true;
-    partial void OnEditCategoryChanged(Category? v) => IsEditDirty = true;
+
+    partial void OnEditCategoryChanged(Category? v)
+    {
+        // ComboBox kategorii NIE ma pozycji „bez kategorii", więc null NIGDY nie jest wyborem
+        // operatora — to zawsze WPF czyszczący SelectedItem. Zapamiętujemy wyłącznie wybory
+        // rzeczywiste; odczepienie od kategorii następuje jedną drogą: kategoria zniknęła z bazy
+        // (obsłużone w LoadCategoriesAsync).
+        if (v != null) _editCategoryId = v.Id;
+        if (!_reloadingCategories) IsEditDirty = true;
+    }
 
     // Kategorie z inline edit (shared z song edit mode i display)
     [ObservableProperty] private ObservableCollection<CategoryEditorItem> _categoryItems = [];
@@ -545,7 +596,7 @@ public partial class DisplayViewModel : ObservableObject
         };
         await _db.SaveCategoryAsync(cat);
         NewCategoryName = string.Empty;
-        await ReloadCategoriesForEditorAsync();
+        await ReloadCategoriesAfterLocalEditAsync();
     }
 
     [RelayCommand]
@@ -571,13 +622,14 @@ public partial class DisplayViewModel : ObservableObject
         item.Name = name;
         item.Number = item.EditNumber > 0 ? item.EditNumber : item.Number;
         item.IsEditing = false;
-        await ReloadCategoriesForEditorAsync();
+        await ReloadCategoriesAfterLocalEditAsync();
     }
 
     [RelayCommand]
     private async Task DeleteCategoryAsync(CategoryEditorItem item)
     {
         if (item.IsVirtual) return;   // „Bez kategorii" nie jest rekordem — nie ma czego kasować
+        if (!CanPrompt("Usuń kategorię")) return;
         int songCount = await _db.CountSongsInCategoryAsync(item.Id);
         string msg = songCount > 0
             ? $"Usunąć kategorię \"{item.Name}\"?\n\n" +
@@ -588,7 +640,7 @@ public partial class DisplayViewModel : ObservableObject
               "Anuluj — rezygnuj"
             : $"Usunąć kategorię \"{item.Name}\"?";
 
-        var result = MessageBox.Show(msg, "Usuń kategorię",
+        var result = Ask(msg, "Usuń kategorię",
             songCount > 0 ? MessageBoxButton.YesNoCancel : MessageBoxButton.OKCancel,
             MessageBoxImage.Warning);
 
@@ -616,7 +668,7 @@ public partial class DisplayViewModel : ObservableObject
             _showingUncategorized = false;
             Songs = [];
         }
-        await ReloadCategoriesForEditorAsync();
+        await ReloadCategoriesAfterLocalEditAsync();
         await ReloadCurrentSongListAsync();
     }
 
@@ -654,8 +706,9 @@ public partial class DisplayViewModel : ObservableObject
             item.Number = i + 1;
             await _db.SaveCategoryAsync(new Category { Id = item.Id, Name = item.Name, Number = i + 1 });
         }
-        Categories = new ObservableCollection<Category>(await _db.GetCategoriesAsync());
+        ReplaceCategories(await _db.GetCategoriesAsync());
         RefreshCategoryMoveFlags();
+        CategoriesChangedLocally?.Invoke();   // strzałki ▲▼ = zmiana kolejności, tablet ma ją zobaczyć
     }
 
     private void RefreshCategoryMoveFlags()
@@ -706,6 +759,31 @@ public partial class DisplayViewModel : ObservableObject
     /// <summary>Jak wyżej, dla grup zestawów (combo + lista w popupie).</summary>
     public Task RefreshSetlistGroupsExternallyAsync() => LoadSetlistGroupsAsync();
 
+    /// <summary>
+    /// Kategorie zmieniono W OKNIE Cantio — <c>MainWindow</c> rozgłasza <c>categories_data</c>
+    /// do wszystkich tabletów. Bez tego tablet trzymał nieaktualną listę do własnego
+    /// <c>get_categories</c>, mimo że reguła protokołu (Services/CLAUDE.md) obiecuje broadcast
+    /// po KAŻDEJ mutacji, niezależnie od tego, kto ją zrobił.
+    /// Wyłącznie ścieżka LOKALNA — komenda z tabletu rozgłasza sama i drugi broadcast byłby echem.
+    /// </summary>
+    public event Action? CategoriesChangedLocally;
+
+    /// <summary>Jak wyżej, dla grup zestawów (<c>setlist_groups_data</c>).</summary>
+    public event Action? SetlistGroupsChangedLocally;
+
+    /// <summary>Przeładowanie po edycji W OKNIE — razem z rozgłoszeniem do tabletów.</summary>
+    private async Task ReloadCategoriesAfterLocalEditAsync()
+    {
+        await ReloadCategoriesForEditorAsync();
+        CategoriesChangedLocally?.Invoke();
+    }
+
+    private async Task ReloadGroupsAfterLocalEditAsync()
+    {
+        await LoadSetlistGroupsAsync();
+        SetlistGroupsChangedLocally?.Invoke();
+    }
+
     private async Task ReloadCategoriesForEditorAsync()
     {
         var prevId = SelectedCategoryItem?.Id ?? 0;
@@ -724,7 +802,8 @@ public partial class DisplayViewModel : ObservableObject
         _editingSong = new Song { Id = 0 };
         EditTitle = string.Empty;
         EditNumber = string.Empty;
-        EditCategory = Categories.FirstOrDefault();
+        _editCategoryId = null;
+        EditCategory = Categories.FirstOrDefault();   // ustawia też _editCategoryId (gdy niepusta)
         EditingVerses.Clear();
         EditPlayOrder.Clear();
         AddVerseToEditor("v");
@@ -739,6 +818,9 @@ public partial class DisplayViewModel : ObservableObject
         _editingSong = song;
         EditTitle = song.Title;
         EditNumber = song.Number > 0 ? song.Number.ToString() : string.Empty;
+        // Kategoria pieśni jest prawdą z BAZY, nie z listy w pamięci: lista bywa świeżo
+        // przeładowana (komenda z tabletu), a przypisanie i tak ma przetrwać zapis.
+        _editCategoryId = song.CategoryId;
         EditCategory = Categories.FirstOrDefault(c => c.Id == song.CategoryId);
         EditingVerses.Clear();
         EditPlayOrder.Clear();
@@ -791,9 +873,10 @@ public partial class DisplayViewModel : ObservableObject
         if (_editingSong == null) return;
         _editingSong.Title = EditTitle.Trim();
         _editingSong.Number = int.TryParse(EditNumber, out var n) ? n : 0;
-        // null = pieśń zostaje „bez kategorii" (tak wraca z edytora pieśń odczepiona od usuniętej
-        // kategorii — nie wolno jej cicho wrzucić do przypadkowej kategorii)
-        _editingSong.CategoryId = EditCategory?.Id;
+        // Zapamiętany WYBÓR operatora, nie stan kontrolki: EditCategory bywa wyzerowane przez
+        // WPF przy podmianie ItemsSource (zob. _editCategoryId). null = pieśń zostaje „bez
+        // kategorii" — tak wraca z edytora pieśń odczepiona od skasowanej kategorii.
+        _editingSong.CategoryId = _editCategoryId;
         int pos = 0;
         _editingSong.Verses = EditingVerses.Select(v => new Verse
         {
@@ -839,11 +922,28 @@ public partial class DisplayViewModel : ObservableObject
     /// <param name="deleted">true = pieśni już nie ma w bazie (nie ma czego przeładowywać)</param>
     public async Task OnSongEditedExternallyAsync(int songId, bool deleted = false)
     {
+        // Edytor otwarty na pieśni, którą właśnie skasowano z tabletu, trzymałby wskaźnik na
+        // nieistniejący rekord — a przycisk ZAPISZ trafiałby w throw z SaveSongAsync, który
+        // AsyncRelayCommand przerzuca na wątek UI (czyli ubija aplikację).
+        if (deleted && IsEditMode && _editingSong?.Id == songId && songId != 0)
+        {
+            IsEditMode   = false;
+            IsEditDirty  = false;
+            _editingSong = null;
+            NotifyEditorClosedExternally?.Invoke(songId);
+        }
+
         await LoadCategoriesAsync();
         await ReloadCurrentSongListAsync();
         if (deleted || SelectedSong?.Id != songId) return;
         await LoadVersesAsync(songId, keepPosition: true);
     }
+
+    /// <summary>
+    /// Edytor został zamknięty, bo edytowana pieśń zniknęła zdalnie. Okno pokazuje komunikat
+    /// (w trybie serwerowym nie ma komu — zob. <c>AppModeRules.CanShowBlockingDialog</c>).
+    /// </summary>
+    public Action<int>? NotifyEditorClosedExternally { get; set; }
 
     [RelayCommand]
     private async Task DeleteEditedSongAsync()
@@ -974,7 +1074,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         var currentText = string.Join("\n\n", EditingVerses.Select(v => v.Text));
         var psalmCatId = _db.GetSettings().PsalmCategoryId;
-        bool currentIsPsalm = psalmCatId > 0 && (EditCategory?.Id ?? 0) == psalmCatId;
+        bool currentIsPsalm = psalmCatId > 0 && (_editCategoryId ?? 0) == psalmCatId;
         var dlg = new PasteTextWindow(currentText, currentIsPsalm) { Owner = Application.Current.MainWindow };
         if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.ResultText))
             ParseAndApplyText(dlg.ResultText, dlg.IsPsalm);
@@ -1587,7 +1687,7 @@ public partial class DisplayViewModel : ObservableObject
         item.OriginalName = name;
         item.IsEditing = false;
         await PersistGroupsAsync();
-        await LoadSetlistGroupsAsync();
+        await ReloadGroupsAfterLocalEditAsync();
     }
 
     [RelayCommand]
@@ -1595,7 +1695,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         GroupItems.Remove(item);
         await PersistGroupsAsync();
-        await LoadSetlistGroupsAsync();
+        await ReloadGroupsAfterLocalEditAsync();
     }
 
     [RelayCommand]
@@ -1708,17 +1808,41 @@ public partial class DisplayViewModel : ObservableObject
 
     // Helpers
 
+    /// <summary>
+    /// JEDYNE miejsce podmieniające instancję kolekcji <see cref="Categories"/>. Podmiana zeruje
+    /// <c>SelectedItem</c> ComboBoksa w edytorze pieśni, więc zaraz po niej przywracamy wybór
+    /// operatora z <see cref="_editCategoryId"/>. Rozsypanie tego po kilku metodach już raz
+    /// dało cichą utratę przypisania pieśni do kategorii.
+    /// </summary>
+    private void ReplaceCategories(IEnumerable<Category> list)
+    {
+        _reloadingCategories = true;
+        try
+        {
+            Categories = new ObservableCollection<Category>(list);
+            if (!IsEditMode) return;
+            // Gdy kategorii już nie ma (skasowana w oknie albo z tabletu), pieśń NAPRAWDĘ zostaje
+            // bez kategorii; wtedy i tylko wtedy czyścimy zapamiętany wybór.
+            var restored = _editCategoryId is int id ? Categories.FirstOrDefault(c => c.Id == id) : null;
+            EditCategory = restored;
+            if (restored == null) _editCategoryId = null;
+        }
+        finally { _reloadingCategories = false; }
+    }
+
     private async Task LoadCategoriesAsync()
     {
         var list = await _db.GetCategoriesAsync();
-        Categories = new ObservableCollection<Category>(list);
+        ReplaceCategories(list);
+
         var items = list
             .Select(c => new CategoryEditorItem { Id = c.Id, Number = c.Number, Name = c.Name })
             .ToList();
 
         // Wirtualna pozycja „Bez kategorii" — TYLKO gdy takie pieśni istnieją. Inaczej pieśni
         // odczepione od usuniętej kategorii byłyby niewidoczne poza wyszukiwarką.
-        if (await _db.CountUncategorizedSongsAsync() > 0)
+        bool hasUncategorized = await _db.CountUncategorizedSongsAsync() > 0;
+        if (hasUncategorized)
             items.Add(new CategoryEditorItem
             {
                 Id       = CategoryEditorItem.UncategorizedId,
@@ -1726,6 +1850,14 @@ public partial class DisplayViewModel : ObservableObject
                 Name     = Loc("Category.Uncategorized", "Bez kategorii"),
                 IsVirtual = true
             });
+        else if (_showingUncategorized)
+        {
+            // Pozycja właśnie zniknęła (ostatnia pieśń bez kategorii dostała kategorię albo
+            // została skasowana) — bez tego kolumna PIEŚNI zostawała pusta i bez zaznaczenia,
+            // a operator nie miał czego kliknąć, żeby wrócić.
+            _showingUncategorized = false;
+            Songs = [];
+        }
 
         CategoryItems = new ObservableCollection<CategoryEditorItem>(items);
         RefreshCategoryMoveFlags();
@@ -2140,8 +2272,32 @@ public partial class DisplayViewModel : ObservableObject
     /// <summary>Liczba podłączonych ekranów — dla diagnostyki zdalnej.</summary>
     public static int ScreenCount => WpfScreenHelper.Screen.AllScreens.Count();
 
-    /// <summary>Ratunek z Pilota: projekcja padła albo trzeba ją przenieść na inny ekran.</summary>
-    public Task OpenProjectionFromRemoteAsync() => OpenProjectionWindowAsync();
+    /// <summary>
+    /// Ratunek z Pilota: projekcja padła, zminimalizowała się albo trzeba ją przenieść na inny
+    /// ekran. Gdy okno JUŻ ISTNIEJE, sama <see cref="OpenProjectionWindowAsync"/> wychodziła od
+    /// razu i komenda ratunkowa kłamała ackiem — a to jedyna droga do naprawy obrazu na mini PC.
+    /// Dlatego tutaj okno wraca do stanu użytecznego: odminimalizowane, na właściwym ekranie,
+    /// z aktualnym <c>Topmost</c>.
+    /// </summary>
+    public async Task OpenProjectionFromRemoteAsync()
+    {
+        if (_projectionWindow == null) { await OpenProjectionWindowAsync(); return; }
+
+        var w = _projectionWindow;
+        w.Topmost = AppModeRules.ShouldProjectionBeTopmost(AppMode.Current);
+        if (w.WindowState == System.Windows.WindowState.Minimized)
+            w.WindowState = System.Windows.WindowState.Normal;
+
+        // Ekran mógł się zmienić (przepięty kabel / inne ustawienie) — postaw okno tam,
+        // gdzie mówi ustawienie, dokładnie jak przy otwieraniu od zera.
+        var screens = WpfScreenHelper.Screen.AllScreens.ToList();
+        int screenIndex = int.TryParse(await _db.GetSettingAsync("projection_screen"), out var idx) ? idx : 1;
+        w.MoveToSecondaryScreen(screenIndex);
+        ProjectionScreenIndex = screenIndex < screens.Count ? screenIndex : screens.Count - 1;
+        w.Show();
+        RebuildSlides();
+        AppLog.Write("Pilot", $"open_projection: okno już istniało — przywrócone na ekranie {ProjectionScreenIndex}");
+    }
 
     /// <summary>Ratunek z Pilota: zamknięcie okna projekcji.</summary>
     public void CloseProjectionFromRemote() => CloseProjectionWindow();

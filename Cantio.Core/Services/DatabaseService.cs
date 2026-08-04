@@ -32,6 +32,21 @@ public class DatabaseService
         await using var db = new CantioDbContext();
         var cat = await db.Categories.FindAsync(id);
         if (cat != null) { db.Categories.Remove(cat); await db.SaveChangesAsync(); }
+        await ClearPsalmCategoryIfDeletedAsync(id);
+    }
+
+    /// <summary>
+    /// Ustawienie <c>psalm_category_id</c> wskazujące na SKASOWANĄ kategorię cicho gasi tryb
+    /// psalm: <c>LoadVersesAsync</c> porównuje je z kategorią pieśni i nigdy już nie trafia.
+    /// Wołane z KAŻDEJ ścieżki kasowania kategorii (okno i protokół WS mają wspólne dno w
+    /// <c>DatabaseService</c>), więc nie da się dodać czwartej, która o tym zapomni.
+    /// </summary>
+    private async Task ClearPsalmCategoryIfDeletedAsync(int deletedCategoryId)
+    {
+        if (deletedCategoryId <= 0) return;
+        var current = await GetSettingAsync("psalm_category_id");
+        if (int.TryParse(current, out var id) && id == deletedCategoryId)
+            await SaveSettingAsync("psalm_category_id", "0");
     }
 
     /// <summary>
@@ -52,6 +67,7 @@ public class DatabaseService
         var cat = await db.Categories.FindAsync(id);
         if (cat != null) db.Categories.Remove(cat);
         await db.SaveChangesAsync();
+        await ClearPsalmCategoryIfDeletedAsync(id);
         return songs.Count;
     }
 
@@ -67,6 +83,7 @@ public class DatabaseService
         var cat = await db.Categories.FindAsync(id);
         if (cat != null) db.Categories.Remove(cat);
         await db.SaveChangesAsync();
+        await ClearPsalmCategoryIfDeletedAsync(id);
     }
 
     public async Task<int> CountSongsInCategoryAsync(int id)
@@ -340,6 +357,23 @@ public class DatabaseService
         await using var db = new CantioDbContext();
         return await db.SetlistItems.AsNoTracking()
             .Where(i => i.SongId == songId)
+            .Select(i => i.SetlistId)
+            .Distinct()
+            .CountAsync();
+    }
+
+    /// <summary>
+    /// Ile ZAPISANYCH zestawów straciłoby pozycje, gdyby skasować kategorię RAZEM z pieśniami
+    /// (<see cref="DeleteCategoryWithSongsAsync"/>). Odpowiednik
+    /// <see cref="CountSetlistsWithSongAsync"/> dla całej kategorii — protokół WS używa tej
+    /// liczby, żeby odmówić kasowania z tabletu bez jawnego <c>force</c>.
+    /// </summary>
+    public async Task<int> CountSetlistsWithCategorySongsAsync(int categoryId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.SetlistItems.AsNoTracking()
+            .Where(i => i.SongId.HasValue &&
+                        db.Songs.Any(s => s.Id == i.SongId!.Value && s.CategoryId == categoryId))
             .Select(i => i.SetlistId)
             .Distinct()
             .CountAsync();

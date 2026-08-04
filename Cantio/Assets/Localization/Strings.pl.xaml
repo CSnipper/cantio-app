@@ -23,6 +23,8 @@
     <sys:String x:Key="Pairing.Step2">2. Albo otwórz w przeglądarce jeden z adresów i wpisz PIN:</sys:String>
     <sys:String x:Key="Pairing.Pin">PIN</sys:String>
     <sys:String x:Key="Pairing.Footer">Ten ekran zniknie sam, gdy pierwsze urządzenie się połączy.</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedTitle">Serwer pilota nie wystartował</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedHint">Najczęstsza przyczyna: port jest już zajęty przez inną kopię Cantio albo inny program. Zamknij drugą kopię Cantio i uruchom komputer ponownie; port można zmienić w USTAWIENIACH → Pilot.</sys:String>
     <!-- Urządzenia projekcyjne (TV/projektory) -->
     <sys:String x:Key="Devices.Section">Urządzenia projekcyjne</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Włączaj i wyłączaj telewizory oraz projektory z poziomu aplikacji.</sys:String>

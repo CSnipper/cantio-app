@@ -132,9 +132,29 @@ public partial class MainWindow : Window
         _shortcutService = new ShortcutService();
 
         _vm = new DisplayViewModel(db, new ProjectionViewModel(), _shortcutService);
+        // Tryb serwerowy: mini PC nie ma operatora, a projekcja jest Topmost — modal schowałby się
+        // pod nią i zawiesił program. Odmawiamy (nic destrukcyjnego bez zgody) i logujemy.
         _vm.ConfirmRequested = msg =>
-            MessageBox.Show(msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
-            == MessageBoxResult.Yes;
+        {
+            if (!AppModeRules.CanShowBlockingDialog(AppMode.Current) && !IsVisible)
+            {
+                AppLog.Write("UI", $"Tryb serwerowy — pominięto pytanie „{msg}”, operacja odrzucona.");
+                return false;
+            }
+            return MessageBox.Show(this, msg, "Cantio", MessageBoxButton.YesNo, MessageBoxImage.Question)
+                   == MessageBoxResult.Yes;
+        };
+        // Pieśń otwarta w edytorze skasowana z tabletu — edytor już się zamknął, operator
+        // musi się dowiedzieć, dlaczego zniknęła mu praca sprzed chwili.
+        _vm.NotifyEditorClosedExternally = songId =>
+        {
+            AppLog.Write("Pilot", $"Pieśń {songId} skasowana zdalnie — zamknięto otwarty edytor.");
+            if (AppModeRules.CanShowBlockingDialog(AppMode.Current) && IsVisible)
+                MessageBox.Show(this,
+                    "Edytowana pieśń została w międzyczasie usunięta z tabletu.\n" +
+                    "Edytor zamknięto — niezapisane zmiany przepadły.",
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+        };
         DataContext = _vm;
 
         _importVm = new ImportViewModel(db);
@@ -360,6 +380,11 @@ public partial class MainWindow : Window
                 AppLog.Write("Pilot", "Restart aplikacji na żądanie Pilota");
                 try
                 {
+                    // Port MUSI zostać zwolniony PRZED startem nowego procesu — inaczej świeża
+                    // kopia wchodzi na zajęte gniazdo, jej serwer pilota nie startuje i mini PC
+                    // zostaje bez żadnego interfejsu. Dotychczas kolejność była odwrotna.
+                    // `ack` poszedł już z RemoteControlServer, zanim ten handler ruszył.
+                    _remoteControl.StopForRestart();
                     System.Diagnostics.Process.Start(
                         new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
                         { UseShellExecute = true });
@@ -449,6 +474,28 @@ public partial class MainWindow : Window
         _vm.PinnedListRefreshed += () =>
             _ = _remoteControl.BroadcastJsonAsync(
                 PilotPinWeek.BuildCelebrationsJson(BuildPinnedCaptions()));
+
+        // Kategorie i grupy zestawów zmienione W OKNIE — ta sama obietnica protokołu, co przy
+        // komendach z tabletu: broadcast po KAŻDEJ mutacji, niezależnie od tego, kto ją zrobił.
+        // Komunikaty składa wyłącznie PilotCategorySync (jeden builder, dwie ścieżki).
+        _vm.CategoriesChangedLocally += async () =>
+        {
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotCategorySync.BuildCategoriesJson(await db.GetCategoriesAsync()));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast kategorii: {ex.Message}"); }
+        };
+        _vm.SetlistGroupsChangedLocally += async () =>
+        {
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotCategorySync.BuildGroupsJson(await db.GetSetlistGroupsAsync()));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast grup zestawów: {ex.Message}"); }
+        };
 
         // Zmiana diecezji zmienia obchody, więc i podpisy na liście PRZYPIĘTE.
         _szablonVm.DioceseChanged += async () =>
@@ -644,6 +691,13 @@ public partial class MainWindow : Window
     private void RefreshPairingOverlay()
     {
         var p = _vm.Projection;
+
+        // Awaria startu serwera wyprzedza ekran parowania: bez działającego serwera nie ma czego
+        // parować, a PIN na ekranie byłby kłamstwem.
+        p.ServerFailureReason = _remoteControl.StartFailure;
+        p.ShowServerFailure = AppModeRules.ShouldShowServerFailure(
+            AppMode.Current, _remoteControl.IsRunning, _remoteControl.StartFailure);
+
         var show = _remoteControl.ShouldShowPairingScreen;
         p.ShowPairing = show;
         if (!show) return;

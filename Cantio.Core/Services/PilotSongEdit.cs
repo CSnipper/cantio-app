@@ -38,6 +38,11 @@ public static class PilotSongEdit
     public const string ReasonUnsupportedType = "unsupported_type";
     public const string ReasonInSetlists      = "in_setlists";
     public const string ReasonInvalidPlayOrder = "invalid_play_order";
+    /// <summary>
+    /// Jawnie przysłana PUSTA tablica <c>verses</c>. Pieśń bez zwrotek nie ma czego wyświetlić,
+    /// więc zamiast cicho ją opróżnić — odmawiamy. Brak pola to co innego: „nie ruszaj".
+    /// </summary>
+    public const string ReasonEmptyVerses      = "empty_verses";
 
     /// <summary>
     /// Typy zwrotek przyjmowane z tabletu. <c>img</c> świadomie NIE jest na liście —
@@ -156,19 +161,29 @@ public static class PilotSongEdit
         if (title.Length == 0)
             return Deny(cmd, ReasonEmptyTitle, ("id", existing?.Id));
 
-        // Kategoria: brak pola / 0 / wartość ujemna = pieśń „bez kategorii" (konwencja PilotSongSync).
-        int? categoryId = null;
-        if (TryInt(root, "categoryId", out var catId) && catId > 0)
+        // Kategoria: pole PRZYSŁANE z 0 / wartością ujemną = pieśń „bez kategorii"
+        // (konwencja PilotSongSync); pole NIEPRZYSŁANE = zostaw jak było.
+        int? categoryId = existing?.CategoryId;
+        if (root.TryGetProperty("categoryId", out var catEl) && catEl.ValueKind == JsonValueKind.Number)
         {
-            if (await db.GetCategoryAsync(catId) == null)
-                return Deny(cmd, ReasonNotFound, ("id", existing?.Id), ("categoryId", catId));
-            categoryId = catId;
+            if (catEl.TryGetInt32(out var catId) && catId > 0)
+            {
+                if (await db.GetCategoryAsync(catId) == null)
+                    return Deny(cmd, ReasonNotFound, ("id", existing?.Id), ("categoryId", catId));
+                categoryId = catId;
+            }
+            else categoryId = null;
         }
 
-        // Zwrotki — walidujemy WSZYSTKIE przed jakimkolwiek zapisem
-        var verses = new List<Verse>();
-        if (root.TryGetProperty("verses", out var versesEl) && versesEl.ValueKind == JsonValueKind.Array)
+        // Zwrotki — walidujemy WSZYSTKIE przed jakimkolwiek zapisem.
+        // BRAK POLA = NIE RUSZAJ (klient zmieniający sam tytuł nie ma prawa wyczyścić pieśni);
+        // jawna PUSTA tablica = odmowa, bo pieśń bez zwrotek nie ma czego wyświetlić.
+        bool versesGiven = root.TryGetProperty("verses", out var versesEl) &&
+                           versesEl.ValueKind == JsonValueKind.Array;
+        List<Verse> verses;
+        if (versesGiven)
         {
+            verses = [];
             int pos = 0;
             foreach (var v in versesEl.EnumerateArray())
             {
@@ -185,11 +200,30 @@ public static class PilotSongEdit
                     Position = pos++
                 });
             }
+            if (verses.Count == 0 && existing != null)
+                return Deny(cmd, ReasonEmptyVerses, ("id", existing.Id));
+
+            // Protokół NIE niesie obrazków (plik leży na dysku komputera, telefon go nie widzi),
+            // więc round-trip song_get → song_update wyzerowałby tła zwrotek. Przenosimy je
+            // z dotychczasowej treści po POZYCJI; ImagePath dodatkowo tylko przy zgodnym typie,
+            // bo zamiana zwrotki-obrazka na tekst to świadoma zmiana rodzaju, nie edycja tła.
+            CarryOverVerseImages(existing, verses);
+        }
+        else
+        {
+            verses = [.. (existing?.Verses ?? []).OrderBy(v => v.Position)
+                        .Select((v, i) => new Verse
+                        {
+                            Type = v.Type, Text = v.Text, Position = i,
+                            ImagePath = v.ImagePath, BackgroundImagePath = v.BackgroundImagePath
+                        })];
         }
 
         // Kolejność odtwarzania: indeksy zwrotek jako JSON (tak trzyma to kolumna PlayOrderJson).
-        // Brak pola = kolejność naturalna (null) — pełne zastąpienie treści unieważnia stare indeksy.
-        string? playOrderJson = null;
+        // Brak pola: gdy zwrotki wymieniono — kolejność naturalna (stare indeksy są nieważne);
+        // gdy zwrotek nie ruszaliśmy — zostaje dotychczasowa (inaczej „zmiana tytułu" gubiłaby
+        // ustawioną w oknie kolejność refrenów).
+        string? playOrderJson = versesGiven ? null : existing?.PlayOrderJson;
         var rawOrder = Str(root, "playOrderJson");
         if (rawOrder.Length > 0)
         {
@@ -205,7 +239,8 @@ public static class PilotSongEdit
         {
             Id            = existing?.Id ?? 0,
             Title         = title,
-            Number        = TryInt(root, "number", out var num) && num > 0 ? num : 0,
+            // Brak pola = NIE RUSZAJ (tak samo jak `author`); przysłane 0 czyści numer.
+            Number        = TryInt(root, "number", out var num) ? (num > 0 ? num : 0) : existing?.Number ?? 0,
             Author        = root.TryGetProperty("author", out var aEl) && aEl.ValueKind == JsonValueKind.String
                                 ? (aEl.GetString() ?? "").Trim() : existing?.Author,
             CategoryId    = categoryId,
@@ -252,6 +287,24 @@ public static class PilotSongEdit
                 ("id", id), ("title", song.Title), ("setlists", setlists)),
             BuildSongChangedJson(id, SongChange.Deleted),
             SongChange.Deleted, id);
+    }
+
+    /// <summary>
+    /// Przenosi obrazki zwrotek (<c>ImagePath</c> / <c>BackgroundImagePath</c>) ze starej treści
+    /// do nowej, dopasowując PO POZYCJI. Protokół tych pól nie niesie — bez tego zwykła poprawka
+    /// literówki z tabletu kasowałaby tła ustawione w oknie Cantio.
+    /// <c>ImagePath</c> wędruje tylko przy zgodnym typie zwrotki: zamiana zwrotki-obrazka na
+    /// tekstową jest świadomą zmianą rodzaju, a nie edycją tła.
+    /// </summary>
+    private static void CarryOverVerseImages(Song? existing, List<Verse> verses)
+    {
+        if (existing == null) return;
+        var old = existing.Verses.OrderBy(v => v.Position).ToList();
+        for (int i = 0; i < verses.Count && i < old.Count; i++)
+        {
+            verses[i].BackgroundImagePath = old[i].BackgroundImagePath;
+            if (old[i].Type == verses[i].Type) verses[i].ImagePath = old[i].ImagePath;
+        }
     }
 
     // ─── Pomocnicze ──────────────────────────────────────────────────────

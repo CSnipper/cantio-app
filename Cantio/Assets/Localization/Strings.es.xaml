@@ -22,6 +22,8 @@
     <sys:String x:Key="Pairing.Step2">2. O abre una de estas direcciones en el navegador e introduce el PIN:</sys:String>
     <sys:String x:Key="Pairing.Pin">PIN</sys:String>
     <sys:String x:Key="Pairing.Footer">Esta pantalla desaparecerá cuando se conecte el primer dispositivo.</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedTitle">El servidor del mando no se ha iniciado</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedHint">Lo más probable es que el puerto ya esté ocupado por otra copia de Cantio u otro programa. Cierre la otra copia y reinicie el equipo; el puerto se puede cambiar en AJUSTES → Mando.</sys:String>
     <sys:String x:Key="Pilot.Rejected">Dispositivo no vinculado rechazado:</sys:String>
     <!-- Dispositivos de proyección (TV/proyectores) -->
     <sys:String x:Key="Devices.Section">Dispositivos de proyección</sys:String>

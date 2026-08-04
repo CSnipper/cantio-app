@@ -23,6 +23,8 @@
     <sys:String x:Key="Pairing.Step2">2. Or open one of these addresses in a browser and enter the PIN:</sys:String>
     <sys:String x:Key="Pairing.Pin">PIN</sys:String>
     <sys:String x:Key="Pairing.Footer">This screen disappears as soon as the first device connects.</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedTitle">The remote server did not start</sys:String>
+    <sys:String x:Key="Pilot.ServerFailedHint">Most likely the port is already taken by another copy of Cantio or another program. Close the other copy and restart the computer; the port can be changed in SETTINGS → Remote.</sys:String>
     <!-- Projection devices (TVs/projectors) -->
     <sys:String x:Key="Devices.Section">Projection devices</sys:String>
     <sys:String x:Key="Devices.SectionDesc">Turn TVs and projectors on and off from within the app.</sys:String>

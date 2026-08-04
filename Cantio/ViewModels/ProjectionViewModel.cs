@@ -38,6 +38,13 @@ public partial class ProjectionViewModel : ObservableObject
     /// <summary>Wszystkie adresy, pod którymi widać Cantio — mini PC bywa w LAN i Wi-Fi naraz.</summary>
     [ObservableProperty] private ObservableCollection<string> _pairingAddresses = [];
 
+    // ─── Awaria startu serwera pilota (tryb serwerowy) ────────────────────────
+    // Reguła: AppModeRules.ShouldShowServerFailure. Bez tego awaria była NIEMA — pilot nie
+    // startował, ekran parowania (wiszący na IsRunning) też się nie pokazywał i mini PC
+    // zostawało bez ŻADNEGO interfejsu.
+    [ObservableProperty] private bool _showServerFailure;
+    [ObservableProperty] private string _serverFailureReason = "";
+
     // Wygaszony ekran — własny kolor/obrazek zamiast czerni
     [ObservableProperty] private Brush _blankBrush = Brushes.Black;
     [ObservableProperty] private string? _blankImagePath;

@@ -54,6 +54,16 @@ public static class AppModeRules
     public static bool ShouldShowPairingScreen(AppModeKind mode, int pairedDeviceCount) =>
         mode == AppModeKind.Server && pairedDeviceCount <= 0;
 
+    /// <summary>
+    /// Komunikat o awarii startu serwera pilota na projekcji. Tryb serwerowy + serwer NIE działa
+    /// + znany powód. To jedyna droga, żeby technik w zakrystii dowiedział się, że port jest
+    /// zajęty — mini PC nie ma ani klawiatury, ani widocznego okna Cantio, a ekran parowania
+    /// wisi na <c>IsRunning</c>, więc przy awarii startu też się nie pokazuje.
+    /// W trybie dual awaria jest widoczna w panelu pilota i na projekcji tylko by przeszkadzała.
+    /// </summary>
+    public static bool ShouldShowServerFailure(AppModeKind mode, bool serverRunning, string? failureReason) =>
+        mode == AppModeKind.Server && !serverRunning && !string.IsNullOrWhiteSpace(failureReason);
+
     /// <inheritdoc cref="ShouldShowPairingScreen(AppModeKind,int)"/>
     /// <param name="tokensJson">surowa wartość ustawienia <c>pilot_tokens</c> (JSON array)</param>
     public static bool ShouldShowPairingScreen(AppModeKind mode, string? tokensJson) =>

@@ -120,6 +120,11 @@ var
   ModePage: TWizardPage;
   RbModeDual:   TRadioButton;
   RbModeServer: TRadioButton;
+  { Migawka wyboru trybu robiona na wpInstalling — DeinitializeSetup działa PO zniszczeniu
+    WizardForm, więc dereferencja RbModeServer.Checked czytałaby uwolnioną kontrolkę.
+    Ten sam wzorzec, co ShouldInstallSampleDb dla strony bazy danych. }
+  ServerModeSelected: Boolean;
+  ExistingModeCode:   string;   { zawartość initial_mode.cfg sprzed instalacji ('' = brak pliku) }
 
 { Returns True when the user's database already exists — skip DB page on reinstall }
 function DbAlreadyExists: Boolean;
@@ -127,25 +132,42 @@ begin
   Result := FileExists(ExpandConstant('{localappdata}\Cantio\cantio.db'));
 end;
 
-{ /MODE=server|dual command-line parameter (used by silent installs, and as the
-  default radiobutton selection when the wizard page is actually shown) }
+function ModeFilePath: string;
+begin
+  Result := ExpandConstant('{localappdata}\Cantio\initial_mode.cfg');
+end;
+
+{ Zawartość initial_mode.cfg albo '' gdy pliku nie ma. Mini PC zainstalowany jako serwer
+  NIE MA wiersza app_mode w bazie (aplikacja czyta wtedy właśnie ten plik), więc bezwarunkowe
+  nadpisanie go przy aktualizacji cofało parafię do trybu dwuekranowego. }
+function ReadExistingMode: string;
+var
+  Raw: AnsiString;
+begin
+  Result := '';
+  if not FileExists(ModeFilePath) then Exit;
+  if not LoadStringFromFile(ModeFilePath, Raw) then Exit;
+  Result := Lowercase(Trim(string(Raw)));
+end;
+
+{ /MODE=server|dual — jawny parametr wiersza poleceń ma pierwszeństwo przed plikiem }
+function ModeParamGiven: Boolean;
+begin
+  Result := ExpandConstant('{param:MODE|}') <> '';
+end;
+
 function ModeParamIsServer: Boolean;
 begin
   Result := CompareText(ExpandConstant('{param:MODE|dual}'), 'server') = 0;
 end;
 
-{ Single source of truth for the effective mode: on silent installs (/SILENT,
-  /VERYSILENT) the wizard page is never visited, so CurPageChanged never runs —
-  the /MODE parameter must be read directly. On interactive installs, the
-  radiobutton (pre-set from /MODE, but overridable by the user) wins. }
+{ Jedyne źródło prawdy o trybie: migawka zrobiona ZANIM kreator zniknie.
+  Wartość początkowa (InitializeWizard): /MODE > istniejący initial_mode.cfg > dual.
+  Przy /SILENT i /VERYSILENT strona kreatora nigdy nie jest odwiedzana i zostaje
+  właśnie ta wartość — czyli /MODE=server nadal działa. }
 function EffectiveServerMode: Boolean;
 begin
-  if WizardSilent then
-    Result := ModeParamIsServer
-  else if (RbModeServer <> nil) then
-    Result := RbModeServer.Checked
-  else
-    Result := ModeParamIsServer;
+  Result := ServerModeSelected;
 end;
 
 procedure InitializeWizard;
@@ -153,6 +175,12 @@ var
   Lbl: TLabel;
 begin
   ShouldInstallSampleDb := True;
+
+  ExistingModeCode := ReadExistingMode;
+  if ModeParamGiven then
+    ServerModeSelected := ModeParamIsServer
+  else
+    ServerModeSelected := (ExistingModeCode = 'server');
 
   { Tryb pracy — strona PRZED wyborem bazy danych, pokazywana także przy aktualizacji,
     bo mini PC bywa przekładany z roli operatorskiej i odwrotnie }
@@ -171,7 +199,7 @@ begin
   RbModeDual.Caption := ExpandConstant('{cm:ModeDual}');
   RbModeDual.Parent  := ModePage.Surface;
   RbModeDual.Top     := 36; RbModeDual.Left := 0; RbModeDual.Width := 450;
-  RbModeDual.Checked := not ModeParamIsServer;
+  RbModeDual.Checked := not ServerModeSelected;
 
   Lbl := TLabel.Create(ModePage);
   Lbl.Caption := ExpandConstant('{cm:ModeDualDesc}');
@@ -184,7 +212,7 @@ begin
   RbModeServer.Caption := ExpandConstant('{cm:ModeServer}');
   RbModeServer.Parent  := ModePage.Surface;
   RbModeServer.Top     := 96; RbModeServer.Left := 0; RbModeServer.Width := 450;
-  RbModeServer.Checked := ModeParamIsServer;
+  RbModeServer.Checked := ServerModeSelected;
 
   Lbl := TLabel.Create(ModePage);
   Lbl.Caption := ExpandConstant('{cm:ModeServerDesc}');
@@ -228,11 +256,14 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  { Read radio selections just before files are installed }
+  { Migawki wyborów użytkownika — TUŻ przed kopiowaniem plików i na pewno przed
+    zniszczeniem WizardForm. Po nim żadnej kontrolki nie wolno już dotknąć. }
   if CurPageID = wpInstalling then
   begin
     if DbPage <> nil then
       ShouldInstallSampleDb := RbSample.Checked;
+    if RbModeServer <> nil then
+      ServerModeSelected := RbModeServer.Checked;
   end;
 end;
 
@@ -250,23 +281,27 @@ begin
   Result := ShouldInstallSampleDb and not DbAlreadyExists;
 end;
 
-{ Write initial_lang.cfg / initial_mode.cfg so the app uses the installer choices on first run }
-procedure DeinitializeSetup;
+{ Zapis initial_lang.cfg / initial_mode.cfg — DOPIERO po udanej instalacji.
+  Dawniej robił to DeinitializeSetup, który odpala się TAKŻE po anulowaniu kreatora
+  (przerwana instalacja przestawiała tryb pracy działającej parafii) i JUŻ PO zniszczeniu
+  WizardForm (czytanie RbModeServer.Checked było dereferencją uwolnionej kontrolki). }
+procedure CurStepChanged(CurStep: TSetupStep);
 var
   LangCode: string;
-  LangFile: string;
   ModeCode: string;
-  ModeFile: string;
 begin
+  if CurStep <> ssPostInstall then Exit;
+
   case ActiveLanguage of
     'english': LangCode := 'en';
     'spanish': LangCode := 'es';
   else LangCode := 'pl';
   end;
-  LangFile := ExpandConstant('{localappdata}\Cantio\initial_lang.cfg');
-  SaveStringToFile(LangFile, LangCode, False);
+  SaveStringToFile(ExpandConstant('{localappdata}\Cantio\initial_lang.cfg'), LangCode, False);
 
   if EffectiveServerMode then ModeCode := 'server' else ModeCode := 'dual';
-  ModeFile := ExpandConstant('{localappdata}\Cantio\initial_mode.cfg');
-  SaveStringToFile(ModeFile, ModeCode, False);
+  { Nie ruszamy pliku, gdy wybór jest ten sam co dotychczasowy — plik jest jedynym nośnikiem
+    trybu na mini PC, które nie ma wiersza app_mode w bazie. }
+  if ModeCode <> ExistingModeCode then
+    SaveStringToFile(ModeFilePath, ModeCode, False);
 end;

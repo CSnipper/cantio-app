@@ -25,6 +25,13 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool        _requirePin = true;
     [ObservableProperty] private string      _lastRejected = "";
 
+    /// <summary>
+    /// Powód, dla którego serwer pilota NIE wystartował (pusty = brak awarii). W trybie serwerowym
+    /// pokazywany na projekcji zamiast ekranu parowania — to jedyne wyjście obrazu na mini PC,
+    /// więc jedyne miejsce, w którym technik zobaczy, że port jest zajęty.
+    /// </summary>
+    [ObservableProperty] private string      _startFailure = "";
+
     private List<string> _tokens = [];
 
     public event EventHandler? NextRequested;
@@ -161,9 +168,16 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             }
             catch (Exception ex) when (ex is ArgumentOutOfRangeException or System.Net.Sockets.SocketException)
             {
-                // Port invalid or already in use — do not set IsRunning
+                // Port zajęty albo nieprawidłowy. W trybie serwerowym to KONIEC świata: pilot jest
+                // jedynym interfejsem, a ekran parowania wisi na IsRunning — bez sygnału mini PC
+                // zostaje z projekcją, której nikt nie może przełączyć. Cisza tu kosztowała parafię
+                // całą mszę, więc: log + widoczny komunikat na projekcji.
+                StartFailure = $"Port {Port}: {ex.Message}";
+                AppLog.Write("Pilot", $"Serwer pilota NIE wystartował — {StartFailure}");
+                PairingStateChanged?.Invoke();
                 return;
             }
+            StartFailure = "";
             IsRunning = true;
             LastRejected = "";
             var ip = GetLocalIp();
@@ -342,6 +356,18 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             return ((IPEndPoint)s.LocalEndPoint!).Address.ToString();
         }
         catch { return "localhost"; }
+    }
+
+    /// <summary>
+    /// Zwalnia port PRZED uruchomieniem nowej kopii Cantio (komenda <c>restart_app</c>).
+    /// Świadomie NIE zapisuje <c>pilot_was_running</c> jako 0 — nowa kopia ma wstać z serwerem
+    /// dokładnie w tym stanie, w jakim serwer był przed restartem.
+    /// </summary>
+    public void StopForRestart()
+    {
+        if (!_server.IsRunning) return;
+        _server.Stop();
+        IsRunning = false;
     }
 
     public void Dispose() => _server.Dispose();

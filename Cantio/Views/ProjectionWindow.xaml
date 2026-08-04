@@ -77,5 +77,27 @@
                 </StackPanel>
             </Viewbox>
         </Grid>
+
+        <!-- Awaria startu serwera pilota (tryb serwerowy). Bez tego mini PC zostaje z projekcją,
+             której nikt nie może przełączyć, i ZERO informacji dlaczego. -->
+        <Grid Background="#0f1117"
+              Visibility="{Binding ShowServerFailure, Converter={StaticResource BoolToVis}}">
+            <Viewbox Stretch="Uniform" Margin="80" MaxWidth="1400">
+                <StackPanel VerticalAlignment="Center" MaxWidth="1000">
+                    <TextBlock Text="Cantio"
+                               FontFamily="{StaticResource HeaderFont}"
+                               FontSize="64" Foreground="#c9a84c" Margin="0,0,0,4"/>
+                    <TextBlock Text="{DynamicResource Pilot.ServerFailedTitle}"
+                               FontFamily="{StaticResource HeaderFont}"
+                               FontSize="40" Foreground="#e86a5e"
+                               TextWrapping="Wrap" Margin="0,0,0,24"/>
+                    <TextBlock Text="{Binding ServerFailureReason}"
+                               FontSize="28" Foreground="#e8eaf0" FontFamily="Consolas"
+                               TextWrapping="Wrap" Margin="0,0,0,24"/>
+                    <TextBlock Text="{DynamicResource Pilot.ServerFailedHint}"
+                               FontSize="22" Foreground="#959fb9" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
     </Grid>
 </Window>

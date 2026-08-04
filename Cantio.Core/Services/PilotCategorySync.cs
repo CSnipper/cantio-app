@@ -27,6 +27,11 @@ public static class PilotCategorySync
     public const string ReasonEmptyName = "empty_name";
     public const string ReasonNotEmpty  = "not_empty";
     public const string ReasonEdge      = "edge";
+    /// <summary>
+    /// <c>withSongs:true</c> zabrałoby pieśni obecne w ZAPISANYCH zestawach — ta sama bramka,
+    /// którą ma <see cref="PilotSongEdit.ReasonInSetlists"/>. Odblokowuje ją <c>force:true</c>.
+    /// </summary>
+    public const string ReasonInSetlists = "in_setlists";
 
     /// <summary>Co odświeżyć w UI desktopu po wykonanej komendzie.</summary>
     public enum RefreshScope { None, Categories, Groups }
@@ -165,6 +170,18 @@ public static class PilotCategorySync
 
         if (songs > 0 && !withSongs && !keepSongs)
             return Deny(cmd, ReasonNotEmpty, ("id", id), ("name", cat.Name), ("songs", songs));
+
+        // `withSongs` kasuje pieśni, a wraz z nimi ich POZYCJE W ZAPISANYCH ZESTAWACH — dokładnie
+        // ten skutek, przed którym broni się `song_delete` (`in_setlists`). Tablet nie ma jak go
+        // przewidzieć, więc najpierw odmawiamy i podajemy liczbę zestawów; `force:true` odblokowuje.
+        // `keepSongs` bramki nie potrzebuje — pieśni zostają, więc zestawy są nietknięte.
+        if (songs > 0 && withSongs && !keepSongs && !Flag(root, "force"))
+        {
+            int setlists = await db.CountSetlistsWithCategorySongsAsync(id);
+            if (setlists > 0)
+                return Deny(cmd, ReasonInSetlists,
+                            ("id", id), ("name", cat.Name), ("songs", songs), ("setlists", setlists));
+        }
 
         if (songs == 0)      await db.DeleteCategoryAsync(id);
         else if (keepSongs)  await db.DeleteCategoryKeepSongsAsync(id);

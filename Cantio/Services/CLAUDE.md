@@ -138,7 +138,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `get_categories` | — | → `categories_data` **do nadawcy** |
 | `category_add` | `name` | nowa kategoria na końcu kolejności |
 | `category_rename` | `id`, `name` | zmiana nazwy |
-| `category_delete` | `id`, **`withSongs?`**, **`keepSongs?`** | usunięcie; niepusta kategoria WYMAGA `withSongs:true` (kasuje pieśni) albo `keepSongs:true` (pieśni zostają bez kategorii) |
+| `category_delete` | `id`, **`withSongs?`**, **`keepSongs?`**, **`force?`** | usunięcie; niepusta kategoria WYMAGA `withSongs:true` (kasuje pieśni) albo `keepSongs:true` (pieśni zostają bez kategorii); `withSongs` przy pieśniach w ZAPISANYCH zestawach wymaga dodatkowo `force:true` |
 | `category_move` | `id`, `direction` (`up`/`down`) | przesunięcie w kolejności (1:1 ze strzałkami ▲▼) |
 | `get_setlist_groups` | — | → `setlist_groups_data` **do nadawcy** |
 | `setlist_group_add` | `name` | nowa grupa zestawów |
@@ -146,7 +146,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_group_delete` | `name` | usunięcie grupy |
 | `song_get` | `id` | → `song_data` **do nadawcy** (pełna treść pieśni do edycji) |
 | `song_create` | `title`, `number?`, `categoryId?`, `author?`, `verses[]` (`{type,text}`), `playOrderJson?` | nowa pieśń (→ `ack` z nadanym `id` + broadcast `song_changed`) |
-| `song_update` | `id` + te same pola co `song_create` | zastąpienie treści W CAŁOŚCI (→ `ack` + broadcast `song_changed`) |
+| `song_update` | `id` + te same pola co `song_create` (wszystkie OPCJONALNE poza `title`) | aktualizacja CZĘŚCIOWA: **pole nieprzysłane = nie ruszaj**, przysłane `verses` zastępuje treść w całości (→ `ack` + broadcast `song_changed`) |
 | `song_delete` | `id`, **`force?`** | usunięcie pieśni; pieśń w zapisanych zestawach wymaga `force:true` |
 | `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
 | `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
@@ -221,6 +221,22 @@ Mini PC w zakrystii nie ma ani klawiatury, ani operatora — jedyne wyjście z z
   `close_projection` Pilot sprawdza kolejnym `status`.
 - Restart wykonuje **handler w `MainWindow`** (`Process.Start(Environment.ProcessPath)` + `Shutdown`), nie serwer —
   dzięki temu harness protokołu może testować ack bez ubijania własnego procesu.
+  **Kolejność jest krytyczna:** najpierw `RemoteControlViewModel.StopForRestart()` (zwolnienie portu),
+  dopiero potem `Process.Start`. Odwrotnie (tak było do v1.62) świeża kopia wchodziła na zajęte
+  gniazdo, jej serwer pilota nie startował i mini PC zostawało bez ŻADNEGO interfejsu.
+  `StopForRestart` celowo NIE zapisuje `pilot_was_running=0` — nowa kopia ma wstać w tym samym stanie.
+- **Muteksu jednej instancji świadomie NIE ma.** Zablokowałby dokładnie ten scenariusz, który
+  ratuje `restart_app` (nowy proces startuje, zanim stary zdąży zniknąć), a realny problem
+  — zajęty port — jest teraz widoczny: log + pełnoekranowy komunikat na projekcji
+  (`AppModeRules.ShouldShowServerFailure`, `ProjectionViewModel.ShowServerFailure`).
+- **Awaria startu serwera pilota nie jest już niema** (v1.63). `ToggleServer` łapał `SocketException`
+  i wychodził bez śladu; ekran parowania wisi na `IsRunning`, więc też się nie pokazywał.
+  Teraz: `RemoteControlViewModel.StartFailure` (powód + port) → log `[Pilot]` → w trybie serwerowym
+  pełnoekranowa warstwa w `ProjectionWindow` (klucze `Pilot.ServerFailedTitle` / `Pilot.ServerFailedHint`
+  w pl/en/es). Warstwa wyprzedza ekran parowania — bez serwera nie ma czego parować.
+- `open_projection` przy JUŻ OTWARTYM oknie nie wychodzi po cichu (tak było do v1.62, a `ack`
+  potwierdzał nieistniejące działanie): przywraca okno ze stanu zminimalizowanego, odświeża
+  `Topmost` i stawia je na ekranie z ustawienia `projection_screen`.
 - Wszystkie cztery komendy przechodzą normalną bramą auth (`if (!authed) continue;`) — przed `auth_ok` są
   ignorowane bez żadnej odpowiedzi.
 - **Zgodność wsteczna:** to wyłącznie DOPISANE typy. Żaden istniejący komunikat nie zmienił kształtu
@@ -366,7 +382,14 @@ wyślij → rozgłoś → `Dispatcher` odświeża `RefreshCategoriesExternallyAs
 `BuildGroupsJson` + `PilotStatus.BuildAckJson` — **`categories_data` przestało być budowane inline
 w `ClientConnected`**, bo druga lista pól to dokładnie ten układ, który zgubił notatki w v1.6.
 
-`reason` przy `ok:false`: `duplicate` · `not_found` · `empty_name` · `not_empty` · `edge`.
+`reason` przy `ok:false`: `duplicate` · `not_found` · `empty_name` · `not_empty` · `in_setlists` · `edge`.
+
+**Kierunek odwrotny też rozgłasza** (v1.63): kategorie i grupy zmienione W OKNIE Cantio
+(dodanie / zmiana nazwy / usunięcie / strzałki ▲▼) lecą do tabletów przez eventy
+`DisplayViewModel.CategoriesChangedLocally` / `SetlistGroupsChangedLocally` → jedno podpięcie
+w `MainWindow`. Komunikaty składa ten sam `PilotCategorySync.BuildCategoriesJson` / `BuildGroupsJson`.
+Ścieżka zdalna rozgłasza sama (`Result.Broadcast`) i tych eventów NIE odpala — inaczej ten sam
+komunikat poleciałby dwa razy.
 
 **Duplikaty nazw rozstrzyga WYŁĄCZNIE `DatabaseService.NameEquals`** (CompareInfo pl-PL,
 IgnoreCase, Trim) — nigdy SQLite `lower()`, który obsługuje tylko ASCII i przepuściłby
@@ -386,6 +409,14 @@ IgnoreCase, Trim) — nigdy SQLite `lower()`, który obsługuje tylko ASCII i pr
   i niezależność od `PRAGMA foreign_keys`.
 - Gdy przyjdą OBIE flagi, **wygrywa `keepSongs`** — nieodwracalne kasowanie wymaga jednoznacznej
   intencji. `withSongs:false` / `keepSongs:false` to NIE zgoda (liczy się wyłącznie jawne `true`).
+- **`withSongs` ma DRUGĄ bramkę: `in_setlists`** (v1.63). `DeleteCategoryWithSongsAsync` kasuje
+  pieśni RAZEM z ich pozycjami w ZAPISANYCH zestawach — dokładnie ten skutek, przed którym broni
+  się `song_delete`. Gdy `CountSetlistsWithCategorySongsAsync > 0`, odpowiedź to
+  `ok:false, reason:"in_setlists", songs:N, setlists:M` i **nic się nie dzieje**; odblokowuje
+  dopiero `force:true`. `keepSongs` bramki nie ma — pieśni zostają, więc zestawy są nietknięte.
+- Skasowanie kategorii, na którą wskazuje ustawienie `psalm_category_id`, **zeruje to ustawienie**
+  (`DatabaseService.ClearPsalmCategoryIfDeletedAsync`, wołane z wszystkich trzech ścieżek
+  kasowania). Bez tego tryb psalm cicho gasł: porównanie z kategorią pieśni nigdy już nie trafiało.
 
 To samo w oknie Cantio: gałąź dialogu „Nie — usuń tylko kategorię" idzie teraz przez
 `DeleteCategoryKeepSongsAsync` (do v1.62 wołała `DeleteCategoryAsync`, czyli kasowała pieśni
@@ -496,14 +527,28 @@ kategoriach i wyglądzie: tablet wyłącznie komenduje, desktop zapisuje, odświ
 - P→D `song_create` / `song_update` → `ack {command, ok, id, title, verses}` do NADAWCY
   + **mały** broadcast `song_changed {id, action}` do WSZYSTKICH. Pełnego `songs_data` NIE rozgłaszamy —
   biblioteka pieśni bywa duża i leci wyłącznie na żądanie `get_songs`; Pilot po broadcaście dociąga sam.
-- **Zapis zastępuje treść w CAŁOŚCI** (komplet zwrotek), dokładnie jak przycisk ZAPISZ w edytorze okna:
-  `DatabaseService.SaveSongAsync` kasuje stare zwrotki i wstawia nowe z pozycjami 0..n-1.
-  Wyjątek: brak pola `author` w `song_update` zostawia dotychczasowego autora (telefon, który tego
-  pola nie pokazuje, nie ma prawa go wyczyścić po cichu).
+- **`song_update`: BRAK POLA = NIE RUSZAJ.** Reguła obowiązuje jednakowo dla `verses`, `number`,
+  `categoryId`, `author` i `playOrderJson` — telefon, który danego pola nie pokazuje, nie ma prawa
+  go wyczyścić po cichu. Do v1.62 tylko `author` był tak chroniony, więc klient zmieniający SAM
+  TYTUŁ kasował wszystkie zwrotki, numer i przypisanie do kategorii.
+  - `verses` PRZYSŁANE → zastępują treść w CAŁOŚCI (`SaveSongAsync` kasuje stare zwrotki i wstawia
+    nowe z pozycjami 0..n-1), dokładnie jak przycisk ZAPISZ w edytorze okna;
+  - `verses: []` (jawna pusta tablica) w `song_update` → `ok:false, reason:"empty_verses"`, NIC
+    nie zapisujemy. Pieśń bez zwrotek nie ma czego wyświetlić, więc odmowa zamiast cichej utraty;
+  - `number: 0` / `categoryId: 0` PRZYSŁANE jawnie to normalne „wyczyść" — liczy się obecność pola,
+    nie wartość;
+  - `playOrderJson` bez pola: przy wymianie zwrotek → naturalna (stare indeksy są nieważne), przy
+    nietkniętych zwrotkach → zostaje dotychczasowa.
+- **Obrazki zwrotek przeżywają round-trip.** `song_data` nie niesie `ImagePath` ani
+  `BackgroundImagePath` (plik leży na dysku komputera, telefon go nie widzi), więc pętla
+  `song_get` → `song_update` wyzerowałaby tła ustawione w oknie. `PilotSongEdit.CarryOverVerseImages`
+  przenosi je ze starej treści **po POZYCJI**; `ImagePath` dodatkowo tylko przy zgodnym typie
+  zwrotki (zamiana zwrotki-obrazka na tekstową to zmiana rodzaju, nie edycja tła).
 - Walidacja jest **uprzednia i atomowa** — jedna zła zwrotka i nie zapisujemy NICZEGO. Pieśń w pół
   drogi (część zwrotek nowych, część starych) wygląda na projektorze jak awaria w środku mszy.
 - `reason` przy `ok:false`: `not_found` (pieśń albo `categoryId` > 0 bez pokrycia w bazie) ·
-  `empty_title` · `unsupported_type` (+ `verseType`) · `invalid_play_order` · `in_setlists` (+ `setlists`).
+  `empty_title` · `empty_verses` · `unsupported_type` (+ `verseType`) · `invalid_play_order` ·
+  `in_setlists` (+ `setlists`).
 - **Typy zwrotek z tabletu: tylko `v`/`c`/`b`/`p`.** `img` jest świadomie odrzucany
   (`unsupported_type`) — obrazek wymaga pliku na dysku komputera, którego telefon nie widzi.
   Brak pola `type` = `v`. Zwrotki-obrazki edytuje się w oknie Cantio.
@@ -516,6 +561,10 @@ kategoriach i wyglądzie: tablet wyłącznie komenduje, desktop zapisuje, odświ
   `ok:false, reason:"in_setlists", setlists:N` i **nic nie rusza**. Dopiero `force:true` robi to samo,
   co przycisk w oknie. Pieśń spoza zestawów kasuje się bez pytania. Liczbę zestawów podaje
   `DatabaseService.CountSetlistsWithSongAsync` (distinct po `SetlistId`).
+- **`song_delete` na pieśni otwartej w edytorze okna zamyka ten edytor** (v1.63).
+  `_editingSong` wskazywałby na nieistniejący rekord, a przycisk ZAPISZ trafiałby w `throw`
+  z `SaveSongAsync`, który `AsyncRelayCommand` przerzuca na wątek UI — czyli ubijał aplikację.
+  Operator dostaje komunikat (w trybie serwerowym tylko log).
 - **Poprawka pieśni, która JEST NA EKRANIE, wchodzi natychmiast.** `MainWindow` woła
   `DisplayViewModel.OnSongEditedExternallyAsync(id, deleted)` — odświeżenie list + (gdy `SelectedSong.Id`
   się zgadza) `LoadVersesAsync(id, keepPosition: true)`, czyli DOKŁADNIE ogon `SaveEditedSongAsync`.
