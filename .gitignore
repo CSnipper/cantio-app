@@ -389,3 +389,7 @@ Cantio/bin/Publish/
 
 # Dokumentacja lokalna
 docs/
+
+# Pliki towarzyszace SQLite (dziennik/pamiec wspoldzielona) - nigdy do repo
+*.db-shm
+*.db-wal
