@@ -24,24 +24,19 @@ public static class LiturgicalCalendarService
         // Musi się stykać bez dziury/nakładki z GetOrdinaryWeek (`date > baptism`).
         var christmasEnd = GetBaptismOfLord(year);
 
-        if (date >= adventStart)
-        {
-            int week = GetAdventWeek(date, adventStart);
-            string cycle = GetSundayCycle(year + 1);
-            string dayAbbr = GetDayAbbr(date);
-            bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
-            string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "adwent", isSunday ? cycle : "");
-        }
+        // Boże Narodzenie SPRAWDZANE PRZED Adwentem — Adwent trwa do 24 XII włącznie, więc
+        // warunek „date >= adventStart" obejmuje też koniec grudnia i przy odwrotnej kolejności
+        // zjadał cały okres BN (25–31 XII wychodziło jako „5 Nie A"/„5 Pon" w grupie „adwent”,
+        // a piątego tygodnia Adwentu w liturgii nie ma — gałąź BN była martwym kodem).
+        if (date >= new DateOnly(year, 12, 25))
+            return ChristmasDay(date, year);
 
-        if (date.Month == 12 && date.Day >= 24)
-        {
-            return new LiturgicalDay(GetDayAbbr(date), "boznarodzenie");
-        }
+        if (date >= adventStart)
+            return AdventDay(date, adventStart, GetSundayCycle(year + 1));
+
+        // Okres BN z POPRZEDNIEGO roku kalendarzowego: 1 I – Chrzest Pański (włącznie).
         if (date.Month == 1 && date <= christmasEnd)
-        {
-            return new LiturgicalDay(GetDayAbbr(date), "boznarodzenie");
-        }
+            return ChristmasDay(date, year - 1);
 
         // Wielki Post: Środa Popielcowa = 46 dni przed Wielkanocą
         var ashWednesday = easter.AddDays(-46);
@@ -171,6 +166,94 @@ public static class LiturgicalCalendarService
 
     private static int GetAdventWeek(DateOnly date, DateOnly adventStart)
         => (date.DayNumber - adventStart.DayNumber) / 7 + 1;
+
+    /// <summary>
+    /// Początek bezpośredniego przygotowania do Narodzenia Pańskiego (17 XII, antyfony „O”).
+    /// Od tego dnia liturgię dnia POWSZEDNIEGO Adwentu wyznacza DATA, a nie numer tygodnia.
+    /// </summary>
+    public const int AdventDatedFromDay = 17;
+
+    private static LiturgicalDay AdventDay(DateOnly date, DateOnly adventStart, string cycle)
+    {
+        string dayAbbr = GetDayAbbr(date);
+
+        // NIEDZIELE mają klucz tygodniowy ZAWSZE — 3. Niedziela Adwentu wypada 11–17 XII,
+        // a 4. aż 18–24 XII, więc obie wchodzą w zakres dat poniżej i nie wolno im go zabrać.
+        if (date.DayOfWeek == DayOfWeek.Sunday)
+            return new LiturgicalDay($"{GetAdventWeek(date, adventStart)} {dayAbbr} {cycle}", "adwent", cycle);
+
+        // Dni powszednie 17–24 XII: klucz DATOWY, zgodny co do znaku z Pilotem
+        // („ADW 17 Grudnia” … „ADW 24 Grudnia - Wigilia” po doklejeniu prefiksu okresu).
+        // Klucz tygodniowy był tu gorszy niż brak klucza: „ADW 3 Wto” (17 XII 2024) ISTNIEJE
+        // w bazie czytań i opisuje INNY dzień, więc dzień wyglądał poprawnie, a miał cudze
+        // czytania; „ADW 4 Pon” nie istnieje w ogóle, bo te dni zawsze wypadają po 16 XII.
+        if (date.Month == 12 && date.Day >= AdventDatedFromDay)
+            return new LiturgicalDay(AdventDatedName(date.Day), "adwent");
+
+        return new LiturgicalDay($"{GetAdventWeek(date, adventStart)} {dayAbbr}", "adwent");
+    }
+
+    /// <summary>Nazwa dnia powszedniego Adwentu 17–24 XII (24 XII jako jedyny z dopiskiem Wigilii).</summary>
+    public static string AdventDatedName(int dayOfMonth)
+        => dayOfMonth == 24 ? "24 Grudnia - Wigilia" : $"{dayOfMonth} Grudnia";
+
+    /// <summary>Niedziela Świętej Rodziny — pierwsza niedziela po 25 XII; gdy 25 XII wypada
+    /// w niedzielę, obchodzi się ją 30 XII (wtedy pierwsza niedziela to samo Boże Narodzenie).</summary>
+    private static DateOnly GetHolyFamilySunday(int christmasYear)
+    {
+        var dec25 = new DateOnly(christmasYear, 12, 25);
+        if (dec25.DayOfWeek == DayOfWeek.Sunday) return new DateOnly(christmasYear, 12, 30);
+        return dec25.AddDays(7 - (int)dec25.DayOfWeek);
+    }
+
+    /// <summary>
+    /// Dzień okresu Bożego Narodzenia: 25–31 XII roku <paramref name="christmasYear"/> oraz
+    /// 1 I – Chrzest Pański roku następnego.
+    /// </summary>
+    /// <remarks>
+    /// Nazwy odwzorowują klucze, pod którymi te dni żyją w bazie czytań i psalmów — po doklejeniu
+    /// prefiksu okresu („BN ”) wychodzą dokładnie klucze, których szuka Pilot. Dlatego są to
+    /// nazwy własne, a nie skrót dnia tygodnia: „Śro” w każdą środę okresu byłoby tą samą nazwą
+    /// zestawu i nie odpowiadałoby żadnemu wpisowi w danych.
+    /// </remarks>
+    private static LiturgicalDay ChristmasDay(DateOnly date, int christmasYear)
+    {
+        // Rok liturgiczny KOŃCZY SIĘ w roku kalendarzowym następującym po 25 XII — ta sama
+        // konwencja co w gałęzi Adwentu (GetSundayCycle dostaje rok zakończenia).
+        string cycle = GetSundayCycle(christmasYear + 1);
+
+        // Święta Rodzina jest świętem PAŃSKIM, więc na niedzielę wypiera święta świętych
+        // (Szczepana 26 XII, Jana 27 XII, Młodzianków 28 XII) — sprawdzana jako pierwsza.
+        if (date == GetHolyFamilySunday(christmasYear))
+            return new LiturgicalDay("Świętej Rodziny Jezusa, Maryi i Józefa - Święto", "boznarodzenie", cycle);
+
+        // Chrzest Pański zamyka okres (granica z GetOrdinaryWeek: okres zwykły zaczyna się
+        // NAZAJUTRZ, `date > baptism`). Czytania zależą od cyklu, stąd litera w Cycle.
+        if (date == GetBaptismOfLord(christmasYear + 1))
+            return new LiturgicalDay("Chrzest Pański", "boznarodzenie", cycle);
+
+        if (date.Month == 12)
+            return new LiturgicalDay(date.Day switch
+            {
+                25 => "Narodzenie Pańskie",
+                26 => "Świętego Szczepana, Pierwszego Męczennika - Święto",
+                27 => "Świętego Jana, Apostoła i Ewangelisty - Święto",
+                28 => "Świętych Młodzianków, Męczenników - Święto",
+                29 => "Piąty Dzień Oktawy Narodzenia Pańskiego",
+                30 => "Szósty Dzień Oktawy Narodzenia Pańskiego",
+                _  => "Siódmy Dzień Oktawy Narodzenia Pańskiego",
+            }, "boznarodzenie");
+
+        if (date.Day == 1) return new LiturgicalDay("Świętej Bożej Rodzicielki Maryi, Uroczystość", "boznarodzenie");
+        if (date.Day == 6) return new LiturgicalDay("Objawienie Pańskie, Uroczystość", "boznarodzenie");
+
+        // 2. Niedziela po Narodzeniu Pańskim — jedyna niedziela, która może wypaść 2–5 I
+        // (niedziela 7–12 I jest już Chrztem Pańskim, obsłużonym wyżej).
+        if (date.DayOfWeek == DayOfWeek.Sunday && date.Day <= 5)
+            return new LiturgicalDay($"2 Nie {cycle}", "boznarodzenie", cycle);
+
+        return new LiturgicalDay($"{date.Day} Stycznia", "boznarodzenie");
+    }
 
     // Nazwa dnia Wielkiego Postu. Tygodnie liczone od 1. Niedzieli WP (Wielkanoc − 42),
     // zgodnie z konwencją „dzień powszedni należy do tygodnia POPRZEDZAJĄCEJ niedzieli"
