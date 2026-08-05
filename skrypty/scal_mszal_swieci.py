@@ -26,7 +26,15 @@ ZNANE OGRANICZENIE FORMATU (świadomy kompromis, nie przeoczenie): format wpisu 
 DODAĆ formularz w diecezji, ale nie potrafi go WYGASIĆ tam, gdzie się nie stosuje.
 Gdy obchód jest w jednej diecezji przeniesiony na inną datę (Reguła 3 niżej), emitujemy
 DODATKOWY wpis pod datą zastępczą, zostawiając bazowy pod datą pierwotną — więc np.
-w archidiecezji gdańskiej św. Maksymilian Kolbe będzie widoczny i 14, i 18 sierpnia.
+w archidiecezji gdańskiej św. Maksymilian Kolbe będzie widoczny i 12, i 14 sierpnia.
+
+DATA ZASTĘPCZA TEŻ JEST POTWIERDZANA KALENDARZEM, nie prozą scrape'u (ta sama zasada co
+przy zakresie diecezjalnym, Reguła 2). Nagłówek w źródle bywa niedokładny (przykład
+z danych: wpis 08-14 miał w prozie „W archidiecezji gdańskiej: 18 sierpnia", a kalendarz
+ma ten obchód dla gdańskiej pod 08-12 — 18 sierpnia nie istnieje dla tej diecezji w ogóle).
+Jeśli kalendarz ma ten obchód dla tej diecezji pod inną datą niż wyczytana z prozy —
+WYGRYWA KALENDARZ. Jeśli kalendarz nie ma go dla tej diecezji NIGDZIE — nie zgadujemy,
+wpis zastępczy jest pomijany i trafia do raportu skryptu do ręcznego przejrzenia.
 """
 import json
 import re
@@ -281,6 +289,11 @@ def main():
     for c in kalendarz:
         if c.get("data"):
             kal_po_dacie.setdefault(c["data"], []).append(c)
+    # Indeks kalendarza po diecezji — do potwierdzania dat zastępczych (Reguła 3).
+    kal_po_diecezji = {}
+    for c in kalendarz:
+        for d in c.get("diecezje") or []:
+            kal_po_diecezji.setdefault(d, []).append(c)
 
     dodane = []
     pominiete_status = []
@@ -290,6 +303,8 @@ def main():
     pominiete_wewnetrzne = []  # duplikat wewnątrz samego pliku wejściowego
     bez_dopasowania_w_kal = []
     daty_zastepcze = []
+    daty_zastepcze_poprawione = []   # proza scrape'u ≠ data z kalendarza — wygrał kalendarz
+    daty_zastepcze_bez_pokrycia = [] # kalendarz nie zna tego obchodu w tej diecezji — pominięte
     problemy_zakresu = []
     porzucone_sekcje = []
     zrodla = {}  # (data, tytuł) -> skąd wziął się zakres (do raportu)
@@ -378,18 +393,36 @@ def main():
         # niesie informację, że w tej jednej diecezji obchód wypada innego dnia.
         m = SCOPE_ALT_DATE_RE.match(raw_zakres)
         if m:
-            diec_loc, dzien_alt, mies_alt = m.group(1).lower(), int(m.group(2)), m.group(3).lower()
+            diec_loc, dzien_alt_proza, mies_alt = m.group(1).lower(), int(m.group(2)), m.group(3).lower()
             diec = DIECEZJE_MIEJSC.get(diec_loc)
             mies = MIESIACE.get(mies_alt)
             if diec and mies:
-                data_alt = mmdd(mies, dzien_alt)
-                w2, st2, sc2 = duplikat_wzgledem(data_alt, tytul)
-                if w2 == "duplikat":
-                    pominiete_duplikat.append((data_alt, tytul + " [data zastępcza]", st2, round(sc2, 2)))
+                data_alt_proza = mmdd(mies, dzien_alt_proza)
+                # Potwierdzenie datą z kalendarza (Reguła 3, docstring) — proza scrape'u
+                # jest tylko podpowiedzią, nie autorytetem.
+                kandydaci_kal = [c for c in kal_po_diecezji.get(diec, [])
+                                  if similarity(tytul, c["tytul"]) >= PROG_DUPLIKAT]
+                if not kandydaci_kal:
+                    daty_zastepcze_bez_pokrycia.append((data, tytul, diec, raw_zakres, data_alt_proza))
+                    data_alt = None
                 else:
-                    zrodla[(data_alt, tytul)] = f"nagłówek daty zastępczej w scrape'ie: {raw_zakres!r}"
-                    dodane.append(zbuduj_wpis(data_alt, tytul, formularz, [diec]))
-                    daty_zastepcze.append((data, data_alt, diec, tytul, raw_zakres))
+                    daty_kal = sorted({c["data"] for c in kandydaci_kal})
+                    data_alt = daty_kal[0]
+                    if len(daty_kal) > 1:
+                        problemy_zakresu.append(
+                            (data, tytul, raw_zakres,
+                             f"kalendarz niejednoznaczny dla {diec}: daty {daty_kal}"))
+                    if data_alt != data_alt_proza:
+                        daty_zastepcze_poprawione.append((tytul, diec, data_alt_proza, data_alt))
+                if data_alt:
+                    w2, st2, sc2 = duplikat_wzgledem(data_alt, tytul)
+                    if w2 == "duplikat":
+                        pominiete_duplikat.append((data_alt, tytul + " [data zastępcza]", st2, round(sc2, 2)))
+                    else:
+                        zrodla[(data_alt, tytul)] = (
+                            f"kalendarz (potwierdzone; proza scrape'u: {raw_zakres!r})")
+                        dodane.append(zbuduj_wpis(data_alt, tytul, formularz, [diec]))
+                        daty_zastepcze.append((data, data_alt, diec, tytul, raw_zakres))
             else:
                 problemy_zakresu.append((data, tytul, raw_zakres, "nierozpoznana data/diecezja zastępcza"))
 
@@ -447,6 +480,15 @@ def main():
     print("\n--- DATY ZASTĘPCZE (dodatkowy wpis; obchód widoczny w OBU datach) ---")
     for d0, d1, diec, tyt, raw in daty_zastepcze:
         print(f"  {d0} → {d1} [{diec}] {tyt[:50]}  ({raw})")
+    if daty_zastepcze_poprawione:
+        print("\n--- DATY ZASTĘPCZE POPRAWIONE PRZEZ KALENDARZ (proza scrape'u się myliła) ---")
+        for tyt, diec, data_proza, data_kal in daty_zastepcze_poprawione:
+            print(f"  [{diec}] {tyt[:50]}: proza mówiła {data_proza}, kalendarz {data_kal} → użyto kalendarza")
+    if daty_zastepcze_bez_pokrycia:
+        print("\n--- DATY ZASTĘPCZE BEZ POKRYCIA W KALENDARZU (pominięte — DO RĘCZNEGO PRZEJRZENIA) ---")
+        for data, tyt, diec, raw, data_proza in daty_zastepcze_bez_pokrycia:
+            print(f"  [{data}] {tyt[:50]} — proza wskazywała {diec} / {data_proza} ({raw!r}), "
+                  f"kalendarz nie zna tego obchodu w tej diecezji pod żadną datą")
     print("\n--- BEZ DOPASOWANIA W KALENDARZU (dodane jako powszechne — DO PRZEGLĄDU) ---")
     for data, tyt, kand, sc in bez_dopasowania_w_kal:
         print(f"  [{data}] {tyt[:55]}  | najbliższy w kalendarzu: {kand[:45]} ({sc})")
