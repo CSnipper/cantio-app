@@ -22,22 +22,57 @@ public static class PilotSongSync
     /// </summary>
     public const int NoCategory = 0;
 
-    public static string BuildSongsDataJson(int offset, int total, IEnumerable<Song> items) =>
-        JsonSerializer.Serialize(new
+    /// <summary>
+    /// Buduje komunikat <c>songs_data</c> z IZOLACJĄ PER PIEŚŃ.
+    ///
+    /// Regresja produkcyjna: gdy serializacja JEDNEJ pieśni rzuci (np. uszkodzona nawigacja
+    /// <c>Verses == null</c>), stary kod składał całą stronę jednym <c>Serialize</c> — wyjątek
+    /// wywracał CAŁĄ stronę, a połknięty <c>catch{}</c> w gospodarzu nie wysyłał NIC. Pilot wisiał
+    /// na stronie 0 → pusta biblioteka. Tu każda pieśń jest serializowana osobno; wadliwa jest
+    /// POMIJANA i logowana, reszta strony leci normalnie.
+    ///
+    /// Paginacja znosi pominięcie: liczbą stron rządzi <c>total</c> (Count z DB, liczony niezależnie
+    /// od serializacji) oraz <c>offset</c>/<c>limit</c> ustalane po stronie DB — Pilot przesuwa się
+    /// o żądany <c>limit</c>, nie o liczbę zserializowanych elementów. Pominięta pieśń znika tylko
+    /// z biblioteki telefonu, nie blokuje dojścia do końca stronicowania.
+    /// </summary>
+    public static string BuildSongsDataJson(int offset, int total, IEnumerable<Song> items)
+    {
+        var built = new List<JsonElement>();
+        foreach (var s in items ?? Enumerable.Empty<Song>())
+        {
+            try
+            {
+                // SerializeToElement wymusza pełną ewaluację (w tym enumerację Verses) TU,
+                // w obrębie try — inaczej wyjątek wypłynąłby dopiero przy leniwej serializacji
+                // opakowania i znów wywrócił całą stronę.
+                built.Add(JsonSerializer.SerializeToElement(new
+                {
+                    id         = s.Id,
+                    title      = s.Title,
+                    number     = s.Number,
+                    author     = s.Author ?? "",
+                    categoryId = s.CategoryId ?? NoCategory,
+                    parts      = s.Verses
+                        .OrderBy(v => v.Position)
+                        .Select(v => new { type = v.Type, text = v.Text })
+                        .ToList()
+                }));
+            }
+            catch (Exception ex)
+            {
+                // Jedna wadliwa pieśń nie może uciszyć całej strony ani jej wywrócić.
+                AppLog.Write("Pilot",
+                    $"songs_data: pominięto wadliwą pieśń Id={s?.Id} — {ex.GetType().Name}: {ex.Message}");
+            }
+        }
+
+        return JsonSerializer.Serialize(new
         {
             type = SongsDataType,
             offset,
             total,
-            items = items.Select(s => new
-            {
-                id         = s.Id,
-                title      = s.Title,
-                number     = s.Number,
-                author     = s.Author ?? "",
-                categoryId = s.CategoryId ?? NoCategory,
-                parts      = s.Verses
-                    .OrderBy(v => v.Position)
-                    .Select(v => new { type = v.Type, text = v.Text })
-            })
+            items = built
         });
+    }
 }
