@@ -4170,5 +4170,12 @@
     "tytul": "Św. Sylwestra I, papieża",
     "ranga": "wsp_dowolne",
     "zakres": "powszechny"
+  },
+  {
+    "data": "10-10",
+    "tytul": "Św. Jana Leonardiego, prezbitera",
+    "ranga": "wsp_dowolne",
+    "zakres": "powszechny",
+    "uwaga": "Brak w PDF-ie 7.10.2023 (luka źródła) — dopisane ręcznie, formularz jest w baza_mszal.json pod kluczem 10-10."
   }
 ]

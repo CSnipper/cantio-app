@@ -333,6 +333,22 @@ def main():
 
     flush(scope)
 
+    # ── ręczne uzupełnienia: obchody nieobecne w PDF-ie 7.10.2023, ale obecne w mszale ──
+    # (ma to znaczenie tylko wtedy, gdy obchód realnie ma formularz w `baza_mszal.json` —
+    # inaczej wpis w kalendarzu wisiałby bez treści). Dopisywane po parsowaniu, żeby nie
+    # majstrować przy logice PDF-a. Tytuł musi zgadzać się z tytułem formularza na tyle,
+    # żeby dopasowanie po rdzeniach (MassProperRepository, próg 0,6) je połączyło.
+    SUPPLEMENTS = [
+        {
+            "data": "10-10", "tytul": "Św. Jana Leonardiego, prezbitera",
+            "ranga": "wsp_dowolne", "zakres": "powszechny",
+            "uwaga": "Brak w PDF-ie 7.10.2023 (luka źródła) — dopisane ręcznie, formularz "
+                     "jest w baza_mszal.json pod kluczem 10-10.",
+        },
+    ]
+    for sup in SUPPLEMENTS:
+        entries.append(sup)
+
     # ── walidacja PRZED zapisem (lepiej brak zapisu niż zepsute dane w apce) ──
     problems = []
     for e in entries:
