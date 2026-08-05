@@ -11,6 +11,10 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!-- Nazwy zasobów MUSZĄ zostać takie jak w Cantio.exe (kod ładuje je po stringu
@@ -18,6 +22,7 @@
        Stąd jawne LogicalName. -->
   <ItemGroup>
     <EmbeddedResource Include="Assets\Data\psalmy.json.gz" LogicalName="Cantio.Assets.Data.psalmy.json.gz" />
+    <EmbeddedResource Include="Assets\Data\psalmy_dual.json.gz" LogicalName="Cantio.Assets.Data.psalmy_dual.json.gz" />
     <EmbeddedResource Include="Assets\Data\kalendarz_diecezji.json" LogicalName="Cantio.Assets.Data.kalendarz_diecezji.json" />
   </ItemGroup>
 

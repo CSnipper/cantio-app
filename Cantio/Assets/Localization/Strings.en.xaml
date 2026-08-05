@@ -85,6 +85,10 @@
     <sys:String x:Key="Settings.BlankColor">Color</sys:String>
     <sys:String x:Key="Settings.Diocese">Diocese</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Diocesan proper celebrations in the calendar (formularies next to the clock, pinned setlist names).</sys:String>
+    <sys:String x:Key="Settings.Lectionary">Lectionary</sys:String>
+    <sys:String x:Key="Settings.LectionaryDesc">Lectionary edition shown when projecting responsorial psalms. Requires re-importing the psalms.</sys:String>
+    <sys:String x:Key="Settings.LectionaryNew">New</sys:String>
+    <sys:String x:Key="Settings.LectionaryOld">Old</sys:String>
 
     <!-- About -->
     <sys:String x:Key="About.Subtitle">Song projection software</sys:String>

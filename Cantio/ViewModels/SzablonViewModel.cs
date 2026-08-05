@@ -241,6 +241,25 @@ public partial class SzablonViewModel : ObservableObject
         DioceseChanged?.Invoke();
     }
 
+    // Lekcjonarz (wydanie: nowy "N" / stary "S") — steruje FILTREM ZWROTEK psalmu na PROJEKCJI.
+    // Ustawienie desktopu, świadomie NIEZALEŻNE od ustawienia „Dziś" w Pilocie (organista ustawia
+    // wydanie parafii na desktopie sterującym projektorem).
+
+    /// <summary>Wywoływane po zmianie wydania lekcjonarza — MainWindow przeładowuje bieżącą pieśń.</summary>
+    public event Action? LectionaryChanged;
+
+    /// <summary>true = nowy lekcjonarz ("N"), false = stary ("S").</summary>
+    [ObservableProperty] private bool _lectionaryNew = true;
+
+    private bool _lectionaryLoading;
+
+    partial void OnLectionaryNewChanged(bool value)
+    {
+        if (_lectionaryLoading) return;
+        _ = _db.SaveSettingAsync("lectionary", value ? "N" : "S");
+        LectionaryChanged?.Invoke();
+    }
+
     // Pętla slajdów („tryb przed mszą") — interwał w sekundach
 
     [ObservableProperty] private int _loopIntervalSeconds = SlideLoop.DefaultIntervalSeconds;
@@ -713,6 +732,10 @@ public partial class SzablonViewModel : ObservableObject
         SelectedDioceseOption = diocese.Length > 0 && DioceseOptions.Contains(diocese)
             ? diocese : "— kalendarz ogólny —";
         _dioceseLoading = false;
+
+        _lectionaryLoading = true;
+        LectionaryNew = LectionaryFilter.Normalize(await _db.GetSettingAsync("lectionary")) == "N";
+        _lectionaryLoading = false;
 
         _blankLoading = true;
         BlankColor = await _db.GetSettingAsync("blank_color") ?? "#000000";

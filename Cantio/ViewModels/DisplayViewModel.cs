@@ -1954,7 +1954,10 @@ public partial class DisplayViewModel : ObservableObject
         _loadingVerses = false;
         _ = _db.TouchSongUsageAsync(songId); // lista „Ostatnie" — fire-and-forget
 
-        var baseVerses = song.Verses.OrderBy(v => v.Position).ToList();
+        // Filtr wydania lekcjonarza: psalm-pieśń niesie zwrotki OBU wydań (N/S), pokazujemy tylko
+        // wybrane + wspólne (Lekcjonarz == null). Dla zwykłych pieśni (wszystkie null) bez zmian.
+        var edition = LectionaryFilter.Normalize(await _db.GetSettingAsync("lectionary"));
+        var baseVerses = LectionaryFilter.Apply(song.Verses.OrderBy(v => v.Position), edition);
         List<Verse> ordered = baseVerses;
 
         if (!string.IsNullOrEmpty(song.PlayOrderJson))
@@ -1986,6 +1989,18 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [ObservableProperty] private ObservableCollection<Slide> _slideList = [];
+
+    /// <summary>
+    /// Przeładowuje bieżącą pieśń z bazy — używane po zmianie wydania lekcjonarza w USTAWIENIACH:
+    /// filtr zwrotek (<see cref="LectionaryFilter"/>) działa w <see cref="LoadVersesAsync"/>, więc
+    /// samo <c>RebuildSlides</c> nie wystarczy (kolekcja <c>Verses</c> jest już przefiltrowana).
+    /// Zachowuje pozycję kotwicą slajdu.
+    /// </summary>
+    public async Task ReloadCurrentSongAsync()
+    {
+        if (SelectedSong == null) return;
+        await LoadVersesAsync(SelectedSong.Id, keepPosition: true);
+    }
 
     /// <summary>
     /// Przebudowuje listę slajdów i wypycha bieżący slajd na projektor OD RAZU (zmiana wyglądu i poprawka

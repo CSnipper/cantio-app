@@ -85,6 +85,10 @@
     <sys:String x:Key="Settings.BlankColor">Color</sys:String>
     <sys:String x:Key="Settings.Diocese">Diócesis</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Celebraciones propias de la diócesis en el calendario (formularios junto al reloj, nombres de las listas fijadas).</sys:String>
+    <sys:String x:Key="Settings.Lectionary">Leccionario</sys:String>
+    <sys:String x:Key="Settings.LectionaryDesc">Edición del leccionario mostrada al proyectar los salmos responsoriales. Requiere reimportar los salmos.</sys:String>
+    <sys:String x:Key="Settings.LectionaryNew">Nuevo</sys:String>
+    <sys:String x:Key="Settings.LectionaryOld">Antiguo</sys:String>
 
     <!-- Acerca de -->
     <sys:String x:Key="About.Subtitle">Software de proyección de canciones</sys:String>
