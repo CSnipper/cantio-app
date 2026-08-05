@@ -3081,6 +3081,21 @@
                                       SelectedItem="{Binding SelectedDioceseOption}"
                                       FontSize="14" Height="34"/>
 
+                            <TextBlock Text="{DynamicResource Settings.Lectionary}"
+                                       Foreground="#959fb9" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,16,0,4"/>
+                            <TextBlock Text="{DynamicResource Settings.LectionaryDesc}"
+                                       Foreground="#959fb9" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="{DynamicResource Settings.LectionaryNew}"
+                                             Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding LectionaryNew}"/>
+                                <RadioButton Content="{DynamicResource Settings.LectionaryOld}"
+                                             Style="{StaticResource DarkRadio}"
+                                             IsChecked="{Binding LectionaryNew, Converter={StaticResource InverseBool}}"/>
+                            </StackPanel>
+
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,20,0,0">
                                 <Button Content="{DynamicResource Btn.OpenShortcuts}"
                                         Style="{StaticResource GoldBtn}"

@@ -85,6 +85,10 @@
     <sys:String x:Key="Settings.BlankColor">Kolor</sys:String>
     <sys:String x:Key="Settings.Diocese">Diecezja</sys:String>
     <sys:String x:Key="Settings.DioceseDesc">Obchody własne diecezji w kalendarzu (formularze przy zegarze, nazwy przypinanych zestawów).</sys:String>
+    <sys:String x:Key="Settings.Lectionary">Lekcjonarz</sys:String>
+    <sys:String x:Key="Settings.LectionaryDesc">Wydanie lekcjonarza pokazywane na projekcji psalmów responsoryjnych. Wymaga ponownego importu psalmów.</sys:String>
+    <sys:String x:Key="Settings.LectionaryNew">Nowy</sys:String>
+    <sys:String x:Key="Settings.LectionaryOld">Stary</sys:String>
 
     <!-- O programie -->
     <sys:String x:Key="About.Subtitle">Program do wyświetlania pieśni na projektorze</sys:String>

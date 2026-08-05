@@ -55,7 +55,9 @@ public static class PilotSongSync
                     categoryId = s.CategoryId ?? NoCategory,
                     parts      = s.Verses
                         .OrderBy(v => v.Position)
-                        .Select(v => new { type = v.Type, text = v.Text })
+                        // lekcjonarz: "N"/"S" na oznaczonych zwrotkach psalmu, null na zwykłych.
+                        // Pilot czyta pole przez optStringOrNull → null = brak pola = pełna zgodność wsteczna.
+                        .Select(v => new { type = v.Type, text = v.Text, lekcjonarz = v.Lekcjonarz })
                         .ToList()
                 }));
             }

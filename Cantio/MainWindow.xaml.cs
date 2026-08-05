@@ -170,6 +170,8 @@ public partial class MainWindow : Window
             _ = _remoteControl.BroadcastJsonAsync(PilotDisplaySettings.BuildDataJson(db.GetSettings()));
         };
         _szablonVm.DioceseChanged += RefreshLitDay;
+        // Zmiana wydania lekcjonarza → przeładuj bieżącą pieśń (filtr zwrotek w LoadVersesAsync).
+        _szablonVm.LectionaryChanged += async () => await _vm.ReloadCurrentSongAsync();
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
         ImportColumn.DataContext = _importVm;

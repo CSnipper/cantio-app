@@ -1000,23 +1000,34 @@ public class DatabaseService
 
     // ── Import psalmów responsoryjnych ───────────────────────────────────────
 
-    private record PsalmSeedRecord(
-        [property: JsonPropertyName("dzien")]                string Dzien,
-        [property: JsonPropertyName("cykl")]                 string Cykl,
-        [property: JsonPropertyName("psalm_responsoryjny")]  string PsalmResponsoryjny,
+    // Blok jednego wydania lekcjonarza dla danego dnia.
+    private record PsalmSeedBlock(
+        [property: JsonPropertyName("lekcjonarz")]           string Lekcjonarz,           // "N" | "S"
+        [property: JsonPropertyName("psalm_responsoryjny")]  string? PsalmResponsoryjny,
         [property: JsonPropertyName("aklamacja")]            string? Aklamacja
     );
 
+    // Nowy format dwuwydaniowy: jeden wpis per dzień, w środku bloki N/S.
+    private record PsalmSeedRecord(
+        [property: JsonPropertyName("dzien")]                string Dzien,
+        [property: JsonPropertyName("okres")]                string? Okres,
+        [property: JsonPropertyName("cykl")]                 string? Cykl,
+        [property: JsonPropertyName("psalm")]                List<PsalmSeedBlock>? Psalm
+    );
+
     /// <summary>
-    /// Importuje psalmy responsoryjne z wbudowanego zasobu psalmy.json.gz
-    /// do kategorii "Psalmy responsoryjne". Pomija tytuły już istniejące.
+    /// Importuje psalmy responsoryjne z wbudowanego zasobu <c>psalmy_dual.json.gz</c> (format
+    /// dwuwydaniowy) do kategorii "Psalmy responsoryjne". Buduje JEDNĄ pieśń per <c>dzien</c>,
+    /// a jej zwrotki niosą OBA wydania lekcjonarza — każda oznaczona <see cref="Verse.Lekcjonarz"/>
+    /// (<c>"S"</c>/<c>"N"</c>). Projekcja filtruje je po ustawieniu <c>lectionary</c>.
+    /// Re-import kasuje stare pieśni kategorii i wgrywa od nowa.
     /// Zwraca liczbę dodanych pieśni lub -1 gdy kategoria nie istnieje.
     /// </summary>
     public async Task<int> ImportPsalmySeedAsync()
     {
         // Odczyt i dekompresja zasobu
         var asm = Assembly.GetExecutingAssembly();
-        await using var gz = asm.GetManifestResourceStream("Cantio.Assets.Data.psalmy.json.gz")!;
+        await using var gz = asm.GetManifestResourceStream("Cantio.Assets.Data.psalmy_dual.json.gz")!;
         await using var deflated = new GZipStream(gz, CompressionMode.Decompress);
         using var reader = new StreamReader(deflated, Encoding.UTF8);
         var json = await reader.ReadToEndAsync();
@@ -1043,28 +1054,38 @@ public class DatabaseService
         var existing = new HashSet<string>(); // po wyczyszczeniu nic nie istnieje
         int maxNumber = 0;
 
-        // Faza 1: wstaw wszystkie nowe pieśni
-        var toInsert = new List<(Song Song, string Psalm, string Akl)>();
+        // Faza 1: wstaw wszystkie nowe pieśni (jedna per dzień)
+        var toInsert = new List<(Song Song, List<PsalmSeedBlock> Blocks)>();
         foreach (var rec in records)
         {
             // Cykl jest już zawarty w polu dzien (np. "ZW 12 Nie A") — używamy dzien bezpośrednio
             string title = rec.Dzien.Trim();
             if (existing.Contains(title)) continue;
+            existing.Add(title);
+            var blocks = rec.Psalm ?? [];
+            if (blocks.Count == 0) continue; // brak danych — nie zakładamy pustej pieśni
             maxNumber++;
             var song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };
             db.Songs.Add(song);
-            toInsert.Add((song, rec.PsalmResponsoryjny, rec.Aklamacja ?? ""));
+            toInsert.Add((song, blocks));
         }
         await db.SaveChangesAsync(); // Pieśni otrzymują Id
 
-        // Faza 2: wstaw wszystkie zwrotki
-        foreach (var (song, psalm, akl) in toInsert)
+        // Faza 2: wstaw zwrotki OBU wydań. Kolejność bloków ze źródła (S przed N);
+        // filtr projekcji i tak zostawia tylko zwrotki wybranego wydania + wspólne (null).
+        // Każda zwrotka niesie znacznik wydania z bloku — brakującego wydania nie zmyślamy.
+        foreach (var (song, blocks) in toInsert)
         {
             int pos = 0;
-            foreach (var (type, text) in ParsePsalmBlocks(psalm))
-                db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++ });
-            foreach (var (type, text) in ParsePsalmBlocks(akl))
-                db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++ });
+            foreach (var block in blocks)
+            {
+                string ed = block.Lekcjonarz?.Trim().ToUpperInvariant() ?? "";
+                string? lekcjonarz = ed is "N" or "S" ? ed : null;
+                foreach (var (type, text) in ParsePsalmBlocks(block.PsalmResponsoryjny ?? ""))
+                    db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++, Lekcjonarz = lekcjonarz });
+                foreach (var (type, text) in ParsePsalmBlocks(block.Aklamacja ?? ""))
+                    db.Verses.Add(new Verse { SongId = song.Id, Type = type, Text = text, Position = pos++, Lekcjonarz = lekcjonarz });
+            }
         }
         await db.SaveChangesAsync();
 
