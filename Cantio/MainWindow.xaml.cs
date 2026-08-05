@@ -345,14 +345,33 @@ public partial class MainWindow : Window
         };
         _remoteControl.GetSongsRequested += async (ws, offset, limit) =>
         {
+            // Priorytet: Pilot MUSI dostać odpowiedź na KAŻDE get_songs. Cisza jest najgorsza —
+            // stary połknięty catch{} przy dowolnym wyjątku nie wysyłał nic, a Pilot wisiał na
+            // stronie 0 → pusta biblioteka (regresja produkcyjna). Serializacja jest już odporna
+            // per pieśń (PilotSongSync); ten catch broni przed wyjątkiem z ODCZYTU z DB — wtedy
+            // leci pusta strona z żądanym offsetem, żeby Pilot nie wisiał.
+            int total = 0;
             try
             {
-                var (total, items) = await db.GetSongsForSyncAsync(offset, limit);
+                (total, var items) = await db.GetSongsForSyncAsync(offset, limit);
                 // Kształt komunikatu (w tym CategoryId == NULL → 0) składa PilotSongSync
                 await _remoteControl.SendToClientAsync(ws,
                     PilotSongSync.BuildSongsDataJson(offset, total, items));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                AppLog.Write("Pilot", $"get_songs (offset={offset}, limit={limit}) nieudany — " +
+                                      $"wysyłam pustą stronę: {ex.GetType().Name}: {ex.Message}");
+                try
+                {
+                    await _remoteControl.SendToClientAsync(ws,
+                        PilotSongSync.BuildSongsDataJson(offset, total, System.Array.Empty<Song>()));
+                }
+                catch (Exception sendEx)
+                {
+                    AppLog.Write("Pilot", $"get_songs: nie udało się wysłać nawet pustej strony: {sendEx.Message}");
+                }
+            }
         };
         // ─── Ratunek dla mini PC bez klawiatury (status / restart / projekcja) ───
         // Ack na restart/open/close wysyła sam RemoteControlServer, ZANIM tu dotrze —
