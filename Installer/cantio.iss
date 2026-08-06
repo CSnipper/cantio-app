@@ -30,6 +30,13 @@ AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
 AppPublisherURL=https://github.com/CSnipper/cantio-app
 DefaultDirName={autopf}\{#AppName}
+; Build x64 instaluje sie w trybie 64-bit -> {autopf} = "Program Files" (nie x86),
+; wlasciwe klucze rejestru. Build x86 zostaje 32-bit (Program Files (x86)).
+; Bez tego x64 ladowal w "Program Files (x86)", bo Inno domyslnie chodzi 32-bit.
+#if Arch != "x86"
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+#endif
 DefaultGroupName={#AppName}
 OutputDir=Output
 OutputBaseFilename=CantioSetup-{#AppVersion}{#ArchSuffix}
