@@ -138,6 +138,12 @@ public static class AccessibleKeys
         var focus = s.Focus;
         bool typing = focus is DeskFocus.SearchBox or DeskFocus.SaveBox or DeskFocus.SetlistFilterBox;
 
+        // Prawy Alt (AltGr) = Ctrl+Alt jednocześnie — tak Windows generuje polskie znaki
+        // (AltGr+o="ó", AltGr+s="ś" itd.). Bez tego rozróżnienia "Ctrl+O" łapało też AltGr+o
+        // i pisanie "ó" w nazwie zestawu otwierało panel zamiast wstawić literę. Każdy skrót
+        // wymagający Ctrl musi więc wymagać Ctrl BEZ Alt.
+        bool ctrlOnly = ctrl && !alt;
+
         // ALT = kursor ZESTAWU, i to NIEZALEŻNIE od fokusu — dokładnie jak Page Up/Down.
         // Powód jest ten sam: pozycja w zestawie to druga rzecz (obok obrazu na rzutniku), którą
         // operator musi umieć ruszyć w środku pisania, nie szukając wprzódy drogi powrotnej z pola.
@@ -161,7 +167,7 @@ public static class AccessibleKeys
         {
             // ── działa wszędzie, także w polu tekstowym ──────────────────────
             case DeskKey.F3:                    return DeskAction.OpenSearch;
-            case DeskKey.F when ctrl:           return DeskAction.OpenSearch;
+            case DeskKey.F when ctrlOnly:       return DeskAction.OpenSearch;
             case DeskKey.F1:                    return DeskAction.AnnounceHelp;
             case DeskKey.F2:                    return DeskAction.AnnounceScreens;
 
@@ -175,17 +181,17 @@ public static class AccessibleKeys
 
             // Ctrl+Shift+Page = przenoszenie pieśni w zestawie. MUSI być sprawdzone przed
             // samym Ctrl+Page (zmiana pieśni), inaczej przenoszenie nigdy by nie zadziałało.
-            case DeskKey.PageDown when ctrl && shift: return DeskAction.MoveSongDown;
-            case DeskKey.PageUp   when ctrl && shift: return DeskAction.MoveSongUp;
-            case DeskKey.PageDown:              return ctrl ? DeskAction.NextSong : DeskAction.ProjectNextSlide;
-            case DeskKey.PageUp:                return ctrl ? DeskAction.PrevSong : DeskAction.ProjectPrevSlide;
+            case DeskKey.PageDown when ctrlOnly && shift: return DeskAction.MoveSongDown;
+            case DeskKey.PageUp   when ctrlOnly && shift: return DeskAction.MoveSongUp;
+            case DeskKey.PageDown:              return ctrlOnly ? DeskAction.NextSong : DeskAction.ProjectNextSlide;
+            case DeskKey.PageUp:                return ctrlOnly ? DeskAction.PrevSong : DeskAction.ProjectPrevSlide;
 
             // Panele zestawu. W polu NAZWY zapisu Ctrl+S nie robi nic (panel już jest otwarty,
             // a Enter go zatwierdza) — reszta pulpitu otwiera je z każdego miejsca.
-            case DeskKey.S when ctrl: return focus == DeskFocus.SaveBox ? DeskAction.None : DeskAction.OpenSavePanel;
+            case DeskKey.S when ctrlOnly: return focus == DeskFocus.SaveBox ? DeskAction.None : DeskAction.OpenSavePanel;
             // Ctrl+O w polu FILTRA nic nie robi — panel otwierania już jest otwarty, a ponowne
             // otwarcie skasowałoby wpisany filtr (czego niewidomy operator nie miałby jak zauważyć).
-            case DeskKey.O when ctrl:
+            case DeskKey.O when ctrlOnly:
                 return focus is DeskFocus.SaveBox or DeskFocus.SetlistFilterBox
                     ? DeskAction.None : DeskAction.OpenSetlistPicker;
 
@@ -193,7 +199,7 @@ public static class AccessibleKeys
                 return focus switch
                 {
                     DeskFocus.SearchBox      => DeskAction.RunSearch,
-                    DeskFocus.SearchResults  => ctrl ? DeskAction.AddAndShow : DeskAction.AddToSetlist,
+                    DeskFocus.SearchResults  => ctrlOnly ? DeskAction.AddAndShow : DeskAction.AddToSetlist,
                     DeskFocus.SaveBox        => DeskAction.ConfirmSave,
                     DeskFocus.SetlistPicker  => DeskAction.LoadPickedSetlist,
                     // Enter w polu filtra ZJEŻDŻA NA LISTĘ, a nie wczytuje pierwszego trafienia.
@@ -245,10 +251,13 @@ public static class AccessibleKeys
                     _                       => DeskAction.None,
                 };
 
-            case DeskKey.L: return typing ? DeskAction.None : DeskAction.ReadSetlist;
+            // Gołe litery L/R/B/S są akcją WYŁĄCZNIE bez żadnego modyfikatora — z Ctrl, Alt
+            // lub AltGr (Ctrl+Alt) mają milczeć, żeby AltGr+s/AltGr+l (polskie "ś"/"ł") trafiały
+            // do pola jako znak, a nie odpalały akcję pulpitu.
+            case DeskKey.L: return (typing || ctrl || alt) ? DeskAction.None : DeskAction.ReadSetlist;
 
             case DeskKey.R:
-                if (typing) return DeskAction.None;
+                if (typing || ctrl || alt) return DeskAction.None;
                 return focus switch
                 {
                     DeskFocus.SearchResults => DeskAction.RepeatSearchResult,
@@ -256,8 +265,8 @@ public static class AccessibleKeys
                     _                       => DeskAction.RepeatReading,
                 };
 
-            case DeskKey.B: return typing ? DeskAction.None : DeskAction.ToggleBlank;
-            case DeskKey.S: return typing ? DeskAction.None : DeskAction.AnnounceStatus;
+            case DeskKey.B: return (typing || ctrl || alt) ? DeskAction.None : DeskAction.ToggleBlank;
+            case DeskKey.S: return (typing || ctrl || alt) ? DeskAction.None : DeskAction.AnnounceStatus;
 
             default: return DeskAction.None;
         }
