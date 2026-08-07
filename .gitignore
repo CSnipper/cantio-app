@@ -398,3 +398,16 @@ docs/
 # Pliki towarzyszace SQLite (dziennik/pamiec wspoldzielona) - nigdy do repo
 *.db-shm
 *.db-wal
+
+# ── Klucz PRYWATNY do podpisywania licencji — NIGDY do repo ─────────────────
+# To repozytorium jest PUBLICZNE. Wyciek klucza prywatnego znaczy, ze kazdy moze
+# wystawic klucz licencyjny na dowolne nazwisko, czyli cale zabezpieczenie pulpitu
+# organisty niewidomego przestaje istniec. Klucz mieszka POZA drzewem projektu
+# (%USERPROFILE%\.cantio\license-signing.key) - te wpisy to druga linia obrony,
+# na wypadek skopiowania go tutaj przez pomylke.
+*.key
+*.pem
+*.pkcs8
+license-signing*
+tools/LicenseGen/bin/
+tools/LicenseGen/obj/

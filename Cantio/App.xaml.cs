@@ -115,7 +115,10 @@ public partial class App : Application
             // okno projekcji). Wybór zapada tutaj i jest rozłączny: albo zwykłe okno, albo pulpit
             // dostępny. Argument wiersza poleceń pozwala zrobić drugi skrót w menu Start, żeby
             // niewidomy uruchamiał swój pulpit bez pomocy widzącego.
-            if (AccessibleShellMode.IsRequested(e.Args, await db.GetSettingAsync(AccessibleShellMode.SettingKey)))
+            if (AccessibleShellMode.IsRequested(
+                    e.Args,
+                    await db.GetSettingAsync(AccessibleShellMode.SettingKey),
+                    AccessibleShellMode.ReadConfigFile(dbFolder)))
             {
                 var accessible = new Views.AccessibleWindow(db);
                 MainWindow = accessible;     // DisplayViewModel aktywuje MainWindow po otwarciu projekcji

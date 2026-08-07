@@ -91,6 +91,11 @@ Source: "..\Cantio.db"; DestDir: "{app}"; DestName: "cantio.db"; \
 [Icons]
 Name: "{group}\{#AppName}";       Filename: "{app}\{#AppExeName}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
+; Pulpit organisty niewidomego — ten sam plik wykonywalny, inna powłoka. Skrót powstaje ZAWSZE,
+; bo niewidomy użytkownik musi móc wejść do swojego pulpitu bez pomocy widzącego (i bez grzebania
+; we właściwościach skrótu, żeby dopisać parametr).
+Name: "{group}\{#AppName} — pulpit organisty niewidomego"; \
+      Filename: "{app}\{#AppExeName}"; Parameters: "--dostepny"
 
 [Dirs]
 Name: "{localappdata}\Cantio"
@@ -103,6 +108,13 @@ Name: "desktopicon"; \
 Name: "autostart"; \
       Description: "Uruchamiaj Cantio przy starcie systemu"; \
       GroupDescription: "Autostart:"; \
+      Flags: unchecked
+; Zaznaczone = KAŻDE uruchomienie Cantio (także zwykły skrót i autostart) otwiera pulpit
+; dostępny. Domyślnie wyłączone: to wybór dla komputera, przy którym siada wyłącznie
+; niewidomy organista.
+Name: "accessibleshell"; \
+      Description: "Uruchamiaj domyślnie pulpit dla niewidomych"; \
+      GroupDescription: "Dostępność:"; \
       Flags: unchecked
 
 [Registry]
@@ -132,6 +144,7 @@ var
     Ten sam wzorzec, co ShouldInstallSampleDb dla strony bazy danych. }
   ServerModeSelected: Boolean;
   ExistingModeCode:   string;   { zawartość initial_mode.cfg sprzed instalacji ('' = brak pliku) }
+  ExistingAccessibleCode: string; { zawartość initial_accessible.cfg sprzed instalacji }
 
 { Returns True when the user's database already exists — skip DB page on reinstall }
 function DbAlreadyExists: Boolean;
@@ -154,6 +167,26 @@ begin
   Result := '';
   if not FileExists(ModeFilePath) then Exit;
   if not LoadStringFromFile(ModeFilePath, Raw) then Exit;
+  Result := Lowercase(Trim(string(Raw)));
+end;
+
+function AccessibleFilePath: string;
+begin
+  Result := ExpandConstant('{localappdata}\Cantio\initial_accessible.cfg');
+end;
+
+{ Zawartość initial_accessible.cfg albo '' gdy pliku nie ma. Ten plik jest DZIŚ jedynym nośnikiem
+  wyboru „domyślnie pulpit dla niewidomych" (w programie nie ma jeszcze przełącznika, a wpis
+  accessible_shell w bazie, gdy powstanie, ma nad nim pierwszeństwo). Dlatego przy aktualizacji
+  znacznik jest wstępnie zaznaczany zgodnie z tym plikiem — inaczej każda aktualizacja
+  wyrzucałaby niewidomego organistę z jego pulpitu. }
+function ReadExistingAccessible: string;
+var
+  Raw: AnsiString;
+begin
+  Result := '';
+  if not FileExists(AccessibleFilePath) then Exit;
+  if not LoadStringFromFile(AccessibleFilePath, Raw) then Exit;
   Result := Lowercase(Trim(string(Raw)));
 end;
 
@@ -182,6 +215,10 @@ var
   Lbl: TLabel;
 begin
   ShouldInstallSampleDb := True;
+
+  ExistingAccessibleCode := ReadExistingAccessible;
+  if ExistingAccessibleCode = '1' then
+    WizardSelectTasks('accessibleshell');
 
   ExistingModeCode := ReadExistingMode;
   if ModeParamGiven then
@@ -296,6 +333,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 var
   LangCode: string;
   ModeCode: string;
+  AccessibleCode: string;
 begin
   if CurStep <> ssPostInstall then Exit;
 
@@ -311,4 +349,11 @@ begin
     trybu na mini PC, które nie ma wiersza app_mode w bazie. }
   if ModeCode <> ExistingModeCode then
     SaveStringToFile(ModeFilePath, ModeCode, False);
+
+  { Pulpit dla niewidomych jako domyślna powłoka — ten sam wzorzec co tryb pracy.
+    Zapisujemy także '0', bo odznaczenie znacznika musi dać się cofnąć; plik jest wartością
+    POCZĄTKOWĄ, a wpis accessible_shell w bazie ma nad nim pierwszeństwo. }
+  if WizardIsTaskSelected('accessibleshell') then AccessibleCode := '1' else AccessibleCode := '0';
+  if AccessibleCode <> ExistingAccessibleCode then
+    SaveStringToFile(AccessibleFilePath, AccessibleCode, False);
 end;

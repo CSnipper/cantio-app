@@ -4,6 +4,8 @@ namespace Cantio.Services;
 public enum DeskKey
 {
     Other, Up, Down, Home, End, Enter, PageUp, PageDown, Escape, F1, F2, F3, F, R, B, S,
+    /// <summary>Panel wpisania klucza licencyjnego (F9).</summary>
+    F9,
     /// <summary>Usuwanie pozycji zestawu; w polu tekstowym należy do PISANIA (kasuje znak).</summary>
     Delete,
     /// <summary>Odczyt całego zestawu (litera L).</summary>
@@ -36,6 +38,12 @@ public enum DeskFocus
     /// a nie na wyniki wyszukiwania pieśni.
     /// </summary>
     SetlistFilterBox,
+    /// <summary>
+    /// Pole klucza LICENCYJNEGO (F9) — jak pozostałe pola tekstowe: litery i cyfry należą do pola.
+    /// Wydzielone, bo tu wkleja się długi ciąg znaków i KAŻDE przypadkowe przechwycenie klawisza
+    /// przez pulpit kasowałoby pracę, której niewidomy użytkownik nie ma jak sprawdzić wzrokiem.
+    /// </summary>
+    LicenseBox,
 }
 
 /// <summary>Co pulpit ma zrobić. <see cref="None"/> = klawisz nieobsłużony, idzie dalej (np. do pola).</summary>
@@ -99,6 +107,13 @@ public enum DeskAction
     /// ale z WŁASNYM uzbrojeniem: to inna operacja i inne pytanie).
     /// </summary>
     DeleteSavedSetlist,
+
+    // ── licencja ─────────────────────────────────────────────────────────────
+
+    /// <summary>F9 — panel wpisania/wklejenia klucza licencyjnego.</summary>
+    OpenLicensePanel,
+    /// <summary>Enter w polu klucza — sprawdź podpis i zapisz.</summary>
+    ConfirmLicense,
 }
 
 /// <summary>
@@ -118,8 +133,8 @@ public static class AccessibleKeys
 {
     /// <summary>
     /// Stan pulpitu potrzebny do rozstrzygnięcia klawisza.
-    /// <c>PanelOpen</c> = otwarty panel zapisu albo otwierania zestawu (Escape zamyka JEGO,
-    /// a nie wyszukiwarkę).
+    /// <c>PanelOpen</c> = otwarty panel zapisu, otwierania zestawu ALBO licencji (Escape zamyka
+    /// JEGO, a nie wyszukiwarkę).
     /// </summary>
     public readonly record struct DeskState(
         DeskFocus Focus,
@@ -136,7 +151,8 @@ public static class AccessibleKeys
     public static DeskAction Route(DeskKey key, bool ctrl, bool shift, bool alt, in DeskState s)
     {
         var focus = s.Focus;
-        bool typing = focus is DeskFocus.SearchBox or DeskFocus.SaveBox or DeskFocus.SetlistFilterBox;
+        bool typing = focus is DeskFocus.SearchBox or DeskFocus.SaveBox
+                              or DeskFocus.SetlistFilterBox or DeskFocus.LicenseBox;
 
         // Prawy Alt (AltGr) = Ctrl+Alt jednocześnie — tak Windows generuje polskie znaki
         // (AltGr+o="ó", AltGr+s="ś" itd.). Bez tego rozróżnienia "Ctrl+O" łapało też AltGr+o
@@ -166,10 +182,21 @@ public static class AccessibleKeys
         switch (key)
         {
             // ── działa wszędzie, także w polu tekstowym ──────────────────────
+            // ...z jednym wyjątkiem: w polu KLUCZA LICENCYJNEGO nic, co otwiera inny panel,
+            // nie ma prawa zadziałać. Operator wkleja tam ciąg 170 znaków, którego nie widzi;
+            // panel zamieniony pod palcami znaczyłby, że wkleja go po raz drugi, nie wiedząc
+            // czemu pierwszy raz „się nie udał".
+            case DeskKey.F3 when focus == DeskFocus.LicenseBox: return DeskAction.None;
             case DeskKey.F3:                    return DeskAction.OpenSearch;
-            case DeskKey.F when ctrlOnly:       return DeskAction.OpenSearch;
+            case DeskKey.F when ctrlOnly:       return focus == DeskFocus.LicenseBox
+                                                    ? DeskAction.None : DeskAction.OpenSearch;
             case DeskKey.F1:                    return DeskAction.AnnounceHelp;
             case DeskKey.F2:                    return DeskAction.AnnounceScreens;
+
+            // F9 — licencja. Klawisz wybrany świadomie: jest wolny na całym pulpicie, nie ma go
+            // w żadnym skrócie z Ctrl/Alt (więc AltGr go nie dotyczy) i nie jest literą, którą
+            // dałoby się wpisać do któregokolwiek pola.
+            case DeskKey.F9:                    return DeskAction.OpenLicensePanel;
 
             // Escape ma JEDNĄ kolejność pierwszeństwa: najpierw zamyka to, co zasłania pulpit
             // (panel zapisu/otwierania), potem wyszukiwarkę, a gdy nic nie jest otwarte — gasi
@@ -188,11 +215,13 @@ public static class AccessibleKeys
 
             // Panele zestawu. W polu NAZWY zapisu Ctrl+S nie robi nic (panel już jest otwarty,
             // a Enter go zatwierdza) — reszta pulpitu otwiera je z każdego miejsca.
-            case DeskKey.S when ctrlOnly: return focus == DeskFocus.SaveBox ? DeskAction.None : DeskAction.OpenSavePanel;
+            case DeskKey.S when ctrlOnly:
+                return focus is DeskFocus.SaveBox or DeskFocus.LicenseBox
+                    ? DeskAction.None : DeskAction.OpenSavePanel;
             // Ctrl+O w polu FILTRA nic nie robi — panel otwierania już jest otwarty, a ponowne
             // otwarcie skasowałoby wpisany filtr (czego niewidomy operator nie miałby jak zauważyć).
             case DeskKey.O when ctrlOnly:
-                return focus is DeskFocus.SaveBox or DeskFocus.SetlistFilterBox
+                return focus is DeskFocus.SaveBox or DeskFocus.SetlistFilterBox or DeskFocus.LicenseBox
                     ? DeskAction.None : DeskAction.OpenSetlistPicker;
 
             case DeskKey.Enter:
@@ -207,6 +236,7 @@ public static class AccessibleKeys
                     // operator w chwili naciśnięcia Enter zna tylko LICZBĘ trafień — wczytanie
                     // „czegoś pierwszego z listy” byłoby wtedy zgadywaniem na oczach wiernych.
                     DeskFocus.SetlistFilterBox => DeskAction.FocusPicker,
+                    DeskFocus.LicenseBox     => DeskAction.ConfirmLicense,
                     _                        => DeskAction.ProjectReadingSlide,
                 };
 
@@ -219,6 +249,7 @@ public static class AccessibleKeys
                     DeskFocus.SearchResults => DeskAction.SearchUp,
                     DeskFocus.SaveBox       => DeskAction.None,
                     DeskFocus.SetlistFilterBox => DeskAction.None, // nad polem filtra nic nie ma
+                    DeskFocus.LicenseBox    => DeskAction.None,
                     DeskFocus.SetlistPicker => DeskAction.PickerUp,
                     _                       => DeskAction.ReadUp,
                 };
@@ -229,6 +260,7 @@ public static class AccessibleKeys
                     DeskFocus.SearchResults => DeskAction.SearchDown,
                     DeskFocus.SaveBox       => DeskAction.None,
                     DeskFocus.SetlistFilterBox => DeskAction.FocusPicker,
+                    DeskFocus.LicenseBox    => DeskAction.None,
                     DeskFocus.SetlistPicker => DeskAction.PickerDown,
                     _                       => DeskAction.ReadDown,
                 };
