@@ -58,6 +58,7 @@ public partial class AccessibleShellViewModel : ObservableObject
     private readonly AnnouncementText _texts;
     private readonly SearchText _searchTexts;
     private readonly SetlistText _setlistTexts;
+    private readonly LicenseText _licenseTexts;
     private readonly AccessibleCursor _pickerCursor = new();
 
     /// <summary>
@@ -121,6 +122,27 @@ public partial class AccessibleShellViewModel : ObservableObject
     /// <summary>Czy jakikolwiek panel zestawu zasłania pulpit (Escape zamyka JEGO).</summary>
     public bool IsSetlistPanelOpen => IsSavePanelOpen || IsPickerOpen;
 
+    // ── Licencja (F9) ────────────────────────────────────────────────────────
+
+    /// <summary>Panel wpisania klucza licencyjnego (F9). Okno pokazuje pole i przenosi do niego fokus.</summary>
+    [ObservableProperty] private bool _isLicensePanelOpen;
+
+    /// <summary>Treść pola klucza — operator wkleja tu ciąg z maila (Ctrl+V).</summary>
+    [ObservableProperty] private string _licenseKeyInput = string.Empty;
+
+    /// <summary>
+    /// „Licencja: Jan Kowalski" albo „Wersja niezarejestrowana”. Widoczne w oknie i ogłaszane
+    /// przy starcie oraz w pomocy F1 — nazwisko właściciela JEST tu zabezpieczeniem, więc nie
+    /// wolno go schować za żadnym dodatkowym krokiem.
+    /// </summary>
+    [ObservableProperty] private string _licenseCaption = string.Empty;
+
+    /// <summary>Czy zapisany klucz przechodzi weryfikację podpisem (wejście dla blokady autora).</summary>
+    public bool IsLicensed { get; private set; }
+
+    /// <summary>Czy JAKIKOLWIEK panel zasłania pulpit — to trafia do mapy klawiszy jako PanelOpen.</summary>
+    public bool IsAnyPanelOpen => IsSetlistPanelOpen || IsLicensePanelOpen;
+
     /// <summary>
     /// Zegar dla wygasania potwierdzenia usunięcia. Wystawiony, bo inaczej „potwierdzenie
     /// wygasa po 5 sekundach" dałoby się sprawdzić wyłącznie testem, który 5 sekund śpi —
@@ -146,6 +168,7 @@ public partial class AccessibleShellViewModel : ObservableObject
         _texts = BuildTexts();
         _searchTexts = BuildSearchTexts();
         _setlistTexts = BuildSetlistTexts();
+        _licenseTexts = BuildLicenseTexts();
         _display.PropertyChanged += OnDisplayPropertyChanged;
     }
 
@@ -169,6 +192,23 @@ public partial class AccessibleShellViewModel : ObservableObject
             Bridge       = L("Acc.KindBridge",   d.Bridge),
             Private      = L("Acc.KindPrivate",  d.Private),
             Image        = L("Acc.KindImage",    d.Image),
+        };
+    }
+
+    /// <summary>To samo dla licencji.</summary>
+    private static LicenseText BuildLicenseTexts()
+    {
+        var d = new LicenseText();
+        return new LicenseText
+        {
+            Registered   = L("Acc.LicenseRegistered",   d.Registered),
+            Unregistered = L("Acc.LicenseUnregistered", d.Unregistered),
+            PanelOpened  = L("Acc.LicensePanelOpened",  d.PanelOpened),
+            PanelClosed  = L("Acc.LicensePanelClosed",  d.PanelClosed),
+            Accepted     = L("Acc.LicenseAccepted",     d.Accepted),
+            Invalid      = L("Acc.LicenseInvalid",      d.Invalid),
+            Empty        = L("Acc.LicenseEmpty",        d.Empty),
+            WrongProduct = L("Acc.LicenseWrongProduct", d.WrongProduct),
         };
     }
 
@@ -280,8 +320,70 @@ public partial class AccessibleShellViewModel : ObservableObject
             }
         }
 
+        await RefreshLicenseAsync();
+
         AnnounceScreens();
         AnnounceSetlist();
+        // Licencja NA KOŃCU, a nie na początku: ostrzeżenie o ekranach i wczytany zestaw są tym,
+        // po co operator siada do pulpitu, a nazwisko właściciela ma zostać w uchu jako ostatnie.
+        Announce(LicenseCaption);
+    }
+
+    // ── Licencja (F9) ────────────────────────────────────────────────────────
+
+    /// <summary>Czyta klucz z bazy, ustawia podpis w oknie i flagę <see cref="IsLicensed"/>.</summary>
+    public async Task RefreshLicenseAsync()
+    {
+        var stored = await _db.GetSettingAsync(LicenseKey.SettingKey);
+        IsLicensed = AccessibleLicense.IsRegistered(stored);
+        LicenseCaption = AccessibleLicense.DescribeStored(stored, _licenseTexts);
+    }
+
+    /// <summary>
+    /// F9 — panel klucza. Pole startuje PUSTE (nie pokazujemy dotychczasowego klucza): jedyne,
+    /// co się tu robi, to wklejenie nowego, a wcześniejsza zawartość musiałaby zostać skasowana
+    /// w ciemno przez osobę, która jej nie widzi.
+    /// </summary>
+    public void OpenLicensePanel()
+    {
+        LicenseKeyInput = string.Empty;
+        IsLicensePanelOpen = true;
+        Announce(_licenseTexts.PanelOpened);
+    }
+
+    public void CloseLicensePanel()
+    {
+        if (!IsLicensePanelOpen) return;
+        IsLicensePanelOpen = false;
+        LicenseKeyInput = string.Empty;
+        Announce(_licenseTexts.PanelClosed);
+    }
+
+    /// <summary>
+    /// Enter w polu klucza. Zwraca true, gdy panel można zamknąć (klucz przyjęty).
+    /// Klucz odrzucony ZOSTAWIA panel otwarty i treść w polu — inaczej operator, który przekręcił
+    /// jeden znak, musiałby wklejać całość od nowa, nie wiedząc nawet, czy coś tam w ogóle było.
+    /// </summary>
+    public async Task<bool> ConfirmLicenseAsync()
+    {
+        var result = AccessibleLicense.Validate(LicenseKeyInput, out var info);
+        if (result != AccessibleLicense.Result.Ok)
+        {
+            Announce(AccessibleLicense.DescribeResult(result, info, _licenseTexts));
+            return false;
+        }
+
+        // Do bazy idzie tekst PO oczyszczeniu z białych znaków — mail potrafi go złamać na kilka
+        // wierszy, a zapisany z nimi klucz przeszedłby dziś (odczyt jest tolerancyjny), lecz
+        // wyglądałby na uszkodzony w każdym późniejszym zgłoszeniu.
+        var normalized = new string(LicenseKeyInput.Where(c => !char.IsWhiteSpace(c)).ToArray());
+        await _db.SaveSettingAsync(LicenseKey.SettingKey, normalized);
+
+        IsLicensePanelOpen = false;
+        LicenseKeyInput = string.Empty;
+        await RefreshLicenseAsync();
+        Announce(AccessibleLicense.DescribeResult(result, info, _licenseTexts));
+        return true;
     }
 
     // ── Kursor CZYTANIA (prywatny — projekcja się nie zmienia) ───────────────
@@ -827,8 +929,19 @@ public partial class AccessibleShellViewModel : ObservableObject
         _pendingDeleteSetlistAt = null;
     }
 
-    partial void OnIsSavePanelOpenChanged(bool value) => OnPropertyChanged(nameof(IsSetlistPanelOpen));
-    partial void OnIsPickerOpenChanged(bool value) => OnPropertyChanged(nameof(IsSetlistPanelOpen));
+    partial void OnIsSavePanelOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsSetlistPanelOpen));
+        OnPropertyChanged(nameof(IsAnyPanelOpen));
+    }
+
+    partial void OnIsPickerOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsSetlistPanelOpen));
+        OnPropertyChanged(nameof(IsAnyPanelOpen));
+    }
+
+    partial void OnIsLicensePanelOpenChanged(bool value) => OnPropertyChanged(nameof(IsAnyPanelOpen));
 
     public void ClosePicker()
     {
@@ -917,7 +1030,12 @@ public partial class AccessibleShellViewModel : ObservableObject
             .Select(s => new ScreenBox(s.WpfBounds.X, s.WpfBounds.Y, s.WpfBounds.Width, s.WpfBounds.Height))
             .ToList();
 
-    public void AnnounceHelp() => Announce(LocalizationManager.Get("Acc.Help"));
+    /// <summary>
+    /// F1 — cała mapa klawiszy, a na końcu stan licencji. Doklejenie nazwiska TUTAJ, a nie do
+    /// klawisza stanu (S), jest świadome: stan operator naciska w trakcie mszy kilkadziesiąt razy
+    /// i słucha go w pośpiechu, a pomoc otwiera się wtedy, gdy szuka informacji o programie.
+    /// </summary>
+    public void AnnounceHelp() => Announce(LocalizationManager.Get("Acc.Help") + " " + LicenseCaption);
 
     // ── Reakcja na zmiany wspólnego rdzenia ──────────────────────────────────
 

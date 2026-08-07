@@ -39,6 +39,7 @@ namespace Cantio.Views;
 ///   Ctrl+Shift+PageUp / PageDown   przenieś pieśń spod kursora zestawu
 ///   Ctrl+S         zapisz zestaw (pole nazwy)
 ///   Ctrl+O         otwórz zapisany zestaw (pole filtra + lista)
+///   F9             klucz licencyjny (wklej Ctrl+V, Enter zatwierdza)
 ///
 /// W trybie wyszukiwania:
 ///   pole tekstowe  wpisz numer albo tytuł, Enter szuka i przenosi na wyniki
@@ -85,6 +86,8 @@ public partial class AccessibleWindow : Window
             "Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje, Delete usuwa."));
         AutomationProperties.SetName(FilterBox, AccessibleShellViewModel.Text("Acc.FilterBoxName",
             "Filtr zestawów. Wpisz fragment nazwy, strzałką w dół przejdź na listę."));
+        AutomationProperties.SetName(LicenseBox, AccessibleShellViewModel.Text("Acc.LicenseBoxName",
+            "Klucz licencyjny. Wklej klucz skrótem Ctrl plus V i naciśnij Enter."));
 
         Loaded += (_, _) => FocusReadingList();
     }
@@ -143,6 +146,9 @@ public partial class AccessibleWindow : Window
 
     /// <summary>Czy fokus stoi w polu FILTRA zapisanych zestawów (trzecie pole tekstowe pulpitu).</summary>
     private bool IsTypingInFilterBox() => ReferenceEquals(Keyboard.FocusedElement, FilterBox);
+
+    /// <summary>Czy fokus stoi w polu KLUCZA LICENCYJNEGO (czwarte pole tekstowe pulpitu).</summary>
+    private bool IsTypingInLicenseBox() => ReferenceEquals(Keyboard.FocusedElement, LicenseBox);
 
     /// <summary>Czy fokus stoi na liście WYNIKÓW (a nie na liście slajdów).</summary>
     private bool IsOnSearchResults()
@@ -245,7 +251,28 @@ public partial class AccessibleWindow : Window
     {
         if (_vm.IsSavePanelOpen) _vm.CloseSavePanel();
         else if (_vm.IsPickerOpen) _vm.ClosePicker();
+        else if (_vm.IsLicensePanelOpen) _vm.CloseLicensePanel();
         FocusReadingList();
+    }
+
+    // ── Licencja (F9) ────────────────────────────────────────────────────────
+
+    private void OpenLicensePanel()
+    {
+        _vm.OpenLicensePanel();
+        // Jak przy pozostałych polach: fokus MUSI wylądować w polu, inaczej Ctrl+V poszłoby
+        // w próżnię, a operator nie miałby jak zauważyć, że nic się nie wkleiło.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            LicenseBox.Focus();
+            LicenseBox.SelectAll();
+        }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    private async void ConfirmLicenseAsync()
+    {
+        if (await _vm.ConfirmLicenseAsync()) FocusReadingList();
+        // Klucz odrzucony: fokus zostaje w polu, żeby dało się wkleić poprawny bez szukania drogi.
     }
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -271,7 +298,7 @@ public partial class AccessibleWindow : Window
         var action = AccessibleKeys.Route(key, ctrl, shift, alt, new AccessibleKeys.DeskState(
             CurrentFocus(), _vm.IsSearchOpen,
             HasResults: SearchList.Items.Count > 0,
-            PanelOpen: _vm.IsSetlistPanelOpen));
+            PanelOpen: _vm.IsAnyPanelOpen));
 
         // Uzbrojone potwierdzenie usunięcia gaśnie po KAŻDYM innym klawiszu — jedno wywołanie
         // dla wszystkich akcji, żeby nowa akcja nie mogła o tym „zapomnieć".
@@ -331,6 +358,9 @@ public partial class AccessibleWindow : Window
             case DeskAction.FocusPicker:       FocusListItem(PickerList); break;
             case DeskAction.DeleteSavedSetlist: DeleteSelectedSetlistAsync(); break;
             case DeskAction.ClosePanel:        ClosePanel(); break;
+
+            case DeskAction.OpenLicensePanel:  OpenLicensePanel(); break;
+            case DeskAction.ConfirmLicense:    ConfirmLicenseAsync(); break;
         }
 
         bool handled = action != DeskAction.None;
@@ -341,6 +371,10 @@ public partial class AccessibleWindow : Window
     private DeskFocus CurrentFocus()
         => IsTypingInSaveBox() ? DeskFocus.SaveBox
          : IsTypingInFilterBox() ? DeskFocus.SetlistFilterBox
+         // MUSI być sprawdzone PRZED SearchBox: IsTypingInSearchBox() odpowiada „tak" na każde
+         // pole tekstowe, więc bez tej linii klucz licencyjny liczyłby się jako zapytanie
+         // wyszukiwarki i Enter szukałby pieśni zamiast zarejestrować licencję.
+         : IsTypingInLicenseBox() ? DeskFocus.LicenseBox
          : IsTypingInSearchBox() ? DeskFocus.SearchBox
          : IsOnSearchResults() ? DeskFocus.SearchResults
          : IsOnPicker() ? DeskFocus.SetlistPicker
@@ -359,6 +393,7 @@ public partial class AccessibleWindow : Window
         Key.F1 => DeskKey.F1,
         Key.F2 => DeskKey.F2,
         Key.F3 => DeskKey.F3,
+        Key.F9 => DeskKey.F9,
         Key.F => DeskKey.F,
         Key.R => DeskKey.R,
         Key.B => DeskKey.B,

@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,8">
@@ -38,6 +39,11 @@
                  się z boku zobaczyć, na czym zadziała Delete. -->
             <TextBlock Text="{Binding SetlistCursorCaption}" TextWrapping="Wrap" Foreground="#8FD3FF"
                        Focusable="False" AutomationProperties.Name="{Binding SetlistCursorCaption}"/>
+            <!-- Licencja. Nazwisko właściciela JEST tu zabezpieczeniem (nikt nie chce, żeby cudzy
+                 komputer ogłaszał jego nazwisko), więc musi być widoczne i słyszalne bez szukania. -->
+            <TextBlock Text="{Binding LicenseCaption}" TextWrapping="Wrap" Foreground="#B8B8B8"
+                       FontSize="16" Margin="0,4,0,0"
+                       Focusable="False" AutomationProperties.Name="{Binding LicenseCaption}"/>
         </StackPanel>
 
         <TextBlock Grid.Row="1" Text="{Binding ProjectionCaption}" TextWrapping="Wrap"
@@ -141,9 +147,20 @@
             </ListBox>
         </StackPanel>
 
+        <!-- Panel LICENCJI (F9). Pole na klucz z maila — wklejanie Ctrl+V działa, bo pulpit nie
+             przechwytuje niczego, czego pole tekstowe używa (zob. AccessibleKeys). -->
+        <StackPanel Grid.Row="6" Margin="0,8,0,0"
+                    Visibility="{Binding IsLicensePanelOpen, Converter={StaticResource BoolToVis}}">
+            <TextBox x:Name="LicenseBox" Margin="0,4,0,0"
+                     Text="{Binding LicenseKeyInput, UpdateSourceTrigger=PropertyChanged}"
+                     Background="#101010" Foreground="White" CaretBrush="White" BorderBrush="#9FE07A"
+                     BorderThickness="2" Padding="8,6" TextWrapping="Wrap" MaxLines="4"
+                     AutomationProperties.Name="{DynamicResource Acc.LicenseBoxName}"/>
+        </StackPanel>
+
         <!-- Live region: WPF podnosi zdarzenie LiveRegionChanged (kod za oknem), NVDA czyta tekst
              bez przenoszenia fokusu. Widoczny też na ekranie — pomocnik widzi to samo, co słychać. -->
-        <Border Grid.Row="6" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
+        <Border Grid.Row="7" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
             <!-- UWAGA: żadnego AutomationProperties.Name na tym elemencie. Czytnik ekranu ogłasza
                  NAZWĘ live region, a nazwą TextBlocka jest domyślnie jego Text — wpisanie tu
                  etykiety („Komunikaty") sprawiłoby, że NVDA po każdej zmianie mówiłby tę etykietę

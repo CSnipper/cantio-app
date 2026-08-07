@@ -374,7 +374,7 @@
     <sys:String x:Key="Acc.ScreensExtended">Projekcja na drugim ekranie, gotowe</sys:String>
     <sys:String x:Key="Acc.ScreensMirrored">Uwaga: rzutnik powiela ekran laptopa — wierni widzą Twój pulpit</sys:String>
     <sys:String x:Key="Acc.ScreensSingle">Uwaga: widzę tylko jeden ekran. Rzutnik jest odłączony albo powiela ekran laptopa — wierni mogą widzieć Twój pulpit</sys:String>
-    <sys:String x:Key="Acc.Help">Klawisze: strzałka w górę i w dół czytają slajdy, nic nie zmieniając wiernym. Page Down i Page Up przesuwają obraz na rzutniku. Kontrol z Page Down i Page Up przechodzi do następnej i poprzedniej pieśni zestawu. Enter wyświetla wiernym slajd, który właśnie czytasz. B wygasza i przywraca ekran. S mówi, co widzą wierni. R powtarza czytany slajd. F2 sprawdza ekrany. Kontrol z F albo F3 otwiera wyszukiwanie pieśni: wpisz numer albo tytuł, naciśnij Enter, strzałkami wybierz pieśń, Enter dodaje ją na koniec zestawu, Kontrol z Enter dodaje i od razu wyświetla, Escape zamyka wyszukiwanie. L czyta cały zestaw po kolei, mówiąc, która pieśń jest na ekranie, a przy której stoisz. Alt ze strzałką w górę i w dół przesuwa kursor po zestawie, nie zmieniając niczego wiernym; Alt z Home i End skacze na pierwszą i ostatnią pieśń zestawu; Alt z Enter wyświetla wiernym pieśń spod kursora. Delete usuwa z zestawu pieśń spod kursora: pierwszy Delete pyta, drugi usuwa, Escape anuluje. Kontrol z Shift i Page Up albo Page Down przenosi pieśń spod kursora o jedno miejsce w zestawie. Kontrol z S zapisuje zestaw: wpisz nazwę i naciśnij Enter. Kontrol z O otwiera zapisany zestaw: wpisz fragment nazwy, strzałką w dół zjedź na listę, wybierz zestaw i naciśnij Enter; Delete na liście usuwa zapisany zestaw z bazy, też dwoma naciśnięciami. F1 to ta pomoc.</sys:String>
+    <sys:String x:Key="Acc.Help">Klawisze: strzałka w górę i w dół czytają slajdy, nic nie zmieniając wiernym. Page Down i Page Up przesuwają obraz na rzutniku. Kontrol z Page Down i Page Up przechodzi do następnej i poprzedniej pieśni zestawu. Enter wyświetla wiernym slajd, który właśnie czytasz. B wygasza i przywraca ekran. S mówi, co widzą wierni. R powtarza czytany slajd. F2 sprawdza ekrany. Kontrol z F albo F3 otwiera wyszukiwanie pieśni: wpisz numer albo tytuł, naciśnij Enter, strzałkami wybierz pieśń, Enter dodaje ją na koniec zestawu, Kontrol z Enter dodaje i od razu wyświetla, Escape zamyka wyszukiwanie. L czyta cały zestaw po kolei, mówiąc, która pieśń jest na ekranie, a przy której stoisz. Alt ze strzałką w górę i w dół przesuwa kursor po zestawie, nie zmieniając niczego wiernym; Alt z Home i End skacze na pierwszą i ostatnią pieśń zestawu; Alt z Enter wyświetla wiernym pieśń spod kursora. Delete usuwa z zestawu pieśń spod kursora: pierwszy Delete pyta, drugi usuwa, Escape anuluje. Kontrol z Shift i Page Up albo Page Down przenosi pieśń spod kursora o jedno miejsce w zestawie. Kontrol z S zapisuje zestaw: wpisz nazwę i naciśnij Enter. Kontrol z O otwiera zapisany zestaw: wpisz fragment nazwy, strzałką w dół zjedź na listę, wybierz zestaw i naciśnij Enter; Delete na liście usuwa zapisany zestaw z bazy, też dwoma naciśnięciami. F9 otwiera wpisanie klucza licencyjnego. F1 to ta pomoc.</sys:String>
     <sys:String x:Key="Acc.SearchBoxName">Szukaj pieśni. Wpisz numer albo tytuł i naciśnij Enter.</sys:String>
     <sys:String x:Key="Acc.SearchListName">Wyniki wyszukiwania. Strzałki góra i dół wybierają pieśń, Enter dodaje ją na koniec zestawu.</sys:String>
     <sys:String x:Key="Acc.SearchOpened">Wyszukiwanie pieśni. Wpisz numer albo tytuł i naciśnij Enter.</sys:String>
@@ -432,5 +432,16 @@
     <sys:String x:Key="Acc.SetlistDeletedNone">Usunięto zestaw: {0}. Nie ma zapisanych zestawów</sys:String>
     <sys:String x:Key="Acc.SetlistDeletedLoaded">Usunięto zestaw: {0}. Pieśni zostały na pulpicie, ale nie są już z niczym powiązane — Kontrol z S zapisze je jako nowy zestaw</sys:String>
     <sys:String x:Key="Acc.SetlistDeleteFailed">Nie udało się usunąć zestawu</sys:String>
+
+    <!-- Licencja pulpitu (F9) -->
+    <sys:String x:Key="Acc.LicenseBoxName">Klucz licencyjny. Wklej klucz skrótem Kontrol plus V i naciśnij Enter.</sys:String>
+    <sys:String x:Key="Acc.LicenseRegistered">Licencja: {0}</sys:String>
+    <sys:String x:Key="Acc.LicenseUnregistered">Wersja niezarejestrowana</sys:String>
+    <sys:String x:Key="Acc.LicensePanelOpened">Klucz licencyjny. Wklej klucz skrótem Kontrol plus V i naciśnij Enter. Escape anuluje.</sys:String>
+    <sys:String x:Key="Acc.LicensePanelClosed">Wpisywanie klucza anulowane</sys:String>
+    <sys:String x:Key="Acc.LicenseAccepted">Licencja zarejestrowana na: {0}</sys:String>
+    <sys:String x:Key="Acc.LicenseInvalid">Klucz nieprawidłowy</sys:String>
+    <sys:String x:Key="Acc.LicenseEmpty">Nie wklejono klucza</sys:String>
+    <sys:String x:Key="Acc.LicenseWrongProduct">Klucz nie jest przeznaczony dla tego programu</sys:String>
 
 </ResourceDictionary>
