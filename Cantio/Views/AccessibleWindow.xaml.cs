@@ -5,6 +5,7 @@ using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Cantio.Views;
 
@@ -29,6 +30,14 @@ namespace Cantio.Views;
 ///   S              powiedz, co widzą wierni
 ///   F2             sprawdź ekrany (powielanie obrazu)
 ///   F1             pomoc — cała mapa klawiszy
+///   Ctrl+F / F3    wyszukiwarka pieśni (etap 2)
+///
+/// W trybie wyszukiwania:
+///   pole tekstowe  wpisz numer albo tytuł, Enter szuka i przenosi na wyniki
+///   ↑ / ↓          po WYNIKACH (czytnik czyta „numer, tytuł")
+///   Enter          dodaj na koniec zestawu (wyszukiwarka zostaje otwarta)
+///   Ctrl+Enter     dodaj i od razu wyświetl wiernym
+///   Escape         zamknij wyszukiwarkę, fokus wraca na listę slajdów
 /// </summary>
 public partial class AccessibleWindow : Window
 {
@@ -50,6 +59,10 @@ public partial class AccessibleWindow : Window
         AutomationProperties.SetName(this, Title);
         AutomationProperties.SetName(ReadingList, AccessibleShellViewModel.Text("Acc.ListName",
             "Slajdy bieżącej pieśni. Strzałki góra i dół czytają slajd, Page Down wyświetla następny wiernym."));
+        AutomationProperties.SetName(SearchBox, AccessibleShellViewModel.Text("Acc.SearchBoxName",
+            "Szukaj pieśni. Wpisz numer albo tytuł i naciśnij Enter."));
+        AutomationProperties.SetName(SearchList, AccessibleShellViewModel.Text("Acc.SearchListName",
+            "Wyniki wyszukiwania. Strzałki góra i dół wybierają pieśń, Enter dodaje ją na koniec zestawu."));
 
         Loaded += (_, _) => FocusReadingList();
     }
@@ -93,6 +106,62 @@ public partial class AccessibleWindow : Window
             item.Focus();
     }
 
+    // ── Wyszukiwarka ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Czy klawisze pisze się teraz W POLU TEKSTOWYM. To JEDYNY warunek rozstrzygający kolizję
+    /// gołych liter (R, B, S) z pisaniem: dopóki fokus jest w polu, litery należą do pola.
+    /// Sprawdzamy realny fokus klawiatury, a nie flagę trybu wyszukiwania — panel bywa otwarty,
+    /// gdy operator stoi już na liście wyników, i tam skróty mają znowu działać.
+    /// </summary>
+    private bool IsTypingInSearchBox() => Keyboard.FocusedElement is TextBox;
+
+    /// <summary>Czy fokus stoi na liście WYNIKÓW (a nie na liście slajdów).</summary>
+    private bool IsOnSearchResults()
+        => _vm.IsSearchOpen && !IsTypingInSearchBox()
+           && (ReferenceEquals(Keyboard.FocusedElement, SearchList)
+               || (Keyboard.FocusedElement is DependencyObject d && IsInside(d, SearchList)));
+
+    private static bool IsInside(DependencyObject node, DependencyObject root)
+    {
+        for (var p = node; p != null; p = VisualTreeHelper.GetParent(p))
+            if (ReferenceEquals(p, root)) return true;
+        return false;
+    }
+
+    private void OpenSearch()
+    {
+        _vm.OpenSearch();
+        // Fokus musi wylądować W POLU — inaczej pierwsza wpisana litera trafiłaby w skrót.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            SearchBox.Focus();
+            SearchBox.SelectAll();
+        }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    private void CloseSearch()
+    {
+        _vm.CloseSearch();
+        FocusReadingList();
+    }
+
+    private async void RunSearchAsync()
+    {
+        if (await _vm.RunSearchAsync()) FocusSearchItem();
+        // Brak wyników: fokus zostaje w polu, żeby dało się poprawić zapytanie bez szukania drogi.
+    }
+
+    private void FocusSearchItem()
+    {
+        if (SearchList.SelectedIndex < 0) return;
+        SearchList.ScrollIntoView(SearchList.SelectedItem);
+        SearchList.UpdateLayout();
+        if (SearchList.ItemContainerGenerator.ContainerFromIndex(SearchList.SelectedIndex)
+            is ListBoxItem item)
+            item.Focus();
+    }
+
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
         // Alt+F4 zostaje systemowy — droga wyjścia musi być zawsze.
@@ -103,32 +172,70 @@ public partial class AccessibleWindow : Window
         }
 
         bool ctrl = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control);
-        bool handled = true;
+        var focus = CurrentFocus();
 
-        switch (e.Key)
+        // O tym, CO robi klawisz, decyduje rdzeń (AccessibleKeys) — tu zostaje samo wykonanie.
+        var action = AccessibleKeys.Route(
+            ToDeskKey(e.Key), ctrl, focus, _vm.IsSearchOpen, hasResults: SearchList.Items.Count > 0);
+
+        switch (action)
         {
-            // ── kursor CZYTANIA — nic nie zmienia wiernym ───────────────────
-            case Key.Up:    _vm.ReadUp();    FocusSelectedItem(); break;
-            case Key.Down:  _vm.ReadDown();  FocusSelectedItem(); break;
-            case Key.Home:  _vm.ReadStart(); FocusSelectedItem(); break;
-            case Key.End:   _vm.ReadEnd();   FocusSelectedItem(); break;
-            case Key.R:     _vm.RepeatReading(); break;
+            case DeskAction.OpenSearch:  OpenSearch(); break;
+            case DeskAction.CloseSearch: CloseSearch(); break;
+            case DeskAction.RunSearch:   RunSearchAsync(); break;
+            case DeskAction.FocusResults: FocusSearchItem(); break;
 
-            // ── kursor PROJEKCJI — to widzą wierni ──────────────────────────
-            case Key.Next:  if (ctrl) _vm.NextSong(); else _vm.ProjectNextSlide(); break;
-            case Key.Prior: if (ctrl) _vm.PrevSong(); else _vm.ProjectPrevSlide(); break;
-            case Key.Enter: _vm.ProjectReadingSlide(); FocusSelectedItem(); break;
-            case Key.B:     _vm.ToggleBlank(); break;
+            case DeskAction.AddToSetlist: _vm.AddSelectedToSetlist(); FocusSearchItem(); break;
+            case DeskAction.AddAndShow:   _vm.AddSelectedToSetlist(alsoShow: true); FocusSearchItem(); break;
+            case DeskAction.SearchUp:     _vm.SearchUp();   FocusSearchItem(); break;
+            case DeskAction.SearchDown:   _vm.SearchDown(); FocusSearchItem(); break;
+            case DeskAction.RepeatSearchResult: _vm.RepeatSearchResult(); break;
 
-            // ── informacja na żądanie ───────────────────────────────────────
-            case Key.S:     _vm.AnnounceStatus(); break;
-            case Key.F2:    _vm.AnnounceScreens(); break;
-            case Key.F1:    _vm.AnnounceHelp(); break;
+            case DeskAction.ReadUp:    _vm.ReadUp();    FocusSelectedItem(); break;
+            case DeskAction.ReadDown:  _vm.ReadDown();  FocusSelectedItem(); break;
+            case DeskAction.ReadStart: _vm.ReadStart(); FocusSelectedItem(); break;
+            case DeskAction.ReadEnd:   _vm.ReadEnd();   FocusSelectedItem(); break;
+            case DeskAction.RepeatReading: _vm.RepeatReading(); break;
+            case DeskAction.ProjectReadingSlide: _vm.ProjectReadingSlide(); FocusSelectedItem(); break;
 
-            default: handled = false; break;
+            case DeskAction.ProjectNextSlide: _vm.ProjectNextSlide(); break;
+            case DeskAction.ProjectPrevSlide: _vm.ProjectPrevSlide(); break;
+            case DeskAction.NextSong: _vm.NextSong(); break;
+            case DeskAction.PrevSong: _vm.PrevSong(); break;
+
+            case DeskAction.ToggleBlank:     _vm.ToggleBlank(); break;
+            case DeskAction.AnnounceStatus:  _vm.AnnounceStatus(); break;
+            case DeskAction.AnnounceScreens: _vm.AnnounceScreens(); break;
+            case DeskAction.AnnounceHelp:    _vm.AnnounceHelp(); break;
         }
 
+        bool handled = action != DeskAction.None;
         e.Handled = handled;
         if (!handled) base.OnPreviewKeyDown(e);
     }
+
+    private DeskFocus CurrentFocus()
+        => IsTypingInSearchBox() ? DeskFocus.SearchBox
+         : IsOnSearchResults() ? DeskFocus.SearchResults
+         : DeskFocus.Slides;
+
+    private static DeskKey ToDeskKey(Key key) => key switch
+    {
+        Key.Up => DeskKey.Up,
+        Key.Down => DeskKey.Down,
+        Key.Home => DeskKey.Home,
+        Key.End => DeskKey.End,
+        Key.Enter => DeskKey.Enter,
+        Key.Next => DeskKey.PageDown,
+        Key.Prior => DeskKey.PageUp,
+        Key.Escape => DeskKey.Escape,
+        Key.F1 => DeskKey.F1,
+        Key.F2 => DeskKey.F2,
+        Key.F3 => DeskKey.F3,
+        Key.F => DeskKey.F,
+        Key.R => DeskKey.R,
+        Key.B => DeskKey.B,
+        Key.S => DeskKey.S,
+        _ => DeskKey.Other,
+    };
 }

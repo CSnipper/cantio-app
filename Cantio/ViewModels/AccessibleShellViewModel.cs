@@ -1,4 +1,5 @@
 using Cantio.Helpers;
+using Cantio.Models;
 using Cantio.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
@@ -12,6 +13,14 @@ public sealed class AccessibleSlideItem
     /// <summary>Tekst, który ma przeczytać czytnik ekranu (nagłówek + treść slajdu).</summary>
     public string Spoken { get; init; } = string.Empty;
     /// <summary>To samo dla widzącego pomocnika na ekranie.</summary>
+    public string Display => Spoken;
+}
+
+/// <summary>Jedna pozycja wyników wyszukiwania („123, Kiedy ranne wstają zorze”).</summary>
+public sealed class AccessibleSearchItem
+{
+    public required Song Song { get; init; }
+    public string Spoken { get; init; } = string.Empty;
     public string Display => Spoken;
 }
 
@@ -35,7 +44,9 @@ public partial class AccessibleShellViewModel : ObservableObject
     private readonly DatabaseService _db;
     private readonly DisplayViewModel _display;
     private readonly AccessibleCursor _cursor = new();
+    private readonly AccessibleCursor _searchCursor = new();
     private readonly AnnouncementText _texts;
+    private readonly SearchText _searchTexts;
 
     /// <summary>Komunikat do live region — okno wypycha go do czytnika ekranu.</summary>
     public event Action<string>? Announced;
@@ -43,6 +54,9 @@ public partial class AccessibleShellViewModel : ObservableObject
     public DisplayViewModel Display => _display;
 
     public ObservableCollection<AccessibleSlideItem> ReadingSlides { get; } = [];
+
+    /// <summary>Wyniki ostatniego wyszukiwania (pusta lista, dopóki nikt nie szukał).</summary>
+    public ObservableCollection<AccessibleSearchItem> SearchResults { get; } = [];
 
     /// <summary>Pozycja kursora CZYTANIA (dwukierunkowo z listą w oknie). Nie rusza projekcji.</summary>
     [ObservableProperty] private int _readingIndex = -1;
@@ -53,11 +67,19 @@ public partial class AccessibleShellViewModel : ObservableObject
     [ObservableProperty] private string _projectionCaption = string.Empty;
     [ObservableProperty] private string _lastAnnouncement = string.Empty;
 
+    /// <summary>Tryb wyszukiwania. Okno używa tego do pokazania panelu I do rozstrzygnięcia klawiszy.</summary>
+    [ObservableProperty] private bool _isSearchOpen;
+    [ObservableProperty] private string _searchQuery = string.Empty;
+    /// <summary>Pozycja kursora WYNIKÓW (dwukierunkowo z listą w oknie).</summary>
+    [ObservableProperty] private int _searchIndex = -1;
+    [ObservableProperty] private string _searchCaption = string.Empty;
+
     public AccessibleShellViewModel(DatabaseService db, DisplayViewModel display)
     {
         _db = db;
         _display = display;
         _texts = BuildTexts();
+        _searchTexts = BuildSearchTexts();
         _display.PropertyChanged += OnDisplayPropertyChanged;
     }
 
@@ -81,6 +103,25 @@ public partial class AccessibleShellViewModel : ObservableObject
             Bridge       = L("Acc.KindBridge",   d.Bridge),
             Private      = L("Acc.KindPrivate",  d.Private),
             Image        = L("Acc.KindImage",    d.Image),
+        };
+    }
+
+    /// <summary>To samo dla wyszukiwarki — rdzeń zna wyłącznie polskie teksty domyślne.</summary>
+    private static SearchText BuildSearchTexts()
+    {
+        var d = new SearchText();
+        return new SearchText
+        {
+            Opened        = L("Acc.SearchOpened",   d.Opened),
+            Closed        = L("Acc.SearchClosed",   d.Closed),
+            FoundOne      = L("Acc.SearchFoundOne", d.FoundOne),
+            FoundMany     = L("Acc.SearchFoundMany", d.FoundMany),
+            NoResults     = L("Acc.SearchNoResults", d.NoResults),
+            EmptyQuery    = L("Acc.SearchEmptyQuery", d.EmptyQuery),
+            Added         = L("Acc.SearchAdded",    d.Added),
+            AddedAndShown = L("Acc.SearchAddedShown", d.AddedAndShown),
+            NoSelection   = L("Acc.SearchNoSelection", d.NoSelection),
+            Untitled      = L("Acc.SearchUntitled", d.Untitled),
         };
     }
 
@@ -182,6 +223,108 @@ public partial class AccessibleShellViewModel : ObservableObject
         _display.ToggleBlankCommand.Execute(null);
         // Ogłoszenie leci z obserwatora ScreenBlanked — jedno miejsce, żeby zmiana zrobiona
         // skądkolwiek indziej (pilot, mysz pomocnika) też była słyszalna.
+    }
+
+    // ── Wyszukiwarka pieśni (etap 2) ─────────────────────────────────────────
+
+    /// <summary>
+    /// Otwiera tryb wyszukiwania. Nie czyści poprzednich wyników — organista, który dodał pieśń
+    /// i wrócił do wyszukiwarki, zwykle chce dołożyć KOLEJNĄ z tej samej listy.
+    /// </summary>
+    public void OpenSearch()
+    {
+        IsSearchOpen = true;
+        Announce(_searchTexts.Opened);
+    }
+
+    /// <summary>Zamyka tryb wyszukiwania; okno oddaje fokus liście slajdów.</summary>
+    public void CloseSearch()
+    {
+        if (!IsSearchOpen) return;
+        IsSearchOpen = false;
+        Announce(_searchTexts.Closed);
+    }
+
+    /// <summary>
+    /// Szuka przez WSPÓLNY <see cref="SongSearch"/> (te same wyniki co u widzącego operatora
+    /// i w Pilocie). Zwraca true, gdy coś znaleziono — okno przenosi wtedy fokus na wyniki.
+    /// </summary>
+    public async Task<bool> RunSearchAsync()
+    {
+        var query = (SearchQuery ?? string.Empty).Trim();
+        if (query.Length == 0)
+        {
+            SetSearchResults([]);
+            Announce(_searchTexts.EmptyQuery);
+            return false;
+        }
+
+        var hits = await _db.SearchSongsAsync(query);
+        SetSearchResults(hits);
+        Announce(AccessibleSearch.DescribeCount(SearchResults.Count, _searchTexts));
+        return SearchResults.Count > 0;
+    }
+
+    private void SetSearchResults(IReadOnlyList<Song> hits)
+    {
+        SearchResults.Clear();
+        foreach (var s in hits)
+            SearchResults.Add(new AccessibleSearchItem
+            {
+                Song = s,
+                Spoken = AccessibleSearch.DescribeResult(s.Number, s.Title, _searchTexts),
+            });
+
+        _searchCursor.Reset(SearchResults.Count);
+        SearchIndex = _searchCursor.Index;
+        SearchCaption = AccessibleSearch.DescribeCount(SearchResults.Count, _searchTexts);
+    }
+
+    public void SearchUp()   => AfterSearchMove(_searchCursor.MoveUp());
+    public void SearchDown() => AfterSearchMove(_searchCursor.MoveDown());
+
+    private void AfterSearchMove(bool moved)
+    {
+        // Jak przy kursorze czytania: ruch czyta czytnik ekranu przez fokus pozycji listy,
+        // live region milczy, żeby nie mówić wszystkiego dwa razy.
+        if (moved) SearchIndex = _searchCursor.Index;
+    }
+
+    partial void OnSearchIndexChanged(int value)
+    {
+        if (value != _searchCursor.Index) _searchCursor.MoveTo(value);
+    }
+
+    /// <summary>Powtórzenie odczytu bieżącego wyniku (klawisz R w trybie wyszukiwania).</summary>
+    public void RepeatSearchResult()
+    {
+        if (!_searchCursor.HasPosition) { Announce(_searchTexts.NoSelection); return; }
+        Announce(SearchResults[_searchCursor.Index].Spoken);
+    }
+
+    /// <summary>
+    /// Dokłada zaznaczony wynik na koniec zestawu. Wyszukiwarka ZOSTAJE otwarta — organista
+    /// przygotowuje całą mszę jednym ciągiem, a zamykanie panelu po każdej pieśni kazałoby mu
+    /// od nowa szukać drogi do pola.
+    /// </summary>
+    /// <param name="alsoShow">Ctrl+Enter: dodaj i od razu wyświetl wiernym.</param>
+    public void AddSelectedToSetlist(bool alsoShow = false)
+    {
+        if (!_searchCursor.HasPosition) { Announce(_searchTexts.NoSelection); return; }
+        var song = SearchResults[_searchCursor.Index].Song;
+
+        var item = _display.AppendSongToSetlist(song);
+        // Pusty zestaw: pierwsza pieśń jest ładowana już przez AppendSongToSetlist — drugie
+        // wczytanie tylko przewinęłoby slajdy na początek i skasowało kursor czytania.
+        if (alsoShow && !ReferenceEquals(_display.SelectedSetlistItem, item))
+            _display.DisplaySetlistItemCommand.Execute(item);
+
+        // Pozycja liczona z ZESTAWU, nie z licznika dodań: gdy zestaw był pusty, dołożona pieśń
+        // od razu staje się bieżąca i to jedyny sygnał, po którym niewidomy to pozna.
+        int position = _display.SetlistItems.IndexOf(item) + 1;
+        SetlistCaption = LocalizationManager.Format("Acc.SetlistLoaded",
+            _display.SetlistName, _display.SetlistItems.Count);
+        Announce(AccessibleSearch.DescribeAdded(song.Title, position, alsoShow, _searchTexts));
     }
 
     // ── Ogłoszenia na żądanie ────────────────────────────────────────────────
