@@ -373,6 +373,18 @@
     <sys:String x:Key="Acc.ScreensExtended">Projection on the second screen, ready</sys:String>
     <sys:String x:Key="Acc.ScreensMirrored">Warning: the projector mirrors your laptop screen — the congregation sees your desktop</sys:String>
     <sys:String x:Key="Acc.ScreensSingle">Warning: I can see only one screen. The projector is disconnected or mirrors your laptop — the congregation may see your desktop</sys:String>
-    <sys:String x:Key="Acc.Help">Keys: up and down arrows read slides without changing what the congregation sees. Page Down and Page Up move the projected image. Control with Page Down and Page Up moves to the next and previous song of the setlist. Enter projects the slide you are reading. B blanks and restores the screen. S tells what the congregation sees. R repeats the slide being read. F2 checks the screens. F1 is this help.</sys:String>
+    <sys:String x:Key="Acc.Help">Keys: up and down arrows read slides without changing what the congregation sees. Page Down and Page Up move the projected image. Control with Page Down and Page Up moves to the next and previous song of the setlist. Enter projects the slide you are reading. B blanks and restores the screen. S tells what the congregation sees. R repeats the slide being read. F2 checks the screens. Control with F or F3 opens song search: type a number or title, press Enter, pick a song with the arrows, Enter adds it to the end of the setlist, Control with Enter adds and projects it at once, Escape closes the search. F1 is this help.</sys:String>
+    <sys:String x:Key="Acc.SearchBoxName">Search songs. Type a number or title and press Enter.</sys:String>
+    <sys:String x:Key="Acc.SearchListName">Search results. Up and down arrows select a song, Enter adds it to the end of the setlist.</sys:String>
+    <sys:String x:Key="Acc.SearchOpened">Song search. Type a number or title and press Enter.</sys:String>
+    <sys:String x:Key="Acc.SearchClosed">Search closed</sys:String>
+    <sys:String x:Key="Acc.SearchFoundOne">Found 1 song</sys:String>
+    <sys:String x:Key="Acc.SearchFoundMany">Found {0} songs</sys:String>
+    <sys:String x:Key="Acc.SearchNoResults">No results</sys:String>
+    <sys:String x:Key="Acc.SearchEmptyQuery">Type a song number or title</sys:String>
+    <sys:String x:Key="Acc.SearchAdded">Added: {0}, position {1}</sys:String>
+    <sys:String x:Key="Acc.SearchAddedShown">Added and projected: {0}, position {1}</sys:String>
+    <sys:String x:Key="Acc.SearchNoSelection">No song selected</sys:String>
+    <sys:String x:Key="Acc.SearchUntitled">song without a title</sys:String>
 
 </ResourceDictionary>

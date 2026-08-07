@@ -1238,6 +1238,22 @@ public partial class DisplayViewModel : ObservableObject
             LoadSongFromSetlist(newItem);
     }
 
+    /// <summary>
+    /// Dokłada pieśń na KONIEC zestawu i zwraca nową pozycję. Osobno od <see cref="AddToSetlist"/>,
+    /// bo tamta wstawia ZA bieżącą pieśnią (dorzucenie utworu w trakcie mszy), a przygotowanie
+    /// całej liturgii z wyszukiwarki wymaga dokładania po kolei na koniec. Reguła z v1.49
+    /// (dodanie w trakcie projekcji nie zmienia obrazu wiernym) zostaje: pieśń jest ładowana
+    /// tylko wtedy, gdy zestaw był pusty i nie ma czego popsuć.
+    /// </summary>
+    public SetlistItem AppendSongToSetlist(Song song)
+    {
+        var newItem = new SetlistItem { Song = song, SongId = song.Id, Type = "song" };
+        SetlistItems.Add(newItem);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
+        if (SelectedSetlistItem == null) LoadSongFromSetlist(newItem);
+        return newItem;
+    }
+
     [RelayCommand]
     private void RemoveFromSetlist(SetlistItem item)
     {

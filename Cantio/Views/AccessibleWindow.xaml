@@ -13,11 +13,16 @@
          przez UI Automation. Wygląd (duży kontrast, duża czcionka) jest dla osoby słabowidzącej
          i dla widzącego pomocnika przy pierwszym uruchomieniu. -->
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -53,9 +58,41 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+        <!-- Wyszukiwarka pieśni (Ctrl+F / F3). Cały panel istnieje tylko w trybie wyszukiwania —
+             ukryty jest Collapsed, więc drzewo UI Automation nie ma w sobie pola tekstowego,
+             po którym czytnik ekranu mógłby zawędrować tam, gdzie nic nie działa. -->
+        <StackPanel Grid.Row="3" Margin="0,8,0,0"
+                    Visibility="{Binding IsSearchOpen, Converter={StaticResource BoolToVis}}">
+            <TextBox x:Name="SearchBox" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                     Background="#101010" Foreground="White" CaretBrush="White" BorderBrush="#7AB8FF"
+                     BorderThickness="2" Padding="8,6"
+                     AutomationProperties.Name="{DynamicResource Acc.SearchBoxName}"/>
+            <TextBlock Text="{Binding SearchCaption}" Foreground="#7AB8FF" Margin="0,4,0,0"
+                       TextWrapping="Wrap" Focusable="False"/>
+            <ListBox x:Name="SearchList" MaxHeight="220" Margin="0,4,0,0"
+                     ItemsSource="{Binding SearchResults}"
+                     SelectedIndex="{Binding SearchIndex, Mode=TwoWay}"
+                     Background="#101010" Foreground="White" BorderBrush="#404040"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="{DynamicResource Acc.SearchListName}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="AutomationProperties.Name" Value="{Binding Spoken}"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Display}" TextWrapping="Wrap"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
         <!-- Live region: WPF podnosi zdarzenie LiveRegionChanged (kod za oknem), NVDA czyta tekst
              bez przenoszenia fokusu. Widoczny też na ekranie — pomocnik widzi to samo, co słychać. -->
-        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
+        <Border Grid.Row="4" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
             <!-- UWAGA: żadnego AutomationProperties.Name na tym elemencie. Czytnik ekranu ogłasza
                  NAZWĘ live region, a nazwą TextBlocka jest domyślnie jego Text — wpisanie tu
                  etykiety („Komunikaty") sprawiłoby, że NVDA po każdej zmianie mówiłby tę etykietę
