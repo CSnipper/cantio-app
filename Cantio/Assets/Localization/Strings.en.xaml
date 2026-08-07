@@ -350,4 +350,29 @@
     <sys:String x:Key="TextItem.SaveToDatabaseHint">Permanent — creates a song in the selected category and adds it to the setlist.</sys:String>
     <sys:String x:Key="TextItem.Edit">Edit one-off text</sys:String>
 
+    <!-- Blind organist desk (screen reader) -->
+    <sys:String x:Key="Acc.WindowTitle">Cantio — blind organist desk</sys:String>
+    <sys:String x:Key="Acc.ListName">Slides of the current song. Up and down arrows read a slide, Page Down shows the next one to the congregation.</sys:String>
+    <sys:String x:Key="Acc.LiveName">Announcements</sys:String>
+    <sys:String x:Key="Acc.ViewersSee">The congregation sees: {0}</sys:String>
+    <sys:String x:Key="Acc.SlideOfCount">slide {0} of {1}</sys:String>
+    <sys:String x:Key="Acc.Blanked">Screen blanked</sys:String>
+    <sys:String x:Key="Acc.Restored">Screen restored</sys:String>
+    <sys:String x:Key="Acc.Nothing">nothing is displayed</sys:String>
+    <sys:String x:Key="Acc.KindVerse">verse</sys:String>
+    <sys:String x:Key="Acc.KindChorus">chorus</sys:String>
+    <sys:String x:Key="Acc.KindBridge">bridge</sys:String>
+    <sys:String x:Key="Acc.KindPrivate">private verse</sys:String>
+    <sys:String x:Key="Acc.KindImage">image</sys:String>
+    <sys:String x:Key="Acc.Prepared">Ready: {0}</sys:String>
+    <sys:String x:Key="Acc.OperatorOnly">For you only: {0}</sys:String>
+    <sys:String x:Key="Acc.AtFirstSlide">First slide of the song</sys:String>
+    <sys:String x:Key="Acc.AtLastSlide">Last slide of the song</sys:String>
+    <sys:String x:Key="Acc.NoSetlist">No setlist loaded</sys:String>
+    <sys:String x:Key="Acc.SetlistLoaded">Setlist loaded: {0}, songs: {1}</sys:String>
+    <sys:String x:Key="Acc.ScreensExtended">Projection on the second screen, ready</sys:String>
+    <sys:String x:Key="Acc.ScreensMirrored">Warning: the projector mirrors your laptop screen — the congregation sees your desktop</sys:String>
+    <sys:String x:Key="Acc.ScreensSingle">Warning: I can see only one screen. The projector is disconnected or mirrors your laptop — the congregation may see your desktop</sys:String>
+    <sys:String x:Key="Acc.Help">Keys: up and down arrows read slides without changing what the congregation sees. Page Down and Page Up move the projected image. Control with Page Down and Page Up moves to the next and previous song of the setlist. Enter projects the slide you are reading. B blanks and restores the screen. S tells what the congregation sees. R repeats the slide being read. F2 checks the screens. F1 is this help.</sys:String>
+
 </ResourceDictionary>

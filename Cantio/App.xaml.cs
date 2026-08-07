@@ -111,6 +111,19 @@ public partial class App : Application
             // Nic nie zmienia w bazie — u kogo takich zestawów nie ma, nie zapisuje nawet linii.
             await AdventArtifactScan.ScanAndLogAsync(db);
 
+            // Pulpit organisty niewidomego — OSOBNA powłoka nad tym samym rdzeniem (baza, slajdy,
+            // okno projekcji). Wybór zapada tutaj i jest rozłączny: albo zwykłe okno, albo pulpit
+            // dostępny. Argument wiersza poleceń pozwala zrobić drugi skrót w menu Start, żeby
+            // niewidomy uruchamiał swój pulpit bez pomocy widzącego.
+            if (AccessibleShellMode.IsRequested(e.Args, await db.GetSettingAsync(AccessibleShellMode.SettingKey)))
+            {
+                var accessible = new Views.AccessibleWindow(db);
+                MainWindow = accessible;     // DisplayViewModel aktywuje MainWindow po otwarciu projekcji
+                accessible.Show();
+                await accessible.StartAsync();
+                return;
+            }
+
             var window = new MainWindow(db);
             if (AppModeRules.ShouldShowMainWindow(AppMode.Current))
             {

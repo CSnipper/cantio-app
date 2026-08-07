@@ -1,0 +1,68 @@
+﻿<Window x:Class="Cantio.Views.AccessibleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="{DynamicResource Acc.WindowTitle}"
+        Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="Black" Foreground="White"
+        FontSize="22"
+        AutomationProperties.Name="{DynamicResource Acc.WindowTitle}">
+
+    <!-- Pulpit dla operatora niewidomego: obsługa WYŁĄCZNIE klawiaturą, wszystko czyta NVDA
+         przez UI Automation. Wygląd (duży kontrast, duża czcionka) jest dla osoby słabowidzącej
+         i dla widzącego pomocnika przy pierwszym uruchomieniu. -->
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock Text="{Binding SetlistCaption}" FontWeight="Bold" TextWrapping="Wrap"
+                       Focusable="False" AutomationProperties.Name="{Binding SetlistCaption}"/>
+            <TextBlock Text="{Binding SongCaption}" TextWrapping="Wrap" Foreground="#FFD37A"
+                       Focusable="False" AutomationProperties.Name="{Binding SongCaption}"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" Text="{Binding ProjectionCaption}" TextWrapping="Wrap"
+                   Foreground="#9FE07A" Margin="0,0,0,8" Focusable="False"/>
+
+        <!-- Lista czytania. Fokus na pozycji = czytnik ekranu odczytuje jej AutomationProperties.Name
+             (pełna treść slajdu). Zmiana zaznaczenia NIE rusza projekcji. -->
+        <ListBox Grid.Row="2" x:Name="ReadingList"
+                 ItemsSource="{Binding ReadingSlides}"
+                 SelectedIndex="{Binding ReadingIndex, Mode=TwoWay}"
+                 Background="#101010" Foreground="White" BorderBrush="#404040"
+                 HorizontalContentAlignment="Stretch"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 AutomationProperties.Name="{DynamicResource Acc.ListName}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="AutomationProperties.Name" Value="{Binding Spoken}"/>
+                    <Setter Property="Padding" Value="8,6"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Display}" TextWrapping="Wrap"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Live region: WPF podnosi zdarzenie LiveRegionChanged (kod za oknem), NVDA czyta tekst
+             bez przenoszenia fokusu. Widoczny też na ekranie — pomocnik widzi to samo, co słychać. -->
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
+            <!-- UWAGA: żadnego AutomationProperties.Name na tym elemencie. Czytnik ekranu ogłasza
+                 NAZWĘ live region, a nazwą TextBlocka jest domyślnie jego Text — wpisanie tu
+                 etykiety („Komunikaty") sprawiłoby, że NVDA po każdej zmianie mówiłby tę etykietę
+                 zamiast komunikatu. -->
+            <TextBlock x:Name="LiveRegion" Text="{Binding LastAnnouncement}" TextWrapping="Wrap"
+                       Focusable="False"
+                       AutomationProperties.LiveSetting="Assertive"/>
+        </Border>
+    </Grid>
+</Window>
