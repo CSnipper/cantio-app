@@ -33,6 +33,11 @@
                        Focusable="False" AutomationProperties.Name="{Binding SetlistCaption}"/>
             <TextBlock Text="{Binding SongCaption}" TextWrapping="Wrap" Foreground="#FFD37A"
                        Focusable="False" AutomationProperties.Name="{Binding SongCaption}"/>
+            <!-- Kursor ZESTAWU (Alt + strzałki). Dla niewidomego mówi go live region; ten podpis
+                 jest dla widzącego pomocnika i dla zrzutu ekranu w zgłoszeniu — bez niego nie da
+                 się z boku zobaczyć, na czym zadziała Delete. -->
+            <TextBlock Text="{Binding SetlistCursorCaption}" TextWrapping="Wrap" Foreground="#8FD3FF"
+                       Focusable="False" AutomationProperties.Name="{Binding SetlistCursorCaption}"/>
         </StackPanel>
 
         <TextBlock Grid.Row="1" Text="{Binding ProjectionCaption}" TextWrapping="Wrap"
@@ -107,6 +112,14 @@
                     Visibility="{Binding IsPickerOpen, Converter={StaticResource BoolToVis}}">
             <TextBlock Text="{Binding PickerCaption}" Foreground="#FFD37A" TextWrapping="Wrap"
                        Focusable="False"/>
+            <!-- Pole FILTRA. Organista ma kilkaset zapisanych zestawów — bez filtra lista jest
+                 ze słuchu nie do przejścia. Filtruje po każdym znaku; ogłaszana jest sama LICZBA
+                 trafień, więc pisanie nie tonie w komunikatach. -->
+            <TextBox x:Name="FilterBox" Margin="0,4,0,0"
+                     Text="{Binding PickerFilter, UpdateSourceTrigger=PropertyChanged}"
+                     Background="#101010" Foreground="White" CaretBrush="White" BorderBrush="#FFD37A"
+                     BorderThickness="2" Padding="8,6"
+                     AutomationProperties.Name="{DynamicResource Acc.FilterBoxName}"/>
             <ListBox x:Name="PickerList" MaxHeight="220" Margin="0,4,0,0"
                      ItemsSource="{Binding SavedSetlists}"
                      SelectedIndex="{Binding PickerIndex, Mode=TwoWay}"

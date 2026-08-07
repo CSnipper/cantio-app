@@ -1312,6 +1312,18 @@ public partial class DisplayViewModel : ObservableObject
     public int LoadedSetlistId => _loadedSetlistId;
 
     /// <summary>
+    /// Zestaw wczytany na pulpicie przestał istnieć w bazie (operator skasował go z panelu
+    /// otwierania). Pieśni ZOSTAJĄ na pulpicie — w środku mszy wyczyszczenie ich byłoby
+    /// nieporównanie gorsze niż zgubione powiązanie — traci się wyłącznie wskazanie na rekord,
+    /// więc kolejne „Ctrl+S, Enter” założy nowy zestaw, zamiast szukać skasowanego Id.
+    /// </summary>
+    public void DetachLoadedSetlist()
+    {
+        _loadedSetlistId = 0;
+        _loadedSetlistName = "";
+    }
+
+    /// <summary>
     /// Zapis zestawu BEZ okna dialogowego — dla pulpitu organisty niewidomego, który okna
     /// <c>ConfirmOverwriteWindow</c> nie zobaczy (a modalne okno bez odczytu to dla niego
     /// zawieszony program). O nadpisaniu decyduje wołający (<see cref="AccessibleSetlist.DecideSave"/>),

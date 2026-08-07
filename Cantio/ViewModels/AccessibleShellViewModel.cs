@@ -60,6 +60,12 @@ public partial class AccessibleShellViewModel : ObservableObject
     private readonly SetlistText _setlistTexts;
     private readonly AccessibleCursor _pickerCursor = new();
 
+    /// <summary>
+    /// TRZECI kursor — pozycja w ZESTAWIE (Alt + strzałki). Niezależny od kursora czytania
+    /// i od projekcji; to na nim działają Delete i przenoszenie. Zob. <see cref="SetlistCursorDown"/>.
+    /// </summary>
+    private readonly AccessibleCursor _setlistCursor = new();
+
     /// <summary>Komunikat do live region — okno wypycha go do czytnika ekranu.</summary>
     public event Action<string>? Announced;
 
@@ -95,8 +101,22 @@ public partial class AccessibleShellViewModel : ObservableObject
     [ObservableProperty] private int _pickerIndex = -1;
     [ObservableProperty] private string _pickerCaption = string.Empty;
 
-    /// <summary>Zapisane zestawy — wypełniane dopiero przy otwarciu panelu (Ctrl+O).</summary>
+    /// <summary>
+    /// Filtr listy zapisanych zestawów. Powód istnienia: organista ma ich kilkaset, a strzałkami
+    /// przejść się przez taką listę ze słuchu nie da. Filtruje NA BIEŻĄCO (nie po Enterze jak
+    /// wyszukiwarka pieśni), bo tutaj po każdym znaku ogłaszana jest tylko LICZBA trafień —
+    /// krótka i nie zagłusza pisania.
+    /// </summary>
+    [ObservableProperty] private string _pickerFilter = string.Empty;
+
+    /// <summary>Zapisane zestawy PO filtrze — to jest lista, po której chodzi kursor panelu.</summary>
     public ObservableCollection<AccessibleSetlistEntry> SavedSetlists { get; } = [];
+
+    /// <summary>Wszystkie zapisane zestawy (bez filtra) — źródło dla <see cref="SavedSetlists"/>.</summary>
+    private readonly List<AccessibleSetlistEntry> _allSetlists = [];
+
+    /// <summary>Pozycja kursora ZESTAWU (podpis dla widzącego pomocnika; -1 = pusty zestaw).</summary>
+    [ObservableProperty] private string _setlistCursorCaption = string.Empty;
 
     /// <summary>Czy jakikolwiek panel zestawu zasłania pulpit (Escape zamyka JEGO).</summary>
     public bool IsSetlistPanelOpen => IsSavePanelOpen || IsPickerOpen;
@@ -108,9 +128,16 @@ public partial class AccessibleShellViewModel : ObservableObject
     /// </summary>
     public Func<DateTime> Clock { get; set; } = () => DateTime.UtcNow;
 
-    // Uzbrojone potwierdzenie usunięcia: KTÓREJ pozycji dotyczy i KIEDY zadaliśmy pytanie.
+    // Uzbrojone potwierdzenie usunięcia PIEŚNI: KTÓREJ pozycji dotyczy i KIEDY zadaliśmy pytanie.
     private int? _pendingRemoveIndex;
     private DateTime? _pendingRemoveAt;
+
+    // Uzbrojone potwierdzenie usunięcia ZAPISANEGO ZESTAWU — CELOWO osobne pola, nie te same.
+    // Wspólne uzbrojenie znaczyłoby, że pytanie „usunąć pieśń?” da się potwierdzić Delete'em
+    // w panelu otwierania (i odwrotnie), a niewidomy operator nie ma jak sprawdzić, gdzie stoi
+    // fokus — skasowałby cudzą pracę, będąc pewnym, że odpowiada na zupełnie inne pytanie.
+    private int? _pendingDeleteSetlistId;
+    private DateTime? _pendingDeleteSetlistAt;
 
     public AccessibleShellViewModel(DatabaseService db, DisplayViewModel display)
     {
@@ -174,6 +201,8 @@ public partial class AccessibleShellViewModel : ObservableObject
             ListHeaderOne   = L("Acc.SetlistHeaderOne",   d.ListHeaderOne),
             Empty           = L("Acc.SetlistEmpty",       d.Empty),
             CurrentMark     = L("Acc.SetlistCurrentMark", d.CurrentMark),
+            PointerMark     = L("Acc.SetlistPointerMark", d.PointerMark),
+            Position        = L("Acc.SetlistPosition",    d.Position),
             ConfirmRemove   = L("Acc.SetlistConfirmRemove", d.ConfirmRemove),
             Removed         = L("Acc.SetlistRemoved",     d.Removed),
             RemovedOne      = L("Acc.SetlistRemovedOne",  d.RemovedOne),
@@ -200,6 +229,16 @@ public partial class AccessibleShellViewModel : ObservableObject
             NoSelection     = L("Acc.SetlistNoSelection", d.NoSelection),
             Untitled        = L("Acc.SearchUntitled",     d.Untitled),
             UnnamedSetlist  = L("Acc.SetlistUnnamed",     d.UnnamedSetlist),
+            FilterMatchMany = L("Acc.SetlistFilterMany",  d.FilterMatchMany),
+            FilterMatchOne  = L("Acc.SetlistFilterOne",   d.FilterMatchOne),
+            FilterMatchNone = L("Acc.SetlistFilterNone",  d.FilterMatchNone),
+            DeleteConfirm       = L("Acc.SetlistDeleteConfirm",       d.DeleteConfirm),
+            DeleteConfirmLoaded = L("Acc.SetlistDeleteConfirmLoaded", d.DeleteConfirmLoaded),
+            Deleted             = L("Acc.SetlistDeleted",             d.Deleted),
+            DeletedOne          = L("Acc.SetlistDeletedOne",          d.DeletedOne),
+            DeletedNone         = L("Acc.SetlistDeletedNone",         d.DeletedNone),
+            DeletedLoaded       = L("Acc.SetlistDeletedLoaded",       d.DeletedLoaded),
+            DeleteFailed        = L("Acc.SetlistDeleteFailed",        d.DeleteFailed),
         };
     }
 
@@ -404,15 +443,107 @@ public partial class AccessibleShellViewModel : ObservableObject
         Announce(AccessibleSearch.DescribeAdded(song.Title, position, alsoShow, _searchTexts));
     }
 
-    // ── Zarządzanie zestawem (etap 2) ────────────────────────────────────────
+    // ── Zarządzanie zestawem (etapy 2-3) ─────────────────────────────────────
     //
-    // BIEŻĄCA pieśń zestawu to ta, którą pulpit ma wczytaną (`SelectedSetlistItem`) — ta sama,
-    // po której chodzi Ctrl+Page Up/Down. Usuwanie i przenoszenie działają WYŁĄCZNIE na niej,
-    // bo to jedyna pozycja, o której niewidomy operator wie na pewno, gdzie jest.
+    // BIEŻĄCA pieśń zestawu to ta, którą widzą wierni (`SelectedSetlistItem`) — ta sama, po której
+    // chodzi Ctrl+Page Up/Down. Od etapu 3 usuwanie i przenoszenie NIE działają na niej, tylko na
+    // KURSORZE ZESTAWU (Alt + strzałki): dojście do pieśni bieżącej zmieniało obraz na rzutniku,
+    // więc wyrzucenie z zestawu czwartej pieśni kosztowało przewinięcie projekcji na oczach wiernych.
 
     /// <summary>Indeks bieżącej pozycji zestawu (-1 = żadna).</summary>
     private int CurrentSetlistIndex =>
         _display.SelectedSetlistItem is { } item ? _display.SetlistItems.IndexOf(item) : -1;
+
+    // ── TRZECI kursor: pozycja w zestawie (Alt + strzałki) ───────────────────
+
+    /// <summary>Pozycja kursora ZESTAWU (-1 = pusty zestaw). Wystawione dla testów i podpisu.</summary>
+    public int SetlistCursorIndex
+    {
+        get { SyncCursorCount(); return _setlistCursor.Index; }
+    }
+
+    /// <summary>
+    /// Liczba pozycji zmienia się poza tym kursorem (dodanie z wyszukiwarki, wczytanie zestawu,
+    /// synchronizacja z Pilotem), więc przed każdym użyciem sprawdzamy ją na nowo. Bez tego kursor
+    /// chodziłby po nieaktualnej długości i cicho odmawiałby ruchu na końcu zestawu.
+    /// </summary>
+    private void SyncCursorCount()
+    {
+        int count = _display.SetlistItems.Count;
+        if (_setlistCursor.Count != count) _setlistCursor.Reset(count, _setlistCursor.Index);
+    }
+
+    /// <summary>Ustawia kursor zestawu na konkretnej pozycji (bez ogłaszania).</summary>
+    private void SetSetlistCursor(int index)
+    {
+        _setlistCursor.Reset(_display.SetlistItems.Count, index < 0 ? 0 : index);
+        UpdateSetlistCursorCaption();
+    }
+
+    public void SetlistCursorUp()    => AfterSetlistCursorMove(MoveCursor(-1), _setlistTexts.AtFirst);
+    public void SetlistCursorDown()  => AfterSetlistCursorMove(MoveCursor(+1), _setlistTexts.AtLast);
+    public void SetlistCursorFirst() => AfterSetlistCursorMove(MoveCursorTo(0), _setlistTexts.AtFirst);
+    public void SetlistCursorLast()
+        => AfterSetlistCursorMove(MoveCursorTo(_display.SetlistItems.Count - 1), _setlistTexts.AtLast);
+
+    private bool MoveCursor(int delta)
+    {
+        SyncCursorCount();
+        return delta < 0 ? _setlistCursor.MoveUp() : _setlistCursor.MoveDown();
+    }
+
+    private bool MoveCursorTo(int index)
+    {
+        SyncCursorCount();
+        return _setlistCursor.MoveTo(index);
+    }
+
+    /// <summary>
+    /// Ogłoszenie po ruchu kursora zestawu. W przeciwieństwie do kursora CZYTANIA mówi tu live
+    /// region, a nie fokus listy: kursor zestawu nie ma własnej listy w oknie (fokus zostaje na
+    /// slajdach bieżącej pieśni), więc bez ogłoszenia ruch byłby zupełnie niesłyszalny.
+    /// </summary>
+    private void AfterSetlistCursorMove(bool moved, string atEdge)
+    {
+        SyncCursorCount();
+        UpdateSetlistCursorCaption();
+        if (!_setlistCursor.HasPosition) { Announce(_setlistTexts.Empty); return; }
+        if (!moved) { Announce(atEdge); return; }
+        AnnounceSetlistCursor();
+    }
+
+    private void AnnounceSetlistCursor()
+    {
+        int i = _setlistCursor.Index;
+        Announce(AccessibleSetlist.DescribePosition(
+            ItemTitle(_display.SetlistItems[i]), i, _display.SetlistItems.Count, _setlistTexts));
+    }
+
+    /// <summary>
+    /// Alt+Enter — JEDYNY most z kursora zestawu do rzutnika. Wszystko inne, co robi ten kursor,
+    /// jest dla wiernych niewidoczne, więc wyświetlenie musi być jawnym poleceniem.
+    /// </summary>
+    public void ShowSetlistCursorSong()
+    {
+        SyncCursorCount();
+        if (!_setlistCursor.HasPosition) { Announce(_setlistTexts.Empty); return; }
+
+        var item = _display.SetlistItems[_setlistCursor.Index];
+        int before = _announceCount;
+        _display.DisplaySetlistItemCommand.Execute(item);
+        // Gdy pieśń spod kursora JUŻ była na ekranie, nic się nie zmienia i nic samo nie zabrzmi —
+        // a operator musi dostać odpowiedź na każde naciśnięcie klawisza.
+        if (_announceCount == before) AnnounceStatus();
+    }
+
+    private void UpdateSetlistCursorCaption()
+    {
+        int i = _setlistCursor.Index;
+        SetlistCursorCaption = i < 0 || i >= _display.SetlistItems.Count
+            ? string.Empty
+            : AccessibleSetlist.DescribePosition(
+                ItemTitle(_display.SetlistItems[i]), i, _display.SetlistItems.Count, _setlistTexts);
+    }
 
     /// <summary>Tytuł pozycji zestawu dla czytnika: pieśń, tekst jednorazowy albo obrazek.</summary>
     private string ItemTitle(SetlistItem item)
@@ -427,7 +558,8 @@ public partial class AccessibleShellViewModel : ObservableObject
     public void ReadSetlist()
     {
         var titles = _display.SetlistItems.Select(i => (string?)ItemTitle(i)).ToList();
-        Announce(AccessibleSetlist.DescribeSetlist(titles, CurrentSetlistIndex, _setlistTexts));
+        Announce(AccessibleSetlist.DescribeSetlist(
+            titles, CurrentSetlistIndex, _setlistTexts, SetlistCursorIndex));
     }
 
     /// <summary>
@@ -438,7 +570,9 @@ public partial class AccessibleShellViewModel : ObservableObject
     /// </summary>
     public void RemoveCurrentFromSetlist()
     {
-        int index = CurrentSetlistIndex;
+        // Usuwamy pozycję spod KURSORA ZESTAWU, nie bieżącą — dojście do bieżącej wymagało
+        // przewinięcia projekcji przed wiernymi (zob. nagłówek sekcji).
+        int index = SetlistCursorIndex;
         if (index < 0) { ClearPendingRemove(); Announce(_setlistTexts.NoCurrent); return; }
 
         if (!DeleteConfirmation.Confirms(_pendingRemoveIndex, _pendingRemoveAt, index, Clock()))
@@ -453,27 +587,44 @@ public partial class AccessibleShellViewModel : ObservableObject
         ClearPendingRemove();
         var item = _display.SetlistItems[index];
         var title = ItemTitle(item);
+        int currentBefore = CurrentSetlistIndex;
 
         _display.SetlistItems.RemoveAt(index);
         Renumber();
+        int countAfter = _display.SetlistItems.Count;
 
-        // Kursor bieżącej pozycji: usunięta była bieżąca, więc wchodzi ta, która zajęła jej miejsce
-        // (a gdy usunięto ostatnią — nowa ostatnia). Pulpit nigdy nie wskazuje pieśni, której już nie ma.
-        int next = AccessibleSetlist.CurrentAfterRemoval(index, index, _display.SetlistItems.Count);
-        if (next < 0)
+        // TA SAMA reguła dla obu kursorów — bieżącej pozycji i kursora zestawu. Różnią się tylko
+        // tym, od czego startują; wspólna funkcja gwarantuje, że żaden z nich nie zostanie na
+        // pieśni, której już nie ma (ani nie przeskoczy na cudzą).
+        int nextCurrent = AccessibleSetlist.CurrentAfterRemoval(index, currentBefore, countAfter);
+        int nextCursor  = AccessibleSetlist.CurrentAfterRemoval(index, index, countAfter);
+
+        // Obraz na rzutniku rusza się WYŁĄCZNIE wtedy, gdy zniknęła pieśń, którą wierni widzieli.
+        // Ekran gaśnie WYŁĄCZNIE przy pustym zestawie — warunkiem jest `countAfter`, a nie
+        // „nie ma bieżącej pozycji”: bieżąca bywa chwilowo nieustawiona, a zgaszony rzutnik
+        // w środku śpiewu jest dla niewidomego operatora najkosztowniejszym z możliwych błędów.
+        if (countAfter == 0)
             _display.ClearCurrentSong();
-        else
-            _display.DisplaySetlistItemCommand.Execute(_display.SetlistItems[next]);
+        else if (currentBefore == index)
+            _display.DisplaySetlistItemCommand.Execute(_display.SetlistItems[nextCurrent]);
+
+        // PO ewentualnej zmianie bieżącej pieśni: ta zmiana sama przestawia kursor zestawu
+        // (kursor podąża za bieżącą), a my chcemy zostać tam, gdzie operator usuwał.
+        SetSetlistCursor(nextCursor);
 
         UpdateSetlistCaption();
-        Announce(AccessibleSetlist.DescribeRemoved(title, _display.SetlistItems.Count, _setlistTexts));
+        Announce(AccessibleSetlist.DescribeRemoved(title, countAfter, _setlistTexts));
     }
 
-    /// <summary>Escape (i każdy inny klawisz): gasi uzbrojone potwierdzenie. Bez uzbrojenia MILCZY.</summary>
+    /// <summary>
+    /// Escape (i każdy inny klawisz): gasi uzbrojone potwierdzenie — OBOJĘTNIE które z dwóch
+    /// (usunięcie pieśni albo usunięcie zapisanego zestawu). Bez uzbrojenia MILCZY.
+    /// </summary>
     public void CancelPendingRemove()
     {
-        if (_pendingRemoveIndex == null) return;
+        if (_pendingRemoveIndex == null && _pendingDeleteSetlistId == null) return;
         ClearPendingRemove();
+        ClearPendingDeleteSetlist();
         Announce(_setlistTexts.RemoveCancelled);
     }
 
@@ -483,9 +634,18 @@ public partial class AccessibleShellViewModel : ObservableObject
     /// </summary>
     public void NotifyKeyHandled(DeskKey key, DeskAction action)
     {
-        if (_pendingRemoveIndex == null) return;
         if (action == DeskAction.CancelRemove) return; // Escape ma własny komunikat
-        if (DeleteConfirmation.Cancels(key, action)) ClearPendingRemove();
+
+        // Każde z dwóch pytań ma WŁASNĄ odpowiedź, więc i własne wygaszanie. Skutek uboczny jest
+        // celowy: Delete w panelu otwierania gasi uzbrojone usunięcie pieśni (i odwrotnie) —
+        // dwa pytania nigdy nie są uzbrojone naraz.
+        if (_pendingRemoveIndex != null
+            && DeleteConfirmation.Cancels(key, action, DeskAction.RemoveSetlistSong))
+            ClearPendingRemove();
+
+        if (_pendingDeleteSetlistId != null
+            && DeleteConfirmation.Cancels(key, action, DeskAction.DeleteSavedSetlist))
+            ClearPendingDeleteSetlist();
     }
 
     private void ClearPendingRemove()
@@ -494,13 +654,15 @@ public partial class AccessibleShellViewModel : ObservableObject
         _pendingRemoveAt = null;
     }
 
-    /// <summary>Ctrl+Shift+PageUp / PageDown — bieżąca pieśń o jedno miejsce. Bez zawijania.</summary>
+    /// <summary>
+    /// Ctrl+Shift+PageUp / PageDown — pieśń spod KURSORA ZESTAWU o jedno miejsce. Bez zawijania.
+    /// </summary>
     public void MoveCurrentUp() => MoveCurrent(-1);
     public void MoveCurrentDown() => MoveCurrent(+1);
 
     private void MoveCurrent(int delta)
     {
-        int index = CurrentSetlistIndex;
+        int index = SetlistCursorIndex;
         if (index < 0) { Announce(_setlistTexts.NoCurrent); return; }
 
         int target = index + delta;
@@ -510,6 +672,10 @@ public partial class AccessibleShellViewModel : ObservableObject
         var item = _display.SetlistItems[index];
         _display.SetlistItems.Move(index, target);
         Renumber();
+        // Kursor jedzie RAZEM z pieśnią — operator, który przenosi pieśń o trzy miejsca, robi to
+        // trzema naciśnięciami pod rząd, a kursor zostawiony na starym miejscu przenosiłby
+        // za drugim razem zupełnie inną pieśń.
+        SetSetlistCursor(target);
         // Przeniesienie NIE zmienia obrazu wiernym: bieżąca pozycja to wciąż ten sam obiekt,
         // slajdy nie są przebudowywane. Zmienia się wyłącznie miejsce w kolejce.
         Announce(AccessibleSetlist.DescribeMoved(
@@ -571,9 +737,9 @@ public partial class AccessibleShellViewModel : ObservableObject
     public async Task OpenPickerAsync()
     {
         var summaries = await _db.GetSetlistSummariesAsync();
-        SavedSetlists.Clear();
+        _allSetlists.Clear();
         foreach (var s in summaries)
-            SavedSetlists.Add(new AccessibleSetlistEntry
+            _allSetlists.Add(new AccessibleSetlistEntry
             {
                 Id = s.Id,
                 Name = s.Name,
@@ -581,13 +747,84 @@ public partial class AccessibleShellViewModel : ObservableObject
                 Spoken = AccessibleSetlist.DescribeEntry(s.Name, s.SongCount, _setlistTexts),
             });
 
-        _pickerCursor.Reset(SavedSetlists.Count);
-        PickerIndex = _pickerCursor.Index;
-        PickerCaption = SavedSetlists.Count == 0
+        // Filtr startuje pusty przy KAŻDYM otwarciu panelu — filtr pamiętany z poprzedniego razu
+        // ukrywałby zestawy, a niewidomy operator nie miałby jak zauważyć, że lista jest przycięta.
+        PickerFilter = string.Empty;
+        ApplyPickerFilter(announce: false);
+
+        PickerCaption = _allSetlists.Count == 0
             ? _setlistTexts.NoSetlists
             : _setlistTexts.OpenOpened;
+        ClearPendingDeleteSetlist();
         IsPickerOpen = true;
         Announce(PickerCaption);
+    }
+
+    /// <summary>
+    /// Przebudowa listy po zmianie filtra. Porównanie idzie <see cref="DatabaseService.NameContains"/>
+    /// — po stronie klienta i z polskimi znakami złożonymi do ASCII, więc „spiew” trafia w „Śpiew”.
+    /// (Filtrowanie w zapytaniu SQLite by tu skłamało: `lower()` zna wyłącznie ASCII.)
+    /// </summary>
+    private void ApplyPickerFilter(bool announce = true)
+    {
+        var query = PickerFilter ?? string.Empty;
+        SavedSetlists.Clear();
+        foreach (var e in _allSetlists)
+            if (DatabaseService.NameContains(e.Name, query))
+                SavedSetlists.Add(e);
+
+        _pickerCursor.Reset(SavedSetlists.Count);
+        PickerIndex = _pickerCursor.Index;
+        // Zmiana listy unieważnia pytanie o usunięcie: dotyczyło konkretnego zestawu, a po
+        // przefiltrowaniu może go już na liście nie być.
+        ClearPendingDeleteSetlist();
+        if (announce) Announce(AccessibleSetlist.DescribeFilterCount(SavedSetlists.Count, _setlistTexts));
+    }
+
+    partial void OnPickerFilterChanged(string value)
+    {
+        if (IsPickerOpen) ApplyPickerFilter();
+    }
+
+    /// <summary>
+    /// Delete na liście zapisanych zestawów: pierwszy raz PYTA, drugi usuwa zestaw Z BAZY.
+    /// To operacja niszcząca CUDZĄ PRACĘ (przygotowaną mszę), więc pytanie wymienia nazwę,
+    /// liczbę pieśni i ostrzega, gdy kasowany zestaw jest tym wczytanym na pulpicie.
+    /// Uzbrojenie jest WŁASNE — zob. <see cref="_pendingDeleteSetlistId"/>.
+    /// </summary>
+    public async Task DeleteSelectedSetlistAsync()
+    {
+        if (!_pickerCursor.HasPosition) { ClearPendingDeleteSetlist(); Announce(_setlistTexts.NoSelection); return; }
+        var entry = SavedSetlists[_pickerCursor.Index];
+        bool isLoaded = _display.LoadedSetlistId == entry.Id;
+
+        if (!DeleteConfirmation.Confirms(_pendingDeleteSetlistId, _pendingDeleteSetlistAt, entry.Id, Clock()))
+        {
+            _pendingDeleteSetlistId = entry.Id;
+            _pendingDeleteSetlistAt = Clock();
+            Announce(AccessibleSetlist.DescribeDeleteConfirm(entry.Name, entry.SongCount, isLoaded, _setlistTexts));
+            return;
+        }
+
+        ClearPendingDeleteSetlist();
+        // TA SAMA droga co przycisk usuwania w popupie wyszukiwarki u widzącego operatora.
+        bool ok = await _db.DeleteSetlistAsync(entry.Id);
+        if (!ok) { Announce(_setlistTexts.DeleteFailed); return; }
+
+        // Zestaw wczytany na pulpicie: pieśni ZOSTAJĄ (w środku mszy wyczyszczenie ich byłoby
+        // nieporównanie gorsze), znika samo powiązanie z rekordem, więc kolejny Ctrl+S założy nowy.
+        if (isLoaded) _display.DetachLoadedSetlist();
+
+        _allSetlists.RemoveAll(e => e.Id == entry.Id);
+        ApplyPickerFilter(announce: false);
+        if (_allSetlists.Count == 0) PickerCaption = _setlistTexts.NoSetlists;
+        Announce(AccessibleSetlist.DescribeDeleted(entry.Name, _allSetlists.Count, isLoaded, _setlistTexts));
+    }
+
+    private void ClearPendingDeleteSetlist()
+    {
+        _pendingDeleteSetlistId = null;
+        _pendingDeleteSetlistAt = null;
     }
 
     partial void OnIsSavePanelOpenChanged(bool value) => OnPropertyChanged(nameof(IsSetlistPanelOpen));
@@ -628,7 +865,9 @@ public partial class AccessibleShellViewModel : ObservableObject
         if (setlist == null) { Announce(_setlistTexts.NoSelection); return false; }
 
         ClearPendingRemove();
+        ClearPendingDeleteSetlist();
         await _display.LoadPinnedSetlistCommand.ExecuteAsync(setlist);
+        SetSetlistCursor(CurrentSetlistIndex);
         IsPickerOpen = false;
         UpdateSetlistCaption();
         Announce(AccessibleSetlist.DescribeLoaded(
@@ -695,6 +934,15 @@ public partial class AccessibleShellViewModel : ObservableObject
             case nameof(DisplayViewModel.ScreenBlanked):
                 Announce(_display.ScreenBlanked ? _texts.Blanked : _texts.Restored);
                 UpdateProjectionCaption();
+                break;
+            case nameof(DisplayViewModel.SelectedSetlistItem):
+                // Kursor zestawu PODĄŻA za bieżącą pieśnią. Wybór jest świadomy: zmiana pieśni
+                // (Ctrl+Page Up/Down, wczytanie zestawu, dołożenie pieśni z wyszukiwarki) to
+                // moment, w którym operator „jest” gdzie indziej niż przed chwilą — kursor
+                // zostawiony w tyle znaczyłby, że Delete kasuje pieśń sprzed dwóch zwrotek.
+                // Ruch samym Altem kursora NIE zabiera nigdzie indziej: zostaje tam, gdzie go
+                // postawiono, aż do następnej zmiany bieżącej pieśni.
+                SetSetlistCursor(CurrentSetlistIndex);
                 break;
         }
     }
@@ -775,9 +1023,17 @@ public partial class AccessibleShellViewModel : ObservableObject
 
     private void UpdateProjectionCaption() => ProjectionCaption = DescribeProjection();
 
+    /// <summary>
+    /// Ile razy cokolwiek ogłoszono. Służy do jednego: rozstrzygnięcia „czy ta akcja SAMA coś
+    /// powiedziała” (zob. <see cref="ShowSetlistCursorSong"/>) — bez tego pulpit albo milczałby
+    /// po naciśnięciu klawisza, albo mówił dwa razy.
+    /// </summary>
+    private int _announceCount;
+
     private void Announce(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
+        _announceCount++;
         LastAnnouncement = text;
         Announced?.Invoke(text);
     }

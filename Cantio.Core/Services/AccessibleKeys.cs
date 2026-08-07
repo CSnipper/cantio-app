@@ -30,6 +30,12 @@ public enum DeskFocus
     SaveBox,
     /// <summary>Lista zapisanych zestawów w panelu otwierania.</summary>
     SetlistPicker,
+    /// <summary>
+    /// Pole FILTRA w panelu otwierania zestawu — jak <see cref="SearchBox"/>, litery należą do pola.
+    /// Wydzielone z <see cref="SearchBox"/>, bo strzałka w dół ma tu zjechać na listę ZESTAWÓW,
+    /// a nie na wyniki wyszukiwania pieśni.
+    /// </summary>
+    SetlistFilterBox,
 }
 
 /// <summary>Co pulpit ma zrobić. <see cref="None"/> = klawisz nieobsłużony, idzie dalej (np. do pola).</summary>
@@ -64,6 +70,35 @@ public enum DeskAction
     LoadPickedSetlist,
     /// <summary>Escape w panelu zapisu/otwierania — zamknij, fokus wraca na listę slajdów.</summary>
     ClosePanel,
+
+    // ── TRZECI kursor: pozycja w zestawie (etap 3) ───────────────────────────
+    //
+    // Powód istnienia: do v1.63 usuwanie i przenoszenie działały na pieśni BIEŻĄCEJ, a jedyna
+    // droga do niej (Ctrl+Page Up/Down) ZMIENIA OBRAZ NA RZUTNIKU. Niewidomy operator, żeby
+    // wyrzucić z zestawu czwartą pieśń, musiał przewinąć projekcję przez pół mszy na oczach
+    // wiernych. Trzeci kursor chodzi po zestawie w ciszy — nie rusza ani projekcji, ani kursora
+    // czytania — a jedynym mostem do rzutnika jest jawne Alt+Enter.
+
+    /// <summary>Alt+↑ — kursor ZESTAWU o pozycję wyżej (projekcja bez zmian).</summary>
+    SetlistCursorUp,
+    /// <summary>Alt+↓ — kursor ZESTAWU o pozycję niżej (projekcja bez zmian).</summary>
+    SetlistCursorDown,
+    /// <summary>Alt+Home — pierwsza pozycja zestawu.</summary>
+    SetlistCursorFirst,
+    /// <summary>Alt+End — ostatnia pozycja zestawu.</summary>
+    SetlistCursorLast,
+    /// <summary>Alt+Enter — uczyń pieśń spod kursora zestawu bieżącą i wyświetl ją wiernym.</summary>
+    ShowSetlistCursorSong,
+
+    // ── panel otwierania: filtr i usuwanie zapisanych zestawów (etap 3) ──────
+
+    /// <summary>↓ / Enter w polu filtra — zjedź na listę zestawów.</summary>
+    FocusPicker,
+    /// <summary>
+    /// Delete na liście zapisanych zestawów — usuwa zestaw Z BAZY (dwa razy, jak przy pieśni,
+    /// ale z WŁASNYM uzbrojeniem: to inna operacja i inne pytanie).
+    /// </summary>
+    DeleteSavedSetlist,
 }
 
 /// <summary>
@@ -96,9 +131,31 @@ public static class AccessibleKeys
         => Route(key, ctrl, shift: false, new DeskState(focus, searchOpen, hasResults));
 
     public static DeskAction Route(DeskKey key, bool ctrl, bool shift, in DeskState s)
+        => Route(key, ctrl, shift, alt: false, s);
+
+    public static DeskAction Route(DeskKey key, bool ctrl, bool shift, bool alt, in DeskState s)
     {
         var focus = s.Focus;
-        bool typing = focus is DeskFocus.SearchBox or DeskFocus.SaveBox;
+        bool typing = focus is DeskFocus.SearchBox or DeskFocus.SaveBox or DeskFocus.SetlistFilterBox;
+
+        // ALT = kursor ZESTAWU, i to NIEZALEŻNIE od fokusu — dokładnie jak Page Up/Down.
+        // Powód jest ten sam: pozycja w zestawie to druga rzecz (obok obrazu na rzutniku), którą
+        // operator musi umieć ruszyć w środku pisania, nie szukając wprzódy drogi powrotnej z pola.
+        // Klawisze są dobrane tak, żeby NIE kolidowały z pisaniem: jednowierszowe pole nie używa
+        // ani strzałek, ani Home/End z Altem, ani Alt+Enter.
+        if (alt)
+        {
+            switch (key)
+            {
+                case DeskKey.Up:    return DeskAction.SetlistCursorUp;
+                case DeskKey.Down:  return DeskAction.SetlistCursorDown;
+                case DeskKey.Home:  return DeskAction.SetlistCursorFirst;
+                case DeskKey.End:   return DeskAction.SetlistCursorLast;
+                case DeskKey.Enter: return DeskAction.ShowSetlistCursorSong;
+                // Każdy inny klawisz z Altem leci dalej zwykłą drogą (nie ma tu menu okna,
+                // więc Alt+litera niczego nie otwiera).
+            }
+        }
 
         switch (key)
         {
@@ -126,7 +183,11 @@ public static class AccessibleKeys
             // Panele zestawu. W polu NAZWY zapisu Ctrl+S nie robi nic (panel już jest otwarty,
             // a Enter go zatwierdza) — reszta pulpitu otwiera je z każdego miejsca.
             case DeskKey.S when ctrl: return focus == DeskFocus.SaveBox ? DeskAction.None : DeskAction.OpenSavePanel;
-            case DeskKey.O when ctrl: return focus == DeskFocus.SaveBox ? DeskAction.None : DeskAction.OpenSetlistPicker;
+            // Ctrl+O w polu FILTRA nic nie robi — panel otwierania już jest otwarty, a ponowne
+            // otwarcie skasowałoby wpisany filtr (czego niewidomy operator nie miałby jak zauważyć).
+            case DeskKey.O when ctrl:
+                return focus is DeskFocus.SaveBox or DeskFocus.SetlistFilterBox
+                    ? DeskAction.None : DeskAction.OpenSetlistPicker;
 
             case DeskKey.Enter:
                 return focus switch
@@ -135,6 +196,11 @@ public static class AccessibleKeys
                     DeskFocus.SearchResults  => ctrl ? DeskAction.AddAndShow : DeskAction.AddToSetlist,
                     DeskFocus.SaveBox        => DeskAction.ConfirmSave,
                     DeskFocus.SetlistPicker  => DeskAction.LoadPickedSetlist,
+                    // Enter w polu filtra ZJEŻDŻA NA LISTĘ, a nie wczytuje pierwszego trafienia.
+                    // Filtrowanie jest na bieżąco i nic go nie ogłasza pozycja po pozycji, więc
+                    // operator w chwili naciśnięcia Enter zna tylko LICZBĘ trafień — wczytanie
+                    // „czegoś pierwszego z listy” byłoby wtedy zgadywaniem na oczach wiernych.
+                    DeskFocus.SetlistFilterBox => DeskAction.FocusPicker,
                     _                        => DeskAction.ProjectReadingSlide,
                 };
 
@@ -146,6 +212,7 @@ public static class AccessibleKeys
                     DeskFocus.SearchBox     => s.HasResults ? DeskAction.FocusResults : DeskAction.None,
                     DeskFocus.SearchResults => DeskAction.SearchUp,
                     DeskFocus.SaveBox       => DeskAction.None,
+                    DeskFocus.SetlistFilterBox => DeskAction.None, // nad polem filtra nic nie ma
                     DeskFocus.SetlistPicker => DeskAction.PickerUp,
                     _                       => DeskAction.ReadUp,
                 };
@@ -155,6 +222,7 @@ public static class AccessibleKeys
                     DeskFocus.SearchBox     => s.HasResults ? DeskAction.FocusResults : DeskAction.None,
                     DeskFocus.SearchResults => DeskAction.SearchDown,
                     DeskFocus.SaveBox       => DeskAction.None,
+                    DeskFocus.SetlistFilterBox => DeskAction.FocusPicker,
                     DeskFocus.SetlistPicker => DeskAction.PickerDown,
                     _                       => DeskAction.ReadDown,
                 };
@@ -164,11 +232,18 @@ public static class AccessibleKeys
             case DeskKey.End:  return typing ? DeskAction.None : DeskAction.ReadEnd;
 
             // Delete w polu tekstowym kasuje ZNAK — pulpit nie ma prawa go przechwycić.
-            // Poza polem usuwa pieśń wyłącznie z listy slajdów: na liście wyników i na liście
-            // zapisanych zestawów ten sam klawisz znaczyłby coś innego, a niewidomy operator
-            // nie ma jak sprawdzić, gdzie stoi fokus.
+            // Poza polem Delete znaczy „usuń to, na czym stoisz”, i są to DWIE RÓŻNE operacje:
+            // na liście slajdów — pieśń spod kursora ZESTAWU, na liście zapisanych zestawów —
+            // cały zestaw z bazy. Rozróżnia je wyłącznie fokus, więc każda ma własne pytanie
+            // i własne uzbrojenie (zob. DeleteConfirmation). Na liście WYNIKÓW wyszukiwania
+            // Delete dalej nie znaczy nic — nie ma tam czego usuwać.
             case DeskKey.Delete:
-                return focus == DeskFocus.Slides ? DeskAction.RemoveSetlistSong : DeskAction.None;
+                return focus switch
+                {
+                    DeskFocus.Slides        => DeskAction.RemoveSetlistSong,
+                    DeskFocus.SetlistPicker => DeskAction.DeleteSavedSetlist,
+                    _                       => DeskAction.None,
+                };
 
             case DeskKey.L: return typing ? DeskAction.None : DeskAction.ReadSetlist;
 
