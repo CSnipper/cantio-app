@@ -22,10 +22,17 @@ public static class LocalizationManager
         merged.Add(dict);
     }
 
+    /// <summary>
+    /// Tekst spod klucza; gdy klucza nie ma (albo nie ma jeszcze Application — tak działa harness
+    /// testowy) zwraca sam klucz. Wywołujący, dla którego zwrócony klucz byłby szkodliwy
+    /// (np. komunikat czytany na głos przez czytnik ekranu), rozpoznaje ten przypadek
+    /// po równości z kluczem i podstawia własny tekst zapasowy.
+    /// </summary>
     public static string Get(string key)
     {
-        if (Application.Current.Resources.Contains(key))
-            return Application.Current.Resources[key] as string ?? key;
+        var res = Application.Current?.Resources;
+        if (res != null && res.Contains(key))
+            return res[key] as string ?? key;
         return key;
     }
 

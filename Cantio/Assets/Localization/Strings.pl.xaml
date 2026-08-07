@@ -351,4 +351,29 @@
     <sys:String x:Key="TextItem.SaveToDatabaseHint">Na stałe — zakłada pieśń w wybranej kategorii i dodaje ją do zestawu.</sys:String>
     <sys:String x:Key="TextItem.Edit">Edytuj tekst jednorazowy</sys:String>
 
+    <!-- Pulpit organisty niewidomego (czytnik ekranu) -->
+    <sys:String x:Key="Acc.WindowTitle">Cantio — pulpit organisty niewidomego</sys:String>
+    <sys:String x:Key="Acc.ListName">Slajdy bieżącej pieśni. Strzałki góra i dół czytają slajd, Page Down wyświetla następny wiernym.</sys:String>
+    <sys:String x:Key="Acc.LiveName">Komunikaty</sys:String>
+    <sys:String x:Key="Acc.ViewersSee">Wierni widzą: {0}</sys:String>
+    <sys:String x:Key="Acc.SlideOfCount">slajd {0} z {1}</sys:String>
+    <sys:String x:Key="Acc.Blanked">Ekran wygaszony</sys:String>
+    <sys:String x:Key="Acc.Restored">Ekran przywrócony</sys:String>
+    <sys:String x:Key="Acc.Nothing">nic nie jest wyświetlane</sys:String>
+    <sys:String x:Key="Acc.KindVerse">zwrotka</sys:String>
+    <sys:String x:Key="Acc.KindChorus">refren</sys:String>
+    <sys:String x:Key="Acc.KindBridge">bis</sys:String>
+    <sys:String x:Key="Acc.KindPrivate">zwrotka prywatna</sys:String>
+    <sys:String x:Key="Acc.KindImage">obrazek</sys:String>
+    <sys:String x:Key="Acc.Prepared">Przygotowane: {0}</sys:String>
+    <sys:String x:Key="Acc.OperatorOnly">Tylko dla Ciebie: {0}</sys:String>
+    <sys:String x:Key="Acc.AtFirstSlide">Pierwszy slajd pieśni</sys:String>
+    <sys:String x:Key="Acc.AtLastSlide">Ostatni slajd pieśni</sys:String>
+    <sys:String x:Key="Acc.NoSetlist">Nie wczytano żadnego zestawu</sys:String>
+    <sys:String x:Key="Acc.SetlistLoaded">Wczytano zestaw: {0}, pieśni: {1}</sys:String>
+    <sys:String x:Key="Acc.ScreensExtended">Projekcja na drugim ekranie, gotowe</sys:String>
+    <sys:String x:Key="Acc.ScreensMirrored">Uwaga: rzutnik powiela ekran laptopa — wierni widzą Twój pulpit</sys:String>
+    <sys:String x:Key="Acc.ScreensSingle">Uwaga: widzę tylko jeden ekran. Rzutnik jest odłączony albo powiela ekran laptopa — wierni mogą widzieć Twój pulpit</sys:String>
+    <sys:String x:Key="Acc.Help">Klawisze: strzałka w górę i w dół czytają slajdy, nic nie zmieniając wiernym. Page Down i Page Up przesuwają obraz na rzutniku. Kontrol z Page Down i Page Up przechodzi do następnej i poprzedniej pieśni zestawu. Enter wyświetla wiernym slajd, który właśnie czytasz. B wygasza i przywraca ekran. S mówi, co widzą wierni. R powtarza czytany slajd. F2 sprawdza ekrany. F1 to ta pomoc.</sys:String>
+
 </ResourceDictionary>
