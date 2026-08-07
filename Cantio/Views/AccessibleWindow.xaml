@@ -24,6 +24,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,8">
@@ -90,9 +92,45 @@
             </ListBox>
         </StackPanel>
 
+        <!-- Panel ZAPISU zestawu (Ctrl+S). Jak wyszukiwarka: ukryty jest Collapsed, więc czytnik
+             ekranu nie zawędruje do pola, które w tej chwili do niczego nie służy. -->
+        <StackPanel Grid.Row="4" Margin="0,8,0,0"
+                    Visibility="{Binding IsSavePanelOpen, Converter={StaticResource BoolToVis}}">
+            <TextBox x:Name="SaveBox" Text="{Binding SetlistNameInput, UpdateSourceTrigger=PropertyChanged}"
+                     Background="#101010" Foreground="White" CaretBrush="White" BorderBrush="#FFD37A"
+                     BorderThickness="2" Padding="8,6"
+                     AutomationProperties.Name="{DynamicResource Acc.SaveBoxName}"/>
+        </StackPanel>
+
+        <!-- Panel OTWIERANIA zestawu (Ctrl+O). -->
+        <StackPanel Grid.Row="5" Margin="0,8,0,0"
+                    Visibility="{Binding IsPickerOpen, Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="{Binding PickerCaption}" Foreground="#FFD37A" TextWrapping="Wrap"
+                       Focusable="False"/>
+            <ListBox x:Name="PickerList" MaxHeight="220" Margin="0,4,0,0"
+                     ItemsSource="{Binding SavedSetlists}"
+                     SelectedIndex="{Binding PickerIndex, Mode=TwoWay}"
+                     Background="#101010" Foreground="White" BorderBrush="#404040"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="{DynamicResource Acc.PickerListName}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="AutomationProperties.Name" Value="{Binding Spoken}"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Display}" TextWrapping="Wrap"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
         <!-- Live region: WPF podnosi zdarzenie LiveRegionChanged (kod za oknem), NVDA czyta tekst
              bez przenoszenia fokusu. Widoczny też na ekranie — pomocnik widzi to samo, co słychać. -->
-        <Border Grid.Row="4" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
+        <Border Grid.Row="6" Margin="0,8,0,0" Padding="8" Background="#181818" BorderBrush="#404040" BorderThickness="1">
             <!-- UWAGA: żadnego AutomationProperties.Name na tym elemencie. Czytnik ekranu ogłasza
                  NAZWĘ live region, a nazwą TextBlocka jest domyślnie jego Text — wpisanie tu
                  etykiety („Komunikaty") sprawiłoby, że NVDA po każdej zmianie mówiłby tę etykietę

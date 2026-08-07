@@ -24,6 +24,16 @@ public sealed class AccessibleSearchItem
     public string Display => Spoken;
 }
 
+/// <summary>Jedna pozycja listy zapisanych zestawów („Niedziela 3 zwykła, pieśni: 5”).</summary>
+public sealed class AccessibleSetlistEntry
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public int SongCount { get; init; }
+    public string Spoken { get; init; } = string.Empty;
+    public string Display => Spoken;
+}
+
 /// <summary>
 /// Pulpit organisty NIEWIDOMEGO — cienka warstwa nad <see cref="DisplayViewModel"/>.
 /// Cały rdzeń (baza, slajdy, projekcja) jest wspólny z pulpitem widzącego; tutaj dochodzi
@@ -47,6 +57,8 @@ public partial class AccessibleShellViewModel : ObservableObject
     private readonly AccessibleCursor _searchCursor = new();
     private readonly AnnouncementText _texts;
     private readonly SearchText _searchTexts;
+    private readonly SetlistText _setlistTexts;
+    private readonly AccessibleCursor _pickerCursor = new();
 
     /// <summary>Komunikat do live region — okno wypycha go do czytnika ekranu.</summary>
     public event Action<string>? Announced;
@@ -74,12 +86,39 @@ public partial class AccessibleShellViewModel : ObservableObject
     [ObservableProperty] private int _searchIndex = -1;
     [ObservableProperty] private string _searchCaption = string.Empty;
 
+    /// <summary>Panel zapisu zestawu (Ctrl+S). Okno pokazuje pole nazwy i przenosi do niego fokus.</summary>
+    [ObservableProperty] private bool _isSavePanelOpen;
+    [ObservableProperty] private string _setlistNameInput = string.Empty;
+
+    /// <summary>Panel otwierania zestawu (Ctrl+O).</summary>
+    [ObservableProperty] private bool _isPickerOpen;
+    [ObservableProperty] private int _pickerIndex = -1;
+    [ObservableProperty] private string _pickerCaption = string.Empty;
+
+    /// <summary>Zapisane zestawy — wypełniane dopiero przy otwarciu panelu (Ctrl+O).</summary>
+    public ObservableCollection<AccessibleSetlistEntry> SavedSetlists { get; } = [];
+
+    /// <summary>Czy jakikolwiek panel zestawu zasłania pulpit (Escape zamyka JEGO).</summary>
+    public bool IsSetlistPanelOpen => IsSavePanelOpen || IsPickerOpen;
+
+    /// <summary>
+    /// Zegar dla wygasania potwierdzenia usunięcia. Wystawiony, bo inaczej „potwierdzenie
+    /// wygasa po 5 sekundach" dałoby się sprawdzić wyłącznie testem, który 5 sekund śpi —
+    /// a taki test nikt nie uruchamia dość często, żeby cokolwiek złapał.
+    /// </summary>
+    public Func<DateTime> Clock { get; set; } = () => DateTime.UtcNow;
+
+    // Uzbrojone potwierdzenie usunięcia: KTÓREJ pozycji dotyczy i KIEDY zadaliśmy pytanie.
+    private int? _pendingRemoveIndex;
+    private DateTime? _pendingRemoveAt;
+
     public AccessibleShellViewModel(DatabaseService db, DisplayViewModel display)
     {
         _db = db;
         _display = display;
         _texts = BuildTexts();
         _searchTexts = BuildSearchTexts();
+        _setlistTexts = BuildSetlistTexts();
         _display.PropertyChanged += OnDisplayPropertyChanged;
     }
 
@@ -122,6 +161,45 @@ public partial class AccessibleShellViewModel : ObservableObject
             AddedAndShown = L("Acc.SearchAddedShown", d.AddedAndShown),
             NoSelection   = L("Acc.SearchNoSelection", d.NoSelection),
             Untitled      = L("Acc.SearchUntitled", d.Untitled),
+        };
+    }
+
+    /// <summary>To samo dla zarządzania zestawem (odczyt, usuwanie, przenoszenie, zapis, otwieranie).</summary>
+    private static SetlistText BuildSetlistTexts()
+    {
+        var d = new SetlistText();
+        return new SetlistText
+        {
+            ListHeaderMany  = L("Acc.SetlistHeaderMany",  d.ListHeaderMany),
+            ListHeaderOne   = L("Acc.SetlistHeaderOne",   d.ListHeaderOne),
+            Empty           = L("Acc.SetlistEmpty",       d.Empty),
+            CurrentMark     = L("Acc.SetlistCurrentMark", d.CurrentMark),
+            ConfirmRemove   = L("Acc.SetlistConfirmRemove", d.ConfirmRemove),
+            Removed         = L("Acc.SetlistRemoved",     d.Removed),
+            RemovedOne      = L("Acc.SetlistRemovedOne",  d.RemovedOne),
+            RemovedLast     = L("Acc.SetlistRemovedLast", d.RemovedLast),
+            RemoveCancelled = L("Acc.SetlistRemoveCancelled", d.RemoveCancelled),
+            NoCurrent       = L("Acc.SetlistNoCurrent",   d.NoCurrent),
+            Moved           = L("Acc.SetlistMoved",       d.Moved),
+            AtFirst         = L("Acc.SetlistAtFirst",     d.AtFirst),
+            AtLast          = L("Acc.SetlistAtLast",      d.AtLast),
+            SaveOpened      = L("Acc.SetlistSaveOpened",  d.SaveOpened),
+            SaveClosed      = L("Acc.SetlistSaveClosed",  d.SaveClosed),
+            Saved           = L("Acc.SetlistSaved",       d.Saved),
+            SavedNew        = L("Acc.SetlistSavedNew",    d.SavedNew),
+            SaveEmptyName   = L("Acc.SetlistSaveEmptyName", d.SaveEmptyName),
+            SaveNothing     = L("Acc.SetlistSaveNothing", d.SaveNothing),
+            OpenOpened      = L("Acc.SetlistOpenOpened",  d.OpenOpened),
+            OpenClosed      = L("Acc.SetlistOpenClosed",  d.OpenClosed),
+            Entry           = L("Acc.SetlistEntry",       d.Entry),
+            EntryEmpty      = L("Acc.SetlistEntryEmpty",  d.EntryEmpty),
+            // Ten sam klucz co podpis wczytanego zestawu — komunikat i podpis mówią to samo,
+            // więc dwa klucze rozjechałyby się przy pierwszym tłumaczeniu.
+            Loaded          = L("Acc.SetlistLoaded",      d.Loaded),
+            NoSetlists      = L("Acc.SetlistNoneSaved",   d.NoSetlists),
+            NoSelection     = L("Acc.SetlistNoSelection", d.NoSelection),
+            Untitled        = L("Acc.SearchUntitled",     d.Untitled),
+            UnnamedSetlist  = L("Acc.SetlistUnnamed",     d.UnnamedSetlist),
         };
     }
 
@@ -322,10 +400,244 @@ public partial class AccessibleShellViewModel : ObservableObject
         // Pozycja liczona z ZESTAWU, nie z licznika dodań: gdy zestaw był pusty, dołożona pieśń
         // od razu staje się bieżąca i to jedyny sygnał, po którym niewidomy to pozna.
         int position = _display.SetlistItems.IndexOf(item) + 1;
-        SetlistCaption = LocalizationManager.Format("Acc.SetlistLoaded",
-            _display.SetlistName, _display.SetlistItems.Count);
+        UpdateSetlistCaption();
         Announce(AccessibleSearch.DescribeAdded(song.Title, position, alsoShow, _searchTexts));
     }
+
+    // ── Zarządzanie zestawem (etap 2) ────────────────────────────────────────
+    //
+    // BIEŻĄCA pieśń zestawu to ta, którą pulpit ma wczytaną (`SelectedSetlistItem`) — ta sama,
+    // po której chodzi Ctrl+Page Up/Down. Usuwanie i przenoszenie działają WYŁĄCZNIE na niej,
+    // bo to jedyna pozycja, o której niewidomy operator wie na pewno, gdzie jest.
+
+    /// <summary>Indeks bieżącej pozycji zestawu (-1 = żadna).</summary>
+    private int CurrentSetlistIndex =>
+        _display.SelectedSetlistItem is { } item ? _display.SetlistItems.IndexOf(item) : -1;
+
+    /// <summary>Tytuł pozycji zestawu dla czytnika: pieśń, tekst jednorazowy albo obrazek.</summary>
+    private string ItemTitle(SetlistItem item)
+        => item.IsImageItem ? _texts.Image
+         : item.IsTextItem ? (item.CustomTitle ?? _texts.Image)
+         : (item.Song?.Title ?? string.Empty);
+
+    /// <summary>
+    /// Klawisz L: przeczytaj cały zestaw po kolei. Dla niewidomego to jedyny sposób, żeby wiedzieć,
+    /// co w ogóle jest w zestawie i w jakiej kolejności — reszta pulpitu mówi tylko o jednej pieśni.
+    /// </summary>
+    public void ReadSetlist()
+    {
+        var titles = _display.SetlistItems.Select(i => (string?)ItemTitle(i)).ToList();
+        Announce(AccessibleSetlist.DescribeSetlist(titles, CurrentSetlistIndex, _setlistTexts));
+    }
+
+    /// <summary>
+    /// Delete: pierwszy raz PYTA, drugi usuwa. Niewidomy operator nie zobaczy okna dialogowego,
+    /// więc pytanie zadaje live region — ale uzbrojone potwierdzenie wygasa (czas albo dowolny
+    /// inny klawisz, zob. <see cref="DeleteConfirmation"/>), żeby Delete naciśnięty przypadkiem
+    /// pół mszy później nie skasował zupełnie innej pieśni.
+    /// </summary>
+    public void RemoveCurrentFromSetlist()
+    {
+        int index = CurrentSetlistIndex;
+        if (index < 0) { ClearPendingRemove(); Announce(_setlistTexts.NoCurrent); return; }
+
+        if (!DeleteConfirmation.Confirms(_pendingRemoveIndex, _pendingRemoveAt, index, Clock()))
+        {
+            _pendingRemoveIndex = index;
+            _pendingRemoveAt = Clock();
+            Announce(AccessibleSetlist.DescribeConfirmRemove(
+                ItemTitle(_display.SetlistItems[index]), _setlistTexts));
+            return;
+        }
+
+        ClearPendingRemove();
+        var item = _display.SetlistItems[index];
+        var title = ItemTitle(item);
+
+        _display.SetlistItems.RemoveAt(index);
+        Renumber();
+
+        // Kursor bieżącej pozycji: usunięta była bieżąca, więc wchodzi ta, która zajęła jej miejsce
+        // (a gdy usunięto ostatnią — nowa ostatnia). Pulpit nigdy nie wskazuje pieśni, której już nie ma.
+        int next = AccessibleSetlist.CurrentAfterRemoval(index, index, _display.SetlistItems.Count);
+        if (next < 0)
+            _display.ClearCurrentSong();
+        else
+            _display.DisplaySetlistItemCommand.Execute(_display.SetlistItems[next]);
+
+        UpdateSetlistCaption();
+        Announce(AccessibleSetlist.DescribeRemoved(title, _display.SetlistItems.Count, _setlistTexts));
+    }
+
+    /// <summary>Escape (i każdy inny klawisz): gasi uzbrojone potwierdzenie. Bez uzbrojenia MILCZY.</summary>
+    public void CancelPendingRemove()
+    {
+        if (_pendingRemoveIndex == null) return;
+        ClearPendingRemove();
+        Announce(_setlistTexts.RemoveCancelled);
+    }
+
+    /// <summary>
+    /// Wygaszenie potwierdzenia po KAŻDYM innym klawiszu. Okno woła to dla każdego naciśnięcia —
+    /// jedno miejsce, więc nie da się dodać nowej akcji, która „zapomni” rozbroić Delete.
+    /// </summary>
+    public void NotifyKeyHandled(DeskKey key, DeskAction action)
+    {
+        if (_pendingRemoveIndex == null) return;
+        if (action == DeskAction.CancelRemove) return; // Escape ma własny komunikat
+        if (DeleteConfirmation.Cancels(key, action)) ClearPendingRemove();
+    }
+
+    private void ClearPendingRemove()
+    {
+        _pendingRemoveIndex = null;
+        _pendingRemoveAt = null;
+    }
+
+    /// <summary>Ctrl+Shift+PageUp / PageDown — bieżąca pieśń o jedno miejsce. Bez zawijania.</summary>
+    public void MoveCurrentUp() => MoveCurrent(-1);
+    public void MoveCurrentDown() => MoveCurrent(+1);
+
+    private void MoveCurrent(int delta)
+    {
+        int index = CurrentSetlistIndex;
+        if (index < 0) { Announce(_setlistTexts.NoCurrent); return; }
+
+        int target = index + delta;
+        if (target < 0) { Announce(_setlistTexts.AtFirst); return; }
+        if (target >= _display.SetlistItems.Count) { Announce(_setlistTexts.AtLast); return; }
+
+        var item = _display.SetlistItems[index];
+        _display.SetlistItems.Move(index, target);
+        Renumber();
+        // Przeniesienie NIE zmienia obrazu wiernym: bieżąca pozycja to wciąż ten sam obiekt,
+        // slajdy nie są przebudowywane. Zmienia się wyłącznie miejsce w kolejce.
+        Announce(AccessibleSetlist.DescribeMoved(
+            ItemTitle(item), target, _display.SetlistItems.Count, _setlistTexts));
+        UpdateSetlistCaption();
+    }
+
+    private void Renumber()
+    {
+        for (int i = 0; i < _display.SetlistItems.Count; i++)
+            _display.SetlistItems[i].Position = i + 1;
+    }
+
+    // ── Zapis zestawu (Ctrl+S) ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Otwiera panel zapisu z nazwą WCZYTANEGO zestawu w polu — Enter zapisuje wtedy w miejscu,
+    /// a wpisanie innej nazwy robi kopię. Bez tego każdy zapis zakładałby nowy rekord i baza
+    /// zarastałaby kopiami tego samego zestawu, czego niewidomy operator nie miałby jak zauważyć.
+    /// </summary>
+    public void OpenSavePanel()
+    {
+        SetlistNameInput = _display.LoadedSetlistName is { Length: > 0 } loaded
+            ? loaded
+            : _display.SetlistName ?? string.Empty;
+        IsSavePanelOpen = true;
+        Announce(_setlistTexts.SaveOpened);
+    }
+
+    public void CloseSavePanel()
+    {
+        if (!IsSavePanelOpen) return;
+        IsSavePanelOpen = false;
+        Announce(_setlistTexts.SaveClosed);
+    }
+
+    /// <summary>Enter w polu nazwy. Zwraca true, gdy panel można zamknąć (zapis się udał).</summary>
+    public async Task<bool> ConfirmSaveAsync()
+    {
+        if (_display.SetlistItems.Count == 0) { Announce(_setlistTexts.SaveNothing); return false; }
+
+        var decision = AccessibleSetlist.DecideSave(
+            _display.LoadedSetlistId, _display.LoadedSetlistName, SetlistNameInput);
+        if (decision == SaveDecision.Refuse) { Announce(_setlistTexts.SaveEmptyName); return false; }
+
+        var name = SetlistNameInput.Trim();
+        bool ok = await _display.SaveSetlistNoPromptAsync(name, decision == SaveDecision.Overwrite);
+        if (!ok) { Announce(_setlistTexts.SaveEmptyName); return false; }
+
+        IsSavePanelOpen = false;
+        UpdateSetlistCaption();
+        Announce(AccessibleSetlist.DescribeSaved(name, decision == SaveDecision.CreateNew, _setlistTexts));
+        return true;
+    }
+
+    // ── Otwieranie zestawu (Ctrl+O) ──────────────────────────────────────────
+
+    /// <summary>Wypełnia listę zapisanych zestawów (najświeższe pierwsze) i otwiera panel.</summary>
+    public async Task OpenPickerAsync()
+    {
+        var summaries = await _db.GetSetlistSummariesAsync();
+        SavedSetlists.Clear();
+        foreach (var s in summaries)
+            SavedSetlists.Add(new AccessibleSetlistEntry
+            {
+                Id = s.Id,
+                Name = s.Name,
+                SongCount = s.SongCount,
+                Spoken = AccessibleSetlist.DescribeEntry(s.Name, s.SongCount, _setlistTexts),
+            });
+
+        _pickerCursor.Reset(SavedSetlists.Count);
+        PickerIndex = _pickerCursor.Index;
+        PickerCaption = SavedSetlists.Count == 0
+            ? _setlistTexts.NoSetlists
+            : _setlistTexts.OpenOpened;
+        IsPickerOpen = true;
+        Announce(PickerCaption);
+    }
+
+    partial void OnIsSavePanelOpenChanged(bool value) => OnPropertyChanged(nameof(IsSetlistPanelOpen));
+    partial void OnIsPickerOpenChanged(bool value) => OnPropertyChanged(nameof(IsSetlistPanelOpen));
+
+    public void ClosePicker()
+    {
+        if (!IsPickerOpen) return;
+        IsPickerOpen = false;
+        Announce(_setlistTexts.OpenClosed);
+    }
+
+    public void PickerUp() { if (_pickerCursor.MoveUp()) PickerIndex = _pickerCursor.Index; }
+    public void PickerDown() { if (_pickerCursor.MoveDown()) PickerIndex = _pickerCursor.Index; }
+
+    partial void OnPickerIndexChanged(int value)
+    {
+        if (value != _pickerCursor.Index) _pickerCursor.MoveTo(value);
+    }
+
+    /// <summary>Powtórzenie odczytu wybranego zestawu (klawisz R w panelu otwierania).</summary>
+    public void RepeatPickerEntry()
+    {
+        if (!_pickerCursor.HasPosition) { Announce(_setlistTexts.NoSelection); return; }
+        Announce(SavedSetlists[_pickerCursor.Index].Spoken);
+    }
+
+    /// <summary>
+    /// Enter na liście: wczytuje zestaw TĄ SAMĄ drogą co przycisk „Otwórz" u widzącego operatora
+    /// (<c>LoadPinnedSetlistCommand</c>) — z zapisem `last_setlist_id` i ustawieniem pierwszej
+    /// pieśni jako bieżącej. Zwraca true, gdy panel można zamknąć.
+    /// </summary>
+    public async Task<bool> LoadPickedSetlistAsync()
+    {
+        if (!_pickerCursor.HasPosition) { Announce(_setlistTexts.NoSelection); return false; }
+        var entry = SavedSetlists[_pickerCursor.Index];
+        var setlist = await _db.GetSetlistAsync(entry.Id);
+        if (setlist == null) { Announce(_setlistTexts.NoSelection); return false; }
+
+        ClearPendingRemove();
+        await _display.LoadPinnedSetlistCommand.ExecuteAsync(setlist);
+        IsPickerOpen = false;
+        UpdateSetlistCaption();
+        Announce(AccessibleSetlist.DescribeLoaded(
+            setlist.Name, _display.SetlistItems.Count, _setlistTexts));
+        return true;
+    }
+
+    private void UpdateSetlistCaption() => SetlistCaption = LocalizationManager.Format(
+        "Acc.SetlistLoaded", _display.SetlistName, _display.SetlistItems.Count);
 
     // ── Ogłoszenia na żądanie ────────────────────────────────────────────────
 
@@ -340,7 +652,7 @@ public partial class AccessibleShellViewModel : ObservableObject
             Announce(LocalizationManager.Get("Acc.NoSetlist"));
             return;
         }
-        SetlistCaption = LocalizationManager.Format("Acc.SetlistLoaded", name, _display.SetlistItems.Count);
+        UpdateSetlistCaption();
         Announce(SetlistCaption);
     }
 

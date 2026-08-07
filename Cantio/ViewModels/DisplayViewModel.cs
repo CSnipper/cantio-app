@@ -1305,6 +1305,75 @@ public partial class DisplayViewModel : ObservableObject
         await LoadPinnedSetlistsAsync();
     }
 
+    /// <summary>Nazwa zestawu wczytanego z bazy („" = zestaw jeszcze nigdzie nie zapisany).</summary>
+    public string LoadedSetlistName => _loadedSetlistName;
+
+    /// <summary>Id zestawu wczytanego z bazy (0 = brak). Pulpit niewidomego rozstrzyga tym nadpisanie.</summary>
+    public int LoadedSetlistId => _loadedSetlistId;
+
+    /// <summary>
+    /// Zapis zestawu BEZ okna dialogowego — dla pulpitu organisty niewidomego, który okna
+    /// <c>ConfirmOverwriteWindow</c> nie zobaczy (a modalne okno bez odczytu to dla niego
+    /// zawieszony program). O nadpisaniu decyduje wołający (<see cref="AccessibleSetlist.DecideSave"/>),
+    /// tutaj zostaje samo wykonanie — TĄ SAMĄ parą metod bazy co zapis widzącego operatora
+    /// (<c>SaveSetlistAsync</c> + <c>SaveSetlistItemsAsync</c>), więc reguła „zapis treści
+    /// podbija UpdatedAt" obowiązuje bez wyjątku.
+    /// </summary>
+    /// <returns>false, gdy nazwa jest pusta — pulpit ma wtedy o nią poprosić.</returns>
+    public async Task<bool> SaveSetlistNoPromptAsync(string name, bool overwriteLoaded)
+    {
+        name = (name ?? string.Empty).Trim();
+        if (name.Length == 0) return false;
+        var group = string.IsNullOrEmpty(SetlistGroup.Trim()) ? null : SetlistGroup.Trim();
+
+        if (overwriteLoaded && _loadedSetlistId != 0
+            && await _db.GetSetlistAsync(_loadedSetlistId) is { } existing)
+        {
+            existing.Name = name;
+            existing.Group = group;
+            await _db.SaveSetlistAsync(existing);
+            await _db.SaveSetlistItemsAsync(existing.Id, BuildItems());
+            _loadedSetlistName = name;
+        }
+        else
+        {
+            await SaveAsNewAsync(name, group);
+        }
+
+        // SaveAsNewAsync czyści pole nazwy (u widzącego to pole „wpisz nazwę nowego zestawu").
+        // Na pulpicie niewidomego SetlistName jest PODPISEM wczytanego zestawu i czytnik ekranu
+        // ogłasza go po zapisie — pusty brzmiałby jak utrata zestawu.
+        SetlistName = name;
+        await LoadPinnedSetlistsAsync();
+        return true;
+    }
+
+    /// <summary>
+    /// Zestaw opustoszał — nie ma czego wyświetlać. Czyścimy pieśń i GASIMY EKRAN: zostawienie
+    /// na rzutniku slajdu pieśni, która przed chwilą wyleciała z zestawu, byłoby dla niewidomego
+    /// operatora niewykrywalne (pulpit nie miałby już ani jednego slajdu, którym dałoby się to
+    /// zmienić).
+    /// </summary>
+    public void ClearCurrentSong()
+    {
+        StopLoop();
+        SelectedSetlistItem = null;
+        SelectedSong = null;
+        IsPsalmMode = false;
+        ProjectedSlide = null;
+        Verses.Clear();
+        _slides.Clear();
+        SlideList = new ObservableCollection<Slide>();
+        CurrentSlideIndex = -1;
+        OnPropertyChanged(nameof(CanLoop));
+        _projection.ClearOperatorSlide();
+        if (!ScreenBlanked)
+        {
+            ScreenBlanked = true;
+            _projection.SetBlanked(true);
+        }
+    }
+
     private async Task SaveAsNewAsync(string name, string? group)
     {
         var setlist = new Setlist { Name = name, Group = group, CreatedAt = DateTime.UtcNow };
