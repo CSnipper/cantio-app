@@ -31,6 +31,11 @@ namespace Cantio.Views;
 ///   F2             sprawdź ekrany (powielanie obrazu)
 ///   F1             pomoc — cała mapa klawiszy
 ///   Ctrl+F / F3    wyszukiwarka pieśni (etap 2)
+///   L              przeczytaj cały zestaw po kolei
+///   Delete         usuń bieżącą pieśń zestawu (dwa razy — pierwszy raz pyta)
+///   Ctrl+Shift+PageUp / PageDown   przenieś bieżącą pieśń w zestawie
+///   Ctrl+S         zapisz zestaw (pole nazwy)
+///   Ctrl+O         otwórz zapisany zestaw (lista)
 ///
 /// W trybie wyszukiwania:
 ///   pole tekstowe  wpisz numer albo tytuł, Enter szuka i przenosi na wyniki
@@ -38,6 +43,11 @@ namespace Cantio.Views;
 ///   Enter          dodaj na koniec zestawu (wyszukiwarka zostaje otwarta)
 ///   Ctrl+Enter     dodaj i od razu wyświetl wiernym
 ///   Escape         zamknij wyszukiwarkę, fokus wraca na listę slajdów
+///
+/// W panelu zapisu / otwierania zestawu:
+///   Enter          zapisz pod wpisaną nazwą / wczytaj wybrany zestaw
+///   ↑ / ↓          po liście zapisanych zestawów (czytnik czyta „nazwa, pieśni: N")
+///   Escape         zamknij panel, fokus wraca na listę slajdów
 /// </summary>
 public partial class AccessibleWindow : Window
 {
@@ -63,6 +73,10 @@ public partial class AccessibleWindow : Window
             "Szukaj pieśni. Wpisz numer albo tytuł i naciśnij Enter."));
         AutomationProperties.SetName(SearchList, AccessibleShellViewModel.Text("Acc.SearchListName",
             "Wyniki wyszukiwania. Strzałki góra i dół wybierają pieśń, Enter dodaje ją na koniec zestawu."));
+        AutomationProperties.SetName(SaveBox, AccessibleShellViewModel.Text("Acc.SaveBoxName",
+            "Nazwa zestawu. Naciśnij Enter, aby zapisać, Escape aby anulować."));
+        AutomationProperties.SetName(PickerList, AccessibleShellViewModel.Text("Acc.PickerListName",
+            "Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje."));
 
         Loaded += (_, _) => FocusReadingList();
     }
@@ -116,11 +130,20 @@ public partial class AccessibleWindow : Window
     /// </summary>
     private bool IsTypingInSearchBox() => Keyboard.FocusedElement is TextBox;
 
+    /// <summary>Czy fokus stoi w polu NAZWY zapisywanego zestawu (drugie pole tekstowe pulpitu).</summary>
+    private bool IsTypingInSaveBox() => ReferenceEquals(Keyboard.FocusedElement, SaveBox);
+
     /// <summary>Czy fokus stoi na liście WYNIKÓW (a nie na liście slajdów).</summary>
     private bool IsOnSearchResults()
-        => _vm.IsSearchOpen && !IsTypingInSearchBox()
-           && (ReferenceEquals(Keyboard.FocusedElement, SearchList)
-               || (Keyboard.FocusedElement is DependencyObject d && IsInside(d, SearchList)));
+        => _vm.IsSearchOpen && !IsTypingInSearchBox() && IsFocusIn(SearchList);
+
+    /// <summary>Czy fokus stoi na liście zapisanych zestawów (panel Ctrl+O).</summary>
+    private bool IsOnPicker()
+        => _vm.IsPickerOpen && !IsTypingInSearchBox() && IsFocusIn(PickerList);
+
+    private static bool IsFocusIn(DependencyObject root)
+        => ReferenceEquals(Keyboard.FocusedElement, root)
+           || (Keyboard.FocusedElement is DependencyObject d && IsInside(d, root));
 
     private static bool IsInside(DependencyObject node, DependencyObject root)
     {
@@ -152,14 +175,54 @@ public partial class AccessibleWindow : Window
         // Brak wyników: fokus zostaje w polu, żeby dało się poprawić zapytanie bez szukania drogi.
     }
 
-    private void FocusSearchItem()
+    private void FocusSearchItem() => FocusListItem(SearchList);
+
+    private static void FocusListItem(ListBox list)
     {
-        if (SearchList.SelectedIndex < 0) return;
-        SearchList.ScrollIntoView(SearchList.SelectedItem);
-        SearchList.UpdateLayout();
-        if (SearchList.ItemContainerGenerator.ContainerFromIndex(SearchList.SelectedIndex)
-            is ListBoxItem item)
+        if (list.SelectedIndex < 0) return;
+        list.ScrollIntoView(list.SelectedItem);
+        list.UpdateLayout();
+        if (list.ItemContainerGenerator.ContainerFromIndex(list.SelectedIndex) is ListBoxItem item)
             item.Focus();
+    }
+
+    // ── Panele zestawu (Ctrl+S zapis, Ctrl+O otwieranie) ─────────────────────
+
+    private void OpenSavePanel()
+    {
+        _vm.OpenSavePanel();
+        // Jak przy wyszukiwarce: fokus MUSI wylądować w polu, inaczej pierwsza litera nazwy
+        // poleciałaby w skrót (L przeczytałoby zestaw, B wygasiło ekran).
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            SaveBox.Focus();
+            SaveBox.SelectAll();
+        }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    private async void ConfirmSaveAsync()
+    {
+        if (await _vm.ConfirmSaveAsync()) FocusReadingList();
+        // Nieudany zapis (pusta nazwa, pusty zestaw): fokus zostaje w polu, żeby dało się poprawić.
+    }
+
+    private async void OpenPickerAsync()
+    {
+        await _vm.OpenPickerAsync();
+        FocusListItem(PickerList);
+    }
+
+    private async void LoadPickedSetlistAsync()
+    {
+        if (await _vm.LoadPickedSetlistAsync()) FocusReadingList();
+    }
+
+    /// <summary>Escape / udany wybór: zamyka otwarty panel i oddaje fokus liście slajdów.</summary>
+    private void ClosePanel()
+    {
+        if (_vm.IsSavePanelOpen) _vm.CloseSavePanel();
+        else if (_vm.IsPickerOpen) _vm.ClosePicker();
+        FocusReadingList();
     }
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -172,11 +235,18 @@ public partial class AccessibleWindow : Window
         }
 
         bool ctrl = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control);
-        var focus = CurrentFocus();
+        bool shift = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
+        var key = ToDeskKey(e.Key);
 
         // O tym, CO robi klawisz, decyduje rdzeń (AccessibleKeys) — tu zostaje samo wykonanie.
-        var action = AccessibleKeys.Route(
-            ToDeskKey(e.Key), ctrl, focus, _vm.IsSearchOpen, hasResults: SearchList.Items.Count > 0);
+        var action = AccessibleKeys.Route(key, ctrl, shift, new AccessibleKeys.DeskState(
+            CurrentFocus(), _vm.IsSearchOpen,
+            HasResults: SearchList.Items.Count > 0,
+            PanelOpen: _vm.IsSetlistPanelOpen));
+
+        // Uzbrojone potwierdzenie usunięcia gaśnie po KAŻDYM innym klawiszu — jedno wywołanie
+        // dla wszystkich akcji, żeby nowa akcja nie mogła o tym „zapomnieć".
+        _vm.NotifyKeyHandled(key, action);
 
         switch (action)
         {
@@ -207,6 +277,22 @@ public partial class AccessibleWindow : Window
             case DeskAction.AnnounceStatus:  _vm.AnnounceStatus(); break;
             case DeskAction.AnnounceScreens: _vm.AnnounceScreens(); break;
             case DeskAction.AnnounceHelp:    _vm.AnnounceHelp(); break;
+
+            // ── zarządzanie zestawem ─────────────────────────────────────────
+            case DeskAction.ReadSetlist:       _vm.ReadSetlist(); break;
+            case DeskAction.RemoveSetlistSong: _vm.RemoveCurrentFromSetlist(); FocusSelectedItem(); break;
+            case DeskAction.CancelRemove:      _vm.CancelPendingRemove(); break;
+            case DeskAction.MoveSongUp:        _vm.MoveCurrentUp(); break;
+            case DeskAction.MoveSongDown:      _vm.MoveCurrentDown(); break;
+
+            case DeskAction.OpenSavePanel:     OpenSavePanel(); break;
+            case DeskAction.ConfirmSave:       ConfirmSaveAsync(); break;
+            case DeskAction.OpenSetlistPicker: OpenPickerAsync(); break;
+            case DeskAction.PickerUp:          _vm.PickerUp();   FocusListItem(PickerList); break;
+            case DeskAction.PickerDown:        _vm.PickerDown(); FocusListItem(PickerList); break;
+            case DeskAction.RepeatPickerEntry: _vm.RepeatPickerEntry(); break;
+            case DeskAction.LoadPickedSetlist: LoadPickedSetlistAsync(); break;
+            case DeskAction.ClosePanel:        ClosePanel(); break;
         }
 
         bool handled = action != DeskAction.None;
@@ -215,8 +301,10 @@ public partial class AccessibleWindow : Window
     }
 
     private DeskFocus CurrentFocus()
-        => IsTypingInSearchBox() ? DeskFocus.SearchBox
+        => IsTypingInSaveBox() ? DeskFocus.SaveBox
+         : IsTypingInSearchBox() ? DeskFocus.SearchBox
          : IsOnSearchResults() ? DeskFocus.SearchResults
+         : IsOnPicker() ? DeskFocus.SetlistPicker
          : DeskFocus.Slides;
 
     private static DeskKey ToDeskKey(Key key) => key switch
@@ -236,6 +324,13 @@ public partial class AccessibleWindow : Window
         Key.R => DeskKey.R,
         Key.B => DeskKey.B,
         Key.S => DeskKey.S,
+        Key.L => DeskKey.L,
+        Key.O => DeskKey.O,
+        Key.Delete => DeskKey.Delete,
+        // Gołe modyfikatory: NIE są akcją operatora. Bez tego samo przytrzymanie Ctrl albo Shift
+        // gasiłoby uzbrojone potwierdzenie usunięcia między pierwszym a drugim Delete.
+        Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift
+            or Key.LeftAlt or Key.RightAlt or Key.System => DeskKey.Modifier,
         _ => DeskKey.Other,
     };
 }

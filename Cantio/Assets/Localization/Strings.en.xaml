@@ -373,7 +373,7 @@
     <sys:String x:Key="Acc.ScreensExtended">Projection on the second screen, ready</sys:String>
     <sys:String x:Key="Acc.ScreensMirrored">Warning: the projector mirrors your laptop screen — the congregation sees your desktop</sys:String>
     <sys:String x:Key="Acc.ScreensSingle">Warning: I can see only one screen. The projector is disconnected or mirrors your laptop — the congregation may see your desktop</sys:String>
-    <sys:String x:Key="Acc.Help">Keys: up and down arrows read slides without changing what the congregation sees. Page Down and Page Up move the projected image. Control with Page Down and Page Up moves to the next and previous song of the setlist. Enter projects the slide you are reading. B blanks and restores the screen. S tells what the congregation sees. R repeats the slide being read. F2 checks the screens. Control with F or F3 opens song search: type a number or title, press Enter, pick a song with the arrows, Enter adds it to the end of the setlist, Control with Enter adds and projects it at once, Escape closes the search. F1 is this help.</sys:String>
+    <sys:String x:Key="Acc.Help">Keys: up and down arrows read slides without changing what the congregation sees. Page Down and Page Up move the projected image. Control with Page Down and Page Up moves to the next and previous song of the setlist. Enter projects the slide you are reading. B blanks and restores the screen. S tells what the congregation sees. R repeats the slide being read. F2 checks the screens. Control with F or F3 opens song search: type a number or title, press Enter, pick a song with the arrows, Enter adds it to the end of the setlist, Control with Enter adds and projects it at once, Escape closes the search. L reads the whole setlist. Delete removes the current song from the setlist: the first Delete asks, the second removes, Escape cancels. Control with Shift and Page Up or Page Down moves the current song one place in the setlist. Control with S saves the setlist: type a name and press Enter. Control with O opens a saved setlist: pick it with the arrows and press Enter. F1 is this help.</sys:String>
     <sys:String x:Key="Acc.SearchBoxName">Search songs. Type a number or title and press Enter.</sys:String>
     <sys:String x:Key="Acc.SearchListName">Search results. Up and down arrows select a song, Enter adds it to the end of the setlist.</sys:String>
     <sys:String x:Key="Acc.SearchOpened">Song search. Type a number or title and press Enter.</sys:String>
@@ -386,5 +386,35 @@
     <sys:String x:Key="Acc.SearchAddedShown">Added and projected: {0}, position {1}</sys:String>
     <sys:String x:Key="Acc.SearchNoSelection">No song selected</sys:String>
     <sys:String x:Key="Acc.SearchUntitled">song without a title</sys:String>
+
+    <!-- Setlist management from the keyboard (stage 2) -->
+    <sys:String x:Key="Acc.SaveBoxName">Setlist name. Press Enter to save, Escape to cancel.</sys:String>
+    <sys:String x:Key="Acc.PickerListName">Saved setlists. Up and down arrows pick a setlist, Enter loads it.</sys:String>
+    <sys:String x:Key="Acc.SetlistHeaderMany">Setlist, {0} songs:</sys:String>
+    <sys:String x:Key="Acc.SetlistHeaderOne">Setlist, 1 song:</sys:String>
+    <sys:String x:Key="Acc.SetlistEmpty">The setlist is empty</sys:String>
+    <sys:String x:Key="Acc.SetlistCurrentMark">current</sys:String>
+    <sys:String x:Key="Acc.SetlistConfirmRemove">Remove: {0}? Press Delete again to confirm, Escape to cancel</sys:String>
+    <sys:String x:Key="Acc.SetlistRemoved">Removed: {0}. {1} songs left in the setlist</sys:String>
+    <sys:String x:Key="Acc.SetlistRemovedOne">Removed: {0}. 1 song left in the setlist</sys:String>
+    <sys:String x:Key="Acc.SetlistRemovedLast">Removed: {0}. The setlist is empty, screen blanked</sys:String>
+    <sys:String x:Key="Acc.SetlistRemoveCancelled">Removal cancelled</sys:String>
+    <sys:String x:Key="Acc.SetlistNoCurrent">There is no current song</sys:String>
+    <sys:String x:Key="Acc.SetlistMoved">Moved: {0}, position {1} of {2}</sys:String>
+    <sys:String x:Key="Acc.SetlistAtFirst">First position</sys:String>
+    <sys:String x:Key="Acc.SetlistAtLast">Last position</sys:String>
+    <sys:String x:Key="Acc.SetlistSaveOpened">Save setlist. Type a name and press Enter.</sys:String>
+    <sys:String x:Key="Acc.SetlistSaveClosed">Saving cancelled</sys:String>
+    <sys:String x:Key="Acc.SetlistSaved">Setlist saved: {0}</sys:String>
+    <sys:String x:Key="Acc.SetlistSavedNew">New setlist saved: {0}</sys:String>
+    <sys:String x:Key="Acc.SetlistSaveEmptyName">Type a setlist name</sys:String>
+    <sys:String x:Key="Acc.SetlistSaveNothing">The setlist is empty, nothing to save</sys:String>
+    <sys:String x:Key="Acc.SetlistOpenOpened">Open setlist. Pick a setlist with the arrows and press Enter.</sys:String>
+    <sys:String x:Key="Acc.SetlistOpenClosed">Opening cancelled</sys:String>
+    <sys:String x:Key="Acc.SetlistEntry">{0}, songs: {1}</sys:String>
+    <sys:String x:Key="Acc.SetlistEntryEmpty">{0}, empty</sys:String>
+    <sys:String x:Key="Acc.SetlistNoneSaved">There are no saved setlists</sys:String>
+    <sys:String x:Key="Acc.SetlistNoSelection">No setlist selected</sys:String>
+    <sys:String x:Key="Acc.SetlistUnnamed">setlist without a name</sys:String>
 
 </ResourceDictionary>
