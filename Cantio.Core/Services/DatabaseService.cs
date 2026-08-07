@@ -621,12 +621,17 @@ public class DatabaseService
         _plCompare.Compare((a ?? "").Trim(), (b ?? "").Trim(),
             System.Globalization.CompareOptions.IgnoreCase) == 0;
 
-    // Normalizacja klucza grupy: trim, lowercase (pl-PL), '_'→spacja, pl→ASCII.
-    // "zwykly" ≡ "Zwykły", "wielki_post" ≡ "Wielki Post".
-    public static string NormalizeGroupKey(string? s)
+    /// <summary>
+    /// Trim + małe litery (pl-PL) + polskie znaki złożone do ASCII („Śpiew” → „spiew”).
+    /// Wydzielone z <see cref="NormalizeGroupKey"/>, bo tej samej miary potrzebuje filtrowanie
+    /// zestawów PO FRAGMENCIE nazwy — a <c>CompareInfo</c> z <c>IgnoreNonSpace</c> tu nie
+    /// wystarcza: „ł” nie jest znakiem diakrytycznym w rozumieniu Unicode (to osobna litera
+    /// z kreską), więc „Łaska” nie zrównałaby się z „laska”.
+    /// </summary>
+    public static string FoldPolish(string? s)
     {
         if (string.IsNullOrWhiteSpace(s)) return "";
-        var lower = s.Trim().ToLower(new System.Globalization.CultureInfo("pl-PL")).Replace('_', ' ');
+        var lower = s.Trim().ToLower(new System.Globalization.CultureInfo("pl-PL"));
         var sb = new StringBuilder(lower.Length);
         foreach (var ch in lower)
         {
@@ -637,7 +642,26 @@ public class DatabaseService
                 _ => ch
             });
         }
-        var norm = sb.ToString();
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Czy nazwa ZAWIERA fragment — bez względu na wielkość liter i polskie znaki. Do filtrowania
+    /// list po stronie klienta; w zapytaniu EF byłoby to `LIKE`/`lower()`, a SQLite `lower()`
+    /// zna wyłącznie ASCII (zob. „11 Śro” w Przypnij tydzień). Pusty fragment pasuje do wszystkiego.
+    /// </summary>
+    public static bool NameContains(string? name, string? fragment)
+    {
+        var needle = FoldPolish(fragment);
+        return needle.Length == 0 || FoldPolish(name).Contains(needle, StringComparison.Ordinal);
+    }
+
+    // Normalizacja klucza grupy: trim, lowercase (pl-PL), '_'→spacja, pl→ASCII.
+    // "zwykly" ≡ "Zwykły", "wielki_post" ≡ "Wielki Post".
+    public static string NormalizeGroupKey(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "";
+        var norm = FoldPolish(s.Replace('_', ' '));
         // Aliasy: klucz okresu → alternatywne pisownie grup
         return norm switch
         {

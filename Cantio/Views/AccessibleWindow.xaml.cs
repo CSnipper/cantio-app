@@ -32,10 +32,13 @@ namespace Cantio.Views;
 ///   F1             pomoc — cała mapa klawiszy
 ///   Ctrl+F / F3    wyszukiwarka pieśni (etap 2)
 ///   L              przeczytaj cały zestaw po kolei
-///   Delete         usuń bieżącą pieśń zestawu (dwa razy — pierwszy raz pyta)
-///   Ctrl+Shift+PageUp / PageDown   przenieś bieżącą pieśń w zestawie
+///   Alt+↑ / Alt+↓  kursor ZESTAWU — po pieśniach zestawu, BEZ ruszania rzutnika i kursora czytania
+///   Alt+Home / Alt+End   kursor zestawu na pierwszą / ostatnią pieśń zestawu
+///   Alt+Enter      uczyń pieśń spod kursora zestawu bieżącą i wyświetl ją wiernym
+///   Delete         usuń pieśń SPOD KURSORA ZESTAWU (dwa razy — pierwszy raz pyta)
+///   Ctrl+Shift+PageUp / PageDown   przenieś pieśń spod kursora zestawu
 ///   Ctrl+S         zapisz zestaw (pole nazwy)
-///   Ctrl+O         otwórz zapisany zestaw (lista)
+///   Ctrl+O         otwórz zapisany zestaw (pole filtra + lista)
 ///
 /// W trybie wyszukiwania:
 ///   pole tekstowe  wpisz numer albo tytuł, Enter szuka i przenosi na wyniki
@@ -46,7 +49,10 @@ namespace Cantio.Views;
 ///
 /// W panelu zapisu / otwierania zestawu:
 ///   Enter          zapisz pod wpisaną nazwą / wczytaj wybrany zestaw
+///   pole filtra    wpisz fragment nazwy — lista przycina się na bieżąco („Pasuje 5 zestawów")
+///   ↓ / Enter      z pola filtra na listę zestawów
 ///   ↑ / ↓          po liście zapisanych zestawów (czytnik czyta „nazwa, pieśni: N")
+///   Delete         usuń ZAPISANY zestaw z bazy (dwa razy — pierwszy raz pyta)
 ///   Escape         zamknij panel, fokus wraca na listę slajdów
 /// </summary>
 public partial class AccessibleWindow : Window
@@ -76,7 +82,9 @@ public partial class AccessibleWindow : Window
         AutomationProperties.SetName(SaveBox, AccessibleShellViewModel.Text("Acc.SaveBoxName",
             "Nazwa zestawu. Naciśnij Enter, aby zapisać, Escape aby anulować."));
         AutomationProperties.SetName(PickerList, AccessibleShellViewModel.Text("Acc.PickerListName",
-            "Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje."));
+            "Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje, Delete usuwa."));
+        AutomationProperties.SetName(FilterBox, AccessibleShellViewModel.Text("Acc.FilterBoxName",
+            "Filtr zestawów. Wpisz fragment nazwy, strzałką w dół przejdź na listę."));
 
         Loaded += (_, _) => FocusReadingList();
     }
@@ -132,6 +140,9 @@ public partial class AccessibleWindow : Window
 
     /// <summary>Czy fokus stoi w polu NAZWY zapisywanego zestawu (drugie pole tekstowe pulpitu).</summary>
     private bool IsTypingInSaveBox() => ReferenceEquals(Keyboard.FocusedElement, SaveBox);
+
+    /// <summary>Czy fokus stoi w polu FILTRA zapisanych zestawów (trzecie pole tekstowe pulpitu).</summary>
+    private bool IsTypingInFilterBox() => ReferenceEquals(Keyboard.FocusedElement, FilterBox);
 
     /// <summary>Czy fokus stoi na liście WYNIKÓW (a nie na liście slajdów).</summary>
     private bool IsOnSearchResults()
@@ -209,6 +220,18 @@ public partial class AccessibleWindow : Window
     private async void OpenPickerAsync()
     {
         await _vm.OpenPickerAsync();
+        // Fokus ląduje w POLU FILTRA, nie na liście: przy kilkuset zestawach filtr jest jedyną
+        // realną drogą do zestawu, a lista jest o jedną strzałkę w dół stamtąd.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            FilterBox.Focus();
+            FilterBox.SelectAll();
+        }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    private async void DeleteSelectedSetlistAsync()
+    {
+        await _vm.DeleteSelectedSetlistAsync();
         FocusListItem(PickerList);
     }
 
@@ -236,10 +259,16 @@ public partial class AccessibleWindow : Window
 
         bool ctrl = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control);
         bool shift = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
-        var key = ToDeskKey(e.Key);
+        bool alt = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Alt);
+
+        // PUŁAPKA WPF: z wciśniętym Altem `e.Key` to Key.System, a prawdziwy klawisz siedzi
+        // w `e.SystemKey`. Bez tego przełożenia Alt+↓ byłby nie do odróżnienia od samego Alt
+        // i cały kursor zestawu byłby martwy.
+        var rawKey = e.Key == Key.System ? e.SystemKey : e.Key;
+        var key = ToDeskKey(rawKey);
 
         // O tym, CO robi klawisz, decyduje rdzeń (AccessibleKeys) — tu zostaje samo wykonanie.
-        var action = AccessibleKeys.Route(key, ctrl, shift, new AccessibleKeys.DeskState(
+        var action = AccessibleKeys.Route(key, ctrl, shift, alt, new AccessibleKeys.DeskState(
             CurrentFocus(), _vm.IsSearchOpen,
             HasResults: SearchList.Items.Count > 0,
             PanelOpen: _vm.IsSetlistPanelOpen));
@@ -285,6 +314,13 @@ public partial class AccessibleWindow : Window
             case DeskAction.MoveSongUp:        _vm.MoveCurrentUp(); break;
             case DeskAction.MoveSongDown:      _vm.MoveCurrentDown(); break;
 
+            // ── kursor ZESTAWU (Alt) — fokus NIE rusza się nigdzie, mówi live region ──
+            case DeskAction.SetlistCursorUp:    _vm.SetlistCursorUp(); break;
+            case DeskAction.SetlistCursorDown:  _vm.SetlistCursorDown(); break;
+            case DeskAction.SetlistCursorFirst: _vm.SetlistCursorFirst(); break;
+            case DeskAction.SetlistCursorLast:  _vm.SetlistCursorLast(); break;
+            case DeskAction.ShowSetlistCursorSong: _vm.ShowSetlistCursorSong(); FocusSelectedItem(); break;
+
             case DeskAction.OpenSavePanel:     OpenSavePanel(); break;
             case DeskAction.ConfirmSave:       ConfirmSaveAsync(); break;
             case DeskAction.OpenSetlistPicker: OpenPickerAsync(); break;
@@ -292,6 +328,8 @@ public partial class AccessibleWindow : Window
             case DeskAction.PickerDown:        _vm.PickerDown(); FocusListItem(PickerList); break;
             case DeskAction.RepeatPickerEntry: _vm.RepeatPickerEntry(); break;
             case DeskAction.LoadPickedSetlist: LoadPickedSetlistAsync(); break;
+            case DeskAction.FocusPicker:       FocusListItem(PickerList); break;
+            case DeskAction.DeleteSavedSetlist: DeleteSelectedSetlistAsync(); break;
             case DeskAction.ClosePanel:        ClosePanel(); break;
         }
 
@@ -302,6 +340,7 @@ public partial class AccessibleWindow : Window
 
     private DeskFocus CurrentFocus()
         => IsTypingInSaveBox() ? DeskFocus.SaveBox
+         : IsTypingInFilterBox() ? DeskFocus.SetlistFilterBox
          : IsTypingInSearchBox() ? DeskFocus.SearchBox
          : IsOnSearchResults() ? DeskFocus.SearchResults
          : IsOnPicker() ? DeskFocus.SetlistPicker

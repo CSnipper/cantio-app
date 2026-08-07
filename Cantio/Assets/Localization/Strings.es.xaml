@@ -373,7 +373,7 @@
     <sys:String x:Key="Acc.ScreensExtended">Proyección en la segunda pantalla, listo</sys:String>
     <sys:String x:Key="Acc.ScreensMirrored">Atención: el proyector duplica la pantalla del portátil — los fieles ven tu escritorio</sys:String>
     <sys:String x:Key="Acc.ScreensSingle">Atención: solo veo una pantalla. El proyector está desconectado o duplica la del portátil — los fieles pueden ver tu escritorio</sys:String>
-    <sys:String x:Key="Acc.Help">Teclas: las flechas arriba y abajo leen las diapositivas sin cambiar lo que ven los fieles. Página abajo y Página arriba mueven la imagen proyectada. Control con Página abajo y Página arriba pasa al canto siguiente y anterior de la lista. Intro proyecta la diapositiva que estás leyendo. B apaga y restaura la pantalla. S dice lo que ven los fieles. R repite la diapositiva leída. F2 comprueba las pantallas. Control con F o F3 abre la búsqueda de cantos: escribe un número o un título, pulsa Intro, elige un canto con las flechas, Intro lo añade al final de la lista, Control con Intro lo añade y lo proyecta enseguida, Escape cierra la búsqueda. L lee toda la lista. Suprimir quita el canto actual de la lista: la primera vez pregunta, la segunda lo quita, Escape cancela. Control con Mayúsculas y Página arriba o Página abajo mueve el canto actual un puesto en la lista. Control con S guarda la lista: escribe un nombre y pulsa Intro. Control con O abre una lista guardada: elígela con las flechas y pulsa Intro. F1 es esta ayuda.</sys:String>
+    <sys:String x:Key="Acc.Help">Teclas: las flechas arriba y abajo leen las diapositivas sin cambiar lo que ven los fieles. Página abajo y Página arriba mueven la imagen proyectada. Control con Página abajo y Página arriba pasa al canto siguiente y anterior de la lista. Intro proyecta la diapositiva que estás leyendo. B apaga y restaura la pantalla. S dice lo que ven los fieles. R repite la diapositiva leída. F2 comprueba las pantallas. Control con F o F3 abre la búsqueda de cantos: escribe un número o un título, pulsa Intro, elige un canto con las flechas, Intro lo añade al final de la lista, Control con Intro lo añade y lo proyecta enseguida, Escape cierra la búsqueda. L lee toda la lista, diciendo qué canto está en pantalla y dónde estás tú. Alt con las flechas arriba y abajo mueve el cursor por la lista sin cambiar nada para los fieles; Alt con Inicio y Fin salta al primer y al último canto de la lista; Alt con Intro proyecta el canto bajo el cursor. Suprimir quita de la lista el canto bajo el cursor: la primera vez pregunta, la segunda lo quita, Escape cancela. Control con Mayúsculas y Página arriba o Página abajo mueve un puesto el canto bajo el cursor. Control con S guarda la lista: escribe un nombre y pulsa Intro. Control con O abre una lista guardada: escribe parte del nombre, baja con la flecha a la lista, elígela y pulsa Intro; Suprimir en la lista borra una lista guardada de la base de datos, también con dos pulsaciones. F1 es esta ayuda.</sys:String>
     <sys:String x:Key="Acc.SearchBoxName">Buscar cantos. Escribe un número o un título y pulsa Intro.</sys:String>
     <sys:String x:Key="Acc.SearchListName">Resultados de la búsqueda. Las flechas arriba y abajo seleccionan un canto, Intro lo añade al final de la lista.</sys:String>
     <sys:String x:Key="Acc.SearchOpened">Búsqueda de cantos. Escribe un número o un título y pulsa Intro.</sys:String>
@@ -389,11 +389,13 @@
 
     <!-- Gestión de la lista desde el teclado (etapa 2) -->
     <sys:String x:Key="Acc.SaveBoxName">Nombre de la lista. Pulsa Intro para guardar, Escape para cancelar.</sys:String>
-    <sys:String x:Key="Acc.PickerListName">Listas guardadas. Las flechas arriba y abajo eligen una lista, Intro la carga.</sys:String>
+    <sys:String x:Key="Acc.PickerListName">Listas guardadas. Las flechas arriba y abajo eligen una lista, Intro la carga, Suprimir la borra de la base de datos.</sys:String>
     <sys:String x:Key="Acc.SetlistHeaderMany">Lista, {0} cantos:</sys:String>
     <sys:String x:Key="Acc.SetlistHeaderOne">Lista, 1 canto:</sys:String>
     <sys:String x:Key="Acc.SetlistEmpty">La lista está vacía</sys:String>
-    <sys:String x:Key="Acc.SetlistCurrentMark">actual</sys:String>
+    <sys:String x:Key="Acc.SetlistCurrentMark">en pantalla</sys:String>
+    <sys:String x:Key="Acc.SetlistPointerMark">aquí</sys:String>
+    <sys:String x:Key="Acc.SetlistPosition">Posición {0} de {1}: {2}</sys:String>
     <sys:String x:Key="Acc.SetlistConfirmRemove">¿Quitar: {0}? Pulsa Suprimir otra vez para confirmar, Escape para cancelar</sys:String>
     <sys:String x:Key="Acc.SetlistRemoved">Quitado: {0}. Quedan {1} cantos en la lista</sys:String>
     <sys:String x:Key="Acc.SetlistRemovedOne">Quitado: {0}. Queda 1 canto en la lista</sys:String>
@@ -416,5 +418,18 @@
     <sys:String x:Key="Acc.SetlistNoneSaved">No hay listas guardadas</sys:String>
     <sys:String x:Key="Acc.SetlistNoSelection">Ninguna lista seleccionada</sys:String>
     <sys:String x:Key="Acc.SetlistUnnamed">lista sin nombre</sys:String>
+
+    <!-- Cursor de la lista, filtro y borrado de listas guardadas (etapa 3) -->
+    <sys:String x:Key="Acc.FilterBoxName">Filtro de listas. Escribe parte del nombre y pulsa la flecha abajo para pasar a la lista.</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterMany">Coinciden {0} listas</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterOne">Coincide 1 lista</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterNone">Ninguna lista coincide</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteConfirm">¿Borrar la lista guardada: {0}, cantos: {1}? Pulsa Suprimir otra vez para confirmar, Escape para cancelar</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteConfirmLoaded">Atención: es la lista cargada en el pupitre. ¿Borrar la lista guardada: {0}, cantos: {1}? Los cantos se quedan en el pupitre. Pulsa Suprimir otra vez para confirmar, Escape para cancelar</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleted">Lista borrada: {0}. Quedan {1} listas</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedOne">Lista borrada: {0}. Queda 1 lista</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedNone">Lista borrada: {0}. No quedan listas guardadas</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedLoaded">Lista borrada: {0}. Los cantos siguen en el pupitre, pero ya no están vinculados a nada — Control con S los guardará como una lista nueva</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteFailed">No se ha podido borrar la lista</sys:String>
 
 </ResourceDictionary>

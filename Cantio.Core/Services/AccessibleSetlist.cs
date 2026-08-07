@@ -13,8 +13,16 @@ public sealed record SetlistText
     public string ListHeaderMany { get; init; } = "Zestaw, {0} pieśni:";
     public string ListHeaderOne { get; init; } = "Zestaw, 1 pieśń:";
     public string Empty { get; init; } = "Zestaw jest pusty";
-    /// <summary>Dopisek przy pozycji, która jest teraz bieżąca (jedyny sygnał orientacyjny w odczycie).</summary>
-    public string CurrentMark { get; init; } = "bieżąca";
+    /// <summary>
+    /// Dopisek przy pozycji, którą widzą teraz wierni. Od etapu 3 brzmi „na ekranie”, a nie
+    /// „bieżąca”: odkąd kursory są dwa, „bieżąca” nie odróżniałaby pieśni na rzutniku od tej,
+    /// na której stoi operator.
+    /// </summary>
+    public string CurrentMark { get; init; } = "na ekranie";
+    /// <summary>Dopisek przy pozycji, na której stoi KURSOR ZESTAWU (tu zadziała Delete i przenoszenie).</summary>
+    public string PointerMark { get; init; } = "tutaj";
+    /// <summary>{0} = pozycja od 1, {1} = ile pozycji, {2} = tytuł. Ogłoszenie ruchu kursora zestawu.</summary>
+    public string Position { get; init; } = "Pozycja {0} z {1}: {2}";
 
     /// <summary>{0} = tytuł. PIERWSZE naciśnięcie Delete — pyta, nie usuwa.</summary>
     public string ConfirmRemove { get; init; } =
@@ -55,6 +63,33 @@ public sealed record SetlistText
     public string NoSelection { get; init; } = "Nie wybrano zestawu";
     public string Untitled { get; init; } = "pieśń bez tytułu";
     public string UnnamedSetlist { get; init; } = "zestaw bez nazwy";
+
+    // ── filtr listy zapisanych zestawów (etap 3) ─────────────────────────────
+    /// <summary>{0} = ile zestawów pasuje do wpisanego fragmentu.</summary>
+    public string FilterMatchMany { get; init; } = "Pasuje {0} zestawów";
+    public string FilterMatchOne { get; init; } = "Pasuje 1 zestaw";
+    public string FilterMatchNone { get; init; } = "Żaden zestaw nie pasuje";
+
+    // ── usuwanie ZAPISANEGO zestawu z bazy (etap 3) ──────────────────────────
+    /// <summary>{0} = nazwa, {1} = liczba pieśni. PIERWSZE Delete — pyta, nie usuwa.</summary>
+    public string DeleteConfirm { get; init; } =
+        "Usunąć zapisany zestaw: {0}, pieśni: {1}? Naciśnij Delete ponownie, aby potwierdzić, Escape aby anulować";
+    /// <summary>
+    /// To samo pytanie dla zestawu WCZYTANEGO na pulpicie — ostrzeżenie jest w NIM, bo skutek
+    /// jest inny (pulpit przestanie mieć gdzie się zapisać przez Ctrl+S, Enter).
+    /// </summary>
+    public string DeleteConfirmLoaded { get; init; } =
+        "Uwaga: to zestaw wczytany na pulpicie. Usunąć zapisany zestaw: {0}, pieśni: {1}? "
+        + "Pieśni zostaną na pulpicie. Naciśnij Delete ponownie, aby potwierdzić, Escape aby anulować";
+    /// <summary>{0} = nazwa, {1} = ile zestawów ZOSTAŁO w bazie.</summary>
+    public string Deleted { get; init; } = "Usunięto zestaw: {0}. Pozostało {1} zestawów";
+    public string DeletedOne { get; init; } = "Usunięto zestaw: {0}. Pozostał 1 zestaw";
+    public string DeletedNone { get; init; } = "Usunięto zestaw: {0}. Nie ma zapisanych zestawów";
+    /// <summary>{0} = nazwa. Ten sam komunikat, ale z przypomnieniem, że pieśni zostały na pulpicie.</summary>
+    public string DeletedLoaded { get; init; } =
+        "Usunięto zestaw: {0}. Pieśni zostały na pulpicie, ale nie są już z niczym powiązane — "
+        + "Kontrol z S zapisze je jako nowy zestaw";
+    public string DeleteFailed { get; init; } = "Nie udało się usunąć zestawu";
 }
 
 /// <summary>Co zrobić z zapisem zestawu pod nazwą wpisaną przez operatora.</summary>
@@ -84,7 +119,13 @@ public static class AccessibleSetlist
     /// powiedzieć „przenieś tę na trzecią pozycję”. Bieżąca pieśń jest oznaczona, bo bez tego
     /// odczyt mówi, CO jest w zestawie, ale nie mówi, GDZIE operator stoi.
     /// </summary>
-    public static string DescribeSetlist(IReadOnlyList<string?> titles, int currentIndex, SetlistText t)
+    /// <param name="pointerIndex">
+    /// Pozycja KURSORA ZESTAWU (-1 = nie pokazuj). Odczyt musi powiedzieć OBIE rzeczy: co widzą
+    /// wierni i gdzie stoi operator — inaczej po przesunięciu kursora Altem klawisz L mówiłby
+    /// dokładnie to samo co przed nim, a jedyna różnica (gdzie zadziała Delete) byłaby niesłyszalna.
+    /// </param>
+    public static string DescribeSetlist(IReadOnlyList<string?> titles, int currentIndex, SetlistText t,
+                                         int pointerIndex = -1)
     {
         if (titles is null || titles.Count == 0) return t.Empty;
 
@@ -95,10 +136,19 @@ public static class AccessibleSetlist
             var name = Name(titles[i], t);
             sb.Append(' ').Append(i + 1).Append(". ").Append(name);
             if (i == currentIndex) sb.Append(", ").Append(t.CurrentMark);
+            if (i == pointerIndex) sb.Append(", ").Append(t.PointerMark);
             sb.Append('.');
         }
         return sb.ToString();
     }
+
+    /// <summary>
+    /// Ogłoszenie ruchu kursora ZESTAWU („Pozycja 3 z 7: Barka”). Numer i liczba pozycji są
+    /// obowiązkowe: to jedyny sposób, w jaki niewidomy operator wie, jak daleko zajechał —
+    /// sam tytuł nie mówi nic o miejscu w kolejce.
+    /// </summary>
+    public static string DescribePosition(string? title, int index, int total, SetlistText t)
+        => string.Format(t.Position, index + 1, total, Name(title, t));
 
     /// <summary>Pytanie pierwszego Delete. Tytuł jest w NIM, żeby operator wiedział, co potwierdza.</summary>
     public static string DescribeConfirmRemove(string? title, SetlistText t)
@@ -128,6 +178,30 @@ public static class AccessibleSetlist
     /// <summary>Potwierdzenie wczytania zestawu.</summary>
     public static string DescribeLoaded(string? name, int songCount, SetlistText t)
         => string.Format(t.Loaded, string.IsNullOrWhiteSpace(name) ? t.UnnamedSetlist : name.Trim(), songCount);
+
+    /// <summary>
+    /// Pytanie pierwszego Delete w panelu otwierania. Liczba pieśni jest w pytaniu, bo to jedyna
+    /// miara tego, ILE CUDZEJ PRACY właśnie znika; <paramref name="isLoaded"/> dokłada ostrzeżenie,
+    /// gdy kasowany zestaw jest tym wczytanym na pulpicie.
+    /// </summary>
+    public static string DescribeDeleteConfirm(string? name, int songCount, bool isLoaded, SetlistText t)
+        => string.Format(isLoaded ? t.DeleteConfirmLoaded : t.DeleteConfirm, SetlistName(name, t), songCount);
+
+    /// <summary>
+    /// Potwierdzenie usunięcia zestawu z bazy. Liczba POZOSTAŁYCH zestawów jest obowiązkowa
+    /// z tego samego powodu co przy usuwaniu pieśni: to jedyny dowód, że zniknął jeden, a nie dwa.
+    /// </summary>
+    public static string DescribeDeleted(string? name, int remaining, bool wasLoaded, SetlistText t)
+        => wasLoaded ? string.Format(t.DeletedLoaded, SetlistName(name, t))
+         : remaining <= 0 ? string.Format(t.DeletedNone, SetlistName(name, t))
+         : remaining == 1 ? string.Format(t.DeletedOne, SetlistName(name, t))
+         : string.Format(t.Deleted, SetlistName(name, t), remaining);
+
+    /// <summary>Ile zestawów pasuje do wpisanego fragmentu (ogłaszane po każdej zmianie filtra).</summary>
+    public static string DescribeFilterCount(int count, SetlistText t)
+        => count <= 0 ? t.FilterMatchNone
+         : count == 1 ? t.FilterMatchOne
+         : string.Format(t.FilterMatchMany, count);
 
     /// <summary>Potwierdzenie zapisu; <paramref name="asNew"/> rozróżnia nadpisanie od nowego rekordu.</summary>
     public static string DescribeSaved(string name, bool asNew, SetlistText t)
@@ -177,6 +251,12 @@ public static class AccessibleSetlist
         var name = (title ?? string.Empty).Trim();
         return name.Length == 0 ? t.Untitled : name;
     }
+
+    private static string SetlistName(string? name, SetlistText t)
+    {
+        var label = (name ?? string.Empty).Trim();
+        return label.Length == 0 ? t.UnnamedSetlist : label;
+    }
 }
 
 /// <summary>
@@ -210,10 +290,24 @@ public static class DeleteConfirmation
            && now - armedAt.Value <= Timeout;
 
     /// <summary>
-    /// Czy to naciśnięcie klawisza gasi uzbrojone potwierdzenie. Gasi WSZYSTKO poza samym
-    /// Delete (drugi Delete to odpowiedź) i poza gołymi modyfikatorami (Ctrl/Shift/Alt same
-    /// z siebie nie są akcją operatora — puszczenie ich zdarza się między dwoma naciśnięciami).
+    /// Czy to naciśnięcie klawisza gasi uzbrojone potwierdzenie USUNIĘCIA PIEŚNI. Gasi WSZYSTKO
+    /// poza samym Delete (drugi Delete to odpowiedź) i poza gołymi modyfikatorami (Ctrl/Shift/Alt
+    /// same z siebie nie są akcją operatora — puszczenie ich zdarza się między naciśnięciami).
     /// </summary>
     public static bool Cancels(DeskKey key, DeskAction action)
-        => key != DeskKey.Modifier && action != DeskAction.RemoveSetlistSong;
+        => Cancels(key, action, DeskAction.RemoveSetlistSong);
+
+    /// <summary>
+    /// To samo, ale dla DOWOLNEGO pytania — <paramref name="answer"/> to akcja, która jest na nie
+    /// odpowiedzią (i jako jedyna go nie gasi).
+    ///
+    /// Pulpit ma DWA niezależne pytania „na Delete”: usunięcie pieśni z zestawu (fokus na liście
+    /// slajdów) i usunięcie ZAPISANEGO zestawu z bazy (fokus w panelu otwierania). Muszą mieć
+    /// osobne uzbrojenia, bo wspólne oznaczałoby, że pytanie zadane w jednym miejscu da się
+    /// potwierdzić Delete'em w drugim — a niewidomy operator nie ma jak sprawdzić, gdzie stoi
+    /// fokus. Ta przeciążka jest miejscem, w którym ta niezależność JEST WYRAŻONA: Delete
+    /// w panelu (DeleteSavedSetlist) gasi uzbrojone usunięcie pieśni i odwrotnie.
+    /// </summary>
+    public static bool Cancels(DeskKey key, DeskAction action, DeskAction answer)
+        => key != DeskKey.Modifier && action != answer;
 }

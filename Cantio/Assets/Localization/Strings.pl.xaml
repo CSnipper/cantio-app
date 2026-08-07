@@ -374,7 +374,7 @@
     <sys:String x:Key="Acc.ScreensExtended">Projekcja na drugim ekranie, gotowe</sys:String>
     <sys:String x:Key="Acc.ScreensMirrored">Uwaga: rzutnik powiela ekran laptopa — wierni widzą Twój pulpit</sys:String>
     <sys:String x:Key="Acc.ScreensSingle">Uwaga: widzę tylko jeden ekran. Rzutnik jest odłączony albo powiela ekran laptopa — wierni mogą widzieć Twój pulpit</sys:String>
-    <sys:String x:Key="Acc.Help">Klawisze: strzałka w górę i w dół czytają slajdy, nic nie zmieniając wiernym. Page Down i Page Up przesuwają obraz na rzutniku. Kontrol z Page Down i Page Up przechodzi do następnej i poprzedniej pieśni zestawu. Enter wyświetla wiernym slajd, który właśnie czytasz. B wygasza i przywraca ekran. S mówi, co widzą wierni. R powtarza czytany slajd. F2 sprawdza ekrany. Kontrol z F albo F3 otwiera wyszukiwanie pieśni: wpisz numer albo tytuł, naciśnij Enter, strzałkami wybierz pieśń, Enter dodaje ją na koniec zestawu, Kontrol z Enter dodaje i od razu wyświetla, Escape zamyka wyszukiwanie. L czyta cały zestaw po kolei. Delete usuwa bieżącą pieśń z zestawu: pierwszy Delete pyta, drugi usuwa, Escape anuluje. Kontrol z Shift i Page Up albo Page Down przenosi bieżącą pieśń o jedno miejsce w zestawie. Kontrol z S zapisuje zestaw: wpisz nazwę i naciśnij Enter. Kontrol z O otwiera zapisany zestaw: strzałkami wybierz zestaw i naciśnij Enter. F1 to ta pomoc.</sys:String>
+    <sys:String x:Key="Acc.Help">Klawisze: strzałka w górę i w dół czytają slajdy, nic nie zmieniając wiernym. Page Down i Page Up przesuwają obraz na rzutniku. Kontrol z Page Down i Page Up przechodzi do następnej i poprzedniej pieśni zestawu. Enter wyświetla wiernym slajd, który właśnie czytasz. B wygasza i przywraca ekran. S mówi, co widzą wierni. R powtarza czytany slajd. F2 sprawdza ekrany. Kontrol z F albo F3 otwiera wyszukiwanie pieśni: wpisz numer albo tytuł, naciśnij Enter, strzałkami wybierz pieśń, Enter dodaje ją na koniec zestawu, Kontrol z Enter dodaje i od razu wyświetla, Escape zamyka wyszukiwanie. L czyta cały zestaw po kolei, mówiąc, która pieśń jest na ekranie, a przy której stoisz. Alt ze strzałką w górę i w dół przesuwa kursor po zestawie, nie zmieniając niczego wiernym; Alt z Home i End skacze na pierwszą i ostatnią pieśń zestawu; Alt z Enter wyświetla wiernym pieśń spod kursora. Delete usuwa z zestawu pieśń spod kursora: pierwszy Delete pyta, drugi usuwa, Escape anuluje. Kontrol z Shift i Page Up albo Page Down przenosi pieśń spod kursora o jedno miejsce w zestawie. Kontrol z S zapisuje zestaw: wpisz nazwę i naciśnij Enter. Kontrol z O otwiera zapisany zestaw: wpisz fragment nazwy, strzałką w dół zjedź na listę, wybierz zestaw i naciśnij Enter; Delete na liście usuwa zapisany zestaw z bazy, też dwoma naciśnięciami. F1 to ta pomoc.</sys:String>
     <sys:String x:Key="Acc.SearchBoxName">Szukaj pieśni. Wpisz numer albo tytuł i naciśnij Enter.</sys:String>
     <sys:String x:Key="Acc.SearchListName">Wyniki wyszukiwania. Strzałki góra i dół wybierają pieśń, Enter dodaje ją na koniec zestawu.</sys:String>
     <sys:String x:Key="Acc.SearchOpened">Wyszukiwanie pieśni. Wpisz numer albo tytuł i naciśnij Enter.</sys:String>
@@ -390,11 +390,13 @@
 
     <!-- Zarządzanie zestawem z klawiatury (etap 2) -->
     <sys:String x:Key="Acc.SaveBoxName">Nazwa zestawu. Naciśnij Enter, aby zapisać, Escape aby anulować.</sys:String>
-    <sys:String x:Key="Acc.PickerListName">Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje.</sys:String>
+    <sys:String x:Key="Acc.PickerListName">Zapisane zestawy. Strzałki góra i dół wybierają zestaw, Enter go wczytuje, Delete usuwa z bazy.</sys:String>
     <sys:String x:Key="Acc.SetlistHeaderMany">Zestaw, {0} pieśni:</sys:String>
     <sys:String x:Key="Acc.SetlistHeaderOne">Zestaw, 1 pieśń:</sys:String>
     <sys:String x:Key="Acc.SetlistEmpty">Zestaw jest pusty</sys:String>
-    <sys:String x:Key="Acc.SetlistCurrentMark">bieżąca</sys:String>
+    <sys:String x:Key="Acc.SetlistCurrentMark">na ekranie</sys:String>
+    <sys:String x:Key="Acc.SetlistPointerMark">tutaj</sys:String>
+    <sys:String x:Key="Acc.SetlistPosition">Pozycja {0} z {1}: {2}</sys:String>
     <sys:String x:Key="Acc.SetlistConfirmRemove">Usunąć: {0}? Naciśnij Delete ponownie, aby potwierdzić, Escape aby anulować</sys:String>
     <sys:String x:Key="Acc.SetlistRemoved">Usunięto: {0}. W zestawie pozostało {1} pieśni</sys:String>
     <sys:String x:Key="Acc.SetlistRemovedOne">Usunięto: {0}. W zestawie pozostała 1 pieśń</sys:String>
@@ -417,5 +419,18 @@
     <sys:String x:Key="Acc.SetlistNoneSaved">Nie ma zapisanych zestawów</sys:String>
     <sys:String x:Key="Acc.SetlistNoSelection">Nie wybrano zestawu</sys:String>
     <sys:String x:Key="Acc.SetlistUnnamed">zestaw bez nazwy</sys:String>
+
+    <!-- Kursor zestawu, filtr i usuwanie zapisanych zestawów (etap 3) -->
+    <sys:String x:Key="Acc.FilterBoxName">Filtr zestawów. Wpisz fragment nazwy, strzałką w dół przejdź na listę.</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterMany">Pasuje {0} zestawów</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterOne">Pasuje 1 zestaw</sys:String>
+    <sys:String x:Key="Acc.SetlistFilterNone">Żaden zestaw nie pasuje</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteConfirm">Usunąć zapisany zestaw: {0}, pieśni: {1}? Naciśnij Delete ponownie, aby potwierdzić, Escape aby anulować</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteConfirmLoaded">Uwaga: to zestaw wczytany na pulpicie. Usunąć zapisany zestaw: {0}, pieśni: {1}? Pieśni zostaną na pulpicie. Naciśnij Delete ponownie, aby potwierdzić, Escape aby anulować</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleted">Usunięto zestaw: {0}. Pozostało {1} zestawów</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedOne">Usunięto zestaw: {0}. Pozostał 1 zestaw</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedNone">Usunięto zestaw: {0}. Nie ma zapisanych zestawów</sys:String>
+    <sys:String x:Key="Acc.SetlistDeletedLoaded">Usunięto zestaw: {0}. Pieśni zostały na pulpicie, ale nie są już z niczym powiązane — Kontrol z S zapisze je jako nowy zestaw</sys:String>
+    <sys:String x:Key="Acc.SetlistDeleteFailed">Nie udało się usunąć zestawu</sys:String>
 
 </ResourceDictionary>
