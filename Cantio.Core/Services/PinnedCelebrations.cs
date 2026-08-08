@@ -3,14 +3,21 @@ using Cantio.Models;
 namespace Cantio.Services;
 
 /// <summary>
-/// Podpisy obchodów pod nazwami zestawów na liście PRZYPIĘTE („wsp. św. Dominika, prezbitera").
+/// Podpisy obchodów pod nazwami zestawów na liście PRZYPIĘTE.
 ///
 /// Po co: „Przypnij tydzień" nazywa zestaw dniem temporalnym (np. „18 Pon”), a nazwa zmienia się
-/// tylko wtedy, gdy obchód REALNIE ją wypiera (uroczystość/święto). Wspomnienie obowiązkowe nigdzie
-/// nie wypływało — organista dowiadywał się o nim dopiero przy ołtarzu. Podpis jest liczony
-/// PRZY WYŚWIETLANIU i nigdy nie trafia do <see cref="Setlist.Name"/>: zestawy są reużywane między
-/// latami (ten sam „18 Pon” wraca co roku z innym wspomnieniem), więc doklejenie obchodu do nazwy
-/// zerwałoby dopasowanie przy kolejnym przypinaniu.
+/// tylko wtedy, gdy obchód REALNIE ją wypiera. Podpis zostaje dla JEDNEGO przypadku, w którym
+/// obchód jest obowiązujący, a nazwy nie zabiera: UROCZYSTOŚCI w niedzielę uprzywilejowaną
+/// (8 XII w niedzielę Adwentu, 3 V w niedzielę Wielkanocy) — aplikacja nie przenosi jej na
+/// poniedziałek, więc przypomnienie ma sens.
+///
+/// <para>WSPOMNIENIA podpisu NIE dostają (decyzja użytkownika 2026-08-08): obowiązkowe mają od
+/// tej pory WŁASNY zestaw pod nazwą obchodu (<see cref="DiocesanCalendarService.PinSetlistName"/>),
+/// więc podpis byłby powtórzeniem; dowolne nie wypływają nigdzie, bo organista często ich nie
+/// obchodzi i podpowiedź myliłaby.</para>
+///
+/// Podpis jest liczony PRZY WYŚWIETLANIU i nigdy nie trafia do <see cref="Setlist.Name"/>:
+/// zestawy dni temporalnych są reużywane między latami (ten sam „18 Pon” wraca co roku z inną datą).
 ///
 /// Klasa jest CZYSTA (bez bazy i bez WPF) — wejście to lista przypiętych zestawów, zakres dat
 /// i diecezja, wyjście to mapa `id zestawu → podpis`.
@@ -20,16 +27,10 @@ public static class PinnedCelebrations
     /// <summary>Przypięty zestaw widziany przez tę klasę — wyłącznie identyfikator i nazwa.</summary>
     public readonly record struct PinnedRef(int Id, string Name);
 
-    /// <summary>Prefiks rangi w podpisie; święto/uroczystość mówią same za siebie.</summary>
-    private static string Prefix(Ranga r) => r == Ranga.WspObowiazkowe ? "wsp. " : "";
-
     /// <summary>
     /// Podpis dla konkretnej daty albo "" (brak).
-    /// <para>Reguły: liczy się tylko NAJWYŻSZY obchód rangi ≥ wspomnienie obowiązkowe; jeśli to on
-    /// wyparł nazwę dnia (<paramref name="effectiveName"/>), podpis jest zbędny — nazwa już nim jest.
-    /// W niedzielę pomijamy wspomnienia i święta: liturgicznie się ich nie obchodzi, więc podpis
-    /// byłby fałszywą podpowiedzią (uroczystość zostaje — na niedzielach uprzywilejowanych aplikacja
-    /// nie przenosi jej na poniedziałek, więc przypomnienie ma sens).</para>
+    /// <para>Reguły: liczy się tylko NAJWYŻSZY obchód rangi uroczystość; jeśli to on wyparł nazwę
+    /// dnia (<paramref name="effectiveName"/>), podpis jest zbędny — nazwa już nim jest.</para>
     /// </summary>
     public static string CaptionFor(DateOnly date, string effectiveName, string diocese)
         => CaptionFor(date, LiturgicalCalendarService.GetDay(date), effectiveName, diocese);
@@ -38,14 +39,13 @@ public static class PinnedCelebrations
     public static string CaptionFor(DateOnly date, LiturgicalDay day, string effectiveName, string diocese)
     {
         var top = DiocesanCalendarService.ForDate(date, diocese)
-            .FirstOrDefault(c => c.Ranga >= Ranga.WspObowiazkowe);
+            .FirstOrDefault(c => c.Ranga >= Ranga.Uroczystosc);
         if (top == null) return "";
         if (DatabaseService.NameEquals(top.Tytul, effectiveName)) return "";   // wyparł nazwę
-        if (date.DayOfWeek == DayOfWeek.Sunday && top.Ranga < Ranga.Uroczystosc) return "";
         // Dzień z własną rangą (obchód ruchomy) pochłania obchody nie wyższe od siebie —
         // w Boże Ciało nie obchodzi się wspomnienia, więc podpowiadanie go byłoby fałszem.
         if (top.Ranga <= day.Rank) return "";
-        return Prefix(top.Ranga) + top.Tytul;
+        return top.Tytul;
     }
 
     /// <summary>
@@ -65,7 +65,9 @@ public static class PinnedCelebrations
         {
             var date = from.AddDays(i);
             var day = LiturgicalCalendarService.GetDay(date);
-            var name = DiocesanCalendarService.EffectiveSetlistName(date, day, diocese);
+            // Ta sama nazwa, pod którą „Przypnij tydzień" założył zestaw — inaczej podpis
+            // przykleiłby się do zestawu, który tego dnia nie obsługuje.
+            var name = DiocesanCalendarService.PinSetlistName(date, day, diocese).Name;
             var caption = CaptionFor(date, day, name, diocese);
             if (caption.Length == 0) continue;
             foreach (var p in list)
