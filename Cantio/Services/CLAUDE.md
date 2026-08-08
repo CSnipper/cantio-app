@@ -320,27 +320,47 @@ Stan jest **synchronizowany**: jedna prawda w bazie desktopu, widoczna tak samo 
 ##### „Przypnij tydzień” + podpisy obchodów (v1.63+)
 
 Problem, który to zamyka: `PinNextWeek` nazywa zestaw dniem temporalnym („18 Pon”), a nazwę zmienia
-tylko obchód, który REALNIE ją wypiera (uroczystość/święto). **Wspomnienie obowiązkowe nigdzie nie
-wypływało** — organista dowiadywał się o nim dopiero przy ołtarzu.
+tylko obchód, który REALNIE ją wypiera. **Wspomnienie obowiązkowe nigdzie nie wypływało** — organista
+dowiadywał się o nim dopiero przy ołtarzu.
 
-> **Nazwa zestawu zostaje NIETKNIĘTA.** Podpis jest liczony PRZY WYŚWIETLANIU i nigdy nie trafia do
-> `Setlist.Name`: te same zestawy wracają co roku („18 Pon” w 2027 ma inne wspomnienie), więc doklejenie
-> obchodu do nazwy zerwałoby dopasowanie w `GetSetlistForPinAsync` przy kolejnym przypinaniu.
-> W modelu podpis żyje jako `[NotMapped] Setlist.Celebration` — do bazy nie ma jak wsiąknąć.
+> **Dwa niezgodne cykle (decyzja użytkownika 2026-08-08).** „18 Sob” jest nazwą RUCHOMĄ (co roku inna
+> data), a wspomnienie jest przywiązane do daty STAŁEJ. Pieśni o św. Dominiku dopisane do „18 Sob”
+> wróciłyby za rok w sobotę, która nie ma z nim nic wspólnego. Dlatego wspomnienie OBOWIĄZKOWE dostaje
+> WŁASNY zestaw pod nazwą obchodu (jak święto i uroczystość), wspomnienie DOWOLNE nie dostaje ani
+> zestawu, ani podpisu (organista często go nie obchodzi), a podpis zostaje wyłącznie dla uroczystości,
+> która nazwy NIE zabrała (niedziela uprzywilejowana — aplikacja nie przenosi obchodu na poniedziałek).
+> Zestawy dni TEMPORALNYCH dalej mają nazwę nietkniętą, bo wracają co roku pod inną datą.
 
-- **Czysta funkcja:** `Services/PinnedCelebrations.cs` (bez bazy, bez WPF). `CaptionFor(date,
-  effectiveName, diocese)` bierze NAJWYŻSZY obchód rangi ≥ wspomnienie obowiązkowe i zwraca `""`, gdy:
-  (a) to on wyparł nazwę dnia — nazwa już nim jest, podpis byłby duplikatem; (b) jest niedziela, a ranga
-  < uroczystość — liturgicznie się tego nie obchodzi, więc podpis byłby fałszywą podpowiedzią.
-  Prefiks `wsp. ` tylko dla wspomnienia; święto/uroczystość mówią same za siebie.
-  `Build(pinned, from, days, diocese)` mapuje `id → podpis`, kojarząc zestaw z datą **po nazwie**
-  (`DatabaseService.NameEquals`, pl-PL — dokładnie to, po czym rozpoznaje zestawy samo przypinanie).
+- **Nazwa zestawu dla przypinania:** `DiocesanCalendarService.PinSetlistName(date, day, diocese)` —
+  jedyna różnica wobec `EffectiveSetlistName` to próg dnia POWSZEDNIEGO (wspomnienie obowiązkowe
+  zamiast święta); w niedzielę próg zostaje twardy (uroczystość). Zwraca też sam obchód, więc wołający
+  wie, czy nazwa pochodzi z sanktorału. **Pasek górny okna dalej używa `EffectiveSetlistName`** — to
+  etykieta DNIA liturgicznego, nie nazwa zestawu.
+- **Dopasowanie do ISTNIEJĄCEGO zestawu:** `Services/CelebrationStems.cs` (czysta). Organista ma własne
+  zestawy nazwane po swojemu („Dominik”, „Teresa od Jezusa”, „Jana Sarkandra”), więc przed założeniem
+  nowego `PilotPinWeek` szuka po RDZENIACH słów (6 znaków, tolerancja jednej litery na końcówkę
+  fleksyjną, słowa funkcyjne odsiane, polskie znaki przez `DatabaseService.FoldPolish`).
+  **Kierunek pokrycia:** tytuł obchodu pokrywa nazwę zestawu (+ główny rdzeń obchodu musi być w nazwie)
+  — bez tego „Jan Paweł II” zlałby się ze „Św. Jana Sarkandra” przez jedno wspólne imię.
+  **Przy niejednoznaczności NIE ZGADUJEMY**: powstaje nowy zestaw, a powód idzie do `AppLog`
+  (kategoria `PinWeek`) — cudzy zestaw podstawiony pod obchód wygląda poprawnie i jest niewykrywalny,
+  duplikat widać na liście. Nazwa DOKŁADNIE równa tytułowi obchodu wygrywa i nie jest kolizją.
+  Szukamy w CAŁEJ bibliotece (zestaw obchodu nie należy do okresu), ale dopiero PO
+  `GetSetlistForPinAsync` — identyfikacja po `(nazwa, SeasonKey)` zostaje pierwsza.
+- **Czysta funkcja podpisu:** `Services/PinnedCelebrations.cs` (bez bazy, bez WPF). `CaptionFor(date,
+  effectiveName, diocese)` bierze NAJWYŻSZY obchód rangi uroczystość i zwraca `""`, gdy to on wyparł
+  nazwę dnia (nazwa już nim jest) albo gdy dzień ma własną, nie niższą rangę (obchód ruchomy).
+  Wspomnienia podpisu nie dają w ogóle. `Build(pinned, from, days, diocese)` mapuje `id → podpis`,
+  kojarząc zestaw z datą **po nazwie z `PinSetlistName`** (`DatabaseService.NameEquals`, pl-PL —
+  dokładnie to, po czym rozpoznaje zestawy samo przypinanie). Podpis jest liczony PRZY WYŚWIETLANIU
+  i w modelu żyje jako `[NotMapped] Setlist.Celebration` — do bazy nie ma jak wsiąknąć.
 - **Logika przypinania:** `Services/PilotPinWeek.cs` — JEDNO miejsce dla przycisku w oknie
   (`DisplayViewModel.PinNextWeekAsync`) i komendy `pin_next_week`. Operacja jest **idempotentna**:
   zestaw zakładany tylko gdy go nie ma, ponowne kliknięcie daje `pinned: 0`. Flaga idzie przez
   `SetSetlistPinnedAsync`, więc `UpdatedAt` zostaje nietknięte (tabela niżej).
 - P→D `pin_next_week` (bez pól) → `ack {command:"pin_next_week", ok:true, pinned:N,
-  days:[{date:"2026-08-08", name:"18 Sob", celebration:"wsp. Św. Dominika, prezbitera"}, …]}`.
+  days:[{date:"2026-08-08", name:"Św. Dominika, prezbitera"}, {date:"2026-05-03",
+  name:"5 Nie Wielkanocy", celebration:"NAJŚW. MARYI PANNY, KRÓLOWEJ POLSKI…"}, …]}`.
   `days` ma **zawsze 7 pozycji**, `celebration` jest pomijane, gdy podpisu nie ma; `N` = ile zestawów
   realnie przypięto/utworzono. Składa wyłącznie `PilotPinWeek.BuildAckJson`.
 - D→P broadcast `pinned_celebrations {items:[{desktopId, celebration}]}` — po każdej zmianie pinów
@@ -358,9 +378,12 @@ wypływało** — organista dowiadywał się o nim dopiero przy ołtarzu.
 - **Zgodność wsteczna:** `pin_next_week` i `pinned_celebrations` to DOPISANE typy; stary Pilot ich nie
   wysyła, a nadmiarowego broadcastu nie rozumie i ignoruje. Za bramą auth jak wszystko inne.
 - Harness: `PinWeekTests.cs` — czysta funkcja na SZTYWNYCH datach kalendarza (3 IX = wspomnienie
-  obowiązkowe, 8 IX = święto wypierające, 12 IX = wspomnienie diecezji gliwickiej, 13 IX 2026 =
-  niedziela) + komenda przez realny `ClientWebSocket`. Sabotaż potwierdzony: wycięcie obu strażników
-  w `CaptionFor` daje 2 FAIL.
+  obowiązkowe, 30 V = dowolne powszechnie / obowiązkowe w katowickiej, 8 IX = święto wypierające,
+  12 IX = wspomnienie diecezji gliwickiej, 13 IX 2026 = niedziela, 3 V 2026 = uroczystość w niedzielę
+  Wielkanocy) + komenda przez realny `ClientWebSocket`. `CelebrationSetlistTests.cs` — miara rdzeni
+  na literałach + REALNE przypięcie tygodnia na kopii bazy użytkownika. Sabotaże potwierdzone:
+  porównanie całych słów zamiast rdzeni = 15 FAIL (w tym duplikat „Dominik” + „Św. Dominika,
+  prezbitera” w bazie), zamiana kierunku pokrycia na „ile procent wspólnych” = 2 FAIL.
 
 ##### Kategorie pieśni i grupy zestawów (v1.63+)
 

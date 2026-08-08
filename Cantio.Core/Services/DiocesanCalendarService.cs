@@ -151,19 +151,54 @@ public static class DiocesanCalendarService
 
     /// <summary>Jak wyżej, ale z jawnie podaną diecezją (kod bezgłowy — Pilot, testy).</summary>
     public static string EffectiveSetlistName(DateOnly date, LiturgicalDay day, string diocese)
+        => NameFor(date, day, diocese, Ranga.Swieto).Name;
+
+    /// <param name="Name">nazwa zestawu dla dnia</param>
+    /// <param name="Celebration">obchód, który tę nazwę dał, albo <c>null</c> (nazwa temporalna)</param>
+    public readonly record struct SetlistNameForDay(string Name, Celebration? Celebration)
+    {
+        /// <summary>Czy nazwa pochodzi z obchodu (a nie z dnia temporalnego).</summary>
+        public bool FromCelebration => Celebration != null;
+    }
+
+    /// <summary>
+    /// Nazwa zestawu dla „Przypnij tydzień". Różni się od <see cref="EffectiveSetlistName"/>
+    /// JEDNYM progiem: w dzień powszedni zestaw dostaje też WSPOMNIENIE OBOWIĄZKOWE.
+    ///
+    /// <para>Po co osobna reguła: „18 Sob" jest nazwą RUCHOMĄ (co roku inna data) i zestaw pod nią
+    /// jest wieloraczy, a wspomnienie jest przywiązane do STAŁEJ daty. Pieśni o św. Dominiku
+    /// wrzucone do „18 Sob" wróciłyby za rok w sobotę, która nie ma z nim nic wspólnego. Zestaw
+    /// nazwany obchodem wraca co roku pod właściwy dzień.</para>
+    ///
+    /// <para>Wspomnienie DOWOLNE zestawu NIE dostaje (decyzja użytkownika): organista często go
+    /// nie obchodzi, więc zestaw byłby śmieciem na liście.</para>
+    ///
+    /// <para>Wyświetlanie dnia w pasku górnym zostaje przy <see cref="EffectiveSetlistName"/> —
+    /// to etykieta dnia liturgicznego, nie nazwa zestawu.</para>
+    /// </summary>
+    public static SetlistNameForDay PinSetlistName(DateOnly date, LiturgicalDay day, string diocese)
+        => NameFor(date, day, diocese, Ranga.WspObowiazkowe);
+
+    /// <param name="weekdayMin">od jakiej rangi obchód wypiera nazwę dnia POWSZEDNIEGO</param>
+    private static SetlistNameForDay NameFor(
+        DateOnly date, LiturgicalDay day, string diocese, Ranga weekdayMin)
     {
         var ovr = GetOverride(date);
-        if (ovr != null) return ovr;
+        if (ovr != null) return new SetlistNameForDay(ovr, null);
         var top = ForDate(date, diocese).FirstOrDefault();
-        if (top == null) return day.SetlistName;
+        if (top == null) return new SetlistNameForDay(day.SetlistName, null);
         bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
+        // W niedzielę próg zostaje TWARDY (uroczystość) niezależnie od weekdayMin —
+        // wspomnień w niedzielę się nie obchodzi, więc zestaw wspomnienia byłby fałszywką.
         bool displaces = isSunday
             ? top.Ranga == Ranga.Uroczystosc && day.Group == "zwykly"
-            : top.Ranga >= Ranga.Swieto;
+            : top.Ranga >= weekdayMin;
         // Dzień z WŁASNĄ rangą (obchód ruchomy: Boże Ciało, Chrystus Król…) ustępuje tylko
         // obchodowi WYŻSZEJ rangi. Bez tego warunku święto Nawiedzenia NMP (31 V) zabierało
         // nazwę Bożemu Ciału w latach, w których oba wypadały tego samego dnia (2029, 2040).
         if (top.Ranga <= day.Rank) displaces = false;
-        return displaces ? top.Tytul : day.SetlistName;
+        return displaces
+            ? new SetlistNameForDay(top.Tytul, top)
+            : new SetlistNameForDay(day.SetlistName, null);
     }
 }

@@ -62,12 +62,18 @@ public static class PilotPinWeek
         {
             var date = from.AddDays(i);
             var day = LiturgicalCalendarService.GetDay(date);
-            // Kalendarz diecezji: uroczystość/święto (lub ręczny wybór formularza) wypiera nazwę dnia
-            var name = DiocesanCalendarService.EffectiveSetlistName(date, day, diocese);
+            // Kalendarz diecezji: uroczystość/święto/wspomnienie obowiązkowe (lub ręczny wybór
+            // formularza) wypiera nazwę dnia — zob. DiocesanCalendarService.PinSetlistName.
+            var pinName = DiocesanCalendarService.PinSetlistName(date, day, diocese);
+            var name = pinName.Name;
             var group = await db.ResolveGroupNameAsync(day.Group);
             await db.EnsureGroupAsync(group);
 
             var existing = await db.GetSetlistForPinAsync(name, day.Group);
+            // Zestaw obchodu jest przywiązany do STAŁEJ daty, więc szukamy go w całej bibliotece,
+            // nie tylko w okresie — a użytkownik nazywa go po swojemu („Dominik” zamiast
+            // „Św. Dominika, prezbitera”). Bez tego kroku powstałby duplikat.
+            existing ??= await FindCelebrationSetlistAsync(db, pinName);
             int id;
             bool created = false;
             if (existing == null)
@@ -92,6 +98,42 @@ public static class PilotPinWeek
         }
 
         return new Result(days, changed);
+    }
+
+    /// <summary>
+    /// Istniejący zestaw obchodu nazwany po swojemu („Dominik” ↔ „Św. Dominika, prezbitera”) —
+    /// dopasowanie po rdzeniach słów (<see cref="CelebrationStems"/>) w CAŁEJ bibliotece zestawów.
+    ///
+    /// <para>To krok DODATKOWY po <see cref="DatabaseService.GetSetlistForPinAsync"/>, nie zamiennik:
+    /// identyfikacja po (nazwa, SeasonKey) zostaje pierwsza i rozstrzyga dni temporalne.</para>
+    ///
+    /// <para>Przy NIEJEDNOZNACZNOŚCI (dwa pasujące zestawy) świadomie zwracamy <c>null</c> —
+    /// wołający założy nowy zestaw, a wpis w logu mówi organiście, co się stało. Podstawienie
+    /// cudzego zestawu pod obchód wygląda poprawnie i jest niewykrywalne, więc duplikat, który
+    /// widać na liście, jest mniejszym złem.</para>
+    /// </summary>
+    private static async Task<Setlist?> FindCelebrationSetlistAsync(
+        DatabaseService db, DiocesanCalendarService.SetlistNameForDay pinName)
+    {
+        if (!pinName.FromCelebration) return null;
+
+        var all = await db.GetAllSetlistsAsync();
+        var found = CelebrationStems.Find(
+            pinName.Name, all.Select(s => new CelebrationStems.Candidate(s.Id, s.Name)));
+
+        if (found.Match is { } m)
+        {
+            if (!DatabaseService.NameEquals(m.Name, pinName.Name))
+                AppLog.Write("PinWeek", $"obchód „{pinName.Name}” → istniejący zestaw „{m.Name}” (id={m.Id})");
+            return all.FirstOrDefault(s => s.Id == m.Id);
+        }
+
+        if (found.Candidates.Count > 1)
+            AppLog.Write("PinWeek",
+                $"obchód „{pinName.Name}”: NIEJEDNOZNACZNE dopasowanie (" +
+                string.Join(", ", found.Candidates.Select(c => $"„{c.Name}” id={c.Id}")) +
+                ") — zakładam nowy zestaw");
+        return null;
     }
 
     /// <summary>
