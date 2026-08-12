@@ -23,6 +23,14 @@ public static class PilotSongSync
     public const int NoCategory = 0;
 
     /// <summary>
+    /// <see cref="Song.UpdatedAt"/> na łącze: milisekundy epoki UNIX (tak samo jak `updatedAt`
+    /// zestawów). Nigdy przez <c>ToString</c> — format daty zależałby od kultury komputera.
+    /// </summary>
+    public static long ToUnixMs(DateTime utc) =>
+        new DateTimeOffset(DateTime.SpecifyKind(utc, DateTimeKind.Utc), TimeSpan.Zero)
+            .ToUnixTimeMilliseconds();
+
+    /// <summary>
     /// Buduje komunikat <c>songs_data</c> z IZOLACJĄ PER PIEŚŃ.
     ///
     /// Regresja produkcyjna: gdy serializacja JEDNEJ pieśni rzuci (np. uszkodzona nawigacja
@@ -58,7 +66,12 @@ public static class PilotSongSync
                         // lekcjonarz: "N"/"S" na oznaczonych zwrotkach psalmu, null na zwykłych.
                         // Pilot czyta pole przez optStringOrNull → null = brak pola = pełna zgodność wsteczna.
                         .Select(v => new { type = v.Type, text = v.Text, lekcjonarz = v.Lekcjonarz })
-                        .ToList()
+                        .ToList(),
+                    // DOPISANE na końcu elementu (v1.65) — stary Pilot ignoruje nadmiarowe pola.
+                    // `updatedAt` = baza porównania dla edycji offline (song_update {baseUpdatedAt}),
+                    // `playOrderJson` = pusty string gdy kolejność naturalna (nigdy null).
+                    updatedAt     = ToUnixMs(s.UpdatedAt),
+                    playOrderJson = s.PlayOrderJson ?? ""
                 }));
             }
             catch (Exception ex)

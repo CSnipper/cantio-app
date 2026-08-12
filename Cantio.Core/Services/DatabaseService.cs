@@ -1,4 +1,4 @@
-using Cantio.Models;
+﻿using Cantio.Models;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.IO.Compression;
@@ -267,13 +267,17 @@ public class DatabaseService
 
             if (song == null)
             {
-                song = new Song { Title = title, Author = author, CategoryId = categoryId, Number = 0 };
+                song = new Song { Title = title, Author = author, CategoryId = categoryId, Number = 0,
+                                  UpdatedAt = DateTime.UtcNow };
                 db.Songs.Add(song);
                 await db.SaveChangesAsync();
             }
             else
             {
                 song.Author = author;
+                // Treść pieśni przyjechała z telefonu = zmiana treści → znacznik w górę.
+                // Inaczej desktop wyglądałby dla drugiego tabletu na niezmieniony.
+                song.UpdatedAt = DateTime.UtcNow;
                 var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
                 db.Verses.RemoveRange(oldVerses);
                 await db.SaveChangesAsync();
@@ -312,11 +316,19 @@ public class DatabaseService
         return (total, items);
     }
 
+    /// <summary>
+    /// Zapis pieśni = ZMIANA TREŚCI, więc ZAWSZE odświeża <see cref="Song.UpdatedAt"/>
+    /// (tabela „kto podbija" w <c>Cantio/Services/CLAUDE.md</c>). Nowa wartość wraca na
+    /// przekazanym obiekcie — wołający (ack `song_update`, broadcast `song_changed`) ma ją
+    /// odesłać Pilotowi jako nową bazę porównania.
+    /// </summary>
     public async Task SaveSongAsync(Song song)
     {
         await using var db = new CantioDbContext();
+        var now = DateTime.UtcNow;
         if (song.Id == 0)
         {
+            song.UpdatedAt = now;
             db.Songs.Add(song);
         }
         else
@@ -328,6 +340,8 @@ public class DatabaseService
             existing.Author = song.Author;
             existing.CategoryId = song.CategoryId;
             existing.PlayOrderJson = song.PlayOrderJson;
+            existing.UpdatedAt = now;
+            song.UpdatedAt = now;
 
             var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
             db.Verses.RemoveRange(oldVerses);
@@ -397,6 +411,7 @@ public class DatabaseService
         {
             verse.Text = newText;
             verse.ImagePath = imagePath;
+            await TouchSongsAsync(db, [verse.SongId]);
             await db.SaveChangesAsync();
         }
     }
@@ -416,12 +431,29 @@ public class DatabaseService
             verse.ImagePath = imagePath;
             verse.BackgroundImagePath = bgImagePath;
         }
+        await TouchSongsAsync(db, verses.Select(v => v.SongId));
         await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Odświeża <see cref="Song.UpdatedAt"/> pieśni, których treść zmieniono „od strony zwrotek"
+    /// (szybki edytor, kolejność zwrotek). Bez tego poprawka literówki w oknie Cantio byłaby dla
+    /// Pilota niewidoczna i telefon nadpisałby ją swoją wersją przy najbliższej synchronizacji.
+    /// Wołane PRZED <c>SaveChangesAsync</c>, w tej samej transakcji.
+    /// </summary>
+    private static async Task TouchSongsAsync(CantioDbContext db, IEnumerable<int> songIds)
+    {
+        var ids = songIds.Distinct().ToList();
+        if (ids.Count == 0) return;
+        var songs = await db.Songs.Where(s => ids.Contains(s.Id)).ToListAsync();
+        var now = DateTime.UtcNow;
+        foreach (var s in songs) s.UpdatedAt = now;
     }
 
     public async Task SaveSongWithVersesAsync(Song song)
     {
         await using var db = new CantioDbContext();
+        song.UpdatedAt = DateTime.UtcNow;
         if (song.Id == 0)
         {
             db.Songs.Add(song);
@@ -445,6 +477,7 @@ public class DatabaseService
             .ToListAsync();
         foreach (var v in verses)
             if (posMap.TryGetValue(v.Id, out var pos)) v.Position = pos;
+        await TouchSongsAsync(db, verses.Select(v => v.SongId));
         await db.SaveChangesAsync();
     }
 
