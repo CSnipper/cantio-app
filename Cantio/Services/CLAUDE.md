@@ -146,7 +146,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_group_delete` | `name` | usunięcie grupy |
 | `song_get` | `id` | → `song_data` **do nadawcy** (pełna treść pieśni do edycji) |
 | `song_create` | `title`, `number?`, `categoryId?`, `author?`, `verses[]` (`{type,text}`), `playOrderJson?` | nowa pieśń (→ `ack` z nadanym `id` + broadcast `song_changed`) |
-| `song_update` | `id` + te same pola co `song_create` (wszystkie OPCJONALNE poza `title`) | aktualizacja CZĘŚCIOWA: **pole nieprzysłane = nie ruszaj**, przysłane `verses` zastępuje treść w całości (→ `ack` + broadcast `song_changed`) |
+| `song_update` | `id` + te same pola co `song_create` (wszystkie OPCJONALNE poza `title`) + **`baseUpdatedAt?`**, **`force?`** | aktualizacja CZĘŚCIOWA: **pole nieprzysłane = nie ruszaj**, przysłane `verses` zastępuje treść w całości (→ `ack` + broadcast `song_changed`); `baseUpdatedAt` niezgodny z bazą → `song_update_conflict` i **nic nie zapisano** |
 | `song_delete` | `id`, **`force?`** | usunięcie pieśni; pieśń w zapisanych zestawach wymaga `force:true` |
 | `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
 | `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
@@ -194,15 +194,17 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
 | `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
 | `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
-| `songs_data` / `setlist_detail` / `sync_push_ack` | — | dane sync |
+| `songs_data` | `offset`, `total`, `items[]` (`{id,title,number,author,categoryId,parts[],`**`updatedAt`**`,`**`playOrderJson`**`}`) | strona biblioteki pieśni na żądanie `get_songs`; dwa ostatnie pola DOPISANE w v1.65 (baza porównania dla edycji offline + kolejność odtwarzania) |
+| `setlist_detail` / `sync_push_ack` | — | dane sync |
 | `setlists_data` | `setlists[]` (`{id,name,group,songCount,updatedAt,`**`pinned`**`}`) | biblioteka zestawów — TYLKO na żądanie `get_setlists` (bywa duża); `pinned` dopisane w v1.63 |
 | `setlist_pinned` | `desktopId`, `pinned` | zmieniono przypięcie zestawu — broadcast do WSZYSTKICH (v1.63) |
 | `pinned_celebrations` | `items[]` (`{desktopId, celebration}`) | podpisy obchodów pod przypiętymi zestawami (np. „wsp. Św. Dominika, prezbitera”) — broadcast po KAŻDEJ zmianie pinów i na `ClientConnected`; wyłącznie wpisy z NIEPUSTYM podpisem, pusta lista = skasuj podpisy (v1.63) |
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
 | `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
-| `song_data` | `id, title, number, categoryId, author, verses[]` (`{type,text}`), `playOrderJson` | pełna treść pieśni — TYLKO na żądanie `song_get` (v1.63) |
-| `song_changed` | `id`, `action` (`created`/`updated`/`deleted`) | pieśń dodano/zmieniono/usunięto — broadcast do WSZYSTKICH, w tym do nadawcy (v1.63) |
+| `song_data` | `id, title, number, categoryId, author, verses[]` (`{type,text}`), `playOrderJson`, **`updatedAt`** | pełna treść pieśni — TYLKO na żądanie `song_get` (v1.63; `updatedAt` v1.65) |
+| `song_update_conflict` | dokładnie te same pola co `song_data` (tylko inny `type`) | pieśń zmieniono po OBU stronach — NIC nie zapisano; pola niosą wersję **desktopową** (v1.65) |
+| `song_changed` | `id`, `action` (`created`/`updated`/`deleted`), **`updatedAt`** | pieśń dodano/zmieniono/usunięto — broadcast do WSZYSTKICH, w tym do nadawcy (v1.63); `updatedAt` = znacznik PO zapisie, 0 przy `deleted` (v1.65) |
 | `display_settings_data` | `settings` (23 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
@@ -604,9 +606,46 @@ kategoriach i wyglądzie: tablet wyłącznie komenduje, desktop zapisuje, odświ
   a nieznanego `song_changed` po prostu zignoruje. Wszystkie cztery komendy przechodzą normalną bramą
   auth (przed `auth_ok` cisza).
 
+##### Pieśni: edycja OFFLINE i wykrywanie konfliktu (v1.65+)
+
+Pilot edytuje pieśni desktopowe także bez połączenia i odtwarza zmiany po powrocie do sieci
+(`song_update`). Ta sama pieśń mogła się w tym czasie zmienić w oknie Cantio — reguła jest jak przy
+zestawach: **zmiana po jednej stronie → zastosuj po cichu; pytamy TYLKO przy realnym konflikcie**
+(pytanie pokazuje Pilot, desktop go wyłącznie wykrywa).
+
+- Nośnik: kolumna **`Songs.UpdatedAt`** (migracja `DodajUpdatedAtDoSong`, nieniszczące ADD COLUMN,
+  backfill istniejących wierszy DATĄ MIGRACJI — zero wyglądałoby jak „nigdy nie zmieniona").
+  Na łącze idzie zawsze jako **ms epoki UNIX** (`PilotSongSync.ToUnixMs`), nigdy jako tekst daty
+  (format zależałby od kultury komputera).
+- `baseUpdatedAt` (long, ms) = wartość `updatedAt`, którą Pilot ostatnio widział dla tej pieśni
+  (z `songs_data`, `song_data`, acka albo broadcastu `song_changed`).
+- **Konflikt = `baseUpdatedAt` przysłane i RÓŻNE od bieżącego `Songs.UpdatedAt`.** Wtedy desktop
+  **nie zapisuje niczego**, nie rozgłasza `song_changed` i odsyła `song_update_conflict`
+  z pełną wersją desktopową (ten sam komplet pól co `song_data`).
+- **Różność, nie „nowszy" — i to jest różnica wobec zestawów.** Przy zestawach desktop zapisuje
+  znacznik PRZYSŁANY przez telefon, więc porównuje `>`. Przy pieśniach znacznik nadaje **desktop
+  własnym zegarem** i odsyła go w acku oraz w broadcastcie; telefon zapisuje tę wartość jako nową
+  bazę. Dzięki temu zegary obu urządzeń w ogóle nie biorą udziału w porównaniu — a gdyby ktoś
+  cofnął zegar PC, warunek „nowszy" ukryłby realną zmianę.
+- `force: true` → pomija sprawdzenie i nadpisuje (Pilot wysyła po wyborze „wersja z telefonu").
+- **Zgodność wsteczna:** brak `baseUpdatedAt` = zachowanie sprzed zmiany (bezwarunkowy zapis
+  + `ack`) — tak działa Pilot już zainstalowany u użytkownika. `force` bez `baseUpdatedAt` niczego
+  nie zmienia. Konflikt dotyczy WYŁĄCZNIE `song_update`; `song_create` nie ma czego porównywać.
+- Rozstrzygnięcie „wersja z komputera" po stronie Pilota nie wymaga żadnej komendy — telefon bierze
+  dane z `song_update_conflict` (albo z `song_get`) i nadpisuje siebie.
+- Logika w JEDNYM miejscu: `Services/PilotSongEdit.SaveAsync` (sprawdzenie tuż po wczytaniu pieśni,
+  PRZED jakąkolwiek walidacją treści) + `PilotSongEdit.BuildUpdateConflictJson`. Handler
+  w `MainWindow.xaml.cs` jest nietknięty — konflikt jedzie zwykłym `Result.Response`, a `Broadcast`
+  jest `null`, więc żadne UI się nie odświeża.
+- Harness: `SongUpdatedAtTests.cs` (su0–su6). Sabotaże potwierdzone: wycięcie podbijania znacznika
+  w `SaveSongAsync` = 1 FAIL („znacznik w bazie PODBITY"), wycięcie warunku konfliktu = 8 FAIL
+  w (su2) przy nietkniętej reszcie kontraktu.
+
 ### `UpdatedAt` — kto podbija, a kto NIE (kluczowe dla wykrywania konfliktów)
 
 Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `desktop.updatedAt != lastSyncedUpdatedAt`), więc reguła jest sztywna:
+
+**`Setlists.UpdatedAt` — zestawy:**
 
 | metoda | podbija `UpdatedAt`? | dlaczego |
 |---|---|---|
@@ -616,8 +655,22 @@ Cała detekcja konfliktów opiera się na tym znaczniku (Pilot porównuje `deskt
 | `SetSetlistPinnedAsync` | **NIE** | przypięcie to flaga UI, nie zmiana treści; inaczej kliknięcie pinezki generowałoby konflikt. **Dotyczy tak samo komendy `setlist_pin` z Pilota (v1.63)** — jedyna droga zapisu tej flagi to ta metoda, nigdy `SaveSetlistAsync` |
 | `SaveSetlistItemNotesAsync` | **NIE** | Pilot nie przenosi notatek; przy pełnym „ZAPISZ ZESTAW" i tak idzie `SaveSetlistItemsAsync` |
 | `set_display_settings` (`PilotDisplaySettings`, v1.63) | **NIE** | wygląd projekcji to ustawienia aplikacji (tabela `settings`), nie treść zestawu — podbicie znacznika dałoby fałszywy konflikt na wszystkich zestawach naraz |
-| komendy edytora pieśni (`PilotSongEdit`, v1.63) | **NIE** — żadna | pieśń nie należy do zestawu; podbicie znacznika po poprawieniu literówki dałoby fałszywy konflikt na wszystkich zestawach, które tę pieśń zawierają. `song_delete {force:true}` kasuje pozycje zestawów przez `DeleteSongAsync` (parytet z oknem) i też NIE dotyka `UpdatedAt` |
+| komendy edytora pieśni (`PilotSongEdit`, v1.63) | **NIE** — żadna (mowa o `Setlists.UpdatedAt`) | pieśń nie należy do zestawu; podbicie znacznika po poprawieniu literówki dałoby fałszywy konflikt na wszystkich zestawach, które tę pieśń zawierają. `song_delete {force:true}` kasuje pozycje zestawów przez `DeleteSongAsync` (parytet z oknem) i też NIE dotyka `UpdatedAt` zestawu. **Znacznik samej PIEŚNI podbijają** — tabela niżej |
 | komendy kategorii i grup (`PilotCategorySync`, v1.63) | **NIE** — żadna | kategorie nie należą do zestawu, a operacje na grupach ruszają wyłącznie ustawienie `setlist_groups`; zestawy nie są dotykane nawet przy `setlist_group_rename`/`delete` (parytet z UI), więc podbicie znacznika oznaczałoby fałszywy konflikt na wszystkich zestawach naraz |
+
+**`Songs.UpdatedAt` — pieśni (v1.65+):** znacznik podbija **KAŻDA zmiana treści widocznej dla Pilota**.
+
+| metoda / ścieżka | podbija `Songs.UpdatedAt`? | dlaczego |
+|---|---|---|
+| `SaveSongAsync` (pełny edytor okna, „wklej całość", `song_create`/`song_update` z Pilota, tekst jednorazowy zapisany jako pieśń) | **TAK**, zawsze | zapis pieśni = zmiana treści. Nowa wartość wraca na przekazanym obiekcie i leci do Pilota w acku **oraz** w `song_changed` — telefon zapisuje ją jako nową bazę `baseUpdatedAt` |
+| `SaveSongWithVersesAsync` (importy OpenLP/OpenSong/OSZ) | **TAK** | import z nadpisaniem podmienia treść pieśni |
+| `SaveVerseTextAsync` / `SaveVerseTextsAsync` (szybki edytor zwrotki) | **TAK** (pieśń nadrzędna, w tej samej transakcji — `TouchSongsAsync`) | poprawiona literówka MUSI być dla Pilota widoczna, inaczej telefon nadpisze ją swoją wersją |
+| `SaveVerseOrderAsync` (kolejność zwrotek) | **TAK** (jw.) | kolejność jest częścią treści, którą Pilot pobiera |
+| `SyncPushSongsAsync` (stara, jednostronna ścieżka `sync_push`) | **TAK** | treść przyjechała z telefonu = zmiana treści; drugi tablet musi ją zobaczyć |
+| `TouchSongUsageAsync` (`LastUsedAt`, lista „Ostatnie") | **NIE** | wyświetlenie pieśni na projektorze nie jest edycją; podbijanie dawałoby konflikt po każdej mszy |
+| `SaveSongFontSizeOverrideAsync` (`FontSizeOverride`) | **NIE** | ustawienie PROJEKCJI per pieśń, którego protokół w ogóle nie niesie — jak flaga UI przy pinowaniu zestawu |
+| przypisanie pieśni do zestawu, przypięcie, notatki pozycji | **NIE** | to zmiany zestawu, nie pieśni |
+| **kategoria pieśni** (`song_update {categoryId}`, „usuń kategorię, zostaw pieśni") | **TAK przy zapisie pieśni**; masowe odczepienie przy kasowaniu kategorii świadomie NIE | kategoria JEST treścią widoczną dla Pilota, ale `DeleteCategoryKeepSongsAsync` dotyka setek pieśni naraz, a Pilot i tak przeładuje bibliotekę po broadcastcie `categories_data` |
 
 **BUG, który to wymusił (naprawiony 2026-07-28):** `SaveSetlistAsync` nie dotykało znacznika, więc zwykły zapis zestawu w Cantio był dla Pilota niewidoczny i telefon **cicho nadpisywał pracę operatora**. Harness dawał 12 czerwonych asercji przed poprawką.
 

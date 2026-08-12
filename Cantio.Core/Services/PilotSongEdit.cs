@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Cantio.Models;
 
 namespace Cantio.Services;
@@ -31,6 +31,11 @@ public static class PilotSongEdit
     public const string DataType    = "song_data";
     /// <summary>Broadcast po każdej udanej mutacji.</summary>
     public const string ChangedType = "song_changed";
+    /// <summary>
+    /// Odpowiedź na <c>song_update</c> z nieaktualnym <c>baseUpdatedAt</c> — pieśń zmieniono
+    /// po OBU stronach. Niesie pełną wersję DESKTOPOWĄ; nic nie zostało zapisane.
+    /// </summary>
+    public const string UpdateConflictType = "song_update_conflict";
 
     // Powody odmowy (pole `reason` w acku)
     public const string ReasonNotFound        = "not_found";
@@ -76,10 +81,19 @@ public static class PilotSongEdit
     /// co <see cref="PilotSongSync.BuildSongsDataJson"/> — stary Pilot ma tam twardy int),
     /// <c>author</c> i <c>playOrderJson</c> nigdy nie są null (pusty string = brak).
     /// </summary>
-    public static string BuildSongDataJson(Song song) =>
+    public static string BuildSongDataJson(Song song) => BuildSongPayloadJson(DataType, song);
+
+    /// <summary>
+    /// <c>song_update_conflict</c> — ten sam komplet pól co <see cref="BuildSongDataJson"/>,
+    /// tylko inny <c>type</c>. Jeden układ pól, żeby Pilot mógł oba komunikaty czytać tym samym
+    /// parserem (dwie niezależne listy pól zgubiły kiedyś notatki pozycji zestawu, v1.6).
+    /// </summary>
+    public static string BuildUpdateConflictJson(Song song) => BuildSongPayloadJson(UpdateConflictType, song);
+
+    private static string BuildSongPayloadJson(string type, Song song) =>
         JsonSerializer.Serialize(new
         {
-            type          = DataType,
+            type,
             id            = song.Id,
             title         = song.Title,
             number        = song.Number,
@@ -87,12 +101,18 @@ public static class PilotSongEdit
             author        = song.Author ?? "",
             verses        = song.Verses.OrderBy(v => v.Position)
                                 .Select(v => new { type = v.Type, text = v.Text }),
-            playOrderJson = song.PlayOrderJson ?? ""
+            playOrderJson = song.PlayOrderJson ?? "",
+            // DOPISANE na końcu (v1.65) — baza porównania dla edycji offline.
+            updatedAt     = PilotSongSync.ToUnixMs(song.UpdatedAt)
         });
 
-    /// <summary>Broadcast <c>song_changed</c> — <paramref name="action"/> to created/updated/deleted.</summary>
-    public static string BuildSongChangedJson(int id, SongChange change) =>
-        JsonSerializer.Serialize(new { type = ChangedType, id, action = ActionName(change) });
+    /// <summary>
+    /// Broadcast <c>song_changed</c> — <paramref name="change"/> to created/updated/deleted.
+    /// <paramref name="updatedAt"/> = znacznik PO zapisie (0 przy usunięciu — skasowana pieśń
+    /// nie ma już czasu zmiany); Pilot zapisuje go jako nową bazę bez dopytywania o pieśń.
+    /// </summary>
+    public static string BuildSongChangedJson(int id, SongChange change, long updatedAt = 0) =>
+        JsonSerializer.Serialize(new { type = ChangedType, id, action = ActionName(change), updatedAt });
 
     private static string ActionName(SongChange change) => change switch
     {
@@ -155,6 +175,15 @@ public static class PilotSongEdit
                 return Deny(cmd, ReasonNotFound);
             existing = await db.GetSongWithVersesAsync(id);
             if (existing == null) return Deny(cmd, ReasonNotFound, ("id", id));
+
+            // Wykrywanie konfliktu przy edycji OFFLINE (v1.65): `baseUpdatedAt` to znacznik
+            // z chwili, gdy Pilot ostatnio widział tę pieśń. RÓŻNY od bieżącego (nie „starszy") —
+            // desktop nadaje znacznik własnym zegarem, więc porównanie „nowszy" cofnięciem zegara
+            // PC ukryłoby realną zmianę. Wtedy NIC nie zapisujemy i odsyłamy wersję desktopową.
+            if (!Flag(root, "force") &&
+                TryLong(root, "baseUpdatedAt", out var baseMs) &&
+                PilotSongSync.ToUnixMs(existing.UpdatedAt) != baseMs)
+                return new Result(BuildUpdateConflictJson(existing), null, SongChange.None, 0);
         }
 
         var title = Str(root, "title");
@@ -253,10 +282,14 @@ public static class PilotSongEdit
         await db.SaveSongAsync(song);
 
         var change = create ? SongChange.Created : SongChange.Updated;
+        // Znacznik PO zapisie wraca w acku ORAZ w broadcastcie — telefon zapisuje go jako nową
+        // bazę `baseUpdatedAt` bez dopytywania (i bez oglądania się na własny zegar).
+        long updatedAt = PilotSongSync.ToUnixMs(song.UpdatedAt);
         return new Result(
             PilotStatus.BuildAckJson(cmd, true,
-                ("id", song.Id), ("title", song.Title), ("verses", verses.Count)),
-            BuildSongChangedJson(song.Id, change),
+                ("id", song.Id), ("title", song.Title), ("verses", verses.Count),
+                ("updatedAt", updatedAt)),
+            BuildSongChangedJson(song.Id, change, updatedAt),
             change, song.Id);
     }
 
@@ -320,6 +353,14 @@ public static class PilotSongEdit
     /// <summary>Flaga boolowska; wyłącznie jawne <c>true</c> jest zgodą (brak pola i <c>false</c> = nie).</summary>
     private static bool Flag(JsonElement root, string prop) =>
         root.TryGetProperty(prop, out var el) && el.ValueKind == JsonValueKind.True;
+
+    /// <summary>Znacznik czasu w ms epoki UNIX — zawsze <c>long</c>, nigdy tekst.</summary>
+    private static bool TryLong(JsonElement root, string prop, out long value)
+    {
+        value = 0;
+        return root.TryGetProperty(prop, out var el) &&
+               el.ValueKind == JsonValueKind.Number && el.TryGetInt64(out value);
+    }
 
     private static bool TryInt(JsonElement root, string prop, out int value)
     {
