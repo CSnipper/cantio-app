@@ -411,3 +411,14 @@ docs/
 license-signing*
 tools/LicenseGen/bin/
 tools/LicenseGen/obj/
+
+# Narzędzia scrapujące (tools/)
+# Cache pobranych stron i artefakty jednorazowe — 6,9 MB, w tym 227 stron HTML
+# mszału. Odtwarzalne przebiegiem scrapera, więc nie ma powodu trzymać ich w historii.
+tools/tmp/*
+!tools/tmp/date-keys.json
+
+# Surowy zrzut lekcjonarza (6 MB, 687 dni × 2 wydania). Świadomie POZA repo —
+# repozytorium jest publiczne, a to pełne teksty czytań od wydawcy.
+# Odtwarzalny: node scrape-lekcjonarz.js (scrape jest kluczowany datą).
+tools/lekcjonarz-niezbednik.json

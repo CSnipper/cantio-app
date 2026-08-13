@@ -1,0 +1,72 @@
+<ul class="sub-menu">
+	<li id="menu-item-1899" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1899"><a href="https://spiewniksiedleckiego.pl/?page_id=41">Pieśni na Adwent</a></li>
+	<li id="menu-item-1902" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1902"><a href="https://spiewniksiedleckiego.pl/?page_id=252">Narodzenie Pańskie</a>
+	<ul class="sub-menu">
+		<li id="menu-item-2992" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2992"><a href="https://spiewniksiedleckiego.pl/?page_id=419">Pastorałki</a></li>
+		<li id="menu-item-3169" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3169"><a href="https://spiewniksiedleckiego.pl/?page_id=3164">Pieśni okresu Narodzenia Pańskiego</a></li>
+		<li id="menu-item-5806" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5806"><a href="https://spiewniksiedleckiego.pl/?page_id=5786">Ofiarowanie Pańskie</a></li>
+	</ul>
+</li>
+	<li id="menu-item-1907" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1907"><a href="https://spiewniksiedleckiego.pl/?page_id=480">Wielki Post</a>
+	<ul class="sub-menu">
+		<li id="menu-item-1910" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1910"><a href="https://spiewniksiedleckiego.pl/?page_id=540">Pieśni pasyjne</a></li>
+		<li id="menu-item-3080" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3080"><a href="https://spiewniksiedleckiego.pl/?page_id=604">Gorzkie żale</a></li>
+		<li id="menu-item-5805" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5805"><a href="https://spiewniksiedleckiego.pl/?page_id=5797">Wielki Tydzień</a></li>
+	</ul>
+</li>
+	<li id="menu-item-1911" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1911"><a href="https://spiewniksiedleckiego.pl/?page_id=652">Pieśni Wielkanocne</a>
+	<ul class="sub-menu">
+		<li id="menu-item-1912" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1912"><a href="https://spiewniksiedleckiego.pl/?page_id=788">Do Miłosierdzia Bożego</a></li>
+		<li id="menu-item-1913" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1913"><a href="https://spiewniksiedleckiego.pl/?page_id=804">Na Wniebowstąpienie Pańskie</a></li>
+		<li id="menu-item-1914" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1914"><a href="https://spiewniksiedleckiego.pl/?page_id=815">Pieśni do Ducha Świętego</a></li>
+	</ul>
+</li>
+	<li id="menu-item-3569" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3569"><a href="https://spiewniksiedleckiego.pl/?page_id=3516">Pieśni Mszalne</a>
+	<ul class="sub-menu">
+		<li id="menu-item-3126" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3126"><a href="https://spiewniksiedleckiego.pl/?page_id=3114">Hymny</a></li>
+		<li id="menu-item-11232" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11232"><a href="https://spiewniksiedleckiego.pl/?page_id=11223">Suplikacje</a></li>
+		<li id="menu-item-5833" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5833"><a href="https://spiewniksiedleckiego.pl/?page_id=3321">Cykle mszalne</a></li>
+		<li id="menu-item-5835" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5835"><a href="https://spiewniksiedleckiego.pl/?page_id=4907">Psalmy</a></li>
+		<li id="menu-item-5876" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5876"><a href="https://spiewniksiedleckiego.pl/?page_id=5871">Niedzielne Pokropienie</a></li>
+		<li id="menu-item-4256" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4256"><a href="https://spiewniksiedleckiego.pl/?page_id=3610">Nieszpory I tydzień</a></li>
+		<li id="menu-item-8422" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8422"><a href="https://spiewniksiedleckiego.pl/?page_id=8307">Nieszpory II tydzień</a></li>
+		<li id="menu-item-8436" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8436"><a href="https://spiewniksiedleckiego.pl/?page_id=8309">Nieszpory III tydzień</a></li>
+		<li id="menu-item-8435" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8435"><a href="https://spiewniksiedleckiego.pl/?page_id=8311">Nieszpory IV tydzień</a></li>
+		<li id="menu-item-4035" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4035"><a href="https://spiewniksiedleckiego.pl/?page_id=4008">Litanie</a></li>
+	</ul>
+</li>
+	<li id="menu-item-5808" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-5808"><a href="https://spiewniksiedleckiego.pl/?page_id=5767">Do Jezusa Wiecznego Kapłana</a>
+	<ul class="sub-menu">
+		<li id="menu-item-5809" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5809"><a href="https://spiewniksiedleckiego.pl/?page_id=5753">Pieśni do Trójcy</a></li>
+		<li id="menu-item-1948" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1948"><a href="https://spiewniksiedleckiego.pl/?page_id=1087">Pieśni do Serca Jezusa</a></li>
+		<li id="menu-item-5810" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5810"><a href="https://spiewniksiedleckiego.pl/?page_id=5750">Przemienienie Pańskie</a></li>
+		<li id="menu-item-5807" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5807"><a href="https://spiewniksiedleckiego.pl/?page_id=5756">Chrystusa Króla</a></li>
+		<li id="menu-item-4281" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4281"><a href="https://spiewniksiedleckiego.pl/?page_id=4260">Koronka do Miłosierdzia Bożego</a></li>
+		<li id="menu-item-8452" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8452"><a href="https://spiewniksiedleckiego.pl/?page_id=8437">Nieszpory o Najśw. Sakramencie</a></li>
+	</ul>
+</li>
+	<li id="menu-item-3310" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3310"><a href="https://spiewniksiedleckiego.pl/?page_id=852">Pieśni do Maryi Panny</a>
+	<ul class="sub-menu">
+		<li id="menu-item-4005" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4005"><a href="https://spiewniksiedleckiego.pl/?page_id=4000">Godzinki ku czci Niepokalanego Poczęcia NMP</a></li>
+		<li id="menu-item-3996" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3996"><a href="https://spiewniksiedleckiego.pl/?page_id=3979">Różaniec ku czci NMP</a></li>
+		<li id="menu-item-8484" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8484"><a href="https://spiewniksiedleckiego.pl/?page_id=8453">Nieszpory o Najśw. Maryi Pannie</a></li>
+	</ul>
+</li>
+	<li id="menu-item-3594" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3594"><a href="https://spiewniksiedleckiego.pl/?page_id=3545">Śpiewy z Taizé</a></li>
+	<li id="menu-item-2053" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2053"><a href="https://spiewniksiedleckiego.pl/?page_id=1110">Pieśni Eucharystyczne</a></li>
+	<li id="menu-item-2075" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2075"><a href="https://spiewniksiedleckiego.pl/?page_id=2054">Pieśni Przygodne</a></li>
+	<li id="menu-item-1949" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1949"><a href="https://spiewniksiedleckiego.pl/?page_id=1186">Pieśni o Świętych</a>
+	<ul class="sub-menu">
+		<li id="menu-item-3272" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3272"><a href="https://spiewniksiedleckiego.pl/?page_id=3265">Pieśni ku czci św. Józefa</a></li>
+		<li id="menu-item-3273" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3273"><a href="https://spiewniksiedleckiego.pl/?page_id=3267">Pieśni ku czci Św. Aniołów</a></li>
+		<li id="menu-item-6381" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-6381"><a href="https://spiewniksiedleckiego.pl/?page_id=1219">Pieśni własne o Świętych</a></li>
+	</ul>
+</li>
+	<li id="menu-item-3259" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3259"><a href="https://spiewniksiedleckiego.pl/?page_id=3240">Pieśni za zmarłych</a>
+	<ul class="sub-menu">
+		<li id="menu-item-5255" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5255"><a href="https://spiewniksiedleckiego.pl/?page_id=5195">Pogrzeb</a></li>
+	</ul>
+</li>
+	<li id="menu-item-1947" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1947"><a href="https://spiewniksiedleckiego.pl/?page_id=307">Śpiewy w jęz. łacińskim</a></li>
+</ul>
+</li>

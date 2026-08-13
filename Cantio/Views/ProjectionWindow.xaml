@@ -14,7 +14,11 @@
                       GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
 
-    <Grid>
+    <!-- RootScale: płótno projekcji. Przy skali Windows innej niż 100% dostaje sztywne wymiary
+         w FIZYCZNYCH pikselach ekranu + LayoutTransform, który sprowadza je z powrotem do
+         rozmiaru okna w DIU (ProjectionWindow.ApplyDpiScale). Dzięki temu podział na slajdy
+         i wygląd są identyczne przy 100%, 125% i 150%. Przy 100% nic nie jest ustawiane. -->
+    <Grid x:Name="RootScale">
         <local:ProjectionView DataContext="{Binding}"/>
 
         <!-- Ekran parowania (tryb serwerowy, dopóki nikt nie jest sparowany).
