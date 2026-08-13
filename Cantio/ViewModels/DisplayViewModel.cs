@@ -2445,7 +2445,7 @@ public partial class DisplayViewModel : ObservableObject
         // o innym DPI) — bez przeliczenia transformata zostałaby ze starą wartością i obraz
         // wyszedłby poza ekran. Rozdzielczość fizyczna się nie zmienia, więc podział slajdów
         // zostaje ten sam; przebudowa jest tu wyłącznie na wypadek zmiany samych wymiarów.
-        _projectionWindow.DpiChanged += (_, _) => OnProjectionDpiChanged();
+        _projectionWindow.DpiChanged += (_, e) => OnProjectionDpiChanged(e.NewDpi);
         ProjectionScreenIndex = screenIndex < screens.Count ? screenIndex : screens.Count - 1;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
@@ -2496,7 +2496,7 @@ public partial class DisplayViewModel : ObservableObject
             physH > 0 ? target.WpfBounds.Height / physH : 1.0);
     }
 
-    private void OnProjectionDpiChanged()
+    private void OnProjectionDpiChanged(DpiScale newDpi)
     {
         if (_projectionWindow == null) return;
         var screens = WpfScreenHelper.Screen.AllScreens.ToList();
@@ -2504,7 +2504,13 @@ public partial class DisplayViewModel : ObservableObject
         var target = ProjectionScreenIndex >= 0 && ProjectionScreenIndex < screens.Count
             ? screens[ProjectionScreenIndex]
             : screens.Last();
-        ApplyProjectionMetrics(ScreenMetrics(target, _projectionWindow));
+        // W momencie zdarzenia PresentationSource/CompositionTarget okna potrafi jeszcze nie być
+        // zaktualizowany na nową skalę (ScreenMetrics dałoby wtedy starą wartość) — DpiChangedEventArgs
+        // niesie nową skalę wprost. DpiScaleX/Y to mnożnik DIU→urządzenie (TransformToDevice),
+        // FromScreen oczekuje odwrotności (TransformFromDevice, urządzenie→DIU).
+        double physW = target.Bounds.Width, physH = target.Bounds.Height;
+        ApplyProjectionMetrics(ProjectionMetrics.FromScreen(physW, physH,
+            1.0 / newDpi.DpiScaleX, 1.0 / newDpi.DpiScaleY));
         RebuildSlides();
     }
 
