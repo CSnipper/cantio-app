@@ -2407,6 +2407,14 @@ public partial class DisplayViewModel : ObservableObject
         w.MoveToSecondaryScreen(screenIndex);
         ProjectionScreenIndex = screenIndex < screens.Count ? screenIndex : screens.Count - 1;
         w.Show();
+
+        // Nowy ekran = możliwie INNE DPI (laptop 150% + rzutnik 100%). Wymiary i transformatę
+        // czytamy dopiero po ustabilizowaniu okna na docelowym monitorze — inaczej dostaniemy
+        // DPI poprzedniego ekranu i podział slajdów rozjedzie się z obrazem.
+        var target = screenIndex < screens.Count ? screens[screenIndex] : screens.Last();
+        await w.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Background);
+        ApplyProjectionMetrics(ScreenMetrics(target, w));
+
         RebuildSlides();
         AppLog.Write("Pilot", $"open_projection: okno już istniało — przywrócone na ekranie {ProjectionScreenIndex}");
     }
@@ -2423,15 +2431,21 @@ public partial class DisplayViewModel : ObservableObject
         var screens = WpfScreenHelper.Screen.AllScreens.ToList();
         var target = screenIndex < screens.Count ? screens[screenIndex] : screens.Last();
 
-        // Wstępna wartość na wypadek gdyby PresentationSource nie był dostępny
-        ProjectionScreenWidth = target.WpfBounds.Width;
-        ProjectionScreenHeight = target.WpfBounds.Height;
+        // Wstępna wartość na wypadek gdyby PresentationSource nie był dostępny.
+        // Layout liczymy w FIZYCZNYCH pikselach ekranu (target.Bounds), a skalę bierzemy
+        // ze stosunku DIU do pikseli — jedyne, co da się policzyć zanim okno stanie na monitorze.
+        ApplyProjectionMetrics(ScreenMetrics(target, null));
 
         _projectionWindow = new ProjectionWindow(_projection);
         _projectionWindow.ShowInTaskbar = false;
         // Tryb serwerowy: jedyny ekran JEST projekcją — nic nie może na nią wejść.
         _projectionWindow.Topmost = AppModeRules.ShouldProjectionBeTopmost(AppMode.Current);
         _projectionWindow.Closed += (_, _) => { _projectionWindow = null; ProjectionScreenIndex = -1; };
+        // Skala pulpitu zmieniona przy WŁĄCZONEJ aplikacji (albo przepięty kabel do monitora
+        // o innym DPI) — bez przeliczenia transformata zostałaby ze starą wartością i obraz
+        // wyszedłby poza ekran. Rozdzielczość fizyczna się nie zmienia, więc podział slajdów
+        // zostaje ten sam; przebudowa jest tu wyłącznie na wypadek zmiany samych wymiarów.
+        _projectionWindow.DpiChanged += (_, _) => OnProjectionDpiChanged();
         ProjectionScreenIndex = screenIndex < screens.Count ? screenIndex : screens.Count - 1;
         _projectionWindow.MoveToSecondaryScreen(screenIndex);
         _projectionWindow.Show();
@@ -2447,15 +2461,7 @@ public partial class DisplayViewModel : ObservableObject
             () => { }, System.Windows.Threading.DispatcherPriority.Background);
 
         // Pobierz faktyczny DPI okna projekcji (nie okna głównego) i przelicz wymiary
-        var ps = System.Windows.PresentationSource.FromVisual(_projectionWindow);
-        if (ps?.CompositionTarget != null)
-        {
-            var scale = ps.CompositionTarget.TransformFromDevice;
-            ProjectionScreenWidth  = target.Bounds.Width  * scale.M11;
-            ProjectionScreenHeight = target.Bounds.Height * scale.M22;
-            _projectionWindow.Width  = ProjectionScreenWidth;
-            _projectionWindow.Height = ProjectionScreenHeight;
-        }
+        ApplyProjectionMetrics(ScreenMetrics(target, _projectionWindow));
 
         // Przebuduj slajdy z poprawnymi wymiarami ekranu (AutoFit używa ProjectionScreenWidth/Height)
         RebuildSlides();
@@ -2467,6 +2473,54 @@ public partial class DisplayViewModel : ObservableObject
         _projection.SetBlanked(ScreenBlanked);
         if (CurrentSlideIndex >= 0 && CurrentSlideIndex < _slides.Count)
             _projection.SetSlide(_slides[CurrentSlideIndex]);
+    }
+
+    /// <summary>
+    /// Wymiary płótna projekcji dla danego ekranu. Skala Windows pochodzi z okna projekcji
+    /// (per-monitor DPI — okno główne potrafi siedzieć na monitorze o innej skali), a gdy okna
+    /// jeszcze nie ma, ze stosunku wymiarów WPF do fizycznych tego ekranu.
+    /// </summary>
+    private static ProjectionMetrics ScreenMetrics(WpfScreenHelper.Screen target, Window? window)
+    {
+        double physW = target.Bounds.Width, physH = target.Bounds.Height;
+
+        var ct = window is null ? null : System.Windows.PresentationSource.FromVisual(window)?.CompositionTarget;
+        if (ct != null)
+        {
+            var t = ct.TransformFromDevice;
+            return ProjectionMetrics.FromScreen(physW, physH, t.M11, t.M22);
+        }
+
+        return ProjectionMetrics.FromScreen(physW, physH,
+            physW > 0 ? target.WpfBounds.Width  / physW : 1.0,
+            physH > 0 ? target.WpfBounds.Height / physH : 1.0);
+    }
+
+    private void OnProjectionDpiChanged()
+    {
+        if (_projectionWindow == null) return;
+        var screens = WpfScreenHelper.Screen.AllScreens.ToList();
+        if (screens.Count == 0) return;
+        var target = ProjectionScreenIndex >= 0 && ProjectionScreenIndex < screens.Count
+            ? screens[ProjectionScreenIndex]
+            : screens.Last();
+        ApplyProjectionMetrics(ScreenMetrics(target, _projectionWindow));
+        RebuildSlides();
+    }
+
+    /// <summary>
+    /// Jedno miejsce, w którym wymiary projekcji wchodzą w życie: płótno layoutu
+    /// (fizyczne piksele — w nich liczy się podział na slajdy), rozmiar okna w DIU
+    /// i transformata kompensująca skalę Windows w zawartości okna.
+    /// </summary>
+    private void ApplyProjectionMetrics(ProjectionMetrics m)
+    {
+        ProjectionScreenWidth  = m.LayoutWidth;
+        ProjectionScreenHeight = m.LayoutHeight;
+        if (_projectionWindow == null) return;
+        _projectionWindow.Width  = m.WindowWidth;
+        _projectionWindow.Height = m.WindowHeight;
+        _projectionWindow.ApplyDpiScale(m);
     }
 
     private void CloseProjectionWindow()

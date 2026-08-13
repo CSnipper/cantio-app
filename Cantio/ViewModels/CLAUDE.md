@@ -91,6 +91,22 @@ bool isChorus = block.StartsWith("Refren:", ...) || block.StartsWith("Aklamacja:
   i bez właściciela ląduje pod `Topmost` projekcją i zawiesza mini PC na dobre. W VM służą do tego
   `CanPrompt(...)` i `Ask(...)`; `ConfirmRequested` w `MainWindow` odmawia i loguje, gdy okna nie widać.
 
+- **Podział na slajdy liczy się w FIZYCZNYCH pikselach ekranu projekcji, nigdy w jednostkach WPF.**
+  `ProjectionScreenWidth/Height` = `Screen.Bounds` (piksele), a nie `WpfBounds`/`Bounds × TransformFromDevice`.
+  Zawartość okna projekcji dostaje `ScaleTransform` z `ProjectionWindow.ApplyDpiScale`, żeby po
+  przeskalowaniu wypełnić okno w DIU. Do v1.65 płótno było w DIU, więc przy skali 150% miało 1280×720
+  przy niezmienionym rozmiarze czcionki: ta sama pieśń dzieliła się na 10 slajdów przy 100%,
+  14 przy 125% i 21 przy 150%. Zgłosił to niewidomy organista — laptop ma domyślnie 150%, a ustawienia,
+  które psuło podział, nie miał jak zobaczyć.
+  - Arytmetyka siedzi w czystym `Services/ProjectionMetrics.FromScreen` (Cantio.Core) i jest pokryta
+    testami; ViewModel ma tylko `ScreenMetrics` (skąd wziąć skalę) i `ApplyProjectionMetrics`
+    (jedyne miejsce, w którym wymiary wchodzą w życie).
+  - Skala 100% → `IsIdentity`, czyli ZERO zmian względem stanu sprzed poprawki (żadnej transformaty,
+    żadnych sztywnych wymiarów na siatce). To celowa gwarancja dla istniejących parafii.
+  - Skalę czytaj z `PresentationSource` **okna projekcji** i dopiero po ustabilizowaniu go na docelowym
+    monitorze (`DispatcherPriority.Background`) — per-monitor DPI sprawia, że okno główne potrafi
+    siedzieć na monitorze o innej skali. Trzy ścieżki muszą to robić: otwarcie okna, `open_projection`
+    z Pilota (przeniesienie na inny ekran) i `Window.DpiChanged` (zmiana skali przy włączonej aplikacji).
 - `CurrentSlideIndex` zmiana wywołuje `_projection.SetSlide()` — nie rób tego ręcznie
 - `SetBlanked(true)` zapisuje pending slide, `SetBlanked(false)` go aplikuje
 - ESC w `OnPreviewKeyDown` zachowuje stan blanku
