@@ -7,13 +7,27 @@ using System.ComponentModel;
 
 namespace Cantio.ViewModels;
 
-/// <summary>Jedna pozycja listy czytania (slajd bieżącej pieśni).</summary>
+/// <summary>
+/// Jedna pozycja listy czytania — od v1.66 jest nią FRAZA (linijka logiczna) slajdu, a nie cały
+/// slajd. Powód: organista gra i śpiewa jednocześnie, więc odczyt musi się mieścić między frazami
+/// śpiewu; czytany naraz cały slajd zmuszał go do zapamiętania czterech wersów z jednego odsłuchu.
+/// </summary>
 public sealed class AccessibleSlideItem
 {
-    /// <summary>Tekst, który ma przeczytać czytnik ekranu (nagłówek + treść slajdu).</summary>
+    /// <summary>Tekst, który ma przeczytać czytnik ekranu (nagłówek + fraza albo sama fraza).</summary>
     public string Spoken { get; init; } = string.Empty;
     /// <summary>To samo dla widzącego pomocnika na ekranie.</summary>
     public string Display => Spoken;
+
+    /// <summary>
+    /// Slajd, do którego należy fraza. To ONO rozstrzyga, czy ruch kursora ma zmienić obraz
+    /// wiernym: w obrębie jednego slajdu rzutnik stoi, przekroczenie granicy przerzuca go
+    /// dokładnie o jedną pozycję.
+    /// </summary>
+    public int SlideIndex { get; init; }
+
+    /// <summary>Numer frazy w obrębie slajdu (0 = pierwsza; ta niesie nagłówek „slajd 2 z 5…”).</summary>
+    public int PhraseIndex { get; init; }
 }
 
 /// <summary>Jedna pozycja wyników wyszukiwania („123, Kiedy ranne wstają zorze”).</summary>
@@ -39,10 +53,14 @@ public sealed class AccessibleSetlistEntry
 /// Cały rdzeń (baza, slajdy, projekcja) jest wspólny z pulpitem widzącego; tutaj dochodzi
 /// wyłącznie to, czego wymaga praca z czytnikiem ekranu:
 ///
-/// • DRUGI KURSOR — <see cref="AccessibleCursor"/> (kursor CZYTANIA). Strzałki góra/dół chodzą po
-///   slajdach bieżącej pieśni i pozwalają je przeczytać, NIE RUSZAJĄC obrazu widzianego przez
-///   wiernych. Kursorem projekcji zostaje <c>DisplayViewModel.CurrentSlideIndex</c>, ruszany
-///   wyłącznie klawiszami Page Up / Page Down (i Enter — świadome „wyświetl to, co czytam").
+/// • DRUGI KURSOR — <see cref="AccessibleCursor"/> (kursor CZYTANIA). Od v1.66 chodzi po FRAZACH
+///   (linijkach logicznych) slajdów bieżącej pieśni, nie po całych slajdach: organista gra
+///   i śpiewa naraz, więc odczyt musi się mieścić między frazami śpiewu. W obrębie slajdu ruch
+///   NIE RUSZA obrazu widzianego przez wiernych; przekroczenie granicy slajdu przerzuca rzutnik
+///   dokładnie o jedną pozycję (bo po ostatniej frazie zwrotki i tak następuje zmiana slajdu —
+///   robienie tego drugim klawiszem kazałoby operatorowi trafiać w Page Down w środku śpiewu).
+///   Kursorem projekcji zostaje <c>DisplayViewModel.CurrentSlideIndex</c>, ruszany dodatkowo
+///   klawiszami Page Up / Page Down (i Enter — świadome „wyświetl to, co czytam").
 /// • OGŁOSZENIA — po każdej zmianie tego, co widzą wierni, oraz na żądanie (klawisz stanu).
 ///   Nie ma tu żadnej syntezy mowy: teksty idą do live region w oknie, a mówi je NVDA
 ///   ustawieniami użytkownika.
@@ -386,23 +404,85 @@ public partial class AccessibleShellViewModel : ObservableObject
         return true;
     }
 
-    // ── Kursor CZYTANIA (prywatny — projekcja się nie zmienia) ───────────────
+    // ── Kursor CZYTANIA — FRAZY (w obrębie slajdu projekcja się nie zmienia) ─
 
-    public void ReadUp()    => AfterReadingMove(_cursor.MoveUp(), atEdge: "Acc.AtFirstSlide");
-    public void ReadDown()  => AfterReadingMove(_cursor.MoveDown(), atEdge: "Acc.AtLastSlide");
-    public void ReadStart() => AfterReadingMove(_cursor.MoveToStart(), atEdge: "Acc.AtFirstSlide");
-    public void ReadEnd()   => AfterReadingMove(_cursor.MoveToEnd(), atEdge: "Acc.AtLastSlide");
+    /// <summary>
+    /// Trwa ruch kursora FRAZY, który sam przestawia projekcję (przekroczenie granicy slajdu).
+    /// Bez tej flagi obserwator <c>CurrentSlideIndex</c> odesłałby kursor na PIERWSZĄ frazę
+    /// nowego slajdu — a przy strzałce w górę operator ma wylądować na OSTATNIEJ.
+    /// </summary>
+    private bool _phraseDrivenProjection;
+
+    // Teksty krańców. Klucz zasobu MUSI mieć tekst zapasowy: gdy zabraknie go w słowniku języka,
+    // LocalizationManager oddaje SAM KLUCZ, a czytnik ekranu przeczytałby na głos „Acc kropka
+    // AtSongEnd”. Reszta pulpitu robi to tak samo (zob. BuildTexts).
+    private static string EdgeSongStart  => L("Acc.AtSongStart",  "Początek pieśni");
+    private static string EdgeSongEnd    => L("Acc.AtSongEnd",    "Koniec pieśni");
+    private static string EdgeFirstPhrase => L("Acc.AtFirstPhrase", "Pierwsza linijka slajdu");
+    private static string EdgeLastPhrase  => L("Acc.AtLastPhrase",  "Ostatnia linijka slajdu");
+
+    /// <summary>Strzałka w górę: poprzednia fraza; z pierwszej frazy slajdu — poprzedni slajd.</summary>
+    public void ReadUp()   => AfterReadingMove(_cursor.MoveUp(), EdgeSongStart);
+
+    /// <summary>Strzałka w dół: następna fraza; z ostatniej frazy slajdu — następny slajd.</summary>
+    public void ReadDown() => AfterReadingMove(_cursor.MoveDown(), EdgeSongEnd);
+
+    /// <summary>
+    /// Home / End — pierwsza i ostatnia fraza BIEŻĄCEGO slajdu, nigdy całej pieśni.
+    /// Do v1.65 skakały na pierwszy/ostatni slajd pieśni i było to bezpieczne, bo kursor czytania
+    /// nie dotykał rzutnika. Teraz granica slajdu zmienia obraz, więc „Home” w starym znaczeniu
+    /// przerzucałby wiernym projekcję na początek pieśni jednym klawiszem — czego niewidomy
+    /// operator nie miałby jak zauważyć.
+    /// </summary>
+    public void ReadStart() => AfterReadingMove(MoveWithinSlide(toEnd: false), EdgeFirstPhrase);
+    public void ReadEnd()   => AfterReadingMove(MoveWithinSlide(toEnd: true),  EdgeLastPhrase);
+
+    private bool MoveWithinSlide(bool toEnd)
+    {
+        if (!_cursor.HasPosition) return false;
+        int slide = ReadingSlides[_cursor.Index].SlideIndex;
+        int target = _cursor.Index;
+        if (toEnd)
+            while (target + 1 < ReadingSlides.Count && ReadingSlides[target + 1].SlideIndex == slide) target++;
+        else
+            while (target - 1 >= 0 && ReadingSlides[target - 1].SlideIndex == slide) target--;
+        return _cursor.MoveTo(target);
+    }
 
     private void AfterReadingMove(bool moved, string atEdge)
     {
-        if (moved)
-        {
-            // Sam ruch NIE jest ogłaszany live regionem: fokus przechodzi na pozycję listy,
-            // a czytnik ekranu czyta ją sam. Podwójne czytanie byłoby gorsze niż brak.
-            ReadingIndex = _cursor.Index;
-            return;
-        }
-        Announce(LocalizationManager.Get(atEdge));
+        if (!moved) { Announce(atEdge); return; }
+
+        // Projekcja PRZED przeniesieniem fokusu: zapowiedź „Wierni widzą…” ma zabrzmieć wcześniej
+        // niż sama fraza, bo operator musi najpierw wiedzieć, że obraz się zmienił.
+        SyncProjectionToPhrase();
+
+        // Samej frazy NIE ogłaszamy live regionem: fokus przechodzi na pozycję listy, a czytnik
+        // ekranu czyta ją sam. Podwójne czytanie byłoby gorsze niż brak.
+        ReadingIndex = _cursor.Index;
+    }
+
+    /// <summary>
+    /// Jedyne miejsce, w którym kursor frazy dotyka rzutnika — i tylko wtedy, gdy fraza należy
+    /// do INNEGO slajdu niż wyświetlany. Ruch w obrębie slajdu wychodzi stąd bez żadnego skutku.
+    /// </summary>
+    private void SyncProjectionToPhrase()
+    {
+        if (!_cursor.HasPosition) return;
+        int slide = ReadingSlides[_cursor.Index].SlideIndex;
+        if (slide == _display.CurrentSlideIndex) return;
+
+        _phraseDrivenProjection = true;
+        try { _display.CurrentSlideIndex = slide; }
+        finally { _phraseDrivenProjection = false; }
+    }
+
+    /// <summary>Indeks PIERWSZEJ frazy danego slajdu (-1, gdy takiego slajdu nie ma na liście).</summary>
+    private int FirstPhraseOfSlide(int slideIndex)
+    {
+        for (int i = 0; i < ReadingSlides.Count; i++)
+            if (ReadingSlides[i].SlideIndex == slideIndex) return i;
+        return -1;
     }
 
     /// <summary>Klawisz „przeczytaj ponownie" — awaryjna droga, gdy czytnik przegapi zmianę fokusu.</summary>
@@ -433,8 +513,13 @@ public partial class AccessibleShellViewModel : ObservableObject
     public void ProjectReadingSlide()
     {
         if (!_cursor.HasPosition) { Announce(_texts.Nothing); return; }
-        if (_cursor.Index == _display.CurrentSlideIndex) { AnnounceStatus(); return; }
-        _display.CurrentSlideIndex = _cursor.Index;
+        // Kursor chodzi po FRAZACH, więc na rzutnik idzie slajd, do którego fraza należy —
+        // nie numer pozycji na liście czytania (te dwie liczby przestały być tym samym).
+        int slide = ReadingSlides[_cursor.Index].SlideIndex;
+        if (slide == _display.CurrentSlideIndex) { AnnounceStatus(); return; }
+        _phraseDrivenProjection = true;
+        try { _display.CurrentSlideIndex = slide; }
+        finally { _phraseDrivenProjection = false; }
     }
 
     public void ToggleBlank()
@@ -1048,6 +1133,11 @@ public partial class AccessibleShellViewModel : ObservableObject
                 break;
             case nameof(DisplayViewModel.CurrentSlideIndex):
                 AnnounceProjectionChange();
+                // Page Down / Page Up / Enter / zmiana pieśni: kursor frazy staje na PIERWSZEJ
+                // frazie tego, co właśnie zobaczyli wierni. Ruch samego kursora frazy jest z tego
+                // wyłączony (flaga) — tam pozycję wybrał już operator, a przy strzałce w górę jest
+                // nią OSTATNIA fraza poprzedniego slajdu.
+                if (!_phraseDrivenProjection) MoveReadingToSlideStart(_display.CurrentSlideIndex);
                 break;
             case nameof(DisplayViewModel.ScreenBlanked):
                 Announce(_display.ScreenBlanked ? _texts.Blanked : _texts.Restored);
@@ -1076,18 +1166,55 @@ public partial class AccessibleShellViewModel : ObservableObject
         for (int i = 0; i < slides.Count; i++)
         {
             var s = slides[i];
-            ReadingSlides.Add(new AccessibleSlideItem
+            var kind = SlideKind.FromSlide(s);
+            var text = s.HasPreviewOnlyContent ? s.OperatorText : s.Text;
+            var phrases = SlidePhrases.Split(text);
+
+            // Slajd bez tekstu (obrazek, pusta zwrotka) daje JEDNĄ pozycję z samym nagłówkiem —
+            // inaczej wypadłby z listy i nie dałoby się przez niego przejść strzałkami.
+            if (phrases.Count == 0)
             {
-                Spoken = ProjectionAnnouncement.DescribeReading(
-                    i, slides.Count, SlideKind.FromSlide(s), s.Label,
-                    s.HasPreviewOnlyContent ? s.OperatorText : s.Text, _texts),
-            });
+                ReadingSlides.Add(new AccessibleSlideItem
+                {
+                    SlideIndex = i,
+                    PhraseIndex = 0,
+                    Spoken = ProjectionAnnouncement.DescribeReading(
+                        i, slides.Count, kind, s.Label, null, _texts),
+                });
+                continue;
+            }
+
+            for (int p = 0; p < phrases.Count; p++)
+                ReadingSlides.Add(new AccessibleSlideItem
+                {
+                    SlideIndex = i,
+                    PhraseIndex = p,
+                    // Nagłówek („slajd 2 z 5, zwrotka 2”) niesie WYŁĄCZNIE pierwsza fraza slajdu:
+                    // powtarzany przy każdej frazie zagłuszyłby tekst, po który operator sięga.
+                    Spoken = p == 0
+                        ? ProjectionAnnouncement.DescribeReading(
+                            i, slides.Count, kind, s.Label, phrases[p], _texts)
+                        : phrases[p],
+                });
         }
 
         int start = _display.CurrentSlideIndex >= 0 ? _display.CurrentSlideIndex : 0;
-        _cursor.Reset(ReadingSlides.Count, start);
+        int startPhrase = FirstPhraseOfSlide(start);
+        _cursor.Reset(ReadingSlides.Count, startPhrase < 0 ? 0 : startPhrase);
         ReadingIndex = _cursor.Index;
         SongCaption = _display.SelectedSong?.Title ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Kursor frazy na pierwszą frazę wskazanego slajdu (po Page Down / Page Up / zmianie pieśni).
+    /// Nie rusza projekcji — slajd JUŻ jest tym, co widzą wierni.
+    /// </summary>
+    private void MoveReadingToSlideStart(int slideIndex)
+    {
+        if (slideIndex < 0) return;
+        int target = FirstPhraseOfSlide(slideIndex);
+        if (target < 0) return;
+        if (_cursor.MoveTo(target)) ReadingIndex = _cursor.Index;
     }
 
     private void AnnounceProjectionChange()
