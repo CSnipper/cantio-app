@@ -49,8 +49,10 @@
         <TextBlock Grid.Row="1" Text="{Binding ProjectionCaption}" TextWrapping="Wrap"
                    Foreground="#9FE07A" Margin="0,0,0,8" Focusable="False"/>
 
-        <!-- Lista czytania. Fokus na pozycji = czytnik ekranu odczytuje jej AutomationProperties.Name
-             (pełna treść slajdu). Zmiana zaznaczenia NIE rusza projekcji. -->
+        <!-- Lista czytania. Jedna pozycja = jedna LINIJKA logiczna slajdu (fraza do Entera w treści
+             zwrotki, nie linia po zawinięciu). Fokus na pozycji = czytnik ekranu odczytuje jej
+             AutomationProperties.Name. Ruch w obrębie slajdu NIE rusza projekcji; przekroczenie
+             granicy slajdu przerzuca rzutnik dokładnie o jedną pozycję. -->
         <ListBox Grid.Row="2" x:Name="ReadingList"
                  ItemsSource="{Binding ReadingSlides}"
                  SelectedIndex="{Binding ReadingIndex, Mode=TwoWay}"

@@ -20,10 +20,11 @@ namespace Cantio.Views;
 /// tylko dopóki fokus stoi tam, gdzie autor zakładał.
 ///
 /// Mapa klawiszy:
-///   ↑ / ↓          kursor CZYTANIA (prywatny) — czytnik ekranu czyta slajd, rzutnik bez zmian
-///   Home / End     kursor czytania na pierwszy / ostatni slajd pieśni
-///   R              powtórz odczyt czytanego slajdu (przez live region)
-///   PageDown / PageUp        kursor PROJEKCJI — to widzą wierni
+///   ↑ / ↓          kursor CZYTANIA po LINIJKACH (frazach) slajdu — w obrębie slajdu rzutnik
+///                  bez zmian; na krańcu slajdu przeskok o jeden slajd RAZEM z rzutnikiem
+///   Home / End     kursor czytania na pierwszą / ostatnią linijkę BIEŻĄCEGO slajdu
+///   R              powtórz odczyt czytanej linijki (przez live region)
+///   PageDown / PageUp        kursor PROJEKCJI — to widzą wierni (czytanie staje na 1. linijce)
 ///   Ctrl+PageDown / Ctrl+PageUp   następna / poprzednia pieśń zestawu (też widoczne dla wiernych)
 ///   Enter          wyświetl wiernym slajd spod kursora czytania
 ///   B              wygaś / przywróć ekran
@@ -75,7 +76,8 @@ public partial class AccessibleWindow : Window
         Title = AccessibleShellViewModel.Text("Acc.WindowTitle", "Cantio — pulpit organisty niewidomego");
         AutomationProperties.SetName(this, Title);
         AutomationProperties.SetName(ReadingList, AccessibleShellViewModel.Text("Acc.ListName",
-            "Slajdy bieżącej pieśni. Strzałki góra i dół czytają slajd, Page Down wyświetla następny wiernym."));
+            "Linijki bieżącej pieśni. Strzałki góra i dół czytają po jednej linijce; na końcu slajdu "
+            + "przechodzą do następnego i wyświetlają go wiernym. Page Down przerzuca cały slajd."));
         AutomationProperties.SetName(SearchBox, AccessibleShellViewModel.Text("Acc.SearchBoxName",
             "Szukaj pieśni. Wpisz numer albo tytuł i naciśnij Enter."));
         AutomationProperties.SetName(SearchList, AccessibleShellViewModel.Text("Acc.SearchListName",
