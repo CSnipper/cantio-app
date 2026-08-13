@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<UseWPF>true</UseWPF>
 	<ApplicationIcon>cantio.ico</ApplicationIcon>
-	<Version>1.65</Version>
+	<Version>1.66</Version>
 	<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
