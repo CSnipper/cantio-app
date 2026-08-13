@@ -1,0 +1,986 @@
+[
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Najświętszego Ciała i Krwi Chrysusa - C",
+        "psalm_responsoryjny": "Refren: Jesteś kapłanem, tak jak Melchizedek.\n\nRzekł Pan do Pana mego: «Siądź po mojej prawicy,*\naż uczynię Twych wrogów podnóżkiem stóp Twoich».\nPan rozciągnie moc Twego berła z Syjonu:*\n«Panuj wśród swych nieprzyjaciół!\n\nPrzy Tobie panowanie w dniu Twego triumfu,†\nw blasku świętości,*\nz łona jutrzenki zrodziłem Cię jak rosę».\nPan przysiągł i tego nie odwoła:*\n«Ty jesteś kapłanem na wieki na wzór Melchizedeka».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem chlebem żywym, który zstąpił z nieba.\nJeśli ktoś spożywa ten chleb, będzie żył na wieki.",
+        "zrodlo": "https://www.paulus.org.pl/u48,najswietszego-ciala-i-krwi-chrysusa-uroczystosc-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Świętej Rodziny Jezusa, Maryi i Józefa - A",
+        "psalm_responsoryjny": "Refren: Szczęśliwy człowiek, który służy Panu.\n\nSzczęśliwy człowiek, który służy Panu*\ni chodzi Jego drogami.\nBędziesz spożywał owoc pracy rąk swoich,*\nszczęście osiągniesz i dobrze ci będzie.\n\nMałżonka Twoja jak płodny szczep winny*\nw zaciszu twego domu.\nSynowie twoi jak oliwne gałązki*\ndokoła twojego stołu.\n\nTak będzie błogosławiony człowiek,*\nktóry służy Panu.\nNiech cię z Syjonu Pan błogosławi†\ni obyś oglądaj pomyślność Jeruzalem*\nprzez wszystkie dni twego życia.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nW sercach waszych niech panuje pokój Chrystusowy;\nsłowo Chrystusa niech w was mieszka w całym swym bogactwie.",
+        "zrodlo": "https://www.paulus.org.pl/u98,swietej-rodziny-jezusa-maryi-i-jozefa-swieto-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Chrzest Pański - C",
+        "psalm_responsoryjny": "Refren: Chwal i błogosław, duszo moja, Pana.\n\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nOdziany w majestat i piękno,*\nświatłem okryty jak płaszczem.\n\nChmury są Twoim rydwanem,*\nprzechadzasz się na skrzydłach wiatru.\nWichry używasz za swych posłów,*\nsługami Twoimi ogień i płomienie.\n\nJak liczne są dzieła Twoje, Panie!†\nTy wszystko mądrze uczyniłeś,*\nziemia jest pełna Twoich stworzeń.\nOto jest morze, ogromne i szerokie,†\na w nim żyjątek bez liku,*\nzwierząt wielkich i małych.\n\nWszystko to czeka na Ciebie,*\nbyś dał im pokarm we właściwym czasie.\nGdy im dajesz, zbierają,*\ngdy otwierasz swą rękę, sycą się Twym dobrem.\n\nKiedy odbierasz im oddech, marnieją*\ni w proch się obracają.\nStwarzasz je, napełniając swym Duchem,*\ni odnawiasz oblicze ziemi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJan powiedział: «Idzie mocniejszy ode mnie;\nOn będzie was chrzcił Duchem Świętym i ogniem».",
+        "zrodlo": "https://www.paulus.org.pl/u88,chrzest-panski-swieto-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Chrzest Pański - B",
+        "psalm_responsoryjny": "Refren: Będziecie czerpać ze zdrojów zbawienia.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia!†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród ciebie Święty Izraela.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJan zobaczył podchodzącego ku niemu Jezusa i rzekł do Niego:\n«Oto Baranek Boży, który gładzi grzech świata».",
+        "zrodlo": "https://www.paulus.org.pl/u87,chrzest-panski-swieto-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Chrzest Pański - A",
+        "psalm_responsoryjny": "Refren: Pan ześle pokój swojemu ludowi.\n\nOddajcie Panu, synowie Boży,*\noddajcie Panu chwałę i sławcie Jego potęgę.\nOddajcie Panu chwałę Jego imienia,*\nna świętym dziedzińcu uwielbiajcie Pana.\n\nPonad wodami głos Pański,*\nPan ponad wód bezmiarem!\nGłos Pana potężny,*\ngłos Pana pełen dostojeństwa.\n\nZagrzmiał Bóg majestatu:*\na w Jego świątyni wszyscy mówią: «Chwała».\nPan zasiadł nad potopem,*\nPan jako Król zasiada na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nOtwarło się niebo i zabrzmiał głos Ojca:\n«To jest mój Syn umiłowany, Jego słuchajcie».",
+        "zrodlo": "https://www.paulus.org.pl/u86,chrzest-panski-swieto-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Zesłania Ducha Świętego Ps1",
+        "psalm_responsoryjny": "Refren: Szczęśliwy naród wybrany przez Pana.\n\nPan udaremnia zamiary narodów,*\nwniwecz obraca zamysły ludów.\nZamiary Pana trwają na wieki,*\nzamysły Jego serca przez pokolenia.\n\nBłogosławiony lud, którego Pan jest Bogiem,*\nnaród, który On wybrał na dziedzictwo dla siebie.\nPan spogląda z nieba,*\nwidzi wszystkich ludzi.\n\nPatrzy z miejsca, gdzie przebywa,*\nna wszystkich mieszkańców ziemi.\nOn, który serca wszystkich ukształtował,*\nktóry zważa na wszystkie ich czyny.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u84,wigilia-zeslania-ducha-swietego"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Zesłania Ducha Świętego Ps2",
+        "psalm_responsoryjny": "Refren: Chwalebny jesteś, wiekuisty Boże.\n\nBłogosławiony jesteś, Panie, Boże naszych ojców,*\npełen chwały i wywyższony na wieki.\nBłogosławione imię Twoje†\npełne chwały i świętości,*\nuwielbione i wywyższone na wieki.\n\nBłogosławiony jesteś w przybytku Twojej świętej chwały,*\nuwielbiony i przesławny na wieki.\nBłogosławiony jesteś na tronie swojego królestwa,*\nuwielbiony i przesławny na wieki.\n\nBłogosławiony jesteś Ty, co spoglądasz w otchłanie,†\nktóry zasiadasz na Cherubach,*\npełen chwały i wywyższony na wieki.\nBłogosławiony jesteś na sklepieniu nieba,*\npełen chwały i wywyższony na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u84,wigilia-zeslania-ducha-swietego"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Zesłania Ducha Świętego Ps3",
+        "psalm_responsoryjny": "Refren: Słowa Twe, Panie, dają życie wieczne.\n\nPrawo Pańskie jest doskonałe i pokrzepia duszę,*\nświadectwo Pana jest pewne, nierozważnego uczy mądrości.\nJego słuszne nakazy radują serce,*\njaśnieje przykazanie Pana i olśniewa oczy.\n\nBojaźń Pana jest szczera i trwa na wieki,*\nsądy Pana prawdziwe, wszystkie razem słuszne.\nCenniejsze nad złoto, nad złoto najczystsze,*\nsłodsze od miodu płynącego z plastra.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u84,wigilia-zeslania-ducha-swietego"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Zesłania Ducha Świętego Ps4",
+        "psalm_responsoryjny": "Refren: Chwalmy na wieki miłosierdzie Pana.\n\nAlbo:\nAlleluja.\nTak niech mówią odkupieni przez Pana,*\nktórych wybawił z rąk przeciwnika\ni których zgromadził z obcych krain,*\nze wschodu i zachodu, z północy i południa.\n\nBłądzili na pustynnym odludziu,*\ndo miasta zamieszkałego nie znaleźli drogi.\nCierpieli głód i pragnienie*\ni wygasło w nich życie.\n\nW swoim utrapieniu wołali do Pana,*\na On ich uwolnił od trwogi.\nI powiódł ich prostą drogą,*\naż doszli do miasta zamieszkałego.\n\nNiech dziękują Panu za dobroć Jego,*\nza Jego cuda wobec synów ludzkich,\nbo głodnego nasycił,*\na łaknącego napełnił dobrami.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u84,wigilia-zeslania-ducha-swietego"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Zesłania Ducha Świętego Ps5",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nAlbo:\nAlleluja.\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nOdziany w majestat i piękno,*\nświatłem okryty jak płaszczem.\n\nJak liczne są dzieła Twoje, Panie!*\nTy wszystko mądrze uczyniłeś,\nziemia jest pełna Twoich stworzeń.*\nBłogosław duszo moja, Pana!\n\nWszystko to czeka na Ciebie,*\nbyś dał im pokarm we właściwym czasie.\nGdy im dajesz, zbierają,*\ngdy otwierasz swą rękę, sycą się Twym dobrem.\n\nKiedy odbierasz im oddech, marnieją*\ni w proch się obracają.\nStwarzasz je, napełniając swym Duchem,*\ni odnawiasz oblicze ziemi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdź, Duchu Święty, napełnij serca swoich wiernych\ni zapal w nich ogień swojej miłości.",
+        "zrodlo": "https://www.paulus.org.pl/u84,wigilia-zeslania-ducha-swietego"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Zesłanie Ducha Świętego - C",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nAlbo:\nAlleluja.\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nJak liczne są dzieła Twoje, Panie,*\nziemia jest pełna Twoich stworzeń.\n\nKiedy odbierasz im oddech, marnieją*\ni w proch się obracają.\nStwarzasz je, napełniając swym Duchem,*\ni odnawiasz oblicze ziemi.\n\nNiech chwała Pana trwa na wieki,*\nniech Pan się raduje z dzieł swoich.\nNiech miła Mu będzie pieśń moja,*\nbędę radował się w Panu.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdź, Duchu Święty, napełnij serca swoich wiernych\ni zapal w nich ogień swojej miłości.",
+        "zrodlo": "https://www.paulus.org.pl/u110,zeslanie-ducha-swietego-uroczystosc-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Apostołów Piotra i Pawła - Wigilia",
+        "psalm_responsoryjny": "Refren: Po całej ziemi ich głos się rozchodzi.\n\nNiebiosa głoszą chwałę Boga,*\ndzieło rąk Jego obwieszcza nieboskłon.\nDzień opowiada dniowi,*\nnoc nocy wiadomość przekazuje.\n\nNie są to słowa ani nie jest to mowa,*\nktórych by dźwięku nie usłyszano.\nIch głos się rozchodzi po całej ziemi,*\nich słowa aż po krańce świata.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPanie, Ty wiesz wszystko,\nTy wiesz, że Cię kocham.",
+        "zrodlo": "https://www.paulus.org.pl/u54,swietych-apostolow-piotra-i-pawla-wigilia"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Najświętszego Serca Pana Jezusa - C",
+        "psalm_responsoryjny": "Refren: Pan mym pasterzem, nie brak mi niczego.\n\nPan jest moim pasterzem,†\nniczego mi nie braknie,*\npozwala mi leżeć na zielonych pastwiskach.\nProwadzi mnie nad wody, gdzie mogę odpocząć,*\norzeźwia moją duszę.\n\nWiedzie mnie po właściwych ścieżkach*\nprzez wzgląd na swoją chwałę.\nChociażbym przechodził przez ciemną dolinę,†\nzła się nie ulęknę, bo Ty jesteś ze mną.*\nKij Twój i laska pasterska są moją pociechą.\n\nStół dla mnie zastawiasz*\nna oczach mych wrogów.\nNamaszczasz mi głowę olejkiem,*\nkielich mój pełny po brzegi.\n\nDobroć i łaska pójdą w ślad za mną*\nprzez wszystkie dni życia\ni zamieszkam w domu Pana*\npo najdłuższe czasy.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWeźcie na siebie moje jarzmo i uczcie się ode Mnie,\nbo jestem cichy i pokornego serca.\nJa jestem dobrym pasterzem\ni znam owce moje, a moje Mnie znają.",
+        "zrodlo": "https://www.paulus.org.pl/u51,najswietszego-serca-pana-jezusa-uroczystosc-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Matki Kościoła",
+        "psalm_responsoryjny": "Refren: Głoszą o tobie rzeczy pełne chwały.\n\nGród Jego wznosi się na świętych górach:†\numiłował Pan bramy Syjonu*\nbardziej niż wszystkie namioty Jakuba.\nWspaniałe rzeczy głoszą o tobie,*\nmiasto Boże.\n\nO Syjonie powiedzą:†\n«Każdy człowiek urodził się na nim,*\na Najwyższy sam go umacnia».\nPan zapisuje w księdze ludów: «Oni się tam narodzili».†\nI tańcząc, śpiewać będą:*\n«Wszystkie moje źródła są w tobie».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nSzczęśliwa Dziewico, która porodziłaś Pana, błogosławiona Matko Kościoła,\nTy strzeżesz w nas Ducha Twojego Syna, Jezusa Chrystusa.",
+        "zrodlo": "https://www.paulus.org.pl/u39,nmp-matki-kosciola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Najświętszego Serca Pana Jezusa - B",
+        "psalm_responsoryjny": "Refren: Będziecie czerpać ze zdrojów zbawienia.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia!†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród ciebie Święty Izraela.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWeźcie na siebie moje jarzmo i uczcie się ode Mnie,\nbo jestem cichy i pokornego serca.\nBóg pierwszy nas umiłował i posłał swojego Syna\njako ofiarę przebłagalną za nasze grzechy.",
+        "zrodlo": "https://www.paulus.org.pl/u50,najswietszego-serca-pana-jezusa-uroczystosc-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Najświętszego Serca Pana Jezusa - A",
+        "psalm_responsoryjny": "Refren: Bóg jest łaskawy dla swoich czcicieli.\n\nBłogosław, duszo moja, Pana,*\ni wszystko, co jest we mnie, święte imię Jego.\nBłogosław, duszo moja, Pana*\ni nie zapominaj o wszystkich Jego dobrodziejstwach.\n\nOn odpuszcza wszystkie twoje winy*\ni leczy wszystkie choroby.\nOn twoje życie ratuje od zguby,*\nobdarza cię łaską i zmiłowaniem.\n\nDzieła Pana są sprawiedliwe,*\nwszystkich uciśnionych ma w swojej opiece.\nDrogi swoje objawił Mojżeszowi,*\nswoje dzieła synom Izraela.\n\nMiłosierny jest Pan i łaskawy,*\nnieskory do gniewu i bardzo cierpliwy.\nNie postępuje z nami według naszych grzechów*\nani według win naszych nam nie odpłaca.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWeźcie na siebie moje jarzmo i uczcie się ode Mnie,\nbo jestem cichy i pokornego serca.",
+        "zrodlo": "https://www.paulus.org.pl/u49,najswietszego-serca-pana-jezusa-uroczystosc-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Najświętszej Trójcy - B",
+        "psalm_responsoryjny": "Refren: Szczęśliwy naród wybrany przez Pana.\n\nSłowo Pana jest prawe,*\na każde Jego dzieło godne zaufania.\nOn miłuje prawo i sprawiedliwość,*\nziemia jest pełna Jego łaski.\n\nPrzez słowo Pana powstały niebiosa,*\nwszystkie gwiazdy przez tchnienie ust Jego.\nBo przemówił i wszystko się stało,*\nsam rozkazał i zaczęło istnieć.\n\nOczy Pana zwrócone na bogobojnych,*\nna tych, którzy oczekują Jego łaski,\naby ocalił ich życie od śmierci*\ni żywił ich w czasie głodu.\n\nDusza nasza oczekuje Pana,*\nOn jest naszą pomocą i tarczą.\nPanie, niech nas ogarnie Twoja łaska,*\nwedług nadziei, którą pokładamy w Tobie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nChwała Ojcu i Synowi, i Duchowi Świętemu,\nBogu, który jest i który był,i który przychodzi.",
+        "zrodlo": "https://www.paulus.org.pl/u44,najswietszej-trojcy-uroczystosc-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Najświętszej Trójcy - C",
+        "psalm_responsoryjny": "Refren: Jak jest przedziwne imię Twoje, Panie!\n\nGdy patrzę na Twe niebo, dzieło palców Twoich,*\nna księżyc i gwiazdy, które Ty utwierdziłeś:\nCzym jest człowiek, że o nim pamiętasz,*\nczym syn człowieczy, że troszczysz się o niego?\n\nUczyniłeś go niewiele mniejszym od aniołów,*\nuwieńczyłeś go czcią i chwałą.\nObdarzyłeś go władzą nad dziełami rąk Twoich,*\nwszystko złożyłeś pod jego stopy:\n\nOwce i bydło wszelakie,*\ni dzikie zwierzęta,\nptaki niebieskie i ryby morskie,*\nwszystko, co szlaki mórz przemierza.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nChwała Ojcu i Synowi, i Duchowi Świętemu,\nBogu, który jest i który był, i który przychodzi.",
+        "zrodlo": "https://www.paulus.org.pl/u45,najswietszej-trojcy-uroczystosc-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Najświętszego Ciała i Krwi Chrystusa - A",
+        "psalm_responsoryjny": "Refren: Kościele święty, chwal swojego Pana.\n\nAlbo:\nAlleluja.\nChwal, Jeruzalem, Pana,*\nwysławiaj twego Boga, Syjonie!\nUmacnia bowiem zawory bram twoich*\ni błogosławi synom twoim w tobie.\n\nZapewnia pokój twoim granicom*\ni wyborną pszenicą ciebie darzy.\nZsyła na ziemię swoje polecenia,*\na szybko mknie Jego słowo.\n\nOznajmił swoje słowo Jakubowi,*\nIzraelowi ustawy swe i wyroki.\nNie uczynił tego dla innych narodów,*\nnie oznajmił im swoich wyroków.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem chlebem żywym, który zstąpił z nieba.\nJeśli ktoś spożywa ten chleb, będzie żył na wieki.",
+        "zrodlo": "https://www.paulus.org.pl/u46,najswietszego-ciala-i-krwi-chrystusa-uroczystosc-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Najświętszego Ciała i Krwi Chrysusa - B",
+        "psalm_responsoryjny": "Refren: Kielich zbawienia wzniosę w imię Pana.\n\nAlbo:\nAlleluja.\nCzym się Panu odpłacę*\nza wszystko, co mi wyświadczył?\nPodniosę kielich zbawienia*\ni wezwę imienia Pana.\n\nCenna jest w oczach Pana*\nśmierć Jego wyznawców.\nJam sługa Twój, syn Twej służebnicy.*\nTy rozerwałeś moje kajdany.\n\nTobie złożę ofiarę pochwalną*\ni wezwę imienia Pana.\nWypełnię me śluby dla Pana*\nprzed całym Jego ludem.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem chlebem żywym, który zstąpił z nieba.\nJeśli kto spożywa ten chleb, będzie żył na wieki.",
+        "zrodlo": "https://www.paulus.org.pl/u47,najswietszego-ciala-i-krwi-chrysusa-uroczystosc-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Zesłanie Ducha Świętego - A",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nAlbo:\nAlleluja.\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nJak liczne są dzieła Twoje, Panie,*\nziemia jest pełna Twoich stworzeń.\n\nKiedy odbierasz im oddech, marnieją*\ni w proch się obracają.\nStwarzasz je, napełniając swym Duchem,*\ni odnawiasz oblicze ziemi.\n\nNiech chwała Pana trwa na wieki,*\nniech Pan się raduje z dzieł swoich.\nNiech miła Mu będzie pieśń moja,*\nbędę radował się w Panu.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdź, Duchu Święty, napełnij serca swoich wiernych\ni zapal w nich ogień swojej miłości.",
+        "zrodlo": "https://www.paulus.org.pl/u85,zeslanie-ducha-swietego-uroczystosc-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wniebowstąpienie Pańskie - C",
+        "psalm_responsoryjny": "Refren: Pan wśród radości wstępuje do nieba.\n\nWszystkie narody, klaskajcie w dłonie,*\nradosnym głosem wykrzykujcie Bogu,\nbo Pan Najwyższy i straszliwy,*\njest wielkim Królem nad całą ziemią.\n\nBóg wstępuje wśród radosnych okrzyków,*\nPan wstępuje przy dźwięku trąby.\nŚpiewajcie psalmy Bogu, śpiewajcie,*\nśpiewajcie Królowi naszemu, śpiewajcie.\n\nGdyż Bóg jest Królem całej ziemi,*\nhymn zaśpiewajcie!\nBóg króluje nad narodami,*\nBóg zasiada na swym świętym tronie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nIdźcie i nauczajcie wszystkie narody.\nJa jestem z wami przez wszystkie dni, aż do skończenia świata.",
+        "zrodlo": "https://www.paulus.org.pl/u25,wniebowstapienie-panskie-uroczystosc-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Jezusa Chrystusa Najwyższego i Wiecznego Kapłana - B",
+        "psalm_responsoryjny": "Refren: Jesteś kapłanem tak jak Melchizedek.\n\nRzekł Pan do Pana mego:*\n«Siądź po mojej prawicy,\naż uczynię Twych wrogów*\npodnóżkiem stóp Twoich».\n\nPan rozciągnie moc Twego berła z Syjonu:*\n«Panuj wśród Twych nieprzyjaciół!\nPrzy Tobie panowanie w dniu Twojego triumfu†\nw blasku świętości*\nz łona jutrzenki zrodziłem Cię jak rosę».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nChrystus chociaż był Synem, nauczył się posłuszeństwa przez to, co wycierpiał.\nA gdy wszystko wykonał, stał się sprawcą zbawienia wiecznego dla wszystkich, którzy Go słuchają.",
+        "zrodlo": "https://www.paulus.org.pl/u103,jezusa-chrystusa-najwyzszego-i-wiecznego-kaplana-swieto-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Świętej Rodziny Jezusa, Maryi i Józefa - B",
+        "psalm_responsoryjny": "Refren: Pan Bóg pamięta o swoim przymierzu.\n\nSławcie Pana, wzywajcie Jego imienia,*\ngłoście Jego dzieła wśród narodów.\nŚpiewajcie i grajcie Mu psalmy,*\nrozgłaszajcie wszystkie Jego cuda.\n\nSzczyćcie się Jego świętym imieniem,*\nniech się weseli serce szukających Pana.\nRozmyślajcie o Panu i Jego potędze,*\nzawsze szukajcie Jego oblicza.\n\nPamiętajcie o cudach, które On uczynił,*\no Jego znakach, o wyrokach ust Jego.\nPotomkowie Abrahama, słudzy Jego,*\nsynowie Jakuba, Jego wybrańcy.\n\nNa wieki pamięta o swoim przymierzu,*\nobietnicy danej tysiącu pokoleń,\no przymierzu, które zawarł z Abrahamem,*\nprzysiędze danej Izaakowi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWielokrotnie przemawiał niegdyś Bóg do ojców przez proroków,\na w tych ostatecznych dniach przemówił do nas przez Syna.",
+        "zrodlo": "https://www.paulus.org.pl/u99,swietej-rodziny-jezusa-maryi-i-jozefa-swieto-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Kościoła Własnego Ps1",
+        "psalm_responsoryjny": "Refren: Chwalimy, Panie, Twe przesławne imię.\n\nBądź błogosławiony po wszystkie wieki,*\nPanie, Boże ojca naszego, Izraela,\nTwoja jest wielkość, moc i sława, majestat i chwała,*\nbo wszystko, co jest na niebie i ziemi, Twoje jest, Panie.\n\nWładza królewska należy do Ciebie,†\ni nawet ziemski monarcha jest Twoją własnością.*\nBogactwo i chwała od Ciebie pochodzą.\nTy panujesz nad wszystkimi,†\nw Twojej ręce spoczywa moc i siła,*\nTy swoją ręką wywyższasz i utwierdzasz wszystko.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u3,rocznica-poswiecenia-kosciola-wlasnego-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Kościoła Własnego Ps2",
+        "psalm_responsoryjny": "Refren: Bóg jest we wnętrzu swojego Kościoła.\n\nBóg jest dla nas ucieczką i siłą,*\nnajpewniejszą pomocą w trudnościach.\nPrzeto nie będziemy się bali, choćby zatrzęsła się ziemia*\ni góry zapadły w otchłań morza.\n\nNurty rzeki rozweselają miasto Boże,*\nnajświętszy przybytek Najwyższego.\nBóg w nim przebywa, a ono się nie zachwieje,*\nBóg je wspomoże o świcie.\n\nPan Zastępów jest z nami,*\nBóg Jakuba jest naszą obroną.\nPrzyjdźcie, zobaczcie dzieła Pana,*\nzdumiewające czyny, których dokonał na ziemi.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u3,rocznica-poswiecenia-kosciola-wlasnego-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Kościoła Własnego Ps3",
+        "psalm_responsoryjny": "Refren: Jak miła, Panie, jest świątynia Twoja.\n\nAlbo:\nOto przybytek Pana Boga z ludźmi.\nDusza moja stęskniona pragnie przedsionków Pańskich,*\nserce moje i ciało radośnie wołają do Boga żywego.\nNawet wróbel znajduje swój dom, a jaskółka gniazdo,†\ngdzie złoży swe pisklęta:*\nprzy ołtarzach Twoich, Panie Zastępów, Królu mój i Boże!\n\nAlbo:\nOto przybytek Pana Boga z ludźmi.\nSzczęśliwi, którzy mieszkają w domu Twoim, Panie,*\nnieustannie wielbiąc Ciebie.\nSpójrz, Boże, Tarczo nasza,*\nwejrzyj na twarz Twojego pomazańca.\n\nAlbo:\nOto przybytek Pana Boga z ludźmi.\nDoprawdy, dzień jeden w przybytkach Twoich*\nlepszy jest niż innych tysiące.\nWolę stać w progu domu mojego Boga,*\nniż mieszkać w namiotach grzeszników.\n\nAlbo:\nOto przybytek Pana Boga z ludźmi.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u3,rocznica-poswiecenia-kosciola-wlasnego-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Kościoła Własnego Ps4",
+        "psalm_responsoryjny": "Refren: Stańmy z radością przed obliczem Pana.\n\nPrzyjdźcie, radośnie śpiewajmy Panu,*\nwznośmy okrzyki ku chwale Opoki naszego zbawienia.\nStańmy przed obliczem Jego z uwielbieniem,*\nz weselem śpiewajmy Mu pieśni.\n\nBo Pan jest Bogiem wielkim,†\nwielkim Królem nad wszystkimi bogami.*\nW Jego ręku głębiny ziemi, szczyty gór do Niego należą.\nJego własnością jest morze, które sam stworzył,*\ni ziemia, którą ulepiły Jego ręce.\n\nPrzyjdźcie, uwielbiajmy Go, padając na twarze,*\nklęknijmy przed Panem, który nas stworzył.\nAlbowiem On jest naszym Bogiem,*\na my ludem Jego pastwiska i owcami w Jego ręku.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u3,rocznica-poswiecenia-kosciola-wlasnego-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Kościoła Własnego Ps5",
+        "psalm_responsoryjny": "Refren: Idźmy z radością na spotkanie Pana.\n\nUcieszyłem się, gdy mi powiedziano:*\n«Pójdziemy do domu Pana».\nJuż stoją nasze stopy*\nw twoich bramach, Jeruzalem.\n\nJeruzalem, wzniesione jak miasto*\ngęsto i ściśle zabudowane.\nDo niego wstępują pokolenia Pańskie,*\naby zgodnie z prawem Izraela wielbić imię Pana.\n\nZe względu na moich braci i przyjaciół*\nbędę wołał: «Pokój z tobą!»\nZe względu na dom Pana, Boga naszego,*\nmodlę się o dobro dla ciebie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWybrałem i uświęciłem tę świątynię,\naby moja obecność trwała tam na wieki.\nNiebiosa są moim tronem, a ziemia podnóżkiem dla nóg moich.\nJakiż to dom chcecie Mi wybudować?\nMieszkanie moje pośród nich będzie,\nJa będę ich Bogiem, a oni będą moim ludem.\nW moim domu ten, kto prosi, otrzymuje,\nkto szuka, znajduje, a kołaczącemu otworzą.\nTy jesteś Piotr, czyli Opoka, i na tej opoce zbuduję mój Kościół,\na bramy piekielne go nie przemogą.",
+        "zrodlo": "https://www.paulus.org.pl/u3,rocznica-poswiecenia-kosciola-wlasnego-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Jezusa Chrystusa Najwyższego i Wiecznego Kapłana - C",
+        "psalm_responsoryjny": "Refren: Pan mym pasterzem, nie brak mi niczego.\n\nPan pozwala mi leżeć na zielonych pastwiskach.†\nProwadzi mnie nad wody, gdzie mogę odpocząć,*\norzeźwia moją duszę.\nWiedzie mnie po właściwych ścieżkach*\nprzez wzgląd na swoją chwałę.\n\nStół dla mnie zastawiasz*\nna oczach mych wrogów.\nNamaszczasz mi głowę olejkiem,*\nkielich mój pełny po brzegi.\n\nDobroć i łaska pójdą w ślad za mną*\nprzez wszystkie dni życia\ni zamieszkam w domu Pana*\npo najdłuższe czasy.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPokropię was czystą wodą i dam wam serca nowe,\ni ducha nowego tchnę do waszego wnętrza.",
+        "zrodlo": "https://www.paulus.org.pl/u101,jezusa-chrystusa-najwyzszego-i-wiecznego-kaplana-swieto-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Jezusa Chrystusa Najwyższego i Wiecznego Kapłana - A",
+        "psalm_responsoryjny": "Refren: Przychodzę, Boże, pełnić Twoją wolę.\n\nNie chciałeś ofiary krwawej ani z płodów ziemi,*\nlecz otwarłeś mi uszy;\nnie żądałeś całopalenia i ofiary za grzechy.*\nWtedy powiedziałem: «Oto przychodzę.\n\nW zwoju księgi jest o mnie napisane:*\nRadością jest dla mnie pełnić Twoją wolę, mój Boże,\na Twoje Prawo*\nmieszka w moim sercu».\n\nGłosiłem Twą sprawiedliwość w wielkim zgromadzeniu†\ni nie powściągałem warg moich,*\no czym Ty wiesz, Panie.\nSprawiedliwości Twej nie kryłem w głębi serca,*\ngłosiłem Twoją wierność i pomoc.\n\nNiech się radują i weselą w Tobie*\nwszyscy, którzy Ciebie szukają,\na ci, którzy pragną Twojej pomocy,*\nniech zawsze mówią: «Pan jest wielki».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nDla nas Chrystus stał się posłusznym aż do śmierci, i to śmierci krzyżowej.\nDlatego Bóg wywyższył Go nad wszystko i darował Mu imię ponad wszelkie imię.",
+        "zrodlo": "https://www.paulus.org.pl/u102,jezusa-chrystusa-najwyzszego-i-wiecznego-kaplana-swieto-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Zesłanie Ducha Świętego - B",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nJak liczne są dzieła Twoje, Panie,*\nziemia jest pełna Twych stworzeń.\n\nKiedy odbierasz im oddech, marnieją*\ni w proch się obracają.\nStwarzasz je, napełniając swym Duchem,*\ni odnawiasz oblicze ziemi.\n\nNiech chwała Pana trwa na wieki,*\nniech Pan się raduje z dzieł swoich.\nNiech miła Mu będzie pieśń moja,*\nbędę radował się w Panu.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdź, Duchu Święty, napełnij serca swoich wiernych\ni zapal w nich ogień swojej miłości.",
+        "zrodlo": "https://www.paulus.org.pl/u109,zeslanie-ducha-swietego-uroczystosc-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Najświętszej Trójcy - A",
+        "psalm_responsoryjny": "Refren: Chwalebny jesteś, wiekuisty Boże.\n\nBłogosławiony jesteś, Panie, Boże naszych ojców,*\npełen chwały i wywyższony na wieki.\nBłogosławione jest imię Twoje†\npełne chwały i świętości,*\nuwielbione i wywyższone na wieki.\n\nBłogosławiony jesteś w przybytku Twojej świętej chwały,*\nuwielbiony i przesławny na wieki.\nBłogosławiony jesteś na tronie swojego królestwa,*\nuwielbiony i przesławny na wieki.\n\nBłogosławiony jesteś Ty, co spoglądasz w otchłanie,†\nktóry zasiadasz na Cherubach,*\npełen chwały i wywyższony na wieki.\nBłogosławiony jesteś na sklepieniu nieba,*\npełen chwały i wywyższony na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nChwała Ojcu i Synowi, i Duchowi Świętemu,\nBogu, który jest i który był, i który przychodzi.",
+        "zrodlo": "https://www.paulus.org.pl/u43,najswietszej-trojcy-uroczystosc-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps1",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nOdziany w majestat i piękno,*\nświatłem okryty jak płaszczem.\n\nUmocniłeś fundamenty ziemi,*\nnie zachwieje się na wieki wieków.\nJak szatą okryłeś ją Wielką Głębią,*\nponad górami stanęły wody.\n\nTy zdroje kierujesz do strumieni,*\nktóre pośród gór się sączą.\nNad nimi mieszka ptactwo niebieskie*\ni śpiewa wśród gałęzi.\n\nZ Twoich komnat nawadniasz góry,*\nowocem dzieł Twoich syci się ziemia.\nKażesz rosnąć trawie dla bydła*\ni roślinom, by człowiekowi służyły.\n\nJak liczne są dzieła Twoje, Panie!*\nTy wszystko mądrze uczyniłeś,\nziemia jest pełna Twoich stworzeń.*\nBłogosław, duszo moja, Pana.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps2",
+        "psalm_responsoryjny": "Refren: Pełna jest ziemia łaskawości Pana.\n\nSłowo Pana jest prawe,*\na każde Jego dzieło godne zaufania.\nOn miłuje prawo i sprawiedliwość,*\nziemia jest pełna Jego łaski.\n\nPrzez słowo Pana powstały niebiosa,*\nwszystkie gwiazdy przez tchnienie ust Jego.\nOn morskie wody gromadzi jak wbukłaku,*\notchłanie oceanu w zbiornikach.\n\nBłogosławiony lud, którego Pan jest Bogiem,*\nnaród, który On wybrał na dziedzictwo dla siebie.\nPan spogląda z nieba,*\nwidzi wszystkich ludzi.\n\nDusza nasza oczekuje Pana,*\nOn jest naszą pomocą i tarczą.\nPanie, niech nas ogarnie Twoja łaska,*\nwedług nadziei pokładanej w Tobie.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps3",
+        "psalm_responsoryjny": "Refren: Strzeż mnie, o Boże, Tobie zaufałem.\n\nPan moim dziedzictwem i przeznaczeniem,*\nto On mój los zabezpiecza.\nZawsze stawiam sobie Pana przed oczy,*\nOn jest po mojej prawicy, nic mną nie zachwieje.\n\nDlatego cieszy się moje serce i dusza raduje,*\na ciało moje będzie spoczywać bezpiecznie,\nbo w kraju zmarłych duszy mej nie zostawisz*\ni nie dopuścisz, bym pozostał w grobie.\n\nTy ścieżkę życia mi ukażesz,*\npełnię radości przy Tobie\ni wieczne szczęście*\npo Twojej prawicy.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps4",
+        "psalm_responsoryjny": "Refren: Śpiewajmy Panu, który moc okazał.\n\nZaśpiewam na cześć Pana, który okrył się sławą,*\ngdy konia i jeźdźca pogrążył w morskiej toni.\nPan jest moją mocą i źródłem męstwa,†\nJemu zawdzięczam moje ocalenie.*\nOn Bogiem moim, uwielbiać Go będę.\n\nPan wojownik potężny,*\n«Ten, który jest», brzmi Jego imię.\nRzucił w morze rydwany faraona i wojsko jego,*\nwybrani wodzowie legli w Morzu Czerwonym.\n\nPrzepaści ich ogarnęły,*\njak głaz runęli w głębinę.\nUwielbiona jest potęga prawicy Twej, Panie,*\nprawica Twa, o Panie, starła nieprzyjaciół.\n\nWprowadziłeś ich i osadziłeś*\nna górze Twojego dziedzictwa.\nW miejscu, które uczyniłeś swym mieszkaniem,†\nw świątyni zbudowanej Twoimi rękami,*\nPan jest Królem na zawsze i na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps5",
+        "psalm_responsoryjny": "Refren: Sławię Cię, Panie, bo mnie wybawiłeś.\n\nSławię Cię, Panie, bo mnie wybawiłeś*\ni nie pozwoliłeś mym wrogom naśmiewać się ze mnie.\nPanie, mój Boże,†\nz krainy umarłych wywołałeś moją duszę*\ni ocaliłeś mi życie spośród schodzących do grobu.\n\nŚpiewajcie psalm, wszyscy miłujący Pana,*\ni pamiętajcie o Jego świętości.\nGniew Jego bowiem trwa tylko przez chwilę,†\na Jego łaska przez całe życie.*\nPłacz nadchodzi z wieczora, a rankiem wesele.\n\nWysłuchaj mnie, Panie, zmiłuj się nade mną,*\nPanie, bądź moją pomocą.\nZamieniłeś w taniec mój żałobny lament,*\nBoże mój i Panie, będę Cię sławił na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps6",
+        "psalm_responsoryjny": "Refren: Będziecie czerpać ze zdrojów zbawienia.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia!†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród Ciebie Święty Izraela.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps7",
+        "psalm_responsoryjny": "Refren: Słowa Twe, Panie, dają życie wieczne.\n\nPrawo Pańskie jest doskonałe i pokrzepia duszę,*\nświadectwo Pana jest pewne, nierozważnego uczy mądrości.\nJego słuszne nakazy radują serce,*\njaśnieje przykazanie Pana i olśniewa oczy.\n\nBojaźń Pana jest szczera i trwa na wieki,*\nsądy Pana prawdziwe, wszystkie razem słuszne.\nCenniejsze nad złoto, nad złoto najczystsze,*\nsłodsze od miodu płynącego z plastra.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps8",
+        "psalm_responsoryjny": "Refren: Boga żywego pragnie moja dusza.\n\nJak łania pragnie wody ze strumieni,*\ntak dusza moja pragnie Ciebie, Boże.\nDusza moja Boga pragnie, Boga żywego,*\nkiedyż więc przyjdę i ujrzę oblicze Boże?\n\nRozpływa się we mnie moja dusza,*\ngdy wspominam, jak z tłumem kroczyłem do Bożego domu,\nw świątecznym orszaku,*\nwśród głosów radości i chwały.\n\nZeślij światłość i wierność swoją,*\nniech one mnie wiodą,\nniech mnie zaprowadzą na Twą górę świętą*\ni do Twoich przybytków.\n\nI przystąpię do ołtarza Bożego,*\ndo Boga, który jest moim weselem i radością.\nI będę Cię chwalił przy dźwiękach lutni,*\nBoże, mój Boże!\n\nlub gdy ma nastąpić Chrzest: Iz 12 – jak po piątym czytaniu, albo:",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps9",
+        "psalm_responsoryjny": "Refren: Stwórz, o mój Boże, we mnie serce czyste.\n\nStwórz, Boże, we mnie serce czyste*\ni odnów we mnie moc ducha.\nNie odrzucaj mnie od swego oblicza*\ni nie odbieraj mi świętego ducha swego.\n\nPrzywróć mi radość Twojego zbawienia*\ni wzmocnij mnie duchem ofiarnym.\nBędę nieprawych nauczał dróg Twoich*\ni wrócą do Ciebie grzesznicy.\n\nOfiarą bowiem Ty się nie radujesz,*\na całopalenia, choćbym dał, nie przyjmiesz.\nBoże, moją ofiarą jest duch skruszony,*\npokornym i skruszonym sercem Ty, Boże, nie gardzisz.\n\nNastępuje kolekta oraz hymn: Chwała na wysokości Bogu.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wigilia Paschalna, ROK A Ps10",
+        "psalm_responsoryjny": "Refren: Alleluja, alleluja, alleluja.\n\nDziękujcie Panu, bo jest dobry,*\nbo Jego łaska trwa na wieki.\nNiech dom Izraela głosi:*\n«Jego łaska na wieki».\n\nPrawica Pana wzniesiona wysoko,*\nprawica Pańska moc okazała.\nNie umrę, ale żyć będę*\ni głosić dzieła Pana.\n\nKamień odrzucony przez budujących*\nstał się kamieniem węgielnym.\nStało się to przez Pana*\ni cudem jest w naszych oczach.\n\nEWANGELIA (Mt 28, 1-10)\nChrystus zmartwychwstał\nSłowa Ewangelii według Świętego Mateusza\nPo upływie szabatu, o świcie pierwszego dnia tygodnia przyszła Maria Magdalena i druga Maria obejrzeć grób. A oto nastąpiło wielkie trzęsienie ziemi. Albowiem anioł Pański zstąpił z nieba, podszedł, odsunął kamień i usiadł na nim. Postać jego jaśniała jak błyskawica, a szaty jego były białe jak śnieg. Ze strachu przed nim zadrżeli strażnicy i stali się jakby martwi.\nAnioł zaś przemówił do niewiast: «Wy się nie bójcie! Gdyż wiem, że szukacie Jezusa Ukrzyżowanego. Nie ma Go tu, bo zmartwychwstał, jak zapowiedział. Przyjdźcie, zobaczcie miejsce, gdzie leżał. A idźcie szybko i powiedzcie Jego uczniom: „Powstał z martwych i oto udaje się przed wami do Galilei. Tam Go ujrzycie”. Oto, co wam powiedziałem».\nPośpiesznie więc oddaliły się od grobu, z bojaźnią i wielką radością, i pobiegły oznajmić to Jego uczniom.\nA oto Jezus stanął przed nimi, mówiąc: «Witajcie!». One podeszły do Niego, objęły Go za nogi i oddały Mu pokłon. A Jezus rzekł do nich: «Nie bójcie się! Idźcie i oznajmijcie moim braciom: niech udadzą się do Galilei, tam Mnie zobaczą».\nOto słowo Pańskie.\nKOMENTARZ\nIdźmy do Galilei na spotkanie z Jezusem\nPo śmierci Jezusa uczniowie czuli się zdezorientowani. W tym zagubieniu jedynie kilka kobiet postanowiło wyruszyć na spotkanie z Nim. I choć spodziewały się, że zobaczą martwego Mistrza, to On ukazał się im jako zmartwychwstały. Polecił im, aby przekazały apostołom informację, że będzie czekać na nich w Galilei. Tam przecież wszystko się zaczęło i tam się miało dopełnić. Wyruszyć do Galilei to nie tylko powrócić do wcześniejszych chwil życia. To spotkać się ze swoją piękną i bolesną przeszłością. To zmierzyć się z tym, co jest w nas otchłanią i tą częścią naszej osobowości, która nas samych zaskakuje. Warto cofnąć się do momentów, w których czuliśmy wyraźnie obecność Jezusa. Poszukajmy więc Jego śladów w Galilei – krainie naszej przeszłości, która jest zaskakująca i pasjonująca zarazem.\nNajukochańszy Jezu! Nieraz czuję się zagubiony jak apostołowie i niewiasty. Ty wtedy przychodzisz, aby wyciągnąć mnie z otchłani lęku. Pragnę spotkać się z Tobą w Galilei mojego życia.\nRozważania zaczerpnięte z\nEwangelia 2026\nks. Jerzy Jastrzębski\nEdycja Świętego Pawła\nInny komentarz do Liturgii Słowa znajduje się na stronie biuletynu\nDZIEŃ PAŃSKI\noraz\nOD SŁOWA DO ŻYCIA\n.\nKuria Prowincjalna Towarzystwa Świętego Pawła\nul. Św. Pawła 13/15\n42-221 Częstochowa\nwww.paulus.org.pl\n• mail:\nkuria@paulus.pl\nCopyright ©2016 Towarzystwo świętego Pawła\nProjekt i wykonanie:\nRedhand.pl\nWyślij",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u20,wigilia-paschalna-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps1",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nOdziany w majestat i piękno,*\nświatłem okryty jak płaszczem.\n\nUmocniłeś fundamenty ziemi,*\nnie zachwieje się na wieki wieków.\nJak szatą okryłeś ją Wielką Głębią,*\nponad górami stanęły wody.\n\nTy zdroje kierujesz do strumieni,*\nktóre pośród gór się sączą.\nNad nimi mieszka ptactwo niebieskie*\ni śpiewa wśród gałęzi.\n\nZ Twoich komnat nawadniasz góry,*\nowocem dzieł Twoich syci się ziemia.\nKażesz rosnąć trawie dla bydła*\ni roślinom, by człowiekowi służyły.\n\nJak liczne są dzieła Twoje, Panie!*\nTy wszystko mądrze uczyniłeś,\nziemia jest pełna Twoich stworzeń.*\nBłogosław, duszo moja, Pana.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps2",
+        "psalm_responsoryjny": "Refren: Pełna jest ziemia łaskawości Pana.\n\nSłowo Pana jest prawe,*\na każde Jego dzieło godne zaufania.\nOn miłuje prawo i sprawiedliwość,*\nziemia jest pełna Jego łaski.\n\nPrzez słowo Pana powstały niebiosa,*\nwszystkie gwiazdy przez tchnienie ust Jego.\nOn morskie wody gromadzi jak wbukłaku,*\notchłanie oceanu w zbiornikach.\n\nBłogosławiony lud, którego Pan jest Bogiem,*\nnaród, który On wybrał na dziedzictwo dla siebie.\nPan spogląda z nieba,*\nwidzi wszystkich ludzi.\n\nDusza nasza oczekuje Pana,*\nOn jest naszą pomocą i tarczą.\nPanie, niech nas ogarnie Twoja łaska,*\nwedług nadziei pokładanej w Tobie.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps3",
+        "psalm_responsoryjny": "Refren: Strzeż mnie, o Boże, Tobie zaufałem.\n\nPan moim dziedzictwem i przeznaczeniem,*\nto On mój los zabezpiecza.\nZawsze stawiam sobie Pana przed oczy,*\nOn jest po mojej prawicy, nic mną nie zachwieje.\n\nDlatego cieszy się moje serce i dusza raduje,*\na ciało moje będzie spoczywać bezpiecznie,\nbo w kraju zmarłych duszy mej nie zostawisz*\ni nie dopuścisz, bym pozostał w grobie.\n\nTy ścieżkę życia mi ukażesz,*\npełnię radości przy Tobie\ni wieczne szczęście*\npo Twojej prawicy.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps4",
+        "psalm_responsoryjny": "Refren: Śpiewajmy Panu, który moc okazał.\n\nZaśpiewam na cześć Pana, który okrył się sławą,*\ngdy konia i jeźdźca pogrążył w morskiej toni.\nPan jest moją mocą i źródłem męstwa,†\nJemu zawdzięczam moje ocalenie.*\nOn Bogiem moim, uwielbiać Go będę.\n\nPan wojownik potężny,*\n«Ten, który jest», brzmi Jego imię.\nRzucił w morze rydwany faraona i wojsko jego,*\nwybrani wodzowie legli w Morzu Czerwonym.\n\nPrzepaści ich ogarnęły,*\njak głaz runęli w głębinę.\nUwielbiona jest potęga prawicy Twej, Panie,*\nprawica Twa, o Panie, starła nieprzyjaciół.\n\nWprowadziłeś ich i osadziłeś*\nna górze Twojego dziedzictwa.\nW miejscu, które uczyniłeś swym mieszkaniem,†\nw świątyni zbudowanej Twoimi rękami,*\nPan jest Królem na zawsze i na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps5",
+        "psalm_responsoryjny": "Refren: Sławię Cię, Panie, bo mnie wybawiłeś.\n\nSławię Cię, Panie, bo mnie wybawiłeś*\ni nie pozwoliłeś mym wrogom naśmiewać się ze mnie.\nPanie, mój Boże,†\nz krainy umarłych wywołałeś moją duszę*\ni ocaliłeś mi życie spośród schodzących do grobu.\n\nŚpiewajcie psalm, wszyscy miłujący Pana,*\ni pamiętajcie o Jego świętości.\nGniew Jego bowiem trwa tylko przez chwilę,†\na Jego łaska przez całe życie.*\nPłacz nadchodzi z wieczora, a rankiem wesele.\n\nWysłuchaj mnie, Panie, zmiłuj się nade mną,*\nPanie, bądź moją pomocą.\nZamieniłeś w taniec mój żałobny lament,*\nBoże mój i Panie, będę Cię sławił na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps6",
+        "psalm_responsoryjny": "Refren: Będziecie czerpać ze zdrojów zbawienia.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia!†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród Ciebie Święty Izraela.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps7",
+        "psalm_responsoryjny": "Refren: Słowa Twe, Panie, dają życie wieczne.\n\nPrawo Pańskie jest doskonałe i pokrzepia duszę,*\nświadectwo Pana jest pewne, nierozważnego uczy mądrości.\nJego słuszne nakazy radują serce,*\njaśnieje przykazanie Pana i olśniewa oczy.\n\nBojaźń Pana jest szczera i trwa na wieki,*\nsądy Pana prawdziwe, wszystkie razem słuszne.\nCenniejsze nad złoto, nad złoto najczystsze,*\nsłodsze od miodu płynącego z plastra.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps8",
+        "psalm_responsoryjny": "Refren: Boga żywego pragnie moja dusza.\n\nJak łania pragnie wody ze strumieni,*\ntak dusza moja pragnie Ciebie, Boże.\nDusza moja Boga pragnie, Boga żywego,*\nkiedyż więc przyjdę i ujrzę oblicze Boże?\n\nRozpływa się we mnie moja dusza,*\ngdy wspominam, jak z tłumem kroczyłem do Bożego domu,\nw świątecznym orszaku,*\nwśród głosów radości i chwały.\n\nZeślij światłość i wierność swoją,*\nniech one mnie wiodą,\nniech mnie zaprowadzą na Twą górę świętą*\ni do Twoich przybytków.\n\nI przystąpię do ołtarza Bożego,*\ndo Boga, który jest moim weselem i radością.\nI będę Cię chwalił przy dźwiękach lutni,*\nBoże, mój Boże!\n\nlub gdy ma nastąpić Chrzest: Iz 12 – jak po piątym czytaniu, albo:",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps9",
+        "psalm_responsoryjny": "Refren: Stwórz, o mój Boże, we mnie serce czyste.\n\nStwórz, Boże, we mnie serce czyste*\ni odnów we mnie moc ducha.\nNie odrzucaj mnie od swego oblicza*\ni nie odbieraj mi świętego ducha swego.\n\nPrzywróć mi radość Twojego zbawienia*\ni wzmocnij mnie duchem ofiarnym.\nBędę nieprawych nauczał dróg Twoich*\ni wrócą do Ciebie grzesznicy.\n\nOfiarą bowiem Ty się nie radujesz,*\na całopalenia, choćbym dał, nie przyjmiesz.\nBoże, moją ofiarą jest duch skruszony,*\npokornym i skruszonym sercem Ty, Boże, nie gardzisz.\n\nNastępuje kolekta oraz hymn: Chwała na wysokości Bogu.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wigilia Paschalna, ROK B Ps10",
+        "psalm_responsoryjny": "Refren: Alleluja, alleluja, alleluja.\n\nDziękujcie Panu, bo jest dobry,*\nbo Jego łaska trwa na wieki.\nNiech dom Izraela głosi:*\n«Jego łaska na wieki».\n\nPrawica Pana wzniesiona wysoko,*\nprawica Pańska moc okazała.\nNie umrę, ale żyć będę*\ni głosić dzieła Pana.\n\nKamień odrzucony przez budujących*\nstał się kamieniem węgielnym.\nStało się to przez Pana*\ni cudem jest w naszych oczach.\n\nEWANGELIA (Mk 16, 1-7)\nChrystus zmartwychwstał\nSłowa Ewangelii według Świętego Marka\nPo upływie szabatu Maria Magdalena, Maria, matka Jakuba, i Salome nakupiły wonności, żeby pójść namaścić Jezusa. Wczesnym rankiem, w pierwszy dzień tygodnia przyszły do grobu, gdy słońce wzeszło. A mówiły między sobą: «Kto nam odsunie kamień z wejścia do grobu?». Gdy jednak spojrzały, zauważyły, że kamień był już odsunięty, a był bardzo duży. Weszły więc do grobu i ujrzały młodzieńca, siedzącego po prawej stronie, ubranego w białą szatę; i bardzo się przestraszyły. Lecz on rzekł do nich: «Nie bójcie się. Szukacie Jezusa z Nazaretu, ukrzyżowanego; powstał, nie ma Go tu. Oto miejsce, gdzie Go złożyli. A idźcie, powiedzcie Jego uczniom i Piotrowi: „Podąża przed wami do Galilei, tam Go ujrzycie, jak wam powiedział”».\nOto słowo Pańskie.\nKOMENTARZ\nJezus zmartwychwstał i żyje!\nOd tej pory zaczyna się przepowiadanie chwalebnego zmartwychwstania Jezusa. Aż do uroczystości wniebowstąpienia Chrystusa Kościół w liturgii będzie przytaczał różne fragmenty Nowego Testamentu, które mają nas przekonać, podobnie jak apostołów i pierwszych uczniów Jezusa, że On żyje. Nie ma go wśród umarłych, ale chwalebny i zwycięski żyje na wieki! W tych przekazach, zwłaszcza ewangelicznych, pojawiają się obok siebie: lęk i radość, niedowierzanie i wiara, zaskoczenie i radość serca poruszonego działaniem Ducha Świętego. Trzy kobiety idą do grobu Jezusa, aby dopełnić zwyczajowego namaszczenia ciała po śmierci. Po drodze zastanawiają się, jak poradzą sobie z wielkim kamieniem. A tymczasem sytuacja na miejscu kompletnie je zaskakuje. Kamień jest odsunięty i widzą anioła, który obwieszcza im wielkanocne przesłanie: „Szukacie Jezusa z Nazaretu, ukrzyżowanego. Zmartwychwstał. Nie ma Go tu”. Teraz wielu będzie szło do grobu Jezusa, aby się przekonać, lecz zawsze zastaną to samo. Jezus zmartwychwstał i żyje! Nie ma Go wśród umarłych.\nPanie Jezu, słowa, które powtarzam w czasie Mszy św., chcę uczynić wyznaniem mojego serca: „Głosimy śmierć Twoją, Panie Jezu Chryste, wyznajemy Twoje zmartwychwstanie, oczekując Twego przyjścia w chwale”. Amen.\nRozważania zaczerpnięte z\nEwangelia 2024\no. Andrzej Kiejza OFMCap\nEdycja Świętego Pawła\nInny komentarz do Liturgii Słowa znajduje się na stronie biuletynu\nDZIEŃ PAŃSKI\n.\nKuria Prowincjalna Towarzystwa Świętego Pawła\nul. Św. Pawła 13/15\n42-221 Częstochowa\nwww.paulus.org.pl\n• mail:\nkuria@paulus.pl\nCopyright ©2016 Towarzystwo świętego Pawła\nProjekt i wykonanie:\nRedhand.pl\nWyślij",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u21,wigilia-paschalna-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps1",
+        "psalm_responsoryjny": "Refren: Niech zstąpi Duch Twój i odnowi ziemię.\n\nBłogosław, duszo moja, Pana,*\nBoże mój, Panie, Ty jesteś bardzo wielki!\nOdziany w majestat i piękno,*\nświatłem okryty jak płaszczem.\n\nUmocniłeś fundamenty ziemi,*\nnie zachwieje się na wieki wieków.\nJak szatą okryłeś ją Wielką Głębią,*\nponad górami stanęły wody.\n\nTy zdroje kierujesz do strumieni,*\nktóre pośród gór się sączą.\nNad nimi mieszka ptactwo niebieskie*\ni śpiewa wśród gałęzi.\n\nZ Twoich komnat nawadniasz góry,*\nowocem dzieł Twoich syci się ziemia.\nKażesz rosnąć trawie dla bydła*\ni roślinom, by człowiekowi służyły.\n\nJak liczne są dzieła Twoje, Panie!*\nTy wszystko mądrze uczyniłeś,\nziemia jest pełna Twoich stworzeń.*\nBłogosław, duszo moja, Pana.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps2",
+        "psalm_responsoryjny": "Refren: Pełna jest ziemia łaskawości Pana.\n\nSłowo Pana jest prawe,*\na każde Jego dzieło godne zaufania.\nOn miłuje prawo i sprawiedliwość,*\nziemia jest pełna Jego łaski.\n\nPrzez słowo Pana powstały niebiosa,*\nwszystkie gwiazdy przez tchnienie ust Jego.\nOn morskie wody gromadzi jak wbukłaku,*\notchłanie oceanu w zbiornikach.\n\nBłogosławiony lud, którego Pan jest Bogiem,*\nnaród, który On wybrał na dziedzictwo dla siebie.\nPan spogląda z nieba,*\nwidzi wszystkich ludzi.\n\nDusza nasza oczekuje Pana,*\nOn jest naszą pomocą i tarczą.\nPanie, niech nas ogarnie Twoja łaska,*\nwedług nadziei pokładanej w Tobie.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps3",
+        "psalm_responsoryjny": "Refren: Strzeż mnie, o Boże, Tobie zaufałem.\n\nPan moim dziedzictwem i przeznaczeniem,*\nto On mój los zabezpiecza.\nZawsze stawiam sobie Pana przed oczy,*\nOn jest po mojej prawicy, nic mną nie zachwieje.\n\nDlatego cieszy się moje serce i dusza raduje,*\na ciało moje będzie spoczywać bezpiecznie,\nbo w kraju zmarłych duszy mej nie zostawisz*\ni nie dopuścisz, bym pozostał w grobie.\n\nTy ścieżkę życia mi ukażesz,*\npełnię radości przy Tobie\ni wieczne szczęście*\npo Twojej prawicy.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps4",
+        "psalm_responsoryjny": "Refren: Śpiewajmy Panu, który moc okazał.\n\nZaśpiewam na cześć Pana, który okrył się sławą,*\ngdy konia i jeźdźca pogrążył w morskiej toni.\nPan jest moją mocą i źródłem męstwa,†\nJemu zawdzięczam moje ocalenie.*\nOn Bogiem moim, uwielbiać Go będę.\n\nPan wojownik potężny,*\n«Ten, który jest», brzmi Jego imię.\nRzucił w morze rydwany faraona i wojsko jego,*\nwybrani wodzowie legli w Morzu Czerwonym.\n\nPrzepaści ich ogarnęły,*\njak głaz runęli w głębinę.\nUwielbiona jest potęga prawicy Twej, Panie,*\nprawica Twa, o Panie, starła nieprzyjaciół.\n\nWprowadziłeś ich i osadziłeś*\nna górze Twojego dziedzictwa.\nW miejscu, które uczyniłeś swym mieszkaniem,†\nw świątyni zbudowanej Twoimi rękami,*\nPan jest Królem na zawsze i na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps5",
+        "psalm_responsoryjny": "Refren: Sławię Cię, Panie, bo mnie wybawiłeś.\n\nSławię Cię, Panie, bo mnie wybawiłeś*\ni nie pozwoliłeś mym wrogom naśmiewać się ze mnie.\nPanie, mój Boże,†\nz krainy umarłych wywołałeś moją duszę*\ni ocaliłeś mi życie spośród schodzących do grobu.\n\nŚpiewajcie psalm, wszyscy miłujący Pana,*\ni pamiętajcie o Jego świętości.\nGniew Jego bowiem trwa tylko przez chwilę,†\na Jego łaska przez całe życie.*\nPłacz nadchodzi z wieczora, a rankiem wesele.\n\nWysłuchaj mnie, Panie, zmiłuj się nade mną,*\nPanie, bądź moją pomocą.\nZamieniłeś w taniec mój żałobny lament,*\nBoże mój i Panie, będę Cię sławił na wieki.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps6",
+        "psalm_responsoryjny": "Refren: Będziecie czerpać ze zdrojów zbawienia.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia!†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród Ciebie Święty Izraela.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps7",
+        "psalm_responsoryjny": "Refren: Słowa Twe, Panie, dają życie wieczne.\n\nPrawo Pańskie jest doskonałe i pokrzepia duszę,*\nświadectwo Pana jest pewne, nierozważnego uczy mądrości.\nJego słuszne nakazy radują serce,*\njaśnieje przykazanie Pana i olśniewa oczy.\n\nBojaźń Pana jest szczera i trwa na wieki,*\nsądy Pana prawdziwe, wszystkie razem słuszne.\nCenniejsze nad złoto, nad złoto najczystsze,*\nsłodsze od miodu płynącego z plastra.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps8",
+        "psalm_responsoryjny": "Refren: Boga żywego pragnie moja dusza.\n\nJak łania pragnie wody ze strumieni,*\ntak dusza moja pragnie Ciebie, Boże.\nDusza moja Boga pragnie, Boga żywego,*\nkiedyż więc przyjdę i ujrzę oblicze Boże?\n\nRozpływa się we mnie moja dusza,*\ngdy wspominam, jak z tłumem kroczyłem do Bożego domu,\nw świątecznym orszaku,*\nwśród głosów radości i chwały.\n\nZeślij światłość i wierność swoją,*\nniech one mnie wiodą,\nniech mnie zaprowadzą na Twą górę świętą*\ni do Twoich przybytków.\n\nI przystąpię do ołtarza Bożego,*\ndo Boga, który jest moim weselem i radością.\nI będę Cię chwalił przy dźwiękach lutni,*\nBoże, mój Boże!\n\nlub gdy ma nastąpić Chrzest: Iz 12 – jak po piątym czytaniu, albo:",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps9",
+        "psalm_responsoryjny": "Refren: Stwórz, o mój Boże, we mnie serce czyste.\n\nStwórz, Boże, we mnie serce czyste*\ni odnów we mnie moc ducha.\nNie odrzucaj mnie od swego oblicza*\ni nie odbieraj mi świętego ducha swego.\n\nPrzywróć mi radość Twojego zbawienia*\ni wzmocnij mnie duchem ofiarnym.\nBędę nieprawych nauczał dróg Twoich*\ni wrócą do Ciebie grzesznicy.\n\nOfiarą bowiem Ty się nie radujesz,*\na całopalenia, choćbym dał, nie przyjmiesz.\nBoże, moją ofiarą jest duch skruszony,*\npokornym i skruszonym sercem Ty, Boże, nie gardzisz.\n\nNastępuje kolekta oraz hymn: Chwała na wysokości Bogu.",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Wigilia Paschalna, ROK C Ps10",
+        "psalm_responsoryjny": "Refren: Alleluja, alleluja, alleluja.\n\nDziękujcie Panu, bo jest dobry,*\nbo Jego łaska trwa na wieki.\nNiech dom Izraela głosi:*\n«Jego łaska na wieki».\n\nPrawica Pana wzniesiona wysoko,*\nprawica Pańska moc okazała.\nNie umrę, ale żyć będę*\ni głosić dzieła Pana.\n\nKamień odrzucony przez budujących*\nstał się kamieniem węgielnym.\nStało się to przez Pana*\ni cudem jest w naszych oczach.\n\nEWANGELIA (Łk 24, 1-12)\nDlaczego szukacie żyjącego wśród umarłych?\nSłowa Ewangelii według Świętego Łukasza\nW pierwszy dzień tygodnia niewiasty poszły skoro świt do grobu, niosąc przygowane wonności. Kamień zastały odsunięty od grobu. A skoro weszły, nie znalazły ciała Pana Jezusa. Gdy wobec tego były bezradne, nagle stanęło przed nimi dwóch mężczyzn w lśniących szatach. Przestraszone, pochyliły twarze ku ziemi, lecz tamci rzekli do nich: «Dlaczego szukacie żyjącego wśród umarłych? Nie ma Go tutaj; zmartwychwstał. Przypomnijcie sobie, jak wam mówił, będąc jeszcze w Galilei: „Syn Człowieczy musi być wydany w ręce grzeszników i ukrzyżowany, lecz trzeciego dnia zmartwychwstanie”». Wtedy przypomniały sobie Jego słowa, wróciwszy zaś od grobu, oznajmiły to wszystko Jedenastu i wszystkim pozostałym. A były to: Maria Magdalena, Joanna i Maria, matka Jakuba; i inne z nimi opowiadały to apostołom. Lecz słowa te wydały im się czczą gadaniną i nie dali im wiary.\nJednakże Piotr wybrał się i przybiegł do grobu; schyliwszy się, ujrzał same tylko płótna. I wrócił do siebie, dziwiąc się temu, co się stało.\nOto słowo Pańskie.\nKOMENTARZ\nDzień bez „własnej” Ewangelii\nWielka Sobota nie ma „swojej” Ewangelii. Podany wyżej tekst należy już do liturgii Wigilii Paschalnej, czyli Niedzieli Zmartwychwstania. Kościół jakby zastyga w bezruchu. Spowiedź, święcenie pokarmów, ale w gruncie rzeczy bezruch i oczekiwanie. Bo jeśli nie byłoby zmartwychwstania, jaki sens miałyby wszystkie nasze wysiłki, aby słuchać słowa, wierzyć? Jaką Dobrą Nowinę moglibyśmy zanieść innym? Dlatego tego dnia postawmy sobie pytanie, czy rzeczywiście zmartwychwstanie Jezusa jest dla nas najważniejszym wydarzeniem w historii świata?\nZa każdym razem, kiedy przychodzisz do mnie, Panie, chcesz odsunąć ode mnie wszelki lęk. Dziękuję Ci za Twoją obecność i za Twoje nieustanne: „Nie bójcie się!”.\nRozważania zaczerpnięte z\nEwangelia 2025\nks. Maciej Warowny\nEdycja Świętego Pawła\nInny komentarz do Liturgii Słowa znajduje się na stronie biuletynu\nDZIEŃ PAŃSKI\noraz\nOD SŁOWA DO ŻYCIA\n.\nKuria Prowincjalna Towarzystwa Świętego Pawła\nul. Św. Pawła 13/15\n42-221 Częstochowa\nwww.paulus.org.pl\n• mail:\nkuria@paulus.pl\nCopyright ©2016 Towarzystwo świętego Pawła\nProjekt i wykonanie:\nRedhand.pl\nWyślij",
+        "aklamacja": null,
+        "zrodlo": "https://www.paulus.org.pl/u22,wigilia-paschalna-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Wniebowstąpienie Pańskie - B",
+        "psalm_responsoryjny": "Refren: Pan wśród radości wstępuje do nieba.\n\nAlbo:\nAlleluja.\nWszystkie narody, klaskajcie w dłonie,*\nradosnym głosem wykrzykujcie Bogu,\nbo Pan Najwyższy i straszliwy*\njest wielkim Królem nad całą ziemią.\n\nBóg wstępuje wśród radosnych okrzyków,*\nPan wstępuje przy dźwięku trąby.\nŚpiewajcie psalmy Bogu, śpiewajcie,*\nśpiewajcie Królowi naszemu, śpiewajcie.\n\nGdyż Bóg jest Królem całej ziemi,*\nhymn zaśpiewajcie!\nBóg króluje nad narodami,*\nBóg zasiada na swym świętym tronie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nIdźcie i nauczajcie wszystkie narody.\nJa jestem z wami przez wszystkie dni, aż do skończenia świata.",
+        "zrodlo": "https://www.paulus.org.pl/u24,wniebowstapienie-panskie-uroczystosc-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Wniebowstąpienie Pańskie - A",
+        "psalm_responsoryjny": "Refren: Pan wśród radości wstępuje do nieba.\n\nAlbo:\nAlleluja.\nWszystkie narody, klaskajcie w dłonie,*\nradosnym głosem wykrzykujcie Bogu,\nbo Pan Najwyższy i straszliwy,*\njest wielkim Królem nad całą ziemią.\n\nBóg wstępuje wśród radosnych okrzyków,*\nPan wstępuje przy dźwięku trąby.\nŚpiewajcie psalmy Bogu, śpiewajcie,*\nśpiewajcie Królowi naszemu, śpiewajcie.\n\nGdyż Bóg jest Królem całej ziemi,*\nhymn zaśpiewajcie!\nBóg króluje nad narodami,*\nBóg zasiada na swym świętym tronie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nIdźcie i nauczajcie wszystkie narody.\nJa jestem z wami przez wszystkie dni, aż do skończenia świata.",
+        "zrodlo": "https://www.paulus.org.pl/u23,wniebowstapienie-panskie-uroczystosc-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Świętej Rodziny Jezusa, Maryi i Józefa - C",
+        "psalm_responsoryjny": "Refren: Szczęśliwi, którzy mieszkają w Twym domu.\n\nJak miłe są Twoje przybytki,*\nPanie zastępów!\nDusza moja stęskniona pragnie przedsionków Pańskich,*\nserce moje i ciało radośnie wołają do Boga żywego.\n\nSzczęśliwi, którzy mieszkają w domu Twoim, Panie,*\nnieustannie wielbiąc Ciebie.\nSzczęśliwi, których moc jest w Tobie,*\nktórzy zachowują ufność w swym sercu.\n\nPanie zastępów, usłysz modlitwę moją,*\nnakłoń ucha, Boże Jakuba.\nSpójrz, Boże, Tarczo nasza,*\nwejrzyj na twarz Twojego pomazańca.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nOtwórz, Panie, nasze serca,\nabyśmy uważnie słuchali słów Syna Twojego.",
+        "zrodlo": "https://www.paulus.org.pl/u100,swietej-rodziny-jezusa-maryi-i-jozefa-swieto-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Nawrócenie Świętego Pawła Apostoła",
+        "psalm_responsoryjny": "Refren: Całemu światu głoście Ewangelię.\n\nAlbo:\nAlleluja.\nChwalcie Pana, wszystkie narody,*\nwysławiajcie Go, wszystkie ludy,\nbo potężna nad nami Jego łaska,*\na wierność Pana trwa na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nNie wy Mnie wybraliście, ale Ja was wybrałem,\nabyście szli i owoc przynosili.",
+        "zrodlo": "https://www.paulus.org.pl/u15,nawrocenie-swietego-pawla-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Tymoteusza i Tytusa, Biskupów",
+        "psalm_responsoryjny": "Refren: Pośród narodów głoście chwałę Pana.\n\nŚpiewajcie Panu pieśń nową*\nśpiewaj Panu, ziemio cała.\nśpiewajcie Panu,*\nsławcie Jego imię.\n\nKażdego dnia głoście Jego zbawienie.*\nGłoście Jego chwałę wśród wszystkich narodów,\nrozgłaszajcie Jego cuda*\npośród wszystkich ludów.\n\nOddajcie Panu, rodziny narodów,*\noddajcie Panu chwałę i uznajcie Jego potęgę.\nOddajcie Panu chwałę należną Jego imieniu.*\nprzynieście dary i wejdźcie na Jego dziedzińce.\n\nGłoście wśród ludów.*\nże Pan jest królem.\nOn świat tak utwierdził, że się nie zachwieje,*\nbędzie sprawiedliwie sądził ludy.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPan mnie posłał, abym ubogim niósł dobrą nowinę,\nwięźniom głosił wolność.",
+        "zrodlo": "https://www.paulus.org.pl/u16,swietych-tymoteusza-i-tytusa-biskupow-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Ofiarowanie Pańskie",
+        "psalm_responsoryjny": "Refren: Pan Bóg Zastępów, On jest Królem chwały.\n\nBramy, podnieście swe szczyty,†\nunieście się, odwieczne podwoje,*\naby mógł wkroczyć Król chwały!\n«Któż jest tym Królem chwały?».†\n«Pan, dzielny i potężny,*\nPan, potężny w boju».\n\nBramy, podnieście swe szczyty,†\nunieście się, odwieczne podwoje,*\naby mógł wkroczyć Król chwały!\n«Któż jest tym Królem chwały?».*\n«Pan Zastępów: On Królem chwały».\n\nGdy święto to wypada w niedzielę lub obchodzone jest jako uroczystość odczytuje się także drugie czytanie z Listu do Hebrajczyków.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nŚwiatło na oświecenie pogan\ni chwała ludu Twego, Izraela.",
+        "zrodlo": "https://www.paulus.org.pl/u19,ofiarowanie-panskie-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Cyryla i Metodego",
+        "psalm_responsoryjny": "Refren: Całemu światu głoście Ewangelię.\n\nAlbo:\nAlleluja.\nChwalcie Pana, wszystkie narody,*\nwysławiajcie Go, wszystkie ludy,\nbo potężna nad nami Jego łaska,*\na wierność Pana trwa na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPan posłał Mnie, abym ubogim niósł dobrą nowinę,\nwięźniom głosił wolność.",
+        "zrodlo": "https://www.paulus.org.pl/u95,swietych-cyryla-i-metodego-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Kazimierza Królewicza - (wielki Post)",
+        "psalm_responsoryjny": "Refren: Prawy zamieszka w domu Twoim, Panie.\n\nKto będzie przebywał w Twym przybytku, Panie,*\nkto zamieszka na Twej górze świętej?\nTen, kto postępuje nienagannie, działa sprawiedliwie*\ni mówi prawdę w swym sercu.\n\nKto swym językiem oszczerstw nie głosi,*\nkto nie czyni bliźniemu nic złego\ni nie ubliża swoim sąsiadom,*\nale szanuje tego, który oddaje cześć Bogu.\n\nKto dotrzyma przysięgi niekorzystnej dla siebie,*\nkto nie daje swych pieniędzy na lichwę\ni nie da się przekupić przeciw niewinnemu.*\nKto tak postępuje, nigdy się nie zachwieje.",
+        "aklamacja": "Aklamacja: Chwała Tobie, Królu wieków\n\nDaję wam przykazanie nowe, abyście się wzajemnie miłowali\ntak, jak Ja was umiłowałem.",
+        "zrodlo": "https://www.paulus.org.pl/u107,sw-kazimierza-krolewicza-swieto-wielki-post"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Kazimierza Królewicza",
+        "psalm_responsoryjny": "Refren: Prawy zamieszka w domu Twoim, Panie.\n\nKto będzie przebywał w Twym przybytku, Panie,*\nkto zamieszka na Twej górze świętej?\nTen, kto postępuje nienagannie, działa sprawiedliwie*\ni mówi prawdę w swym sercu.\n\nKto swym językiem oszczerstw nie głosi,*\nkto nie czyni bliźniemu nic złego\ni nie ubliża swoim sąsiadom,*\nale szanuje tego, który oddaje cześć Bogu.\n\nKto dotrzyma przysięgi niekorzystnej dla siebie,*\nkto nie daje swych pieniędzy na lichwę\ni nie da się przekupić przeciw niewinnemu.*\nKto tak postępuje, nigdy się nie zachwieje.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nDaję wam przykazanie nowe, abyście się wzajemnie miłowali\ntak, jak Ja was umiłowałem.",
+        "zrodlo": "https://www.paulus.org.pl/u27,sw-kazimierza-krolewicza-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Józefa Oblubieńca NMP",
+        "psalm_responsoryjny": "Refren: Jego potomstwo będzie trwało wiecznie.\n\nO łaskach Pana będę śpiewał na wieki,†\nTwą wierność będę głosił moimi ustami*\nprzez wszystkie pokolenia.\nAlbowiem powiedziałeś:†\n«Na wieki ugruntowana jest łaska»,*\nutrwaliłeś swą wierność w niebiosach.\n\n«Zawarłem przymierze zmoim wybrańcem,*\nprzysiągłem mojemu słudze, Dawidowi:\nTwoje potomstwo utrwalę na wieki*\ni tron twój umocnię na wszystkie pokolenia».\n\n«On będzie wołał do Mnie:†\n„Ty jesteś moim Ojcem,*\nmoim Bogiem, Opoką mojego zbawienia”.\nNa wieki zachowam dla niego łaskę*\ni trwałe z nim będzie moje przymierze».",
+        "aklamacja": "Aklamacja: Chwała Tobie, Królu wieków.\n\nSzczęśliwi, którzy mieszkają w domu Twoim, Panie,\nnieustannie wielbiąc Ciebie.",
+        "zrodlo": "https://www.paulus.org.pl/u28,sw-jozefa-oblubienca-nmp-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Zwiastowanie Pańskie",
+        "psalm_responsoryjny": "Refren: Przychodzę, Boże, pełnić Twoją wolę.\n\nNie chciałeś ofiary krwawej ani z płodów ziemi,*\nlecz otwarłeś mi uszy;\nnie żądałeś całopalenia i ofiary za grzechy.*\nWtedy powiedziałem: «Oto przychodzę.\n\nW zwoju księgi jest o mnie napisane:†\nRadością jest dla mnie pełnić Twoją wolę, mój Boże,*\na Twoje Prawo mieszka w moim sercu».\nGłosiłem Twą sprawiedliwość w wielkim zgromadzeniu†\ni nie powściągałem warg moich,*\no czym Ty wiesz, Panie.\n\nSprawiedliwości Twej nie kryłem w głębi serca,*\ngłosiłem Twoją wierność i pomoc.\nNie taiłem Twojej łaski ani Twej wierności*\nprzed wielkim zgromadzeniem.",
+        "aklamacja": "Aklamacja: Chwała Tobie, Królu wieków.\n\nSłowo stało się ciałem i zamieszkało między nami.\nI oglądaliśmy Jego chwałę.",
+        "zrodlo": "https://www.paulus.org.pl/u29,zwiastowanie-panskie-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Wojciecha, Biskupa i Męczennika",
+        "psalm_responsoryjny": "Refren: Kto we łzach sieje, żąć będzie w radości.\n\nAlbo:\nAlleluja.\nGdy Pan odmienił los Syjonu,*\nwydawało się nam, że śnimy.\nUsta nasze były pełne śmiechu,*\na język śpiewał z radości.\n\nMówiono wtedy między narodami:*\n«Wielkie rzeczy im Pan uczynił».\nPan uczynił nam wielkie rzeczy*\ni radość nas ogarnęła.\n\nOdmień znowu nasz los, o Panie,*\njak odmieniasz strumienie na Południu.\nCi, którzy we łzach sieją,*\nżąć będą w radości.\n\nIdą i płaczą,*\nniosąc ziarno na zasiew,\nlecz powrócą z radością,*\nniosąc swoje snopy.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nKto chciałby Mi służyć, niech idzie za Mną,\na gdzie Ja jestem, tam będzie i mój sługa.",
+        "zrodlo": "https://www.paulus.org.pl/u30,sw-wojciecha-biskupa-i-meczennika-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Marka, Ewangelisty",
+        "psalm_responsoryjny": "Refren: Na wieki będę sławił łaski Pana.\n\nAlbo:\nAlleluja.\nO łaskach Pana będę śpiewał na wieki,†\nTwą wierność będę głosił moimi ustami*\nprzez wszystkie pokolenia.\nAlbowiem powiedziałeś:†\n«Na wieki ugruntowana jest łaska»,*\nutrwaliłeś swą wierność w niebiosach.\n\nNiebiosa wysławiają cuda Twoje, Panie,*\na zgromadzenie świętych wierność Twoją.\nBo któż na obłokach będzie równy Panu,*\nkto z synów Bożych będzie do Niego podobny.\n\nBłogosławiony lud, który umie się cieszyć*\ni chodzi, Panie, w blasku Twojej obecności.\nCieszą się zawsze Twym imieniem,*\nTwoja sprawiedliwość ich wywyższa.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nMy głosimy Chrystusa ukrzyżowanego,\nktóry jest mocą i mądrością Bożą.",
+        "zrodlo": "https://www.paulus.org.pl/u31,sw-marka-ewangelisty-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Katarzyny ZE Sieny",
+        "psalm_responsoryjny": "Refren: Chwal i błogosław, duszo moja, Pana.\n\nAlbo:\nAlleluja.\nBłogosław, duszo moja, Pana,*\ni wszystko, co jest we mnie, święte imię Jego.\nBłogosław, duszo moja, Pana*\ni nie zapominaj o wszystkich Jego dobrodziejstwach.\n\nOn odpuszcza wszystkie twoje winy*\ni leczy wszystkie choroby.\nOn twoje życie ratuje od zguby,*\nobdarza cię łaską i zmiłowaniem.\n\nMiłosierny jest Pan i łaskawy,*\nnieskory do gniewu i bardzo cierpliwy.\nNie zapamiętuje się w sporze,*\nnie płonie gniewem na wieki.\n\nJak ojciec lituje się nad dziećmi,*\ntak Pan się lituje nad tymi, którzy cześć Mu oddają.\nWie On, z czegośmy powstali,*\npamięta, że jesteśmy prochem.\n\nLecz łaska Pana jest wieczna*\ndla Jego wyznawców,\na Jego sprawiedliwość nad ich potomstwem,*\nnad wszystkimi, którzy strzegą Jego przymierza.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWysławiam Cię, Ojcze, Panie nieba i ziemi,\nże tajemnice królestwa objawiłeś prostaczkom.",
+        "zrodlo": "https://www.paulus.org.pl/u32,sw-katarzyny-ze-sieny-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Królowej Polski",
+        "psalm_responsoryjny": "Refren: Tyś wielką chlubą naszego narodu.\n\nBłogosławiona jesteś, córko, przez Boga Najwyższego,*\nspomiędzy wszystkich niewiast na ziemi,\ni niech będzie błogosławiony Pan Bóg,*\nStwórca nieba i ziemi.\n\nTwoja ufność nie zatrze się aż na wieki*\nw sercach ludzkich wspominających moc Boga.\nNiech Bóg to sprawi,*\nabyś była wywyższona na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJezus powiedział do ucznia: «Oto Matka twoja»,\ni od tej godziny uczeń wziął Ją do siebie.",
+        "zrodlo": "https://www.paulus.org.pl/u33,nmp-krolowej-polski-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Apostołów Filipa i Jakuba",
+        "psalm_responsoryjny": "Refren: Po całej ziemi ich głos się rozchodzi.\n\nAlbo:\nAlleluja.\nNiebiosa głoszą chwałę Boga,*\ndzieło rąk Jego obwieszcza nieboskłon.\nDzień opowiada dniowi,*\nnoc nocy wiadomość przekazuje.\n\nNie są to słowa ani nie jest to mowa,*\nktórych by dźwięku nie usłyszano.\nIch głos się rozchodzi po całej ziemi,*\nich słowa aż po krańce świata.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem drogą i prawdą, i życiem.\nFilipie, kto Mnie widzi, widzi także i Ojca.",
+        "zrodlo": "https://www.paulus.org.pl/u34,sw-apostolow-filipa-i-jakuba-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Stanisława, Biskupa i Męczennika",
+        "psalm_responsoryjny": "Refren: My ludem Pana i Jego owcami.\n\nSłużcie Panu z weselem,*\nstańcie przed obliczem Pana z okrzykami radości.\nWiedzcie, że Pan jest Bogiem,†\nOn sam nas stworzył, jesteśmy Jego własnością,*\nJego ludem, owcami Jego pastwiska.\n\nW Jego bramy wstępujcie z dziękczynieniem,†\nz hymnami w Jego przedsionki,*\nchwalcie i błogosławcie Jego imię.\nAlbowiem Pan jest dobry,†\nJego łaska trwa na wieki,*\na Jego wierność przez pokolenia.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem dobrym pasterzem\ni znam owce moje, a moje Mnie znają.",
+        "zrodlo": "https://www.paulus.org.pl/u35,sw-stanislawa-biskupa-i-meczennika-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Macieja Apostoła",
+        "psalm_responsoryjny": "Refren: Wśród książąt ludu Pan Bóg go posadził.\n\nAlbo:\nAlleluja.\nChwalcie, słudzy Pańscy,*\nchwalcie imię Pana.\nNiech imię Pana będzie błogosławione*\nteraz i na wieki.\n\nOd wschodu aż do zachodu słońca*\nniech będzie pochwalone imię Pana.\nPan jest wywyższony ponad wszystkie ludy,*\nponad niebiosa sięga Jego chwała.\n\nKto jest jak nasz Pan Bóg,*\nktóry mieszka w górze\ni w dół spogląda*\nna niebo i na ziemię?\n\nPodnosi z prochu nędzarza*\ni dźwiga z gnoju ubogiego,\nby go posadzić wśród książąt,*\nwśród książąt swojego ludu.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nNie wy Mnie wybraliście, ale Ja was wybrałem,\nabyście szli i owoc przynosili.",
+        "zrodlo": "https://www.paulus.org.pl/u36,sw-macieja-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Andrzeja Boboli",
+        "psalm_responsoryjny": "Refren: Od wszelkiej trwogi Pan Bóg mnie wyzwolił.\n\nBędę błogosławił Pana po wieczne czasy,*\nJego chwała będzie zawsze na moich ustach.\nDusza moja chlubi się Panem,*\nniech słyszą to pokorni i niech się weselą.\n\nWysławiajcie razem ze mną Pana,*\nwspólnie wywyższajmy Jego imię.\nSzukałem pomocy u Pana, a On mnie wysłuchał*\ni wyzwolił od wszelkiej trwogi.\n\nSpójrzcie na Niego, a rozpromienicie się radością,*\noblicza wasze nie zapłoną wstydem.\nOto zawołał biedak i Pan go usłyszał,*\ni uwolnił od wszelkiego ucisku.\n\nAnioł Pański otacza szańcem bogobojnych,*\naby ich ocalić.\nSkosztujcie i zobaczcie, jak Pan jest dobry,*\nszczęśliwy człowiek, który znajduje w Nim ucieczkę.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nZa nich Ja poświęcam w ofierze samego siebie,\naby i oni byli uświęceni w prawdzie.",
+        "zrodlo": "https://www.paulus.org.pl/u37,sw-andrzeja-boboli-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Nawiedzenie NMP",
+        "psalm_responsoryjny": "Refren: Wielki wśród ciebie Święty Izraela.\n\nOto Bóg jest moim zbawieniem!*\nJemu zaufam i bać się nie będę.\nPan jest moją pieśnią i mocą,*\ni On stał się moim zbawieniem.\n\nWy zaś z weselem czerpać będziecie wodę*\nze zdrojów zbawienia.\nChwalcie Pana, wzywajcie Jego imienia,†\nUkażcie narodom Jego dzieła,*\nprzypominajcie, że Jego imię jest chwalebne.\n\nŚpiewajcie Panu, bo czynów wspaniałych dokonał!*\nI cała ziemia niech o tym się dowie.\nWznoś okrzyki i wołaj radośnie, mieszkanko Syjonu,*\nbo wielki jest wśród ciebie Święty Izraela.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławiona jesteś, Panno Maryjo,\nktóra uwierzyłaś, że spełnią się słowa powiedziane Tobie od Pana.",
+        "zrodlo": "https://www.paulus.org.pl/u38,nawiedzenie-nmp-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Barnaby Apostoła",
+        "psalm_responsoryjny": "Refren: Pan Bóg objawił swoją sprawiedliwość.\n\nŚpiewajcie Panu pieśń nową,*\nalbowiem uczynił cuda.\nZwycięstwo Mu zgotowała Jego prawica*\ni święte ramię Jego.\n\nPan okazał swoje zbawienie,*\nna oczach pogan objawił swą sprawiedliwość.\nWspomniał na dobroć i na wierność swoją*\ndla domu Izraela.\n\nUjrzały wszystkie krańce ziemi*\nzbawienie Boga naszego.\nWołaj z radości na cześć Pana, cała ziemio,*\ncieszcie się, weselcie i grajcie.\n\nŚpiewajcie Panu przy wtórze cytry,*\nprzy wtórze cytry i przy dźwięku harfy.\nPrzy trąbach i przy głosie rogu,*\nna oczach Pana, Króla, się radujcie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nIdźcie i nauczajcie wszystkie narody.\nJa jestem z wami przez wszystkie dni, aż do skończenia świata.",
+        "zrodlo": "https://www.paulus.org.pl/u40,wspomnienie-obowiazkowe-sw-barnaby-apostola"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Narodzenie ŚW. Jana Chrzciciela - Wigilia",
+        "psalm_responsoryjny": "Refren: Od łona matki Pan mym opiekunem.\n\nW Tobie, Panie, ucieczka moja,*\nniech wstydu nie zaznam na wieki.\nWyzwól mnie i ratuj w Twej sprawiedliwości,*\nnakłoń ku mnie swe ucho i ześlij ocalenie.\n\nBądź dla mnie skałą schronienia*\ni zamkiem warownym, aby mnie ocalić,\nbo Ty jesteś moją opoką i twierdzą.*\nBoże mój, wyrwij mnie z rąk niegodziwca.\n\nBo Ty, mój Boże, jesteś moją nadzieją,*\nPanie, Tobie ufam od młodości.\nTy byłeś moją podporą od dnia narodzin,*\nod łona matki moim opiekunem.\n\nMoje usta będą głosiły Twoją sprawiedliwość*\ni przez cały dzień Twoją pomoc.\nBoże, Ty mnie uczyłeś od mojej młodości*\ni do tej chwili głoszę Twoje cuda.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJan przyszedł świadczyć o światłości,\naby przygotować Panu lud doskonały.",
+        "zrodlo": "https://www.paulus.org.pl/u42,narodzenie-sw-jana-chrzciciela-wigilia"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Narodzenie ŚW. Jana Chrzciciela",
+        "psalm_responsoryjny": "Refren: Sławię Cię, Panie, Boga, Stwórcę swego.\n\nPrzenikasz i znasz mnie, Panie,*\nTy wiesz, kiedy siedzę i wstaję.\nZ daleka spostrzegasz moje myśli,†\nprzyglądasz się, jak spoczywam i chodzę,*\ni znasz moje wszystkie drogi.\n\nTy bowiem stworzyłeś moje wnętrze*\ni utkałeś mnie w łonie mej matki.\nSławię Cię, że mnie tak cudownie stworzyłeś,*\ngodne podziwu są Twoje dzieła.\n\nI duszę moją znasz do głębi.*\nNie byłem dla Ciebie tajemnicą,\nkiedy w ukryciu nabierałem kształtów,*\nutkany we wnętrzu ziemi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTy, dziecię, zwać się będziesz prorokiem Najwyższego,\ngdyż pójdziesz przed Panem przygotować Mu drogi.",
+        "zrodlo": "https://www.paulus.org.pl/u41,narodzenie-sw-jana-chrzciciela-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Apostołów Piotra i Pawła",
+        "psalm_responsoryjny": "Refren: Od wszelkiej trwogi Pan Bóg mnie wyzwolił.\n\nBędę błogosławił Pana po wieczne czasy,*\nJego chwała będzie zawsze na moich ustach.\nDusza moja chlubi się Panem,*\nniech słyszą to pokorni i niech się weselą.\n\nWysławiajcie razem ze mną Pana,*\nwspólnie wywyższajmy Jego imię.\nSzukałem pomocy u Pana, a On mnie wysłuchał*\ni wyzwolił od wszelkiej trwogi.\n\nSpójrzcie na Niego, a rozpromienicie się radością,*\noblicza wasze nie zapłoną wstydem.\nOto biedak zawołał i Pan go usłyszał,*\ni uwolnił od wszelkiego ucisku.\n\nAnioł Pański otacza szańcem bogobojnych,*\naby ich ocalić.\nSkosztujcie i zobaczcie, jak Pan jest dobry,*\nszczęśliwy człowiek, który znajduje w Nim ucieczkę.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTy jesteś Piotr, czyli Opoka, i na tej opoce zbuduję mój Kościół,\na bramy piekielne go nie przemogą.",
+        "zrodlo": "https://www.paulus.org.pl/u53,swietych-apostolow-piotra-i-pawla-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Tomasza Apostoła",
+        "psalm_responsoryjny": "Refren: Całemu światu głoście Ewangelię.\n\nChwalcie Pana, wszystkie narody,*\nwysławiajcie Go, wszystkie ludy,\nbo potężna nad nami Jego łaska,*\na wierność Pana trwa na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nUwierzyłeś, Tomaszu, bo Mnie ujrzałeś;\nbłogosławieni, którzy nie widzieli, a uwierzyli.",
+        "zrodlo": "https://www.paulus.org.pl/u55,sw-tomasza-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Benedykta ,opata",
+        "psalm_responsoryjny": "Refren: Po wieczne czasy będę chwalił Pana.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBędę błogosławił Pana po wieczne czasy,*\nJego chwała będzie zawsze na moich ustach.\nDusza moja chlubi się Panem,*\nniech słyszą to pokorni i niech się weselą.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nWysławiajcie razem ze mną Pana,*\nwspólnie wywyższajmy Jego imię.\nSzukałem pomocy u Pana, a On mnie wysłuchał*\ni wyzwolił od wszelkiej trwogi.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nSpójrzcie na Niego, a rozpromienicie się radością,*\noblicza wasze nie zapłoną wstydem.\nOto zawołał biedak i Pan go usłyszał,*\ni uwolnił od wszelkiego ucisku.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nAnioł Pański otacza szańcem bogobojnych,*\naby ich ocalić.\nSkosztujcie i zobaczcie, jak Pan jest dobry,*\nszczęśliwy człowiek, który znajduje w Nim ucieczkę.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBójcie się Pana, wszyscy Jego święci,*\ngdyż bogobojni nie zaznają biedy.\nBogacze zubożeli i zaznali głodu,*\nszukającym Pana niczego nie zabraknie.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławieni ubodzy w duchu,\nalbowiem do nich należy królestwo niebieskie.",
+        "zrodlo": "https://www.paulus.org.pl/u56,sw-benedykta-opata-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Marii Magdaleny",
+        "psalm_responsoryjny": "Refren: Ciebie, mój Boże, pragnie moja dusza.\n\nBoże mój, Boże, szukam Ciebie*\ni pragnie Ciebie moja dusza.\nCiało moje tęskni za Tobą*\njak zeschła ziemia łaknąca wody.\n\nOto wpatruję się w Ciebie w świątyni,*\nby ujrzeć Twą potęgę i chwałę.\nTwoja łaska jest cenniejsza od życia,*\nwięc sławić Cię będą moje wargi.\n\nBędę Cię wielbił przez całe me życie*\ni wzniosę ręce w imię Twoje.\nMoja dusza syci się obficie,*\na usta Cię wielbią radosnymi wargami.\n\nBo stałeś się dla mnie pomocą*\ni w cieniu Twych skrzydeł wołam radośnie:\nDo Ciebie lgnie moja dusza,*\nprawica Twoja mnie wspiera.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nMaryjo, Ty powiedz, coś w drodze widziała?\nJam Zmartwychwstałego blask chwały ujrzała.\nŻywego już Pana widziałam, grób pusty\ni świadków anielskich, i odzież, i chusty.",
+        "zrodlo": "https://www.paulus.org.pl/u57,sw-marii-magdaleny-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Brygidy, Zakonnicy",
+        "psalm_responsoryjny": "Refren: Po wieczne czasy będę chwalił Pana.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBędę błogosławił Pana po wieczne czasy,*\nJego chwała będzie zawsze na moich ustach.\nDusza moja chlubi się Panem,*\nniech słyszą to pokorni i niech się weselą.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nWysławiajcie razem ze mną Pana,*\nwspólnie wywyższajmy Jego imię.\nSzukałem pomocy u Pana, a On mnie wysłuchał*\ni wyzwolił od wszelkiej trwogi.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nSpójrzcie na Niego, a rozpromienicie się radością,*\noblicza wasze nie zapłoną wstydem.\nOto zawołał biedak i Pan go usłyszał,*\ni uwolnił od wszelkiego ucisku.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nAnioł Pański otacza szańcem bogobojnych,*\naby ich ocalić.\nSkosztujcie i zobaczcie, jak Pan jest dobry,*\nszczęśliwy człowiek, który znajduje w Nim ucieczkę.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBójcie się Pana, wszyscy Jego święci,*\nci, co się Go boją, nie zaznają biedy.\nBogacze zubożeli i zaznali głodu,*\nszukającym Pana niczego nie zabraknie.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTrwajcie w miłości mojej.\nKto trwa we Mnie, a Ja w nim, ten przynosi owoc obfity.",
+        "zrodlo": "https://www.paulus.org.pl/u90,sw-brygidy-zakonnicy-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Jakuba Apostoła",
+        "psalm_responsoryjny": "Refren: Kto we łzach sieje, żąć będzie w radości.\n\nGdy Pan odmienił los Syjonu,*\nwydawało się nam, że śnimy.\nUsta nasze były pełne śmiechu,*\na język śpiewał z radości.\n\nMówiono wtedy między narodami:*\n«Wielkie rzeczy im Pan uczynił».\nPan uczynił nam wielkie rzeczy*\ni radość nas ogarnęła.\n\nOdmień znowu nasz los, o Panie,*\njak odmieniasz strumienie na Południu.\nCi, którzy we łzach sieją,*\nżąć będą w radości.\n\nIdą i płaczą,*\nniosąc ziarno na zasiew,\nlecz powrócą z radością,*\nniosąc swoje snopy.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nNie wy Mnie wybraliście, ale Ja was wybrałem,\nabyście szli i owoc przynosili.",
+        "zrodlo": "https://www.paulus.org.pl/u58,sw-jakuba-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Joachima i Anny",
+        "psalm_responsoryjny": "Refren: Chrystus otrzyma tron ojca, Dawida.\n\nPan złożył Dawidowi niezłomną obietnicę,*\nktórej nie odwoła:\n«Zrodzone z ciebie potomstwo*\nposadzę na twoim tronie».\n\nPan bowiem wybrał Syjon,*\ntej siedziby zapragnął dla siebie.\n«Oto miejsce mego odpoczynku na wieki,*\ntu będę mieszkał, bo wybrałem je sobie».\n\n«Wzbudzę tam moc dla Dawida,*\nprzygotuję światło dla mego pomazańca.\nOdzieję wstydem nieprzyjaciół jego,*\na nad nim zajaśnieje jego korona».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nSprawiedliwi wyczekiwali pociechy Izraela,\na Duch Święty spoczywał na nich.",
+        "zrodlo": "https://www.paulus.org.pl/u59,sw-joachima-i-anny-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Marty, Marii i Łazarza",
+        "psalm_responsoryjny": "Refren: Po wieczne czasy będę chwalił Pana.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBędę błogosławił Pana po wieczne czasy,*\nJego chwała będzie zawsze na moich ustach.\nDusza moja chlubi się Panem,*\nniech słyszą to pokorni i niech się weselą.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nWysławiajcie razem ze mną Pana,*\nwspólnie wywyższajmy Jego imię.\nSzukałem pomocy u Pana, a On mnie wysłuchał*\ni wyzwolił od wszelkiej trwogi.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nSpójrzcie na Niego, a rozpromienicie się radością,*\noblicza wasze nie zapłoną wstydem.\nOto zawołał biedak i Pan go usłyszał,*\ni uwolnił od wszelkiego ucisku.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nAnioł Pański otacza szańcem bogobojnych,*\naby ich ocalić.\nSkosztujcie i zobaczcie, jak Pan jest dobry,*\nszczęśliwy człowiek, który znajduje w Nim ucieczkę.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.\nBójcie się Pana, wszyscy Jego święci,*\nci, co się Go boją, nie zaznają biedy.\nBogacze zubożeli i zaznali głodu,*\nszukającym Pana niczego nie zbraknie.\n\nAlbo:\nWszyscy zobaczcie, jak nasz Pan jest dobry.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJa jestem światłością świata,\nkto idzie za Mną, będzie miał światło życia.",
+        "zrodlo": "https://www.paulus.org.pl/u60,swietych-marty-marii-i-lazarza-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "C",
+        "dzien": "Przemienienie Pańskie - C",
+        "psalm_responsoryjny": "Refren: Pan Bóg króluje ponad całą ziemią.\n\nPan króluje, wesel się, ziemio,*\nradujcie się, liczne wyspy!\nObłok i ciemność wokół Niego,*\nprawo i sprawiedliwość podstawą Jego tronu.\n\nGóry jak wosk topnieją przed obliczem Pana,*\nprzed obliczem Władcy całej ziemi.\nJego sprawiedliwość rozgłaszają niebiosa,*\ni wszystkie ludy widzą Jego chwałę.\n\nPonad całą ziemię*\nTy jesteś wywyższony\ni nieskończenie wyższy*\nod wszystkich bogów.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTo jest mój Syn umiłowany, w którym mam upodobanie,\nJego słuchajcie.",
+        "zrodlo": "https://www.paulus.org.pl/u63,przemienienie-panskie-swieto-rok-c"
+    },
+    {
+        "okres": "US",
+        "cykl": "B",
+        "dzien": "Przemienienie Pańskie - B",
+        "psalm_responsoryjny": "Refren: Pan Bóg króluje ponad całą ziemią.\n\nPan króluje, wesel się, ziemio,*\nradujcie się, liczne wyspy!\nObłok i ciemność wokół Niego,*\nprawo i sprawiedliwość podstawą Jego tronu.\n\nGóry jak wosk topnieją przed obliczem Pana,*\nprzed obliczem Władcy całej ziemi.\nJego sprawiedliwość rozgłaszają niebiosa,*\ni wszystkie ludy widzą Jego chwałę.\n\nPonad całą ziemię*\nTy jesteś wywyższony\ni nieskończenie wyższy*\nod wszystkich bogów.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTo jest mój Syn umiłowany, w którym mam upodobanie,\nJego słuchajcie.",
+        "zrodlo": "https://www.paulus.org.pl/u62,przemienienie-panskie-swieto-rok-b"
+    },
+    {
+        "okres": "US",
+        "cykl": "A",
+        "dzien": "Przemienienie Pańskie - A",
+        "psalm_responsoryjny": "Refren: Pan Bóg króluje ponad całą ziemią.\n\nPan króluje, wesel się, ziemio,*\nradujcie się, liczne wyspy!\nObłok i ciemność wokół Niego,*\nprawo i sprawiedliwość podstawą Jego tronu.\n\nGóry jak wosk topnieją przed obliczem Pana,*\nprzed obliczem Władcy całej ziemi.\nJego sprawiedliwość rozgłaszają niebiosa,*\ni wszystkie ludy widzą Jego chwałę.\n\nPonad całą ziemię*\nTy jesteś wywyższony\ni nieskończenie wyższy*\nod wszystkich bogów.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nTo jest mój Syn umiłowany, w którym mam upodobanie,\nJego słuchajcie.",
+        "zrodlo": "https://www.paulus.org.pl/u61,przemienienie-panskie-swieto-rok-a"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Teresy Benedykty OD Krzyża (edyty Stein)",
+        "psalm_responsoryjny": "Refren: Posłuchaj, córko, spójrz i nakłoń ucha.\n\nPosłuchaj, córko, spójrz i nakłoń ucha,*\nzapomnij o swym ludzie, o domu swego ojca.\nKról pragnie twego piękna,*\non twoim panem, oddaj mu pokłon.\n\nCóra królewska wchodzi pełna chwały,*\nw złotogłów odziana.\nW szacie wzorzystej do króla ją prowadzą,*\nza nią przywodzą do ciebie dziewice, jej druhny.\n\nWiodą je z radością i w uniesieniu,*\nwkraczają do królewskiego pałacu.\nSynowie twoi zajmą miejsce twych ojców,*\nustanowisz ich książętami na całej ziemi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdź, oblubienico Chrystusa, przyjmij wieniec,\nktóry Pan przygotował dla ciebie na wieki.",
+        "zrodlo": "https://www.paulus.org.pl/u64,sw-teresy-benedykty-od-krzyza-edyty-stein-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Wawrzyńca, Diakona i Męczennika",
+        "psalm_responsoryjny": "Refren: Miłosiernemu Pan Bóg błogosławi.\n\nBłogosławiony człowiek, który służy Panu*\ni wielką radość znajduje w Jego przykazaniach.\nPotomstwo jego będzie potężne na ziemi,*\ndostąpi błogosławieństwa pokolenie prawych.\n\nDobrze się wiedzie człowiekowi, który z litości pożycza*\ni swoimi sprawami zarządza uczciwie.\nSprawiedliwy nigdy się nie zachwieje*\ni pozostanie w wiecznej pamięci.\n\nNie przelęknie się złej nowiny,*\njego mocne serce zaufało Panu.\nJego wierne serce lękać się nie będzie*\ni spojrzy z wysoka na swych przeciwników.\n\nRozdaje i obdarza ubogich,*\njego sprawiedliwość będzie trwała zawsze,\nwywyższona z chwałą*\nbędzie jego potęga.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nKto idzie za Mną, nie będzie chodził w ciemności,\nlecz będzie miał światło życia.",
+        "zrodlo": "https://www.paulus.org.pl/u65,sw-wawrzynca-diakona-i-meczennika-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Wniebowzięcia NMP",
+        "psalm_responsoryjny": "Refren: Wyrusza z Panem Arka Jego chwały.\n\nSłyszeliśmy o Arce w Efrata,*\nznaleźliśmy ją na polach Jaaru.\nWejdźmy do Jego mieszkania,*\npadnijmy przed podnóżkiem stóp Jego.\n\nNiech Twoi kapłani w sprawiedliwość się odzieją,*\na Twoi wierni niech śpiewają z radości.\nPrzez wzgląd na Dawida, Twego sługę,*\nnie odtrącaj oblicza swojego pomazańca.\n\nPan bowiem wybrał Syjon,*\ntej siedziby zapragnął dla siebie.\n«Oto miejsce mego odpoczynku na wieki,*\ntu będę mieszkał, bo wybrałem je sobie».",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławieni ci, którzy słuchają słowa Bożego\ni zachowują je wiernie.",
+        "zrodlo": "https://www.paulus.org.pl/u68,wigilia-wniebowziecia-nmp"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wniebowzięcia NMP",
+        "psalm_responsoryjny": "Refren: Stoi Królowa po Twojej prawicy.\n\nTron Twój, Boże, trwa na wieki,*\nberłem sprawiedliwym berło Twego królestwa.\nCórki królewskie wychodzą na spotkanie z tobą,*\nkrólowa w złocie z Ofiru stoi po twojej prawicy.\n\nPosłuchaj, córko, spójrz i nakłoń ucha,*\nzapomnij o swym ludzie, o domu swego ojca.\nKról pragnie twego piękna,*\non twoim panem, oddaj mu pokłon.\n\nCóra królewska wchodzi pełna chwały,*\nw złotogłów odziana.\nW szacie wzorzystej do króla ją prowadzą,*\nza nią przywodzą do ciebie dziewice, jej druhny.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nMaryja została wzięta do nieba,\nradują się zastępy aniołów.",
+        "zrodlo": "https://www.paulus.org.pl/u67,uroczystosc-wniebowziecia-nmp"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Królowej",
+        "psalm_responsoryjny": "Refren: Niech imię Pana będzie pochwalone.\n\nAlbo:\nAlleluja.\nChwalcie, słudzy Pańscy,*\nchwalcie imię Pana.\nNiech imię Pana będzie błogosławione*\nteraz i na wieki.\n\nOd wschodu aż do zachodu słońca*\nniech będzie pochwalone imię Pana.\nPan jest wywyższony ponad wszystkie ludy,*\nponad niebiosa sięga Jego chwała.\n\nKto jest jak nasz Pan Bóg,*\nktóry mieszka w górze\ni w dół spogląda*\nna niebo i na ziemię?\n\nPodnosi z prochu nędzarza*\ni dźwiga z gnoju ubogiego,\nby go posadzić wśród książąt,*\nwśród książąt swojego ludu.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBądź pozdrowiona, łaski pełna, Pan z Tobą,\nbłogosławiona jesteś między niewiastami.",
+        "zrodlo": "https://www.paulus.org.pl/u69,nmp-krolowej-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Bartłomieja Apostoła",
+        "psalm_responsoryjny": "Refren: Niech wierni Twoi głoszą Twe królestwo.\n\nNiech Cię wielbią, Panie, wszystkie Twoje dzieła*\ni niech Cię błogosławią Twoi wyznawcy.\nNiech mówią o chwale Twojego królestwa*\ni niech głoszą Twoją potęgę.\n\nAby synom ludzkim oznajmić Twoją potęgę*\ni wspaniałość chwały Twojego królestwa.\nKrólestwo Twoje królestwem wszystkich wieków,*\nprzez wszystkie pokolenia Twoje panowanie.\n\nPan jest sprawiedliwy na wszystkich swych drogach*\ni łaskawy we wszystkich swoich dziełach.\nPan jest blisko wszystkich, którzy Go wzywają,*\nwszystkich wzywających Go szczerze.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nNauczycielu, Ty jesteś Synem Bożym,\nTy jesteś Królem Izraela.",
+        "zrodlo": "https://www.paulus.org.pl/u70,sw-bartlomieja-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Częstochowskiej",
+        "psalm_responsoryjny": "Refren: Tyś wielką chlubą naszego narodu.\n\nWielki jest Pan i godzien wielkiej chwały*\nw mieście Boga naszego.\nŚwięta Jego góra, wspaniałe wzniesienie,*\nradością jest całej ziemi.\n\nCo słyszeliśmy, to zobaczyliśmy*\nw mieście Pana Zastępów,\nw mieście naszego Boga.*\nBóg je umacnia na wieki.\n\nRozważamy, Boże, łaskawość Twoją*\nwe wnętrzu Twojej świątyni.\nJak imię Twe, Boże,†\ntak i chwała Twoja sięga po krańce ziemi.*\nPrawica Twoja pełna jest sprawiedliwości.\n\nObejdźcie Syjon dokoła,*\npoliczcie jego wieże,\nby powiedzieć przyszłym pokoleniom,*\nże Bóg jest naszym Bogiem na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBądź pozdrowiona, łaski pełna, Pan z Tobą,\nbłogosławiona jesteś między niewiastami.",
+        "zrodlo": "https://www.paulus.org.pl/u71,nmp-czestochowskiej-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Męczeństwo ŚW. Jana Chrzciciela",
+        "psalm_responsoryjny": "Refren: Będę wysławiał Twoją sprawiedliwość.\n\nW Tobie, Panie, ucieczka moja,*\nniech wstydu nie zaznam na wieki.\nWyzwól mnie i ratuj w Twej sprawiedliwości,*\nnakłoń ku mnie swe ucho i ześlij ocalenie.\n\nBądź dla mnie skałą schronienia*\ni zamkiem warownym, aby mnie ocalić,\nbo Ty jesteś moją opoką i twierdzą.*\nBoże mój, wyrwij mnie z rąk niegodziwca.\n\nBo Ty, mój Boże, jesteś moją nadzieją,*\nPanie, Tobie ufam od młodości.\nTy byłeś moją podporą od dnia narodzin,*\nod łona matki moim opiekunem.\n\nMoje usta będą głosiły Twoją sprawiedliwość*\ni przez cały dzień Twoją pomoc.\nBoże, Ty mnie uczyłeś od mojej młodości*\ni do tej chwili głoszę Twoje cuda.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławieni, którzy cierpią prześladowanie dla sprawiedliwości,\nalbowiem do nich należy królestwo niebieskie.",
+        "zrodlo": "https://www.paulus.org.pl/u72,meczenstwo-sw-jana-chrzciciela-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Narodzenie NMP",
+        "psalm_responsoryjny": "Refren: Raduj się, duszo, w Bogu, Zbawcy moim.\n\nJa zaufałem Twemu miłosierdziu,*\nniech się moje serce cieszy z Twej pomocy.\nBędę śpiewał Panu,*\nktóry obdarzył mnie dobrem.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nSzczęśliwa jesteś, Najświętsza Panno Maryjo, i godna wszelkiej chwały,\nbo z Ciebie się narodziło Słońce sprawiedliwości, Chrystus, który jest naszym Bogiem.",
+        "zrodlo": "https://www.paulus.org.pl/u73,narodzenie-nmp-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Podwyższenie Krzyża",
+        "psalm_responsoryjny": "Refren: Wielkich dzieł Boga nie zapominajmy.\n\nSłuchaj, mój ludu, nauki mojej,*\nnakłońcie wasze uszy na słowa ust moich.\nDo przypowieści otworzę me usta,*\nwyjawię tajemnice zamierzchłego czasu.\n\nGdy ich zabijał, wtedy Go szukali,*\nnawróceni, garnęli się do Boga.\nPrzypominali sobie, że Bóg jest ich opoką,*\nże Bóg Najwyższy jest ich Zbawicielem.\n\nLecz oszukiwali Go swymi ustami*\ni kłamali Mu swoim językiem.\nIch serce nie było Mu wierne,*\nw przymierzu z Nim nie byli stali.\n\nOn jednak w swym miłosierdziu*\nodpuszczał im winę i nie zatracał.\nGniew swój często powściągał*\ni powstrzymywał swoje oburzenie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nUwielbiamy Cię, Chryste, i błogosławimy Ciebie,\nbo przez Krzyż Twój święty świat odkupiłeś.",
+        "zrodlo": "https://www.paulus.org.pl/u74,podwyzszenie-krzyza-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Bolesnej",
+        "psalm_responsoryjny": "Refren: Wybaw mnie, Panie, w swoim miłosierdziu.\n\nPanie, do Ciebie się uciekam,†\nniech nigdy nie doznam zawodu,*\nwybaw mnie w sprawiedliwości Twojej!\nNakłoń ku mnie Twego ucha,*\npośpiesz, aby mnie ocalić!\n\nBądź dla mnie skałą schronienia,*\nwarownią, która ocala.\nTy bowiem jesteś moją skałą i twierdzą,*\nkieruj mną i prowadź przez wzgląd na swe imię.\n\nWydobądź mnie z sieci zastawionej na mnie,*\nbo Ty jesteś moją ucieczką.\nW ręce Twoje powierzam ducha mego,*\nTy mnie odkupisz, Panie, wierny Boże.\n\nJa zaś pokładam ufność w Tobie, Panie,*\ni mówię: «Ty jesteś moim Bogiem».\nW Twoim ręku są moje losy,*\nwyrwij mnie z rąk wrogów i prześladowców.\n\nJakże jest wielka dobroć Twoja, Panie,*\nktórą zachowałeś dla bogobojnych.\nOkazujesz ją tym, którzy uciekają się do Ciebie*\nna oczach ludzi.\n\nSEKWENCJA\nJeśli okoliczności za tym przemawiają, można odmawiać sekwencję:\nBolejąca Matka stała\nU stóp krzyża, we łzach cała,\nKiedy na nim zawisł Syn.\nA w Jej pełnej jęku duszy,\nOd męczarni i katuszy,\nTkwił miecz ostry naszych win.\nJakże smutna i strapiona\nByła ta błogosławiona,\nZ której się narodził Bóg.\nJak cierpiała i bolała,\nJakże drżała, gdy widziała\nDziecię swe wśród śmierci trwóg.\nKtóryż człowiek nie zapłacze,\nWidząc męki i rozpacze\nMatki Bożej w żalu tym?\nKtóż od smutku się powstrzyma,\nMając Matkę przed oczyma,\nKtóra cierpi z Synem swym?\nWidzi, jak za ludzkie winy\nZnosi męki Syn jedyny,\nJezus – jak Go smaga bat.\nWidzi, jak samotnie kona\nOwoc Jej czystego łona,\nDając życie za ten świat.\nMatko, coś miłości zdrojem,\nPrzejmij mnie cierpieniem swoim,\nAbym boleć z Tobą mógł.\nNiechaj serce moje pała,\nBy radością mą się stała\nMiłość, którą – Chrystus Bóg.\n* Następującą część sekwencji można według uznania opuścić.\nMatko święta, srogie rany,\nKtóre zniósł Ukrzyżowany,\nWyryj mocno w duszy mej.\nMęką Syna rodzonego,\nCo dla dobra cierpiał mego,\nZe mną się podzielić chciej.\nPragnę płakać w Twym pobliżu,\nCierpiąc z Tym, co zmarł na krzyżu,\nPo mojego życia kres.\nChcę pod krzyżem stać przy Tobie,\nZ Tobą łączyć się w żałobie\nI wylewać zdroje łez.\nPanno czysta nad pannami,\nNiechaj dobroć Twoja da mi\nPłakać z żalu z Tobą współ,\nBym z Chrystusem konał razem,\nMęki Jego był obrazem,\nRany Jego w sobie czuł.\nNiech mnie do krwi rani zgraja,\nNiech mnie męki krzyż upaja\nI Twojego Syna krew.\nW ogniu, Panno, niech nie płonę,\nWięc mnie w swoją weź obronę,\nGdy nadejdzie sądu gniew.\nGdy kres dni przede mną stanie,\nPrzez Twą Matkę dojść mi, Panie,\nDo zwycięstwa palmy daj.\nKiedy umrze moje ciało,\nNiechaj duszę mą z swą chwałą\nCzeka Twój wieczysty raj.\nAmen. Alleluja.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nSzczęśliwa jest Panna Maryja,\nktóra bez śmierci wysłużyła palmę męczeństwa pod krzyżem Chrystusa.",
+        "zrodlo": "https://www.paulus.org.pl/u75,nmp-bolesnej-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Stanisława Kostki",
+        "psalm_responsoryjny": "Refren: Niech imię Pana wszyscy wychwalają.\n\nChwalcie Pana z niebios,*\nchwalcie Go na wysokościach.\nChwalcie Go, wszyscy Jego aniołowie,*\nchwalcie Go, wszystkie Jego zastępy.\n\nKrólowie ziemscy i wszystkie narody,*\nwładcy i wszyscy sędziowie tej ziemi,\nmłodzieńcy i dziewczęta,*\nstarcy i dzieci.\n\nNiech imię Pana wychwalają,†\nbo tylko Jego imię jest wzniosłe.*\nMajestat Jego ponad ziemią i niebem.\nOn pomnaża potęgę swego ludu.†\nOto pieśń pochwalna wszystkich Jego świętych,*\nsynów Izraela, ludu, który jest Mu bliski.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławieni czystego serca,\nalbowiem oni Boga oglądać będą.",
+        "zrodlo": "https://www.paulus.org.pl/u76,sw-stanislawa-kostki-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Mateusza Apostoła i Ewangelisty",
+        "psalm_responsoryjny": "Refren: Po całej ziemi ich głos się rozchodzi.\n\nNiebiosa głoszą chwałę Boga,*\ndzieło rąk Jego obwieszcza nieboskłon.\nDzień opowiada dniowi,*\nnoc nocy wiadomość przekazuje.\n\nNie są to słowa ani nie jest to mowa,*\nktórych by dźwięku nie usłyszano.\nIch głos się rozchodzi po całej ziemi,*\nich słowa aż po krańce świata.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nCiebie, Boże, chwalimy, Ciebie, Panie, wysławiamy,\nCiebie wychwala przesławny chór Apostołów.",
+        "zrodlo": "https://www.paulus.org.pl/u77,sw-mateusza-apostola-i-ewangelisty-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Archaniołów Michała, Gabriela i Rafała",
+        "psalm_responsoryjny": "Refren: Wobec aniołów psalm zaśpiewam Panu.\n\nBędę Cię sławił, Panie, z całego serca,*\nbo usłyszałeś słowa ust moich.\nBędę śpiewał Ci psalm wobec aniołów,*\npokłon Ci oddam w Twoim świętym przybytku.\n\nI będę sławił Twe imię za łaskę i wierność Twoją,*\nbo ponad wszystko wywyższyłeś Twe imię i obietnicę.\nWysłuchałeś mnie, kiedy Cię wzywałem,*\npomnożyłeś moc mojej duszy.\n\nWszyscy królowie ziemi będą dziękować Tobie, Panie,*\ngdy usłyszą słowa ust Twoich.\nI będą opiewać drogi Pana:*\n«Zaprawdę, chwała Pana jest wielka!»",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławcie Pana, wszyscy Jego aniołowie\ni wszyscy słudzy pełniący Jego wolę.",
+        "zrodlo": "https://www.paulus.org.pl/u78,sw-archaniolow-michala-gabriela-i-rafala-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Aniołów Stróżów",
+        "psalm_responsoryjny": "Refren: Aniołom kazał, aby strzegli ciebie.\n\nKto się w opiekę oddał Najwyższemu*\ni w cieniu Wszechmocnego mieszka,\nmówi do Pana: «Ty jesteś moją ucieczką i twierdzą,*\nBoże mój, któremu ufam».\n\nBo On sam cię wyzwoli z sideł myśliwego*\ni od słowa niosącego zgubę.\nOkryje cię swoimi piórami,†\npod Jego skrzydła się schronisz;*\nwierność Jego jest puklerzem i tarczą.\n\nNie ulękniesz się strachu nocnego*\nani strzały za dnia lecącej,\nani zarazy skradającej się w mroku,*\nani moru niszczącego w południe.\n\nNie przystąpi do ciebie niedola,*\na cios nie dosięgnie twojego namiotu.\nBo rozkazał swoim aniołom,*\naby cię strzegli na wszystkich twych drogach.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławcie Pana, wszyscy Jego aniołowie\ni wszyscy słudzy pełniący Jego wolę.",
+        "zrodlo": "https://www.paulus.org.pl/u1,swietych-aniolow-strozow-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "NMP Różańcowej",
+        "psalm_responsoryjny": "Refren: Bądź pochwalona, Boża Rodzicielko.\n\nWielbi dusza moja Pana,*\ni raduje się duch mój w Bogu, Zbawcy moim.\nBo wejrzał na uniżenie swojej służebnicy.*\nOto bowiem odtąd błogosławić mnie będą\n+\nwszystkie pokolenia.\nGdyż wielkie rzeczy uczynił mi Wszechmocny,*\nświęte jest imię Jego.\nA Jego miłosierdzie z pokolenia na pokolenie*\nnad tymi, którzy się Go boją.\nOkazał moc swego ramienia,*\nrozproszył pyszniących się zamysłami serc swoich.\nStrącił władców z tronu, a wywyższył pokornych.*\nGłodnych nasycił dobrami, a bogatych z niczym odprawił.\nUjął się za swoim sługą, Izraelem,*\npomny na swe miłosierdzie.\nJak obiecał naszym ojcom,*\nAbrahamowi i jego potomstwu na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nZdrowaś Maryjo, łaski pełna, Pan z Tobą,\nbłogosławionaś Ty między niewiastami.",
+        "zrodlo": "https://www.paulus.org.pl/u79,nmp-rozancowej-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Łukasza Ewangelisty",
+        "psalm_responsoryjny": "Refren: Niech wierni Twoi głoszą Twe królestwo.\n\nNiech Cię wielbią, Panie, wszystkie Twoje dzieła*\ni niech Cię błogosławią Twoi wyznawcy.\nNiech mówią o chwale Twojego królestwa*\ni niech głoszą Twoją potęgę.\n\nAby synom ludzkim oznajmić Twoją potęgę*\ni wspaniałość chwały Twojego królestwa.\nKrólestwo Twoje królestwem wszystkich wieków,*\nprzez wszystkie pokolenia Twoje panowanie.\n\nPan jest sprawiedliwy na wszystkich swych drogach*\ni łaskawy we wszystkich swoich dziełach.\nPan jest blisko wszystkich, którzy Go wzywają,*\nwszystkich wzywających Go szczerze.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nNie wy Mnie wybraliście, ale Ja was wybrałem,\nabyście szli i owoc przynosili.",
+        "zrodlo": "https://www.paulus.org.pl/u2,sw-lukasza-ewangelisty-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Świętych Apostołów Szymona i Judy Tadeusza",
+        "psalm_responsoryjny": "Refren: Po całej ziemi ich głos się rozchodzi.\n\nNiebiosa głoszą chwałę Boga,*\ndzieło rąk Jego obwieszcza nieboskłon.\nDzień opowiada dniowi,*\nnoc nocy wiadomość przekazuje.\n\nNie są to słowa ani nie jest to mowa,*\nktórych by dźwięku nie usłyszano.\nIch głos się rozchodzi po całej ziemi,*\nich słowa aż po krańce świata.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nCiebie, Boże, chwalimy, Ciebie, Panie, wysławiamy,\nCiebie wychwala przesławny chór Apostołów.",
+        "zrodlo": "https://www.paulus.org.pl/u5,swietych-apostolow-szymona-i-judy-tadeusza-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wszystkich Świętych",
+        "psalm_responsoryjny": "Refren: Oto lud wierny, szukający Boga.\n\nDo Pana należy ziemia i wszystko, co ją napełnia,*\nświat cały i jego mieszkańcy.\nAlbowiem On go na morzach osadził*\ni utwierdził ponad rzekami.\n\nKto wstąpi na górę Pana,*\nkto stanie w Jego świętym miejscu?\nCzłowiek rąk nieskalanych i czystego serca,*\nktórego dusza nie lgnęła do marności.\n\nOn otrzyma błogosławieństwo od Pana*\ni zapłatę od Boga, swego Zbawcy.\nOto pokolenie tych, którzy Go szukają,*\nktórzy szukają oblicza Boga Jakuba.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPrzyjdźcie do Mnie wszyscy,\nktórzy utrudzeni i obciążeni jesteście, a Ja was pokrzepię.",
+        "zrodlo": "https://www.paulus.org.pl/u6,wszystkich-swietych-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wszystkich Wiernych Zmarłych",
+        "psalm_responsoryjny": "Refren: W krainie życia ujrzę dobroć Boga.\n\nPan moim światłem i zbawieniem moim,*\nkogo miałbym się lękać?\nPan obrońcą mego życia,*\nprzed kim miałbym czuć trwogę?\n\nO jedno tylko Pana proszę i o to zabiegam,†\nżebym mógł zawsze przebywać w Jego domu*\npo wszystkie dni mego życia,\nabym kosztował słodyczy Pana,*\nstale się radował Jego świątynią.\n\nUsłysz, Panie, kiedy głośno wołam,*\nzmiłuj się nade mną i mnie wysłuchaj.\nBędę szukał oblicza Twego, Panie.*\nNie zakrywaj przede mną swojej twarzy.\n\nWierzę, że będę oglądał dobra Pana*\nw krainie żyjących.\nOczekuj Pana, bądź mężny,*\nnabierz odwagi i oczekuj Pana.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJezus Chrystus jest Pierworodnym wśród umarłych,\nJemu chwała i moc na wieki wieków.",
+        "zrodlo": "https://www.paulus.org.pl/u7,wszystkich-wiernych-zmarlych-wspomnienie-obowiazkowe"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Rocznica Poświęcenia Bazyliki Laterańskiej",
+        "psalm_responsoryjny": "Refren: Bóg jest we wnętrzu swojego Kościoła.\n\nBóg jest dla nas ucieczką i siłą,*\nnajpewniejszą pomocą w trudnościach.\nPrzeto nie będziemy się bali, choćby zatrzęsła się ziemia*\ni góry zapadły w otchłań morza.\n\nNurty rzeki rozweselają miasto Boże,*\nnajświętszy przybytek Najwyższego.\nBóg w nim przebywa, a ono się nie zachwieje,*\nBóg je wspomoże o świcie.\n\nPan Zastępów jest z nami,*\nBóg Jakuba jest naszą obroną.\nPrzyjdźcie, zobaczcie dzieła Pana,*\nzdumiewające czyny, których dokonał na ziemi.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nWybrałem i uświęciłem tę świątynię,\naby moja obecność trwała tam na wieki.",
+        "zrodlo": "https://www.paulus.org.pl/u8,rocznica-poswiecenia-bazyliki-lateranskiej-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Ofiarowanie Najświętszej Maryi Panny",
+        "psalm_responsoryjny": "Refren: Pan Bóg uczynił wielkie rzeczy dla mnie.\n\nAlbo:\nBądź pochwalona, Boża Rodzicielko.\nWielbi dusza moja Pana*\ni raduje się duch mój w Bogu, Zbawicielu moim.\nBo wejrzał na uniżenie swojej Służebnicy.*\nOto bowiem odtąd błogosławić mnie będą wszystkie pokolenia.\n\nGdyż wielkie rzeczy uczynił mi Wszechmocny,*\na Jego imię jest święte.\nJego miłosierdzie z pokolenia na pokolenie*\nnad tymi, którzy się Go boją.\n\nOkazał moc swego ramienia,†\nrozproszył pyszniących się zamysłami serc swoich.*\nStrącił władców z tronu, a wywyższył pokornych.\nGłodnych nasycił dobrami,*\na bogatych z niczym odprawił.\n\nUjął się za swoim sługą, Izraelem,*\npomny na swe miłosierdzie,\njak obiecał naszym ojcom,*\nAbrahamowi i jego potomstwu na wieki.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nBłogosławieni ci, którzy słuchają słowa Bożego\ni zachowują je wiernie.",
+        "zrodlo": "https://www.paulus.org.pl/u111,ofiarowanie-najswietszej-maryi-panny-wspomnienie"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "ŚW. Andrzeja Apostoła",
+        "psalm_responsoryjny": "Refren: Po całej ziemi ich głos się rozchodzi.\n\nNiebiosa głoszą chwałę Boga,*\ndzieło rąk Jego obwieszcza nieboskłon.\nDzień opowiada dniowi,*\nnoc nocy wiadomość przekazuje.\n\nNie są to słowa ani nie jest to mowa,*\nktórych by dźwięku nie usłyszano.\nIch głos się rozchodzi po całej ziemi,*\nich słowa aż po krańce świata.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nPójdźcie za Mną,\na uczynię was rybakami ludzi.",
+        "zrodlo": "https://www.paulus.org.pl/u9,sw-andrzeja-apostola-swieto"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Niepokalanego Poczęcia NMP - (w Niedzielę)",
+        "psalm_responsoryjny": "Refren: Śpiewajcie Panu, bo uczynił cuda.\n\nŚpiewajcie Panu pieśń nową,*\nalbowiem uczynił cuda.\nZwycięstwo Mu zgotowała Jego prawica*\ni święte ramię Jego.\n\nPan okazał swoje zbawienie,*\nna oczach pogan objawił swoją sprawiedliwość.\nWspomniał na dobroć i na wierność swoją*\ndla domu Izraela.\n\nUjrzały wszystkie krańce ziemi*\nzbawienie Boga naszego.\nWołaj z radości na cześć Pana, cała ziemio,*\ncieszcie się, weselcie, i grajcie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nZdrowaś Maryjo, łaski pełna, Pan z Tobą,\nbłogosławiona jesteś między niewiastami.",
+        "zrodlo": "https://www.paulus.org.pl/u104,niepokalanego-poczecia-nmp-uroczystosc-w-niedziele"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Niepokalanego Poczęcia NMP",
+        "psalm_responsoryjny": "Refren: Śpiewajcie Panu, bo uczynił cuda.\n\nŚpiewajcie Panu pieśń nową,*\nalbowiem uczynił cuda.\nZwycięstwo Mu zgotowała Jego prawica*\ni święte ramię Jego.\n\nPan okazał swoje zbawienie,*\nna oczach pogan objawił swą sprawiedliwość.\nWspomniał na dobroć i na wierność swoją*\ndla domu Izraela.\n\nUjrzały wszystkie krańce ziemi*\nzbawienie Boga naszego.\nWołaj z radości na cześć Pana, cała ziemio,*\ncieszcie się, weselcie i grajcie.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nZdrowaś Maryjo, łaski pełna, Pan z Tobą,\nbłogosławiona jesteś między niewiastami.",
+        "zrodlo": "https://www.paulus.org.pl/u10,niepokalanego-poczecia-nmp-uroczystosc"
+    },
+    {
+        "okres": "US",
+        "cykl": "Stałe/Własne",
+        "dzien": "Wigilia Narodzenia Pańskiego",
+        "psalm_responsoryjny": "Refren: Na wieki będę sławił łaski Pana.\n\n«Zawarłem przymierze z moim wybrańcem,*\nprzysiągłem mojemu słudze Dawidowi:\nTwoje potomstwo utrwalę na wieki†\n«Na wieki ugruntowana jest łaska»,*\ni tron twój umocnię na wszystkie pokolenia».\n\nBłogosławiony lud, który umie się cieszyć*\ni chodzi, Panie, w blasku Twojej obecności.\nCieszą się zawsze Twym imieniem,*\nTwoja sprawiedliwość ich wywyższa.\n\nOn będzie wołał do Mnie:†\n„Ty jesteś moim Ojcem,*\nmoim Bogiem, Opoką mego zbawienia”.\nNa wieki zachowam dla niego łaskę*\ni trwałe z nim będzie moje przymierze.",
+        "aklamacja": "Aklamacja: Alleluja, alleluja, alleluja.\n\nJutro będzie zgładzona nieprawość ziemi\ni Zbawiciel świata będzie panował nad nami.",
+        "zrodlo": "https://www.paulus.org.pl/u91,wigilia-narodzenia-panskiego"
+    }
+]
