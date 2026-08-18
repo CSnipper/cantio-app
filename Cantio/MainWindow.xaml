@@ -1426,7 +1426,7 @@
                                              ItemsSource="{Binding CategoryItems}"
                                              SelectedItem="{Binding SelectedCategoryItem}"
                                              Background="Transparent" BorderThickness="0"
-                                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                              ItemContainerStyle="{StaticResource DarkListItemGold}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
@@ -1441,14 +1441,14 @@
                                                             <ColumnDefinition Width="32"/>
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding Name}"
-                                                                   TextTrimming="CharacterEllipsis"
+                                                                   TextWrapping="Wrap"
                                                                    Padding="5,0,0,0" FontSize="18"
                                                                    VerticalAlignment="Center"/>
                                                         <!-- ▲▼✎✕ tylko dla PRAWDZIWYCH kategorii;
                                                              „Bez kategorii" to pozycja wirtualna -->
                                                         <Button Grid.Column="1" Content="▲"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="32" Height="50"
+                                                                Width="32"
                                                                 Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 IsEnabled="{Binding CanMoveUp}"
                                                                 Command="{Binding DataContext.MoveCategoryUpCommand,
@@ -1456,7 +1456,7 @@
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Grid.Column="2" Content="▼"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="32" Height="50"
+                                                                Width="32"
                                                                 Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 IsEnabled="{Binding CanMoveDown}"
                                                                 Command="{Binding DataContext.MoveCategoryDownCommand,
@@ -1464,14 +1464,14 @@
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Grid.Column="3" Content="✎"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="32" Height="50"
+                                                                Width="32"
                                                                 Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 Command="{Binding DataContext.StartEditCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Grid.Column="4" Content="✕"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="32" Height="50" Foreground="#d44a4a"
+                                                                Width="32" Foreground="#d44a4a"
                                                                 Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
                                                                 Command="{Binding DataContext.DeleteCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -1497,13 +1497,13 @@
                                                         </TextBox>
                                                         <Button Grid.Column="1" Content="✓"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="36" Height="50" Foreground="#6db76d"
+                                                                Width="36" Foreground="#6db76d"
                                                                 Command="{Binding DataContext.SaveCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Grid.Column="2" Content="✕"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Width="36" Height="50"
+                                                                Width="36"
                                                                 Command="{Binding DataContext.CancelEditCategoryCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}"/>
