@@ -49,6 +49,7 @@ public partial class ShortcutsViewModel : ObservableObject
         var nav    = Loc("Shortcuts.Navigation");
         var tabs   = Loc("Shortcuts.Tabs");
         var search = Loc("Shortcuts.Search");
+        var devs   = Loc("Shortcuts.Devices");
 
         var defs = new (string actionId, string nameKey, string category)[]
         {
@@ -62,6 +63,7 @@ public partial class ShortcutsViewModel : ObservableObject
             (ShortcutService.TabImport,   "Shortcuts.TabImport",   tabs),
             (ShortcutService.SearchOpen,  "Shortcuts.SearchOpen",  search),
             (ShortcutService.SongSearch,  "Shortcuts.SongSearch",  search),
+            (ShortcutService.PowerAll,    "Shortcuts.PowerAll",    devs),
         };
 
         Items.Clear();

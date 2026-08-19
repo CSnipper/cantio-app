@@ -304,6 +304,8 @@
     <sys:String x:Key="Shortcuts.Search">Search</sys:String>
     <sys:String x:Key="Shortcuts.SearchOpen">Open set search</sys:String>
     <sys:String x:Key="Shortcuts.SongSearch">Focus song search</sys:String>
+    <sys:String x:Key="Shortcuts.Devices">Devices</sys:String>
+    <sys:String x:Key="Shortcuts.PowerAll">Power all TVs/projectors on/off</sys:String>
 
     <!-- Display tab — setlist -->
     <sys:String x:Key="Section.CurrentSet">SET</sys:String>

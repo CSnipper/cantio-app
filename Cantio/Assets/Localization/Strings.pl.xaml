@@ -305,6 +305,8 @@
     <sys:String x:Key="Shortcuts.Search">Wyszukiwarka</sys:String>
     <sys:String x:Key="Shortcuts.SearchOpen">Otwórz wyszukiwarkę zestawu</sys:String>
     <sys:String x:Key="Shortcuts.SongSearch">Skocz do wyszukiwarki pieśni</sys:String>
+    <sys:String x:Key="Shortcuts.Devices">Urządzenia</sys:String>
+    <sys:String x:Key="Shortcuts.PowerAll">Włącz/wyłącz wszystkie TV i projektory</sys:String>
 
     <!-- Zakładka Wyświetlanie — zestaw -->
     <sys:String x:Key="Section.CurrentSet">ZESTAW</sys:String>
