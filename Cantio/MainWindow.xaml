@@ -1427,6 +1427,7 @@
                                              SelectedItem="{Binding SelectedCategoryItem}"
                                              Background="Transparent" BorderThickness="0"
                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                             ScrollViewer.CanContentScroll="False"
                                              ItemContainerStyle="{StaticResource DarkListItemGold}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
