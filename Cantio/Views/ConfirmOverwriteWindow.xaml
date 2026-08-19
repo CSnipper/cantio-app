@@ -7,7 +7,8 @@
         ResizeMode="NoResize"
         Background="#0f1117"
         Foreground="#e8eaf0"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"
+        FocusManager.FocusedElement="{Binding ElementName=BtnYes}">
     <Grid Margin="20,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -19,9 +20,11 @@
                    TextWrapping="Wrap" VerticalAlignment="Center"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal"
-                    HorizontalAlignment="Right" Margin="0,12,0,0">
+                    HorizontalAlignment="Right" Margin="0,12,0,0"
+                    KeyboardNavigation.TabNavigation="Cycle"
+                    KeyboardNavigation.DirectionalNavigation="Cycle">
             <Button Content="Nie" Width="70" Height="38" Margin="0,0,8,0"
-                    Click="No_Click"
+                    Click="No_Click" IsCancel="True"
                     Background="#1e2535" Foreground="#e8eaf0"
                     BorderBrush="#2a3347" BorderThickness="1">
                 <Button.Template>
@@ -35,6 +38,11 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#252d3d"/>
+                            </Trigger>
+                            <!-- Fokus klawiatury — ten sam efekt co najechanie myszą -->
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="Background" Value="#252d3d"/>
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -56,12 +64,17 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#252d3d"/>
                             </Trigger>
+                            <!-- Fokus klawiatury — ten sam efekt co najechanie myszą -->
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="Background" Value="#252d3d"/>
+                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button Content="Tak" Width="70" Height="38"
-                    Click="Yes_Click"
+            <Button x:Name="BtnYes" Content="Tak" Width="70" Height="38"
+                    Click="Yes_Click" IsDefault="True"
                     Background="#c9a84c" Foreground="#0f1117"
                     FontWeight="Bold" BorderThickness="0">
                 <Button.Template>
@@ -73,6 +86,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#e0bc6a"/>
+                            </Trigger>
+                            <!-- Fokus klawiatury — ten sam efekt co najechanie myszą -->
+                            <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter Property="Background" Value="#e0bc6a"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
