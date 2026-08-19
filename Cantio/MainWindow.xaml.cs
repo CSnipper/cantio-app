@@ -92,6 +92,32 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Fokus na liście pieśni — nawigacja i Enter należą do listy, nie do zestawu
+        if (IsFocusInside(SongListShow))
+        {
+            switch (e.Key)
+            {
+                // Natywna nawigacja ListBoksa
+                case Key.Down:
+                case Key.Up:
+                case Key.Home:
+                case Key.End:
+                case Key.PageDown:
+                case Key.PageUp:
+                    base.OnPreviewKeyDown(e);
+                    return;
+
+                // Enter — to samo co przycisk „+” w wierszu: dodaj pieśń do zestawu
+                case Key.Enter:
+                    var song = SongListShow.SelectedItem as Song;
+                    var addCmd = _vm.AddToSetlistCommand;
+                    if (song is not null && addCmd.CanExecute(song))
+                        addCmd.Execute(song);
+                    e.Handled = true;
+                    return;
+            }
+        }
+
         // Skróty projekcji działają zawsze — niezależnie od fokusu listy pieśni
         _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
         e.Handled = true;
@@ -1036,10 +1062,38 @@ public partial class MainWindow : Window
     private void SearchBoxShow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Down) return;
-        SongListShow.Focus();
-        if (SongListShow.Items.Count > 0 && SongListShow.SelectedIndex < 0)
+        if (SongListShow.Items.Count == 0) return;
+
+        // Najpierw zaznaczenie, potem fokus na KONTENERZE wiersza (nie na samym ListBoksie)
+        if (SongListShow.SelectedIndex < 0)
             SongListShow.SelectedIndex = 0;
+        int index = SongListShow.SelectedIndex;
+
+        SongListShow.UpdateLayout();
+        SongListShow.ScrollIntoView(SongListShow.Items[index]);
+        SongListShow.UpdateLayout();
+
+        if (SongListShow.ItemContainerGenerator.ContainerFromIndex(index) is ListBoxItem container)
+            container.Focus();
+        else
+            SongListShow.Focus();
+
         e.Handled = true;
+    }
+
+    // Czy fokus klawiatury znajduje się wewnątrz podanej listy?
+    private static bool IsFocusInside(ItemsControl list)
+    {
+        if (list is null) return false;
+        var current = Keyboard.FocusedElement as DependencyObject;
+        while (current is not null)
+        {
+            if (ReferenceEquals(current, list)) return true;
+            current = current is Visual
+                ? VisualTreeHelper.GetParent(current)
+                : LogicalTreeHelper.GetParent(current);
+        }
+        return false;
     }
 
     // Skróty formatowania tekstu (Ctrl+klawisz w edytorze zwrotek)
