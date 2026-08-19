@@ -304,6 +304,8 @@
     <sys:String x:Key="Shortcuts.Search">Búsqueda</sys:String>
     <sys:String x:Key="Shortcuts.SearchOpen">Abrir búsqueda de lista</sys:String>
     <sys:String x:Key="Shortcuts.SongSearch">Ir a búsqueda de canciones</sys:String>
+    <sys:String x:Key="Shortcuts.Devices">Dispositivos</sys:String>
+    <sys:String x:Key="Shortcuts.PowerAll">Encender/apagar todos los televisores y proyectores</sys:String>
 
     <!-- Pestaña Presentación — lista -->
     <sys:String x:Key="Section.CurrentSet">LISTA</sys:String>

@@ -59,6 +59,14 @@ public partial class MainWindow : Window
             { ShowPane(PaneImport, TabImport); e.Handled = true; return; }
             if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.SearchOpen))
             { _vm.OpenSetlistSearchCommand.Execute(null); e.Handled = true; return; }
+            // Włącz/wyłącz wszystkie TV i projektory — to samo co przycisk ⏻ na pasku górnym
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.PowerAll))
+            {
+                var cmd = _devicesVm?.TogglePowerAllCommand;
+                if (cmd is not null && cmd.CanExecute(null)) cmd.Execute(null);
+                e.Handled = true;
+                return;
+            }
         }
 
         // F1 → otwórz popup skrótów klawiaturowych
