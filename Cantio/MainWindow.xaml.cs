@@ -118,10 +118,53 @@ public partial class MainWindow : Window
             }
         }
 
+        // Litera A–Z w trakcie projekcji — skok do następnej pozycji zestawu o tym tytule
+        if (TryLetterJumpInSetlist(e.Key, mods))
+        {
+            e.Handled = true;
+            return;
+        }
+
         // Skróty projekcji działają zawsze — niezależnie od fokusu listy pieśni
         _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
         e.Handled = true;
         base.OnPreviewKeyDown(e);
+    }
+
+    /// <summary>
+    /// Nawigacja literami po liście zestawu (tylko przy otwartej projekcji — poza nią litery
+    /// nie mają w oknie znaczenia i nie ma po co odbierać ich innym kontrolkom).
+    /// Sam skok ZAZNACZA pozycję, świadomie NIE ładując jej na ekran: operator szuka pieśni
+    /// w trakcie trwającej projekcji i wyświetla ją dopiero podwójnym klikiem / 👁.
+    /// Zwraca true, gdy klawisz został zużyty na nawigację.
+    /// </summary>
+    private bool TryLetterJumpInSetlist(Key key, ModifierKeys mods)
+    {
+        if (key is < Key.A or > Key.Z) return false;
+        // Shift wolno (wielka litera to ta sama litera), Ctrl/Alt/Win nie — tam żyją skróty,
+        // a prawy Alt (Ctrl+Alt) to polskie diakrytyki z klawiatury.
+        if (mods is not ModifierKeys.None and not ModifierKeys.Shift) return false;
+        if (!_vm.IsProjectionOpen) return false;
+
+        // Litera przypisana ręcznie jako skrót użytkownika należy do skrótu, nie do nawigacji.
+        foreach (var action in ShortcutService.AllActions)
+            if (_shortcutService.IsMatch(key, mods, action)) return false;
+
+        var items = _vm.SetlistItems;
+        if (items.Count == 0) return false;
+
+        char letter = (char)('A' + (key - Key.A));
+        var current = _vm.SelectedSetlistItem;
+        int currentIndex = current is null ? -1 : items.IndexOf(current);
+
+        var hit = SetlistLetterJump.FindNext(SetlistLetterJump.TitlesOf(items), currentIndex, letter);
+        if (hit is not null)
+        {
+            _vm.SelectedSetlistItem = items[hit.Value];
+            SetlistListBox.ScrollIntoView(items[hit.Value]);
+        }
+        // Brak trafienia też zjadamy — inaczej litera poleciałaby do HandleKey na dole.
+        return true;
     }
 
     // Drag & drop listy zestawu
