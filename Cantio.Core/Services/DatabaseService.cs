@@ -502,7 +502,12 @@ public class DatabaseService
             new DateTimeOffset(r.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds(), r.IsPinned)).ToList();
     }
 
-    public async Task<(int Id, string Name, string? Group, long UpdatedAt, List<(int SongId, string Title)> Songs)?> GetSetlistDetailAsync(int setlistId)
+    /// <summary>
+    /// Pełna zawartość zestawu dla Pilota (`setlist_detail`, wersja desktopowa w `setlist_sync_conflict`).
+    /// <para>Pozycje NIE są filtrowane po `SongId` — do v1.67 teksty jednorazowe i obrazki były dla
+    /// telefonu niewidoczne. Kształt pozycji rozstrzyga <see cref="PilotSetlistItems"/>.</para>
+    /// </summary>
+    public async Task<(int Id, string Name, string? Group, long UpdatedAt, List<PilotSetlistItems.Entry> Songs)?> GetSetlistDetailAsync(int setlistId)
     {
         await using var db = new CantioDbContext();
         var sl = await db.Setlists.AsNoTracking()
@@ -511,8 +516,8 @@ public class DatabaseService
             .FirstOrDefaultAsync(s => s.Id == setlistId);
         if (sl == null) return null;
         var songs = sl.Items
-            .Where(i => i.SongId.HasValue && i.Song != null)
-            .Select(i => (i.SongId!.Value, i.Song!.Title))
+            .Where(i => !i.IsSongItem || (i.SongId.HasValue && i.Song != null))
+            .Select(PilotSetlistItems.From)
             .ToList();
         var updatedAt = new DateTimeOffset(sl.UpdatedAt, TimeSpan.Zero).ToUnixTimeMilliseconds();
         return (sl.Id, sl.Name, sl.Group, updatedAt, songs);
@@ -523,7 +528,7 @@ public class DatabaseService
     /// <paramref name="Conflict"/> = zestaw zmieniono po obu stronach; <paramref name="Songs"/> niesie wtedy wersję desktopową.
     /// </summary>
     public readonly record struct PilotSetlistSyncResult(
-        bool Conflict, int SetlistId, string Name, long UpdatedAt, List<(int SongId, string Title)> Songs);
+        bool Conflict, int SetlistId, string Name, long UpdatedAt, List<PilotSetlistItems.Entry> Songs);
 
     /// <summary>
     /// Zapis zestawu przysłanego przez Pilota z wykrywaniem konfliktu.
@@ -532,7 +537,7 @@ public class DatabaseService
     /// przez użytkownika. Brak `baseUpdatedAtMs` (stary Pilot) lub <paramref name="force"/> = nadpisz bezwarunkowo.</para>
     /// </summary>
     public async Task<PilotSetlistSyncResult> SyncSetlistFromPilotAsync(
-        int? desktopId, string name, long updatedAtMs, int[] songIds,
+        int? desktopId, string name, long updatedAtMs, IReadOnlyList<PilotSetlistItems.Entry> items,
         long? baseUpdatedAtMs = null, bool force = false)
     {
         if (!force && baseUpdatedAtMs.HasValue && desktopId is int existingId && existingId > 0)
@@ -543,11 +548,22 @@ public class DatabaseService
                     true, current.Value.Id, current.Value.Name, current.Value.UpdatedAt, current.Value.Songs);
         }
 
-        var assignedId = await CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAtMs, songIds);
+        var assignedId = await CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAtMs, items);
         return new PilotSetlistSyncResult(false, assignedId, name, updatedAtMs, []);
     }
 
-    public async Task<int> CreateOrUpdateSetlistFromPilotAsync(int? desktopId, string name, long updatedAtMs, int[] songIds)
+    /// <summary>Wariant „same pieśni" — zgodność wsteczna wywołań, które nie znają pozycji tekstowych.</summary>
+    public Task<int> CreateOrUpdateSetlistFromPilotAsync(int? desktopId, string name, long updatedAtMs, int[] songIds)
+        => CreateOrUpdateSetlistFromPilotAsync(desktopId, name, updatedAtMs,
+            songIds.Select(id => PilotSetlistItems.Entry.Song(id, null)).ToList());
+
+    /// <summary>
+    /// Zapis zestawu przysłanego przez Pilota. Pozycje tekstowe (tekst jednorazowy) trafiają do
+    /// `SetlistItems` z `Type = "text"` i treścią — pieśni jak dotąd po `SongId`. Nieznane ID pieśni
+    /// jest pomijane (Pilot może mieć nieaktualną bibliotekę).
+    /// </summary>
+    public async Task<int> CreateOrUpdateSetlistFromPilotAsync(
+        int? desktopId, string name, long updatedAtMs, IReadOnlyList<PilotSetlistItems.Entry> items)
     {
         await using var db = new CantioDbContext();
         Setlist setlist;
@@ -574,15 +590,26 @@ public class DatabaseService
         if (setlist.Id == 0) db.Setlists.Add(setlist);
         await db.SaveChangesAsync();
 
+        var songIds = items.Where(i => i.IsSong).Select(i => i.Id).ToArray();
         var songs = await db.Songs.Where(s => songIds.Contains(s.Id)).ToDictionaryAsync(s => s.Id);
-        var items = songIds
-            .Select((id, pos) => songs.TryGetValue(id, out var s)
-                ? new SetlistItem { SetlistId = setlist.Id, SongId = id, Position = pos }
-                : null)
-            .Where(i => i != null)
-            .Cast<SetlistItem>()
-            .ToList();
-        db.SetlistItems.AddRange(items);
+
+        var rows = new List<SetlistItem>();
+        foreach (var entry in items)
+        {
+            if (entry.IsText)
+            {
+                var row = SetlistTextItem.Create(entry.CustomTitle, entry.CustomText);
+                row.SetlistId = setlist.Id;
+                row.Position  = rows.Count;
+                rows.Add(row);
+            }
+            else if (entry.IsSong && songs.ContainsKey(entry.Id))
+            {
+                rows.Add(new SetlistItem { SetlistId = setlist.Id, SongId = entry.Id, Position = rows.Count });
+            }
+            // obrazki z telefonu pomijamy — plik żyje na PC
+        }
+        db.SetlistItems.AddRange(rows);
         await db.SaveChangesAsync();
         return setlist.Id;
     }

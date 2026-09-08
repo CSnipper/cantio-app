@@ -1,4 +1,4 @@
-using Cantio.Models;
+﻿using Cantio.Models;
 using Cantio.Services;
 using Cantio.ViewModels;
 using Cantio.Views;
@@ -285,13 +285,20 @@ public partial class MainWindow : Window
         _remoteControl.SetlistClearRequested += () =>
             _ = Dispatcher.InvokeAsync(() => _vm.ClearSetlistCommand.Execute(null));
 
-        _remoteControl.SetlistRestoreRequested += (songIds, activeIndex) =>
+        _remoteControl.SetlistRestoreRequested += (items, activeIndex) =>
             _ = Dispatcher.InvokeAsync(async () =>
             {
                 _vm.ClearSetlistCommand.Execute(null);
-                foreach (var songId in songIds)
+                foreach (var entry in items)
                 {
-                    var song = await db.GetSongWithVersesAsync(songId);
+                    // Tekst jednorazowy wraca z pełną treścią (tą samą ścieżką co przycisk 📝),
+                    // pieśń po ID. Obrazki odsiał już parser — plik został na PC.
+                    if (entry.IsText)
+                    {
+                        _vm.ApplyTextItem(null, entry.CustomTitle, entry.CustomText);
+                        continue;
+                    }
+                    var song = await db.GetSongWithVersesAsync(entry.Id);
                     if (song != null) _vm.AddToSetlistCommand.Execute(song);
                 }
                 // AddToSetlist zostawia aktywną OSTATNIĄ dodaną pieśń (funkcja z v1.49);
@@ -322,7 +329,7 @@ public partial class MainWindow : Window
                     name      = detail.Value.Name,
                     group     = detail.Value.Group ?? "",
                     updatedAt = detail.Value.UpdatedAt,
-                    songs     = detail.Value.Songs.Select(s => new { id = s.SongId, title = s.Title })
+                    songs     = PilotSetlistItems.ToJsonArray(detail.Value.Songs)
                 });
                 await _remoteControl.SendToClientAsync(ws, json);
             }
@@ -619,6 +626,53 @@ public partial class MainWindow : Window
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda edytora pieśni: {ex.Message}"); }
         };
 
+        // ─── Tekst jednorazowy z Pilota ───
+        // Mutacja dotyczy KOLEKCJI W PAMIĘCI (bieżący zestaw), nie bazy — dlatego logika siedzi
+        // w czystym PilotTextItem, a wykonanie idzie przez DisplayViewModel.ApplyTextItem, czyli
+        // tę samą ścieżkę co przycisk 📝 w oknie. Dodanie rozgłasza się samo (CollectionChanged),
+        // EDYCJA W MIEJSCU nie — stąd jawny broadcast.
+        _remoteControl.TextItemCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var request = PilotTextItem.Parse(raw);
+                if (request.Operation == PilotTextItem.Kind.None) return;
+
+                if (request.Denied)
+                {
+                    await _remoteControl.SendToClientAsync(ws, PilotTextItem.BuildDenial(request, request.Reason!));
+                    return;
+                }
+
+                var reason = await Dispatcher.InvokeAsync(() =>
+                {
+                    if (request.IsAdd)
+                    {
+                        _vm.ApplyTextItem(null, request.Title, request.Text);
+                        return null;
+                    }
+
+                    var item = request.Index >= 0 && request.Index < _vm.SetlistItems.Count
+                        ? _vm.SetlistItems[request.Index] : null;
+                    var denial = PilotTextItem.ValidateTarget(
+                        request.Index, _vm.SetlistItems.Count, item?.IsTextItem ?? false);
+                    if (denial != null) return denial;
+
+                    _vm.ApplyTextItem(item, request.Title, request.Text);
+                    return null;
+                }).Task;
+
+                await _remoteControl.SendToClientAsync(ws,
+                    reason == null
+                        ? PilotTextItem.BuildAck(request.Operation, true)
+                        : PilotTextItem.BuildDenial(request, reason));
+
+                // Edycja w miejscu nie rusza kolekcji, więc nikt inny tego nie rozgłosi.
+                if (reason == null && request.IsUpdate) await BroadcastSetlistState();
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda tekstu jednorazowego: {ex.Message}"); }
+        };
+
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
         _remoteControl.PairingStateChanged += () =>
@@ -671,26 +725,24 @@ public partial class MainWindow : Window
             await _remoteControl.SendToClientAsync(ws, json);
         }
 
+        // Pozycje zestawu składa WYŁĄCZNIE PilotSetlistItems — obie ścieżki (broadcast i wysyłka
+        // do świeżego klienta) biorą tę samą listę pól. Do v1.67 były to dwa niezależne obiekty
+        // anonimowe i tekst jednorazowy leciał na łącze jako {id:0,title:""}.
+        (List<PilotSetlistItems.Entry> Items, int ActiveIndex) SetlistSnapshotForPilot()
+            => (PilotSetlistItems.From(_vm.SetlistItems),
+                _vm.SelectedSetlistItem != null ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1);
+
         async Task BroadcastSetlistState()
         {
-            var songs = _vm.SetlistItems
-                .Select(item => (id: item.SongId ?? 0, title: item.Song?.Title ?? ""))
-                .ToList<(int id, string title)>();
-            var activeIndex = _vm.SelectedSetlistItem != null
-                ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1;
-            try { await _remoteControl.BroadcastSetlistAsync(songs, activeIndex); }
+            var (items, activeIndex) = SetlistSnapshotForPilot();
+            try { await _remoteControl.BroadcastSetlistAsync(items, activeIndex); }
             catch { }
         }
 
         async Task BroadcastSetlistStateToAsync(WebSocket ws)
         {
-            var songs = _vm.SetlistItems
-                .Select(item => new { id = item.SongId ?? 0, title = item.Song?.Title ?? "" })
-                .ToList();
-            var activeIndex = _vm.SelectedSetlistItem != null
-                ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1;
-            var json = JsonSerializer.Serialize(new { type = "setlist", activeIndex, songs });
-            await _remoteControl.SendToClientAsync(ws, json);
+            var (items, activeIndex) = SetlistSnapshotForPilot();
+            await _remoteControl.SendToClientAsync(ws, PilotSetlistItems.BuildSetlistJson(items, activeIndex));
         }
 
         _vm.PropertyChanged += async (_, e) =>

@@ -55,7 +55,9 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, int, int>? GetSongsRequested; // ws, offset, limit
     public event Action<WebSocket, string>? SyncPushRequested;  // ws, raw json
     public event Action? SetlistClearRequested;
-    public event Action<int[], int>? SetlistRestoreRequested;   // songIds, activeIndex (-1 = brak pola, starszy Pilot)
+    // pozycje zestawu (pieśni + teksty jednorazowe; obrazki odsiane w parserze), activeIndex (-1 = brak pola, starszy Pilot)
+    public event Action<PilotSetlistItems.Entry[], int>? SetlistRestoreRequested;
+    public event Action<WebSocket, string>? TextItemCommandRequested;  // ws, raw json (setlist_add_text / setlist_update_text)
     public event Action<WebSocket>? GetSetlistsRequested;       // ws
     public event Action<WebSocket, int>? OpenSetlistRequested;  // ws, setlistId
     public event Action<WebSocket, int>? GetSetlistDetailRequested; // ws, setlistId
@@ -167,16 +169,15 @@ public sealed class RemoteControlServer : IDisposable
         });
     }
 
+    /// <summary>
+    /// Rozgłasza stan zestawu. Komunikat składa WYŁĄCZNIE <see cref="PilotSetlistItems.BuildSetlistJson"/>
+    /// — ten sam builder obsługuje wysyłkę do świeżego klienta, więc pola pozycji (w tym treść
+    /// tekstu jednorazowego) nie mogą się rozjechać między dwiema ścieżkami.
+    /// </summary>
     public async Task BroadcastSetlistAsync(
-        IList<(int id, string title)> songs, int activeIndex)
+        IReadOnlyList<PilotSetlistItems.Entry> items, int activeIndex)
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            type = "setlist",
-            activeIndex,
-            songs = songs.Select(s => new { id = s.id, title = s.title }).ToList()
-        });
-        await BroadcastRawAsync(json);
+        await BroadcastRawAsync(PilotSetlistItems.BuildSetlistJson(items, activeIndex));
     }
 
     /// <summary>Rozgłasza zbiorczy stan urządzeń projekcyjnych do pilotów.</summary>
@@ -489,15 +490,14 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     if (doc.RootElement.TryGetProperty("songs", out var songsEl))
                     {
-                        var ids = songsEl.EnumerateArray()
-                            .Select(s => s.TryGetProperty("id", out var idEl) ? idEl.GetInt32() : 0)
-                            .Where(id => id > 0)
-                            .ToArray();
+                        // Pozycje pełne (pieśń / tekst jednorazowy); obrazek odsiewa parser —
+                        // plik został na PC, telefon nie ma czego przysłać.
+                        var entries = PilotSetlistItems.Parse(songsEl).ToArray();
                         // activeIndex opcjonalny — starszy Pilot go nie wysyła (-1 = brak)
                         var activeIndex = doc.RootElement.TryGetProperty("activeIndex", out var aiEl)
                                           && aiEl.ValueKind == JsonValueKind.Number
                             ? aiEl.GetInt32() : -1;
-                        SetlistRestoreRequested?.Invoke(ids, activeIndex);
+                        SetlistRestoreRequested?.Invoke(entries, activeIndex);
                     }
                 }
                 else if (type == "get_setlists")
@@ -529,6 +529,12 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     // Przypinanie zestawu — logika w PilotSetlistPin, serwer przekazuje surowy JSON.
                     SetlistPinCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotTextItem.IsCommand(type))
+                {
+                    // Tekst jednorazowy w BIEŻĄCYM zestawie — logika w PilotTextItem,
+                    // mutacja w MainWindow (kolekcja w pamięci, nie baza).
+                    TextItemCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (PilotPinWeek.IsCommand(type))
                 {
