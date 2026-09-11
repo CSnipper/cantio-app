@@ -121,17 +121,19 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `goto` | `index` | slajd nr index |
 | `goto_song` | `index` | pieśń nr index w zestawie |
 | `setlist_add` | `songId` | dodaj pieśń do zestawu |
+| `setlist_add_text` | `title?`, `text` | dodaj TEKST JEDNORAZOWY do bieżącego zestawu (ścieżka przycisku 📝 w oknie) → `ack` + broadcast `setlist`; pusta treść → `ok:false, reason:"empty_text"` |
+| `setlist_update_text` | `index`, `title?`, `text` | zmień treść pozycji tekstowej pod `index` → `ack` + **JAWNY** broadcast `setlist`; `reason`: `bad_index` (poza zakresem/brak pola) · `not_text` (pozycja to pieśń albo obrazek) · `empty_text` |
 | `show_song` | `songId` | pokaż pieśń NA EKRANIE bez dodawania jej do zestawu (odpowiednik 👁 w oknie Cantio) |
 | `setlist_remove` | `index` | usuń pozycję |
 | `setlist_move` | `from`, `to` | przenieś pozycję |
 | `setlist_clear` | — | wyczyść zestaw |
-| `setlist_restore` | `songs[]` (`{id}`), **`activeIndex?`** | odtwórz zestaw z listy ID; `activeIndex` = pozycja podświetlona w Pilocie, przycinana do `0..count-1`. Zgodność wsteczna: brak pola (starszy Pilot) → aktywna PIERWSZA pozycja, nigdy ostatnia (`Services/SetlistRestore.ResolveActiveIndex`) |
+| `setlist_restore` | `songs[]` (pozycje, zob. „Kontrakt pozycji zestawu"), **`activeIndex?`** | odtwórz zestaw z listy pozycji: pieśń po `id`, tekst jednorazowy z `customTitle`/`customText`, obrazek POMIJANY (plik żyje na PC); `activeIndex` = pozycja podświetlona w Pilocie, przycinana do `0..count-1`. Zgodność wsteczna: same `{id}` (starszy Pilot) = zachowanie jak dotąd, brak `activeIndex` → aktywna PIERWSZA pozycja, nigdy ostatnia (`Services/SetlistRestore.ResolveActiveIndex`) |
 | `get_songs` | `offset`, `limit` | → `songs_data` |
 | `get_setlists` | — | → `setlists_data` |
 | `open_setlist` | `id` | otwórz zestaw z bazy |
 | `get_setlist_detail` | `id` | → `setlist_detail` |
 | `sync_push` | raw JSON | sync pieśni (→ `sync_push_ack`) |
-| `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (`{id}`), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
+| `setlist_sync_push` | `desktopId?`, `name`, `updatedAt`, `songs[]` (pozycje, zob. „Kontrakt pozycji zestawu"), **`baseUpdatedAt?`**, **`force?`** | sync zestawu (→ `setlist_sync_ack` albo `setlist_sync_conflict`) |
 | `setlist_delete` | `desktopId` | usuń zestaw z bazy desktopu (→ `setlist_delete_ack`) |
 | `setlist_pin` | `desktopId`, `pinned` (bool) | przypnij/odepnij zestaw w panelu PRZYPIĘTE (→ `ack` + broadcast `setlist_pinned`) |
 | `pin_next_week` | — | „Przypnij tydzień”: przypina 7 kolejnych dni od dziś (→ `ack {pinned, days[]}` + broadcasty `setlist_pinned` i `pinned_celebrations`) |
@@ -170,6 +172,49 @@ Gest w lewo na wierszu listy PIEŚNI w układzie tabletowym Pilota. Handler w `M
   pominie (łańcuch `else if` nie ma gałęzi domyślnej, połączenie zostaje otwarte), stary Pilot jej nie zna, więc
   jej nie wyśle. Dlatego gest po stronie Pilota jest aktywny tylko przy połączeniu — offline nie ma odpowiednika.
 
+##### Kontrakt pozycji zestawu i tekst jednorazowy z Pilota (v1.68+)
+
+Tekst jednorazowy (`SetlistItem.CustomTitle`/`CustomText`, v1.6) był dla Pilota niewidzialny, a co
+gorsza — GINĄŁ. Pozycja leciała w broadcastcie jako `{id:0,title:""}`, `setlist_restore` filtrował
+`id > 0` (więc każde „Wczytaj w Cantio" z telefonu kasowało teksty i obrazki z bieżącego zestawu),
+`setlist_sync_push` niósł same `id`, a `GetSetlistDetailAsync` odsiewał pozycje bez `SongId`.
+
+**Jeden kształt pozycji we WSZYSTKICH komunikatach z listą** (`setlist`, `setlist_detail`,
+`setlist_sync_conflict`, `setlist_restore`, `setlist_sync_push`):
+
+```
+{id, title, type, customTitle?, customText?}
+```
+
+- `type`: `song` · `text` · `image`; **brak pola = `song`** (tak wygląda komunikat starego Pilota);
+- `text`: `id = 0`, `title` = tytuł EFEKTYWNY (`SetlistTextItem.ResolveTitle` — ta sama reguła, co
+  w oknie: tytuł ręczny, a gdy pusty pierwsza linia treści do 40 znaków), `customText` = pełna treść;
+- `image`: `id = 0`, `title` = nazwa pliku, **bez treści** — plik żyje na dysku PC.
+
+Kierunek P→D: pozycje `image` desktop POMIJA (nie ma czego odtworzyć), tekst bez treści też.
+`songCount` w `setlists_data` liczy dalej SAME PIEŚNI — zgodność wsteczna, strażnik w harnessie.
+
+- Komunikat i jego odczyt składa WYŁĄCZNIE `Services/PilotSetlistItems` (`From` / `ToJsonArray` /
+  `BuildSetlistJson` / `Parse`). Do v1.67 ten sam JSON budowały DWA niezależne miejsca w
+  `MainWindow` (`BroadcastSetlistState` i `BroadcastSetlistStateToAsync`) — dokładnie ten układ
+  dwóch list pól zgubił notatki pozycji zestawu w v1.6.
+- Komendy `setlist_add_text` / `setlist_update_text` obsługuje `Services/PilotTextItem`
+  (`IsCommand` → routing w `RemoteControlServer`, `Parse` → `Request`, `ValidateTarget` → odmowa).
+  **Ta klasa nie dotyka bazy** — mutacja idzie na kolekcji w pamięci `DisplayViewModel`
+  (bieżący zestaw trafia do bazy dopiero przy „ZAPISZ ZESTAW"), więc `MainWindow` wykonuje ją na
+  Dispatcherze przez `DisplayViewModel.ApplyTextItem` — tę samą ścieżkę, co przycisk 📝 w oknie.
+- **Dodanie rozgłasza się samo** (`CollectionChanged`), ale **edycja W MIEJSCU nie odpala żadnego
+  zdarzenia kolekcji** — po `setlist_update_text` broadcast `setlist` woła handler JAWNIE.
+  Bez tego drugi tablet zostaje ze starą treścią (asercja w harnessie).
+- `reason` przy `ok:false`: `empty_text` (pusta/biała treść — rozstrzygane przy parsowaniu),
+  `bad_index`, `not_text`. Przy odmowie **nic nie jest zmieniane** — w szczególności edycja
+  wycelowana w pozycję-pieśń NIE nadpisuje jej (dowiedzione sabotażem: zdjęcie `ValidateTarget`
+  daje 4 FAIL, w tym „pieśń nietknięta").
+- Obie komendy przechodzą normalną bramą auth (`if (!authed) continue;`).
+- **Zgodność wsteczna:** `id` i `title` zostają na miejscu i w znaczeniu, reszta jest DOPISANA;
+  stary Pilot ignoruje nadmiarowe pola i nie wysyła nowych komend, stary desktop nowych komend
+  nie rozpozna i po cichu je pominie (offline w Pilocie działa zawsze).
+
 ##### Zestawy: wykrywanie konfliktu (v1.61+)
 
 Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu stronach. Reguła:
@@ -191,7 +236,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 |---|---|---|
 | `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
 | `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`** | bieżący slajd (+ typ zwrotki, v1.63) |
-| `setlist` | `activeIndex, songs[]` (`{id,title}`) | stan zestawu |
+| `setlist` | `activeIndex, songs[]` (pozycje: `{id,title,type,customTitle?,customText?}`) | stan zestawu; `type`/pola tekstu DOPISANE w v1.68 (zob. „Kontrakt pozycji zestawu") |
 | `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
 | `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
 | `songs_data` | `offset`, `total`, `items[]` (`{id,title,number,author,categoryId,parts[],`**`updatedAt`**`,`**`playOrderJson`**`}`) | strona biblioteki pieśni na żądanie `get_songs`; dwa ostatnie pola DOPISANE w v1.65 (baza porównania dla edycji offline + kolejność odtwarzania) |
@@ -200,7 +245,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `setlist_pinned` | `desktopId`, `pinned` | zmieniono przypięcie zestawu — broadcast do WSZYSTKICH (v1.63) |
 | `pinned_celebrations` | `items[]` (`{desktopId, celebration}`) | podpisy obchodów pod przypiętymi zestawami (np. „wsp. Św. Dominika, prezbitera”) — broadcast po KAŻDEJ zmianie pinów i na `ClientConnected`; wyłącznie wpisy z NIEPUSTYM podpisem, pusta lista = skasuj podpisy (v1.63) |
 | `setlist_sync_ack` | `desktopId`, `name`, `updatedAt` | zestaw zapisany; `desktopId` = ID nadane przez desktop, `updatedAt` = wartość przysłana przez Pilota (nowa baza do `baseUpdatedAt`) |
-| `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (`{id,title}`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
+| `setlist_sync_conflict` | `desktopId`, `name`, `updatedAt`, `songs[]` (pozycje jak w `setlist`) | zestaw zmieniono po obu stronach — NIC nie zapisano; pola niosą wersję **desktopową** do pokazania użytkownikowi |
 | `setlist_delete_ack` | `desktopId`, `existed` (bool) | zestaw usunięty; `existed=false` = już go nie było |
 | `song_data` | `id, title, number, categoryId, author, verses[]` (`{type,text}`), `playOrderJson`, **`updatedAt`** | pełna treść pieśni — TYLKO na żądanie `song_get` (v1.63; `updatedAt` v1.65) |
 | `song_update_conflict` | dokładnie te same pola co `song_data` (tylko inny `type`) | pieśń zmieniono po OBU stronach — NIC nie zapisano; pola niosą wersję **desktopową** (v1.65) |

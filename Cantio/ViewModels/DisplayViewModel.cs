@@ -1468,17 +1468,12 @@ public partial class DisplayViewModel : ObservableObject
         _editedTextItem = null;
     }
 
-    /// <summary>Tytuł wpisany ręcznie, a gdy pusty — pierwsza linia treści (max 40 znaków).</summary>
-    private string ResolveTextItemTitle()
-    {
-        var title = TextItemTitle.Trim();
-        if (title.Length > 0) return title;
-        var firstLine = TextItemContent
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim())
-            .FirstOrDefault(l => l.Length > 0) ?? string.Empty;
-        return firstLine.Length > 40 ? firstLine[..40].TrimEnd() + "…" : firstLine;
-    }
+    /// <summary>
+    /// Tytuł wpisany ręcznie, a gdy pusty — pierwsza linia treści (max 40 znaków).
+    /// Regułę trzyma czysty <see cref="SetlistTextItem.ResolveTitle"/>, bo tej samej używają
+    /// komendy Pilota (`setlist_add_text`) — pozycja dodana z telefonu ma nazywać się tak samo.
+    /// </summary>
+    private string ResolveTextItemTitle() => SetlistTextItem.ResolveTitle(TextItemTitle, TextItemContent);
 
     /// <summary>Pusta linia rozdziela zwrotki — dalej dzieli już SlideLayoutService (jak przy pieśni).</summary>
     private static List<Verse> SplitTextToVerses(string? text)
@@ -1495,24 +1490,36 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanSaveTextItem))]
     private void AddTextItemToSetlist()
     {
-        var title = ResolveTextItemTitle();
+        var edited  = _editedTextItem;
+        var title   = ResolveTextItemTitle();
         var content = TextItemContent.Trim();
+        CloseTextItemEditor();
+        ApplyTextItem(edited, title, content);
+    }
 
-        if (_editedTextItem != null)
+    /// <summary>
+    /// Dodanie albo edycja tekstu jednorazowego — WSPÓLNA ścieżka edytora w oknie i komend Pilota
+    /// (`setlist_add_text` / `setlist_update_text`). <paramref name="edited"/> = null tworzy nową
+    /// pozycję na końcu zestawu; niepuste edytuje pozycję W MIEJSCU (bez `CollectionChanged`,
+    /// więc broadcast `setlist` po tej drodze musi wywołać wołający).
+    /// </summary>
+    public void ApplyTextItem(SetlistItem? edited, string? title, string? content)
+    {
+        var resolvedTitle = SetlistTextItem.ResolveTitle(title, content);
+        var text = (content ?? string.Empty).Trim();
+
+        if (edited != null)
         {
-            var edited = _editedTextItem;
-            edited.CustomTitle = title;
-            edited.CustomText = content;
-            CloseTextItemEditor();
+            edited.CustomTitle = resolvedTitle;
+            edited.CustomText  = text;
             if (ReferenceEquals(SelectedSetlistItem, edited)) LoadTextFromSetlist(edited);
             return;
         }
 
-        var newItem = new SetlistItem { Type = "text", CustomTitle = title, CustomText = content };
+        var newItem = SetlistTextItem.Create(resolvedTitle, text);
         bool projectionActive = SelectedSetlistItem != null;
         SetlistItems.Add(newItem);
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
-        CloseTextItemEditor();
         // W trakcie projekcji nie przełączamy ekranu — nowa pozycja tylko ląduje w zestawie
         if (projectionActive) SelectedSetlistItem = newItem;
         else LoadSongFromSetlist(newItem);

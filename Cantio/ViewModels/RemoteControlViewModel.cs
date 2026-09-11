@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -46,7 +46,8 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, int, int>? GetSongsRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SyncPushRequested;
     public event Action? SetlistClearRequested;
-    public event Action<int[], int>? SetlistRestoreRequested; // songIds, activeIndex (-1 = brak pola)
+    // pozycje zestawu (pieśni + teksty jednorazowe), activeIndex (-1 = brak pola)
+    public event Action<PilotSetlistItems.Entry[], int>? SetlistRestoreRequested;
     public event Action<System.Net.WebSockets.WebSocket>? ClientConnected;
     public event Action<System.Net.WebSockets.WebSocket>? GetSetlistsRequested;
     public event Action<System.Net.WebSockets.WebSocket, int>? OpenSetlistRequested;
@@ -62,6 +63,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket>? PinNextWeekRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? DisplaySettingsCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SongEditCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? TextItemCommandRequested;
 
     /// <summary>
     /// Zmienił się stan parowania (start serwera, nowe urządzenie, „nowy PIN").
@@ -84,7 +86,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.GetSongsRequested       += (ws, off, lim) => GetSongsRequested?.Invoke(ws, off, lim);
         _server.SyncPushRequested       += (ws, json)     => SyncPushRequested?.Invoke(ws, json);
         _server.SetlistClearRequested   += ()             => SetlistClearRequested?.Invoke();
-        _server.SetlistRestoreRequested += (ids, active)  => SetlistRestoreRequested?.Invoke(ids, active);
+        _server.SetlistRestoreRequested += (items, active) => SetlistRestoreRequested?.Invoke(items, active);
         _server.ClientConnected         += ws             => ClientConnected?.Invoke(ws);
         _server.GetSetlistsRequested        += ws         => GetSetlistsRequested?.Invoke(ws);
         _server.OpenSetlistRequested        += (ws, id)   => OpenSetlistRequested?.Invoke(ws, id);
@@ -100,6 +102,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.PinNextWeekRequested        += ws         => PinNextWeekRequested?.Invoke(ws);
         _server.DisplaySettingsCommandRequested += (ws, raw) => DisplaySettingsCommandRequested?.Invoke(ws, raw);
         _server.SongEditCommandRequested    += (ws, raw)  => SongEditCommandRequested?.Invoke(ws, raw);
+        _server.TextItemCommandRequested    += (ws, raw)  => TextItemCommandRequested?.Invoke(ws, raw);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
         {
@@ -302,9 +305,9 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
             ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides, slideKinds, kind)
             : Task.CompletedTask;
 
-    public Task BroadcastSetlistAsync(IList<(int id, string title)> songs, int activeIndex)
+    public Task BroadcastSetlistAsync(IReadOnlyList<PilotSetlistItems.Entry> items, int activeIndex)
         => _server.IsRunning
-            ? _server.BroadcastSetlistAsync(songs, activeIndex)
+            ? _server.BroadcastSetlistAsync(items, activeIndex)
             : Task.CompletedTask;
 
     public Task BroadcastDevicesAsync(string state, int count)

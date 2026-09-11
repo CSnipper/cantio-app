@@ -41,7 +41,7 @@ public static class PilotSetlistSync
         int? desktopId;
         string name;
         long updatedAt;
-        int[] songIds;
+        List<PilotSetlistItems.Entry> items;
         long? baseUpdatedAt;
         bool force;
 
@@ -53,8 +53,9 @@ public static class PilotSetlistSync
                 ? dEl.GetInt32() : null;
             name      = root.GetProperty("name").GetString() ?? "";
             updatedAt = root.GetProperty("updatedAt").GetInt64();
-            songIds   = root.GetProperty("songs").EnumerateArray()
-                .Select(s => s.GetProperty("id").GetInt32()).ToArray();
+            // Pozycje pełne (pieśń / tekst jednorazowy). Brak pola `type` = pieśń, więc stary
+            // Pilot, który śle same `{id}`, zapisuje się dokładnie jak dotąd.
+            items     = PilotSetlistItems.Parse(root.GetProperty("songs"));
             // Pola opcjonalne — stary Pilot ich nie przysyła (zgodność wsteczna: nadpisanie bezwarunkowe)
             baseUpdatedAt = root.TryGetProperty("baseUpdatedAt", out var bEl) && bEl.ValueKind == JsonValueKind.Number
                 ? bEl.GetInt64() : null;
@@ -62,7 +63,7 @@ public static class PilotSetlistSync
         }
         catch { return null; }
 
-        var result = await db.SyncSetlistFromPilotAsync(desktopId, name, updatedAt, songIds, baseUpdatedAt, force);
+        var result = await db.SyncSetlistFromPilotAsync(desktopId, name, updatedAt, items, baseUpdatedAt, force);
 
         return result.Conflict
             ? JsonSerializer.Serialize(new
@@ -71,7 +72,7 @@ public static class PilotSetlistSync
                 desktopId = result.SetlistId,
                 name      = result.Name,
                 updatedAt = result.UpdatedAt,
-                songs     = result.Songs.Select(s => new { id = s.SongId, title = s.Title })
+                songs     = PilotSetlistItems.ToJsonArray(result.Songs)
             })
             : JsonSerializer.Serialize(new
             {
