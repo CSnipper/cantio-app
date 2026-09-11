@@ -603,11 +603,24 @@ public class DatabaseService
                 row.Position  = rows.Count;
                 rows.Add(row);
             }
+            else if (entry.IsImage)
+            {
+                // v1.69: obrazek wraca, o ile desktop MA jego plik. Brak pliku = pozycja pomijana
+                // bez błędu (telefon mógł przysłać zestaw z innego komputera).
+                if (!PilotImages.RefExists(entry.ImageRef))
+                {
+                    AppLog.Write("Pilot", $"Zestaw z Pilota: pozycja-obrazek pominięta, brak pliku „{entry.ImageRef}”");
+                    continue;
+                }
+                rows.Add(new SetlistItem
+                {
+                    SetlistId = setlist.Id, Type = "image", ImagePath = entry.ImageRef, Position = rows.Count
+                });
+            }
             else if (entry.IsSong && songs.ContainsKey(entry.Id))
             {
                 rows.Add(new SetlistItem { SetlistId = setlist.Id, SongId = entry.Id, Position = rows.Count });
             }
-            // obrazki z telefonu pomijamy — plik żyje na PC
         }
         db.SetlistItems.AddRange(rows);
         await db.SaveChangesAsync();
