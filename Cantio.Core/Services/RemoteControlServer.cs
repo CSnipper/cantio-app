@@ -75,6 +75,10 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
     /// <summary>Edytor pieśni (song_get/create/update/delete) — surowy JSON.</summary>
     public event Action<WebSocket, string>? SongEditCommandRequested;
+    /// <summary>Obrazki (image_get / image_put_* / setlist_add_image) — logika w PilotImages.</summary>
+    public event Action<WebSocket, string>? ImageCommandRequested;
+    /// <summary>Klient odpadł — do sprzątnięcia jego niedokończonych uploadów.</summary>
+    public event Action<WebSocket>? ClientDisconnected;
     public event Action<WebSocket>? ClientConnected;
     public bool IsRunning { get; private set; }
     public int Port { get; private set; }
@@ -143,30 +147,40 @@ public sealed class RemoteControlServer : IDisposable
     public async Task BroadcastAsync(
         string text, string songTitle, int index, int total,
         bool isBlank = false, IList<string>? slides = null,
-        IList<string>? slideKinds = null, string? kind = null)
+        IList<string>? slideKinds = null, string? kind = null, string? imageRef = null)
     {
-        await BroadcastRawAsync(BuildSlideJson(text, songTitle, index, total, isBlank, slides, slideKinds, kind));
+        await BroadcastRawAsync(
+            BuildSlideJson(text, songTitle, index, total, isBlank, slides, slideKinds, kind, imageRef));
     }
 
     /// <summary>
     /// Jedyne miejsce budowania komunikatu `slide` (broadcast i wysyłka do świeżego klienta).
     /// `kind` / `slideKinds` są DOPISANE na końcu — stary Pilot ich nie zna i ignoruje,
     /// kształt i znaczenie pozostałych pól bez zmian.
+    /// <para><c>imageRef</c> (v1.69) pojawia się WYŁĄCZNIE wtedy, gdy bieżący slajd jest obrazkiem
+    /// (pozycja-obrazek zestawu albo zwrotka typu <c>img</c>). Slajd tekstowy ma dokładnie tę samą
+    /// listę pól co przed zmianą — pilnuje tego strażnik pełnej listy w harnessie.</para>
     /// </summary>
     public static string BuildSlideJson(
         string text, string songTitle, int index, int total,
         bool isBlank, IList<string>? slides,
-        IList<string>? slideKinds = null, string? kind = null)
+        IList<string>? slideKinds = null, string? kind = null, string? imageRef = null)
     {
         var kinds = slideKinds ?? [];
-        return JsonSerializer.Serialize(new
+        var o = new Dictionary<string, object?>
         {
-            type = "slide", text, songTitle, index, total,
-            isBlank,
-            slides = slides ?? [],
-            kind = kind ?? (index >= 0 && index < kinds.Count ? kinds[index] : SlideKind.Verse),
-            slideKinds = kinds
-        });
+            ["type"]       = "slide",
+            ["text"]       = text,
+            ["songTitle"]  = songTitle,
+            ["index"]      = index,
+            ["total"]      = total,
+            ["isBlank"]    = isBlank,
+            ["slides"]     = slides ?? [],
+            ["kind"]       = kind ?? (index >= 0 && index < kinds.Count ? kinds[index] : SlideKind.Verse),
+            ["slideKinds"] = kinds
+        };
+        if (!string.IsNullOrWhiteSpace(imageRef)) o["imageRef"] = imageRef;
+        return JsonSerializer.Serialize(o);
     }
 
     /// <summary>
@@ -271,6 +285,9 @@ public sealed class RemoteControlServer : IDisposable
                 finally
                 {
                     lock (_lock) _clients.Remove(ws);
+                    // Niedokończony upload obrazka nie ma już właściciela — inaczej wisiałby
+                    // w pamięci do timeoutu i zjadał limit „2 naraz" po ponownym połączeniu.
+                    try { ClientDisconnected?.Invoke(ws); } catch { }
                     ws.Dispose();
                 }
             }
@@ -356,7 +373,10 @@ public sealed class RemoteControlServer : IDisposable
         }
 
         var loopCt = authCts.Token;
-        var buf = new byte[1024];
+        // Wiadomość i tak składa się w `ms` do końca ramki, więc bufor nie ogranicza jej rozmiaru —
+        // ogranicza LICZBĘ odczytów. Przy 1 kB kawałek uploadu obrazka (64 kB base64 + koperta,
+        // ~88 kB) wymagał ~88 przebiegów pętli na każdy z kilkunastu kawałków.
+        var buf = new byte[16 * 1024];
         while (ws.State == WebSocketState.Open && !loopCt.IsCancellationRequested)
         {
             using var ms = new System.IO.MemoryStream();
@@ -557,6 +577,11 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     // Edytor pieśni — logika w PilotSongEdit.
                     SongEditCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotImages.IsCommand(type))
+                {
+                    // Podgląd / wysyłka obrazka / pozycja-obrazek — logika w PilotImages.
+                    ImageCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {

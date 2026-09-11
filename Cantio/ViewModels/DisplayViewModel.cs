@@ -1426,12 +1426,53 @@ public partial class DisplayViewModel : ObservableObject
             Filter = "Obrazki (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|Wszystkie pliki (*.*)|*.*"
         };
         if (dlg.ShowDialog() != true) return;
-        var newItem = new SetlistItem { ImagePath = ImageStorage.Import(dlg.FileName), Type = "image" };
-        var idx = SelectedSetlistItem != null ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
+        ApplyImageItem(ImageStorage.Import(dlg.FileName), insertAfterSelected: true);
+    }
+
+    /// <summary>
+    /// Dołożenie pozycji-obrazka — WSPÓLNA ścieżka przycisku 🖼 w oknie, komendy Pilota
+    /// <c>setlist_add_image</c> i odtwarzania zestawu z telefonu (<c>setlist_restore</c>).
+    /// </summary>
+    /// <param name="imagePath">ścieżka WZGLĘDNA z <see cref="ImageStorage"/> (plik już jest w magazynie)</param>
+    /// <param name="insertAfterSelected">
+    /// <c>true</c> = zachowanie przycisku i komendy z Pilota: nowa pozycja ląduje tuż za aktywną
+    /// i od razu idzie na ekran (operator właśnie po to obrazek dodał).
+    /// <c>false</c> = dopisanie na KONIEC bez przełączania ekranu w trakcie projekcji — tak samo jak
+    /// <see cref="ApplyTextItem"/> przy odtwarzaniu listy, gdzie wstawianie „za aktywną" pomieszałoby
+    /// kolejność przysłaną z telefonu.
+    /// </param>
+    public SetlistItem ApplyImageItem(string imagePath, bool insertAfterSelected)
+    {
+        var newItem = new SetlistItem { ImagePath = imagePath, Type = "image" };
+        var idx = insertAfterSelected && SelectedSetlistItem != null
+            ? SetlistItems.IndexOf(SelectedSetlistItem) : -1;
         if (idx >= 0) SetlistItems.Insert(idx + 1, newItem);
         else SetlistItems.Add(newItem);
         for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
-        LoadSongFromSetlist(newItem);
+
+        if (!insertAfterSelected && SelectedSetlistItem != null) SelectedSetlistItem = newItem;
+        else LoadSongFromSetlist(newItem);
+        return newItem;
+    }
+
+    /// <summary>
+    /// Ścieżka obrazka BIEŻĄCEGO slajdu albo null, gdy slajd jest tekstowy — pole <c>imageRef</c>
+    /// komunikatu <c>slide</c>. Desktop zna ją w obu przypadkach: zwrotka typu <c>img</c> niesie ją
+    /// w slajdzie, a pozycja-obrazek zestawu nie tworzy slajdów w ogóle
+    /// (<c>LoadImageFromSetlist</c> czyści listę), więc ścieżkę daje sama pozycja.
+    /// </summary>
+    public string? CurrentImageRef
+    {
+        get
+        {
+            if (CurrentSlideIndex >= 0 && CurrentSlideIndex < SlideList.Count)
+            {
+                var path = SlideList[CurrentSlideIndex].ImagePath;
+                return string.IsNullOrWhiteSpace(path) ? null : path;
+            }
+            var item = SelectedSetlistItem;
+            return item != null && item.IsImageItem ? item.ImagePath : null;
+        }
     }
 
     // ─── Tekst jednorazowy w zestawie ─────────────────────────────────────────

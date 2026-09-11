@@ -64,6 +64,8 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, string>? DisplaySettingsCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SongEditCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? TextItemCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? ImageCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket>? ClientDisconnected;
 
     /// <summary>
     /// Zmienił się stan parowania (start serwera, nowe urządzenie, „nowy PIN").
@@ -103,6 +105,8 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.DisplaySettingsCommandRequested += (ws, raw) => DisplaySettingsCommandRequested?.Invoke(ws, raw);
         _server.SongEditCommandRequested    += (ws, raw)  => SongEditCommandRequested?.Invoke(ws, raw);
         _server.TextItemCommandRequested    += (ws, raw)  => TextItemCommandRequested?.Invoke(ws, raw);
+        _server.ImageCommandRequested       += (ws, raw)  => ImageCommandRequested?.Invoke(ws, raw);
+        _server.ClientDisconnected          += ws         => ClientDisconnected?.Invoke(ws);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
         {
@@ -300,9 +304,9 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public Task BroadcastAsync(
         string text, string songTitle, int index, int total,
         bool isBlank = false, IList<string>? slides = null,
-        IList<string>? slideKinds = null, string? kind = null)
+        IList<string>? slideKinds = null, string? kind = null, string? imageRef = null)
         => _server.IsRunning
-            ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides, slideKinds, kind)
+            ? _server.BroadcastAsync(text, songTitle, index, total, isBlank, slides, slideKinds, kind, imageRef)
             : Task.CompletedTask;
 
     public Task BroadcastSetlistAsync(

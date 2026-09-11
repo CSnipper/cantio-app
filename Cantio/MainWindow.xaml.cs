@@ -1,4 +1,5 @@
-﻿using Cantio.Models;
+﻿using Cantio.Helpers;
+using Cantio.Models;
 using Cantio.Services;
 using Cantio.ViewModels;
 using Cantio.Views;
@@ -25,6 +26,8 @@ public partial class MainWindow : Window
     private RemoteControlViewModel _remoteControl = null!;
     private DeviceControlService _deviceControl = null!;
     private DevicesViewModel _devicesVm = null!;
+    /// <summary>Trwające wysyłki obrazków z Pilota — jeden magazyn na aplikację (v1.69).</summary>
+    private readonly PilotImages.UploadStore _pilotUploads = new();
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
@@ -335,10 +338,21 @@ public partial class MainWindow : Window
                 foreach (var entry in items)
                 {
                     // Tekst jednorazowy wraca z pełną treścią (tą samą ścieżką co przycisk 📝),
-                    // pieśń po ID. Obrazki odsiał już parser — plik został na PC.
+                    // pieśń po ID.
                     if (entry.IsText)
                     {
                         _vm.ApplyTextItem(null, entry.CustomTitle, entry.CustomText);
+                        continue;
+                    }
+                    // Obrazek (v1.69) wraca, o ile desktop MA jego plik — telefon przysyła sam ref.
+                    // Brak pliku = pozycja pomijana bez błędu (zestaw mógł powstać na innym PC).
+                    if (entry.IsImage)
+                    {
+                        if (PilotImages.RefExists(entry.ImageRef))
+                            _vm.ApplyImageItem(entry.ImageRef!, insertAfterSelected: false);
+                        else
+                            AppLog.Write("Pilot",
+                                $"Wczytanie zestawu: pozycja-obrazek pominięta, brak pliku „{entry.ImageRef}”");
                         continue;
                     }
                     var song = await db.GetSongWithVersesAsync(entry.Id);
@@ -716,6 +730,24 @@ public partial class MainWindow : Window
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda tekstu jednorazowego: {ex.Message}"); }
         };
 
+        // ─── Obrazki z Pilota ───
+        // Logika i stan uploadów siedzą w PilotImages; tu zostaje wpięcie skalowania (koder żyje
+        // tylko w WPF) i mutacja BIEŻĄCEGO zestawu przez DisplayViewModel.ApplyImageItem — tę samą
+        // ścieżkę, co przycisk 🖼 w oknie. Broadcast `setlist` poleci sam z CollectionChanged.
+        _remoteControl.ImageCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = PilotImages.Handle(raw, ws, _pilotUploads, PilotImageScaler.Scale);
+                if (result.AddedImageRef != null)
+                    await Dispatcher.InvokeAsync(() =>
+                        _vm.ApplyImageItem(result.AddedImageRef, insertAfterSelected: true)).Task;
+                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda obrazka: {ex.Message}"); }
+        };
+        _remoteControl.ClientDisconnected += ws => _pilotUploads.DropOwner(ws);
+
         // Ekran parowania na projektorze — gaśnie po pierwszym sparowanym urządzeniu,
         // wraca po „nowym PIN-ie" (który kasuje tokeny). Bez restartu aplikacji.
         _remoteControl.PairingStateChanged += () =>
@@ -749,7 +781,9 @@ public partial class MainWindow : Window
             var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
             var kind    = index >= 0 && index < _vm.SlideList.Count
                 ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;
-            try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides, kinds, kind); }
+            // Pole leci TYLKO gdy bieżący slajd jest obrazkiem — inaczej Pilot pokazuje tekst jak dotąd.
+            var imgRef  = _vm.CurrentImageRef;
+            try { await _remoteControl.BroadcastAsync(text, title, index, total, isBlank, slides, kinds, kind, imgRef); }
             catch { }
         }
 
@@ -764,7 +798,8 @@ public partial class MainWindow : Window
             var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
             var kind    = index >= 0 && index < _vm.SlideList.Count
                 ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;
-            var json = RemoteControlServer.BuildSlideJson(text, title, index, total, isBlank, slides, kinds, kind);
+            var json = RemoteControlServer.BuildSlideJson(
+                text, title, index, total, isBlank, slides, kinds, kind, _vm.CurrentImageRef);
             await _remoteControl.SendToClientAsync(ws, json);
         }
 

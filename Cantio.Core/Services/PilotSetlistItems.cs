@@ -26,15 +26,20 @@ public static class PilotSetlistItems
     /// <summary>
     /// Pozycja zestawu w postaci protokołu. `Id` &gt; 0 wyłącznie dla pieśni; tekst i obrazek mają 0.
     /// `Title` to tytuł EFEKTYWNY (to samo, co widzi operator w oknie — <see cref="SetlistLetterJump.TitleOf"/>).
+    /// <para><c>ImageRef</c> (v1.69) to WZGLĘDNA ścieżka pliku (`images\foo.jpg`, taka jak w
+    /// <see cref="SetlistItem.ImagePath"/>) — niesie ją wyłącznie pozycja typu `image`.</para>
     /// </summary>
-    public readonly record struct Entry(int Id, string Title, string Type, string? CustomTitle, string? CustomText)
+    public readonly record struct Entry(
+        int Id, string Title, string Type, string? CustomTitle, string? CustomText, string? ImageRef = null)
     {
         public bool IsSong  => Type == TypeSong;
         public bool IsText  => Type == TypeText;
         public bool IsImage => Type == TypeImage;
 
         public static Entry Song(int id, string? title) => new(id, title ?? "", TypeSong, null, null);
-        public static Entry Image(string? title)        => new(0, title ?? "", TypeImage, null, null);
+
+        public static Entry Image(string? title, string? imageRef = null)
+            => new(0, title ?? "", TypeImage, null, null, imageRef);
 
         public static Entry Text(string? customTitle, string? customText)
         {
@@ -47,7 +52,7 @@ public static class PilotSetlistItems
     public static Entry From(SetlistItem item)
     {
         var title = SetlistLetterJump.TitleOf(item) ?? "";
-        if (item.IsImageItem) return Entry.Image(title);
+        if (item.IsImageItem) return Entry.Image(title, item.ImagePath);
         if (item.IsTextItem)  return new Entry(0, title, TypeText, item.CustomTitle, item.CustomText);
         return Entry.Song(item.SongId ?? 0, title);
     }
@@ -55,8 +60,11 @@ public static class PilotSetlistItems
     public static List<Entry> From(IEnumerable<SetlistItem> items) => items.Select(From).ToList();
 
     /// <summary>
-    /// Obiekt do serializacji. Pola treści niesie WYŁĄCZNIE pozycja tekstowa — obrazek zostaje
-    /// przy `type` + `title`, bo plik żyje na dysku PC i telefon nic z nim nie zrobi.
+    /// Obiekt do serializacji. Pola treści niesie WYŁĄCZNIE pozycja tekstowa; obrazek dostaje
+    /// `imageRef` (v1.69) — samą ścieżkę, nie zawartość. Po niej telefon prosi o podgląd
+    /// (`image_get`) i po niej odtwarza pozycję przy `setlist_restore`/`setlist_sync_push`.
+    /// <para>Pole jest DOPISANE: pozycja bez ścieżki (obrazek z bazy sprzed v1.69 albo pozycja
+    /// pieśni/tekstu) wygląda dokładnie tak, jak przed zmianą.</para>
     /// </summary>
     public static Dictionary<string, object?> ToJsonObject(Entry e)
     {
@@ -71,6 +79,8 @@ public static class PilotSetlistItems
             o["customTitle"] = e.CustomTitle;
             o["customText"]  = e.CustomText ?? "";
         }
+        if (e.IsImage && !string.IsNullOrWhiteSpace(e.ImageRef))
+            o["imageRef"] = e.ImageRef;
         return o;
     }
 
@@ -106,7 +116,13 @@ public static class PilotSetlistItems
     /// Odczyt listy pozycji przysłanej przez Pilota (`setlist_restore`, `setlist_sync_push`).
     ///
     /// Pomijane są pozycje, których desktop nie umie odtworzyć: pieśń bez `id` (jak dotąd),
-    /// tekst bez treści oraz KAŻDY obrazek (plik został na PC, telefon nie ma czego przysłać).
+    /// tekst bez treści oraz obrazek bez `imageRef` (tak wygląda pozycja ze starego Pilota —
+    /// plik został na PC i telefon nie ma czego przysłać).
+    /// <para><b>Obrazek z `imageRef` PRZECHODZI</b> (v1.69) — to koniec ograniczenia „obrazki giną
+    /// przy wczytaniu zestawu z telefonu". Parser NIE sprawdza, czy plik istnieje: to pytanie
+    /// o dysk, a ta klasa ma zostać czysta. Istnienie weryfikuje warstwa WYKONUJĄCA
+    /// (<see cref="PilotImages.RefExists"/> w handlerze restore i w zapisie zestawu), bo tylko ona
+    /// wie, co zrobić z pozycją bez pliku — pominąć i zalogować.</para>
     /// </summary>
     public static List<Entry> Parse(JsonElement songsArray)
     {
@@ -121,7 +137,13 @@ public static class PilotSetlistItems
             var type = el.TryGetProperty("type", out var tEl) && tEl.ValueKind == JsonValueKind.String
                 ? tEl.GetString() ?? TypeSong : TypeSong;
 
-            if (type == TypeImage) continue;
+            if (type == TypeImage)
+            {
+                var imageRef = Str(el, "imageRef");
+                if (string.IsNullOrWhiteSpace(imageRef)) continue;   // stary Pilot: sam `title`
+                result.Add(Entry.Image(Str(el, "title"), imageRef));
+                continue;
+            }
 
             if (type == TypeText)
             {

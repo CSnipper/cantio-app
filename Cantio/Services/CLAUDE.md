@@ -127,7 +127,7 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `setlist_remove` | `index` | usuń pozycję |
 | `setlist_move` | `from`, `to` | przenieś pozycję |
 | `setlist_clear` | — | wyczyść zestaw |
-| `setlist_restore` | `songs[]` (pozycje, zob. „Kontrakt pozycji zestawu"), **`activeIndex?`** | odtwórz zestaw z listy pozycji: pieśń po `id`, tekst jednorazowy z `customTitle`/`customText`, obrazek POMIJANY (plik żyje na PC); `activeIndex` = pozycja podświetlona w Pilocie, przycinana do `0..count-1`. Zgodność wsteczna: same `{id}` (starszy Pilot) = zachowanie jak dotąd, brak `activeIndex` → aktywna PIERWSZA pozycja, nigdy ostatnia (`Services/SetlistRestore.ResolveActiveIndex`) |
+| `setlist_restore` | `songs[]` (pozycje, zob. „Kontrakt pozycji zestawu"), **`activeIndex?`** | odtwórz zestaw z listy pozycji: pieśń po `id`, tekst jednorazowy z `customTitle`/`customText`, obrazek po **`imageRef`** (v1.69 — pomijany tylko, gdy pliku nie ma na tym PC albo gdy pola brak); `activeIndex` = pozycja podświetlona w Pilocie, przycinana do `0..count-1`. Zgodność wsteczna: same `{id}` (starszy Pilot) = zachowanie jak dotąd, brak `activeIndex` → aktywna PIERWSZA pozycja, nigdy ostatnia (`Services/SetlistRestore.ResolveActiveIndex`) |
 | `get_songs` | `offset`, `limit` | → `songs_data` |
 | `get_setlists` | — | → `setlists_data` |
 | `open_setlist` | `id` | otwórz zestaw z bazy |
@@ -152,6 +152,11 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `song_delete` | `id`, **`force?`** | usunięcie pieśni; pieśń w zapisanych zestawach wymaga `force:true` |
 | `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
 | `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
+| `image_get` | `ref`, **`maxDim?`** | podgląd obrazka → `image_data` **do nadawcy**; brak pliku → `ack ok:false, reason:"not_found"` (v1.69) |
+| `image_put_begin` | `name`, `totalChunks` | początek wysyłki obrazka z telefonu → `ack {uploadId}`; `reason`: `too_large` (>512 kawałków) · `bad_total` (0/brak) · `busy` (>2 uploady z klienta) |
+| `image_put_chunk` | `uploadId`, `seq`, `data` (base64 ≤64 kB) | kolejny kawałek → `ack {uploadId, seq}`; `reason`: `bad_seq` · `unknown_upload` · `bad_data` · `too_large` |
+| `image_put_end` | `uploadId` | sklejenie + `ImageStorage.Import` → `ack {uploadId, ref}`; `reason`: `unknown_upload` · `incomplete` · `read_failed` |
+| `setlist_add_image` | `ref` | dodaj pozycję-obrazek do BIEŻĄCEGO zestawu (ścieżka przycisku 🖼 w oknie) → `ack {ref}` + broadcast `setlist`; brak pliku → `reason:"not_found"` |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
 | `status` | — | → `status_data` (diagnostyka zdalna) |
 | `restart_app` | — | restart procesu Cantio (→ `ack`) |
@@ -183,15 +188,19 @@ gorsza — GINĄŁ. Pozycja leciała w broadcastcie jako `{id:0,title:""}`, `set
 `setlist_sync_conflict`, `setlist_restore`, `setlist_sync_push`):
 
 ```
-{id, title, type, customTitle?, customText?}
+{id, title, type, customTitle?, customText?, imageRef?}
 ```
 
 - `type`: `song` · `text` · `image`; **brak pola = `song`** (tak wygląda komunikat starego Pilota);
 - `text`: `id = 0`, `title` = tytuł EFEKTYWNY (`SetlistTextItem.ResolveTitle` — ta sama reguła, co
   w oknie: tytuł ręczny, a gdy pusty pierwsza linia treści do 40 znaków), `customText` = pełna treść;
-- `image`: `id = 0`, `title` = nazwa pliku, **bez treści** — plik żyje na dysku PC.
+- `image`: `id = 0`, `title` = nazwa pliku, `imageRef` = **względna ścieżka pliku** (v1.69, to samo
+  co `SetlistItem.ImagePath`); zawartości obrazka pozycja nie niesie — telefon dociąga podgląd
+  osobno przez `image_get`.
 
-Kierunek P→D: pozycje `image` desktop POMIJA (nie ma czego odtworzyć), tekst bez treści też.
+Kierunek P→D: pozycja `image` **wraca do zestawu**, o ile niesie `imageRef` i desktop MA ten plik
+(`PilotImages.RefExists`); bez pola (stary Pilot) albo bez pliku jest pomijana bez błędu, z wpisem
+w `AppLog`. Tekst bez treści pomijany jak dotąd.
 `songCount` w `setlists_data` liczy dalej SAME PIEŚNI — zgodność wsteczna, strażnik w harnessie.
 
 - Komunikat i jego odczyt składa WYŁĄCZNIE `Services/PilotSetlistItems` (`From` / `ToJsonArray` /
@@ -220,6 +229,54 @@ Kierunek P→D: pozycje `image` desktop POMIJA (nie ma czego odtworzyć), tekst 
   stary Pilot ignoruje nadmiarowe pola i nie wysyła nowych komend, stary desktop nowych komend
   nie rozpozna i po cichu je pominie (offline w Pilocie działa zawsze).
 
+##### Obrazki: podgląd, wysyłka z telefonu, pozycja zestawu (v1.69+)
+
+Parafie w trybie serwerowym mają tablet jako JEDYNY pulpit, a obrazek dawało się dodać wyłącznie
+przy komputerze — i co gorsza ginął przy każdym „Wczytaj w Cantio" z telefonu. Ta runda zamyka
+temat w trzech miejscach: pozycja niesie `imageRef`, telefon umie pobrać podgląd i umie wysłać
+własny plik.
+
+- **Cała logika: `Services/PilotImages.cs`** (`IsCommand` → routing w `RemoteControlServer`,
+  `Handle` → `Result(Response, AddedImageRef)`). Odpowiedzi składa wyłącznie ta klasa
+  (`BuildDataJson` + `PilotStatus.BuildAckJson`).
+- **Rdzeń NIE skaluje obrazów.** `Cantio.Core` to czysty `net10.0` (Linux/Android): nie ma tam
+  `System.Drawing`, a `SkiaSharp` świadomie nie jest dokładany dla jednej funkcji. Skalowanie wpina
+  gospodarz delegatem `PilotImages.Scaler` — implementacja WPF to `Cantio/Helpers/PilotImageScaler.cs`
+  (`BitmapImage` + `DecodePixelWidth/Height`, `JpegBitmapEncoder` QualityLevel 80). Brak delegata
+  (albo niedekodowalny plik) → `ack ok:false, reason:"read_failed"` — **desktop nigdy nie milczy**,
+  bo Pilot czeka na odpowiedź.
+- **Podgląd idzie w JEDNYM komunikacie** (`image_data`): po przeskalowaniu do 1280 px to ~0,3–0,7 MB
+  na LAN. Telefon cache'uje po parze `ref` + `maxDim`.
+- **Upload jest dzielony na kawałki**, bo serwer składa całą ramkę WS w pamięci: `image_put_begin`
+  (`totalChunks` ≤ 512) → `image_put_chunk` (base64 ≤64 kB, **`seq` MUSI iść po kolei** — luka
+  znaczyłaby dziurę w pliku, a JPEG z dziurą wygląda na poprawny i wysypuje się dopiero na
+  projektorze) → `image_put_end` (sklejenie w pliku tymczasowym + `ImageStorage.Import`, czyli ten
+  sam magazyn i to samo rozstrzyganie kolizji nazw, co przycisk 🖼). Telefon skaluje PRZED wysyłką
+  (dłuższy bok ≤1920, JPEG ~85) — nikt nie śle 12 MB zdjęcia po WS.
+- **Stan uploadów** żyje w `PilotImages.UploadStore` (jedna instancja w `MainWindow`): timeout 60 s
+  bez kawałka, max 2 równoległe uploady **per klient** (`busy`), sprzątanie po rozłączeniu przez
+  `RemoteControlServer.ClientDisconnected` — inaczej porzucony upload zjadałby limit do timeoutu.
+- **`setlist_add_image` NIE dotyka bazy** — dokładnie jak `setlist_add_text`. Bieżący zestaw żyje
+  w pamięci `DisplayViewModel`, więc `PilotImages` zwraca `AddedImageRef`, a `MainWindow` wykonuje
+  mutację na Dispatcherze przez **`DisplayViewModel.ApplyImageItem`** — wspólną ścieżkę przycisku
+  🖼, komendy z Pilota i odtwarzania zestawu. Broadcast `setlist` leci sam z `CollectionChanged`.
+  Parametr `insertAfterSelected` rozdziela dwa zachowania: `true` (przycisk i komenda — pozycja tuż
+  za aktywną, od razu na ekran, bo po to się ją dodaje) i `false` (restore — dopisanie na KONIEC,
+  inaczej wstawianie „za aktywną" pomieszałoby kolejność przysłaną z telefonu).
+- **`imageRef` w `slide`** pojawia się tylko wtedy, gdy bieżący slajd JEST obrazkiem —
+  `DisplayViewModel.CurrentImageRef` obsługuje oba przypadki: zwrotkę typu `img` (ścieżka w slajdzie)
+  i pozycję-obrazek zestawu (nie tworzy slajdów w ogóle, więc ścieżkę daje sama pozycja).
+- **Bezpieczeństwo ścieżek:** `PilotImages.IsSafeRef` odrzuca ref-y z segmentem `..` — sparowany
+  telefon nie ma czytać całego dysku przez `image_get`. Ścieżki absolutne przechodzą, bo tak
+  wyglądają obrazki dodane przed wprowadzeniem magazynu (legacy w bazach parafii).
+- **Zgodność wsteczna:** `imageRef` w pozycji i w `slide` to pola DOPISANE i pojawiają się WYŁĄCZNIE
+  przy obrazku — slajd tekstowy ma tę samą 9-polową listę co przed zmianą (strażnik w harnessie).
+  Stary Pilot ignoruje nadmiarowe pola i nowych komend nie wysyła; stary desktop nowych typów nie
+  rozpozna i pominie je po cichu, więc Pilot musi obsłużyć BRAK odpowiedzi (wzorzec
+  `RemoteQueryMachine` → „funkcja wymaga nowszego Cantio").
+- Wszystkie pięć komend przechodzi normalną bramą auth (`if (!authed) continue;`).
+- Harness: `ImageTests.cs` (im1–im5).
+
 ##### Zestawy: wykrywanie konfliktu (v1.61+)
 
 Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu stronach. Reguła:
@@ -240,8 +297,9 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | type | pola | znaczenie |
 |---|---|---|
 | `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
-| `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`** | bieżący slajd (+ typ zwrotki, v1.63) |
-| `setlist` | `activeIndex, songs[]` (pozycje: `{id,title,type,customTitle?,customText?}`), **`setlistId?`**, **`name?`** | stan zestawu; `type`/pola tekstu DOPISANE w v1.68 (zob. „Kontrakt pozycji zestawu"). **`setlistId`/`name` (v1.68) = TOŻSAMOŚĆ bieżącej listy** — rekord bazy desktopu, z którego ją wczytano albo pod którym ostatnio zapisano; Pilot proponuje go do nadpisania przy „Zapisz". Lista zebrana ręcznie / po `ClearSetlist` / po skasowaniu rekordu **nie niesie tych pól w ogóle** (brak = nie ma czego nadpisywać). Rozgłaszane także wtedy, gdy zmienia się SAMA tożsamość bez zmiany pozycji — „zapisz jako", nadpisanie pod nową nazwą, odczepienie skasowanego zestawu (`DisplayViewModel` zgłasza `LoadedSetlistId`/`LoadedSetlistName`, `MainWindow` woła broadcast jawnie; `CollectionChanged` wtedy NIE leci) |
+| `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`**, **`imageRef?`** | bieżący slajd (+ typ zwrotki, v1.63; `imageRef` v1.69 — **tylko** gdy bieżący slajd jest obrazkiem) |
+| `image_data` | `ref, w, h, format:"jpeg", data` (base64) | podgląd obrazka na żądanie `image_get` — **do nadawcy**, jeden komunikat, dłuższy bok ≤ `maxDim` (domyślnie 1280), JPEG ~80 (v1.69) |
+| `setlist` | `activeIndex, songs[]` (pozycje: `{id,title,type,customTitle?,customText?,imageRef?}`), **`setlistId?`**, **`name?`** | stan zestawu; `type`/pola tekstu DOPISANE w v1.68 (zob. „Kontrakt pozycji zestawu"). **`setlistId`/`name` (v1.68) = TOŻSAMOŚĆ bieżącej listy** — rekord bazy desktopu, z którego ją wczytano albo pod którym ostatnio zapisano; Pilot proponuje go do nadpisania przy „Zapisz". Lista zebrana ręcznie / po `ClearSetlist` / po skasowaniu rekordu **nie niesie tych pól w ogóle** (brak = nie ma czego nadpisywać). Rozgłaszane także wtedy, gdy zmienia się SAMA tożsamość bez zmiany pozycji — „zapisz jako", nadpisanie pod nową nazwą, odczepienie skasowanego zestawu (`DisplayViewModel` zgłasza `LoadedSetlistId`/`LoadedSetlistName`, `MainWindow` woła broadcast jawnie; `CollectionChanged` wtedy NIE leci) |
 | `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
 | `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
 | `songs_data` | `offset`, `total`, `items[]` (`{id,title,number,author,categoryId,parts[],`**`updatedAt`**`,`**`playOrderJson`**`}`) | strona biblioteki pieśni na żądanie `get_songs`; dwa ostatnie pola DOPISANE w v1.65 (baza porównania dla edycji offline + kolejność odtwarzania) |
