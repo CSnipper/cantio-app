@@ -175,9 +175,10 @@ public sealed class RemoteControlServer : IDisposable
     /// tekstu jednorazowego) nie mogą się rozjechać między dwiema ścieżkami.
     /// </summary>
     public async Task BroadcastSetlistAsync(
-        IReadOnlyList<PilotSetlistItems.Entry> items, int activeIndex)
+        IReadOnlyList<PilotSetlistItems.Entry> items, int activeIndex,
+        int setlistId = 0, string? name = null)
     {
-        await BroadcastRawAsync(PilotSetlistItems.BuildSetlistJson(items, activeIndex));
+        await BroadcastRawAsync(PilotSetlistItems.BuildSetlistJson(items, activeIndex, setlistId, name));
     }
 
     /// <summary>Rozgłasza zbiorczy stan urządzeń projekcyjnych do pilotów.</summary>

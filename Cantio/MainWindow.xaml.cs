@@ -771,21 +771,28 @@ public partial class MainWindow : Window
         // Pozycje zestawu składa WYŁĄCZNIE PilotSetlistItems — obie ścieżki (broadcast i wysyłka
         // do świeżego klienta) biorą tę samą listę pól. Do v1.67 były to dwa niezależne obiekty
         // anonimowe i tekst jednorazowy leciał na łącze jako {id:0,title:""}.
-        (List<PilotSetlistItems.Entry> Items, int ActiveIndex) SetlistSnapshotForPilot()
+        //
+        // Snapshot niesie też TOŻSAMOŚĆ bieżącej listy (`LoadedSetlistId/Name`) — telefon musi
+        // wiedzieć, który rekord bazy ma zaproponować do nadpisania przy „Zapisz". Gdy lista nie
+        // pochodzi z zapisanego zestawu, id jest 0 i builder pomija oba pola.
+        (List<PilotSetlistItems.Entry> Items, int ActiveIndex, int SetlistId, string Name) SetlistSnapshotForPilot()
             => (PilotSetlistItems.From(_vm.SetlistItems),
-                _vm.SelectedSetlistItem != null ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1);
+                _vm.SelectedSetlistItem != null ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1,
+                _vm.LoadedSetlistId,
+                _vm.LoadedSetlistName);
 
         async Task BroadcastSetlistState()
         {
-            var (items, activeIndex) = SetlistSnapshotForPilot();
-            try { await _remoteControl.BroadcastSetlistAsync(items, activeIndex); }
+            var (items, activeIndex, setlistId, name) = SetlistSnapshotForPilot();
+            try { await _remoteControl.BroadcastSetlistAsync(items, activeIndex, setlistId, name); }
             catch { }
         }
 
         async Task BroadcastSetlistStateToAsync(WebSocket ws)
         {
-            var (items, activeIndex) = SetlistSnapshotForPilot();
-            await _remoteControl.SendToClientAsync(ws, PilotSetlistItems.BuildSetlistJson(items, activeIndex));
+            var (items, activeIndex, setlistId, name) = SetlistSnapshotForPilot();
+            await _remoteControl.SendToClientAsync(ws,
+                PilotSetlistItems.BuildSetlistJson(items, activeIndex, setlistId, name));
         }
 
         _vm.PropertyChanged += async (_, e) =>
@@ -794,6 +801,14 @@ public partial class MainWindow : Window
                                or nameof(DisplayViewModel.ScreenBlanked)
                                or nameof(DisplayViewModel.SlideList))
                 await BroadcastCurrentState();
+            // Tożsamość zestawu potrafi się zmienić BEZ zmiany pozycji („zapisz jako", nadpisanie
+            // pod nową nazwą, odczepienie skasowanego rekordu) — wtedy CollectionChanged nie leci
+            // i Pilot zostałby ze starym `setlistId`. Przy zwykłym wczytaniu zestawu poleci tu
+            // broadcast nadmiarowy (obok tego z CollectionChanged) — to ten sam komunikat,
+            // idempotentny po stronie telefonu, i nie tworzy pętli (broadcast nie rusza VM).
+            if (e.PropertyName is nameof(DisplayViewModel.LoadedSetlistId)
+                               or nameof(DisplayViewModel.LoadedSetlistName))
+                await BroadcastSetlistState();
             if (e.PropertyName is nameof(DisplayViewModel.SelectedSetlistItem))
             {
                 await BroadcastSetlistState();
