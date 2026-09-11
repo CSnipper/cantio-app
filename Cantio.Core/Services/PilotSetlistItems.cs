@@ -77,14 +77,30 @@ public static class PilotSetlistItems
     public static List<Dictionary<string, object?>> ToJsonArray(IEnumerable<Entry> items)
         => items.Select(ToJsonObject).ToList();
 
-    /// <summary>Komunikat `setlist` — JEDYNE miejsce jego składania (broadcast i wysyłka do świeżego klienta).</summary>
-    public static string BuildSetlistJson(IEnumerable<Entry> items, int activeIndex)
-        => JsonSerializer.Serialize(new
+    /// <summary>
+    /// Komunikat `setlist` — JEDYNE miejsce jego składania (broadcast i wysyłka do świeżego klienta).
+    ///
+    /// `setlistId`/`name` to TOŻSAMOŚĆ bieżącej listy: rekord zestawu w bazie desktopu, z którego
+    /// została wczytana albo pod którym ostatnio zapisana. Bez niej Pilot po odebraniu broadcastu
+    /// nie wie, co ma zaproponować do nadpisania przy „Zapisz".
+    ///
+    /// Lista, która NIE pochodzi z zapisanego zestawu (operator zebrał pieśni ręcznie, wyczyścił
+    /// zestaw, skasowano rekord), nie niesie tych pól w ogóle — brak pola znaczy „nie ma czego
+    /// nadpisywać", i to jest to samo, co widzi stary Pilot (nieznane pola ignoruje).
+    /// </summary>
+    public static string BuildSetlistJson(
+        IEnumerable<Entry> items, int activeIndex, int setlistId = 0, string? name = null)
+    {
+        var o = new Dictionary<string, object?>
         {
-            type        = "setlist",
-            activeIndex,
-            songs       = ToJsonArray(items)
-        });
+            ["type"]        = "setlist",
+            ["activeIndex"] = activeIndex,
+            ["songs"]       = ToJsonArray(items)
+        };
+        if (setlistId > 0) o["setlistId"] = setlistId;
+        if (!string.IsNullOrWhiteSpace(name)) o["name"] = name;
+        return JsonSerializer.Serialize(o);
+    }
 
     /// <summary>
     /// Odczyt listy pozycji przysłanej przez Pilota (`setlist_restore`, `setlist_sync_push`).

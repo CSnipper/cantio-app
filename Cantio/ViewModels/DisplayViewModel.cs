@@ -321,6 +321,26 @@ public partial class DisplayViewModel : ObservableObject
     private string _loadedSetlistName = string.Empty;
 
     /// <summary>
+    /// JEDYNE miejsce zmieniające tożsamość bieżącej listy (id + nazwa rekordu w bazie).
+    ///
+    /// Powód, dla którego to nie jest zwykłe przypisanie: tożsamość potrafi się zmienić BEZ zmiany
+    /// pozycji zestawu („zapisz jako", nadpisanie pod nową nazwą, odczepienie skasowanego rekordu),
+    /// a `SetlistItems.CollectionChanged` — jedyny sygnał, po którym `MainWindow` rozgłaszał `setlist`
+    /// — wtedy nie leci. Pilot zostawał wtedy ze starym (albo żadnym) `setlistId` i przy „Zapisz"
+    /// proponował nadpisanie cudzego zestawu. Zgłoszenie `LoadedSetlistId` przez `PropertyChanged`
+    /// daje oknu punkt zaczepienia na jawny broadcast.
+    /// </summary>
+    private void SetLoadedSetlist(int id, string? name)
+    {
+        var newName = name ?? string.Empty;
+        if (_loadedSetlistId == id && _loadedSetlistName == newName) return;
+        _loadedSetlistId = id;
+        _loadedSetlistName = newName;
+        OnPropertyChanged(nameof(LoadedSetlistId));
+        OnPropertyChanged(nameof(LoadedSetlistName));
+    }
+
+    /// <summary>
     /// Pozycje zestawu. INSTANCJA KOLEKCJI NIGDY SIĘ NIE ZMIENIA (brak settera) — MainWindow podpina
     /// się do `CollectionChanged` raz przy starcie, żeby rozgłaszać zmiany do Pilotów; podmiana kolekcji
     /// osierociłaby tego obserwatora i zmiany po wczytaniu zestawu przestałyby lecieć do telefonów.
@@ -1288,7 +1308,7 @@ public partial class DisplayViewModel : ObservableObject
                     existing.Group = group;
                     await _db.SaveSetlistAsync(existing);
                     await _db.SaveSetlistItemsAsync(existing.Id, BuildItems());
-                    _loadedSetlistName = name;
+                    SetLoadedSetlist(existing.Id, name);
                     break;
                 case OverwriteChoice.AddNew:
                     await SaveAsNewAsync(name, group);
@@ -1317,11 +1337,7 @@ public partial class DisplayViewModel : ObservableObject
     /// nieporównanie gorsze niż zgubione powiązanie — traci się wyłącznie wskazanie na rekord,
     /// więc kolejne „Ctrl+S, Enter” założy nowy zestaw, zamiast szukać skasowanego Id.
     /// </summary>
-    public void DetachLoadedSetlist()
-    {
-        _loadedSetlistId = 0;
-        _loadedSetlistName = "";
-    }
+    public void DetachLoadedSetlist() => SetLoadedSetlist(0, "");
 
     /// <summary>
     /// Zapis zestawu BEZ okna dialogowego — dla pulpitu organisty niewidomego, który okna
@@ -1345,7 +1361,7 @@ public partial class DisplayViewModel : ObservableObject
             existing.Group = group;
             await _db.SaveSetlistAsync(existing);
             await _db.SaveSetlistItemsAsync(existing.Id, BuildItems());
-            _loadedSetlistName = name;
+            SetLoadedSetlist(existing.Id, name);
         }
         else
         {
@@ -1391,8 +1407,7 @@ public partial class DisplayViewModel : ObservableObject
         var setlist = new Setlist { Name = name, Group = group, CreatedAt = DateTime.UtcNow };
         await _db.SaveSetlistAsync(setlist);
         await _db.SaveSetlistItemsAsync(setlist.Id, BuildItems());
-        _loadedSetlistId = setlist.Id;
-        _loadedSetlistName = setlist.Name;
+        SetLoadedSetlist(setlist.Id, setlist.Name);
         IsCurrentSetlistPinned = false;
         TogglePinSetlistCommand.NotifyCanExecuteChanged();
         SetlistName = string.Empty;
@@ -1570,8 +1585,7 @@ public partial class DisplayViewModel : ObservableObject
         SetlistItems.Clear();
         SetlistName = string.Empty;
         SetlistGroup = string.Empty;
-        _loadedSetlistId = 0;
-        _loadedSetlistName = string.Empty;
+        SetLoadedSetlist(0, null);
         IsCurrentSetlistPinned = false;
     }
 
@@ -1722,8 +1736,7 @@ public partial class DisplayViewModel : ObservableObject
     {
         if (_loadedSetlistId == setlistId)
         {
-            _loadedSetlistId   = 0;
-            _loadedSetlistName = string.Empty;
+            SetLoadedSetlist(0, null);
             IsCurrentSetlistPinned = false;
             TogglePinSetlistCommand.NotifyCanExecuteChanged();
         }
@@ -1736,8 +1749,7 @@ public partial class DisplayViewModel : ObservableObject
         var full = await _db.GetSetlistWithItemsAsync(setlist.Id);
         if (full == null) return;
         await _db.SaveSettingAsync("last_setlist_id", setlist.Id.ToString());
-        _loadedSetlistId = full.Id;
-        _loadedSetlistName = full.Name;
+        SetLoadedSetlist(full.Id, full.Name);
         ReplaceSetlistItems(full.Items);
         SetlistName = full.Name;
         SetlistGroup = full.Group ?? string.Empty;

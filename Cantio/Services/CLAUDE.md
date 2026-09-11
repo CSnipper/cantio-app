@@ -198,6 +198,11 @@ Kierunek P→D: pozycje `image` desktop POMIJA (nie ma czego odtworzyć), tekst 
   `BuildSetlistJson` / `Parse`). Do v1.67 ten sam JSON budowały DWA niezależne miejsca w
   `MainWindow` (`BroadcastSetlistState` i `BroadcastSetlistStateToAsync`) — dokładnie ten układ
   dwóch list pól zgubił notatki pozycji zestawu w v1.6.
+- Tym samym builderem (i tym samym snapshotem `SetlistSnapshotForPilot`) idzie TOŻSAMOŚĆ listy —
+  `setlistId` + `name` z `DisplayViewModel.LoadedSetlistId/LoadedSetlistName`. Tożsamość zmienia się
+  także BEZ zmiany kolekcji, więc VM zgłasza ją przez `PropertyChanged`, a `MainWindow` rozgłasza
+  `setlist` jawnie; przy zwykłym wczytaniu zestawu leci przy okazji broadcast nadmiarowy
+  (ten sam komunikat, telefon go łyka idempotentnie).
 - Komendy `setlist_add_text` / `setlist_update_text` obsługuje `Services/PilotTextItem`
   (`IsCommand` → routing w `RemoteControlServer`, `Parse` → `Request`, `ValidateTarget` → odmowa).
   **Ta klasa nie dotyka bazy** — mutacja idzie na kolekcji w pamięci `DisplayViewModel`
@@ -236,7 +241,7 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 |---|---|---|
 | `auth_required` / `auth_ok` / `auth_failed` | `token` / `retryAfter` | parowanie (zob. wyżej) |
 | `slide` | `text, songTitle, index, total, isBlank, slides[]`, **`kind`**, **`slideKinds[]`** | bieżący slajd (+ typ zwrotki, v1.63) |
-| `setlist` | `activeIndex, songs[]` (pozycje: `{id,title,type,customTitle?,customText?}`) | stan zestawu; `type`/pola tekstu DOPISANE w v1.68 (zob. „Kontrakt pozycji zestawu") |
+| `setlist` | `activeIndex, songs[]` (pozycje: `{id,title,type,customTitle?,customText?}`), **`setlistId?`**, **`name?`** | stan zestawu; `type`/pola tekstu DOPISANE w v1.68 (zob. „Kontrakt pozycji zestawu"). **`setlistId`/`name` (v1.68) = TOŻSAMOŚĆ bieżącej listy** — rekord bazy desktopu, z którego ją wczytano albo pod którym ostatnio zapisano; Pilot proponuje go do nadpisania przy „Zapisz". Lista zebrana ręcznie / po `ClearSetlist` / po skasowaniu rekordu **nie niesie tych pól w ogóle** (brak = nie ma czego nadpisywać). Rozgłaszane także wtedy, gdy zmienia się SAMA tożsamość bez zmiany pozycji — „zapisz jako", nadpisanie pod nową nazwą, odczepienie skasowanego zestawu (`DisplayViewModel` zgłasza `LoadedSetlistId`/`LoadedSetlistName`, `MainWindow` woła broadcast jawnie; `CollectionChanged` wtedy NIE leci) |
 | `categories_data` | `categories[]` (`{id,name,number}`) | kategorie — na `ClientConnected`, na `get_categories` (do nadawcy) i **broadcastem po każdej mutacji** (v1.63) |
 | `setlist_groups_data` | `groups[]` (stringi, kolejność z CSV) | grupy zestawów — na `get_setlist_groups` i broadcastem po mutacji (v1.63) |
 | `songs_data` | `offset`, `total`, `items[]` (`{id,title,number,author,categoryId,parts[],`**`updatedAt`**`,`**`playOrderJson`**`}`) | strona biblioteki pieśni na żądanie `get_songs`; dwa ostatnie pola DOPISANE w v1.65 (baza porównania dla edycji offline + kolejność odtwarzania) |
