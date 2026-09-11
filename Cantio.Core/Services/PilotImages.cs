@@ -299,7 +299,12 @@ public static class PilotImages
         if (reason != null) return Deny(PutEndCommand, reason, ("uploadId", id));
 
         string imageRef;
-        var temp = Path.Combine(Path.GetTempPath(), $"cantio_up_{Guid.NewGuid():N}_{name}");
+        // Unikalny PODKATALOG zamiast prefiksu w nazwie pliku: ImageStorage.Import bierze nazwę
+        // docelową z Path.GetFileName, więc wszystko doklejone do nazwy tymczasowej zostawało
+        // użytkownikowi w folderze images (i w tytule pozycji zestawu) na zawsze.
+        var tempDir = Directory.CreateDirectory(
+            Path.Combine(Path.GetTempPath(), $"cantio_up_{Guid.NewGuid():N}"));
+        var temp = Path.Combine(tempDir.FullName, name!);
         try
         {
             File.WriteAllBytes(temp, data!);
@@ -307,7 +312,7 @@ public static class PilotImages
             imageRef = ImageStorage.Import(temp);
         }
         catch { return Deny(PutEndCommand, ReasonReadFailed, ("uploadId", id)); }
-        finally { try { if (File.Exists(temp)) File.Delete(temp); } catch { } }
+        finally { try { if (Directory.Exists(tempDir.FullName)) Directory.Delete(tempDir.FullName, recursive: true); } catch { } }
 
         return new Result(PilotStatus.BuildAckJson(PutEndCommand, true, ("uploadId", id), ("ref", imageRef)));
     }
