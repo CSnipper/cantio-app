@@ -73,10 +73,14 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket>? PinNextWeekRequested;                 // ws (pin_next_week)
     /// <summary>Ustawienia projekcji (wygląd) — get/set, surowy JSON.</summary>
     public event Action<WebSocket, string>? DisplaySettingsCommandRequested;
+    /// <summary>Ustawienia systemowe (tryb pracy / ekran projekcji / język) — get/set/confirm, surowy JSON.</summary>
+    public event Action<WebSocket, string>? SystemSettingsCommandRequested;
     /// <summary>Edytor pieśni (song_get/create/update/delete) — surowy JSON.</summary>
     public event Action<WebSocket, string>? SongEditCommandRequested;
     /// <summary>Obrazki (image_get / image_put_* / setlist_add_image) — logika w PilotImages.</summary>
     public event Action<WebSocket, string>? ImageCommandRequested;
+    /// <summary>Folder wymiany i operacje konserwacyjne (get_exchange_files / maintenance_run) — logika w PilotMaintenance.</summary>
+    public event Action<WebSocket, string>? MaintenanceCommandRequested;
     /// <summary>Klient odpadł — do sprzątnięcia jego niedokończonych uploadów.</summary>
     public event Action<WebSocket>? ClientDisconnected;
     public event Action<WebSocket>? ClientConnected;
@@ -573,6 +577,13 @@ public sealed class RemoteControlServer : IDisposable
                     // Ustawienia projekcji (wygląd) — logika w PilotDisplaySettings.
                     DisplaySettingsCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
+                else if (PilotSystemSettings.IsCommand(type))
+                {
+                    // Ustawienia systemowe (tryb / ekran projekcji / język) — logika
+                    // w PilotSystemSettings; to jedyne wyjście z trybu serwerowego na
+                    // maszynie bez klawiatury.
+                    SystemSettingsCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
                 else if (PilotSongEdit.IsCommand(type))
                 {
                     // Edytor pieśni — logika w PilotSongEdit.
@@ -582,6 +593,13 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     // Podgląd / wysyłka obrazka / pozycja-obrazek — logika w PilotImages.
                     ImageCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotMaintenance.IsCommand(type))
+                {
+                    // Folder wymiany + długie operacje na plikach (kopia, eksport, import
+                    // psalmów) — logika w PilotMaintenance. Ack leci NATYCHMIAST z handlera,
+                    // wynik osobnym broadcastem `maintenance_progress`.
+                    MaintenanceCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {

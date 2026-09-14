@@ -43,13 +43,9 @@ public static class SlideLayoutService
 
         // Wyrównaj rozmiar czcionki — per-slajd auto-fit dawał drastyczne różnice
         // (krótki tekst = gigantyczna czcionka, długi = drobna). Wspólny rozmiar to
-        // minimum z wszystkich slajdów: tekst zawsze mieści się, czcionka jest spójna.
-        if (result.Count > 1)
-        {
-            double unified = result.Min(s => s.FontSize);
-            foreach (var slide in result)
-                slide.FontSize = unified;
-        }
+        // minimum z grupy: tekst zawsze mieści się, czcionka jest spójna. Zakres grupy
+        // (cała pieśń / pojedyncza zwrotka) rozstrzyga SlideFontFit wg ustawienia.
+        SlideFontFit.Unify(result, settings.FitScope);
 
         return result;
     }
@@ -234,7 +230,7 @@ public static class SlideLayoutService
         FontSize = fontSize, LineHeightMultiplier = s.LineHeightMultiplier,
         SlideWidth = s.SlideWidth, SlideHeight = s.SlideHeight,
         MarginH = s.MarginH, MarginV = s.MarginV,
-        AutoFit = s.AutoFit
+        AutoFit = s.AutoFit, FitScope = s.FitScope
     };
 
 }

@@ -62,9 +62,11 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, string>? SetlistPinCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket>? PinNextWeekRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? DisplaySettingsCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? SystemSettingsCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? SongEditCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? TextItemCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? ImageCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? MaintenanceCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket>? ClientDisconnected;
 
     /// <summary>
@@ -103,9 +105,11 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.SetlistPinCommandRequested  += (ws, raw)  => SetlistPinCommandRequested?.Invoke(ws, raw);
         _server.PinNextWeekRequested        += ws         => PinNextWeekRequested?.Invoke(ws);
         _server.DisplaySettingsCommandRequested += (ws, raw) => DisplaySettingsCommandRequested?.Invoke(ws, raw);
+        _server.SystemSettingsCommandRequested  += (ws, raw) => SystemSettingsCommandRequested?.Invoke(ws, raw);
         _server.SongEditCommandRequested    += (ws, raw)  => SongEditCommandRequested?.Invoke(ws, raw);
         _server.TextItemCommandRequested    += (ws, raw)  => TextItemCommandRequested?.Invoke(ws, raw);
         _server.ImageCommandRequested       += (ws, raw)  => ImageCommandRequested?.Invoke(ws, raw);
+        _server.MaintenanceCommandRequested += (ws, raw)  => MaintenanceCommandRequested?.Invoke(ws, raw);
         _server.ClientDisconnected          += ws         => ClientDisconnected?.Invoke(ws);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>
@@ -214,9 +218,15 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
 
     /// <summary>Nowy PIN — unieważnia wszystkie sparowane urządzenia.</summary>
     [RelayCommand]
-    private void NewPin()
+    private void NewPin() => NewPin(RemoteControlServer.GeneratePin());
+
+    /// <param name="pin">
+    /// PIN do ustawienia. Przycisk w oknie losuje go tuż przed wywołaniem, ale ścieżka z tabletu
+    /// przynosi PIN WYLOSOWANY WCZEŚNIEJ — ten sam, który poszedł już do nadawcy w acku.
+    /// </param>
+    private void NewPin(string pin)
     {
-        Pin = RemoteControlServer.GeneratePin();
+        Pin = pin;
         lock (_tokens) _tokens.Clear();
         _server.ClearTokens();
         _server.Pin = Pin;
@@ -224,6 +234,57 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         SaveTokens();
         _server.DisconnectAllClients();   // stare sesje też tracą ważność
         RefreshQr();
+    }
+
+    /// <summary>
+    /// Zmiana PIN-u z tabletu (klucz <c>pilot_pin</c>). ŚWIADOMIE to NIE jest „nowy PIN":
+    /// tokeny zostają nietknięte, więc sparowane tablety zostają połączone, a nowy kod dotyczy
+    /// kolejnych parowań. Zapis do bazy robi warstwa protokołu (jak przy każdym innym kluczu) —
+    /// tu zostaje tylko żywy serwer, kod QR i ekran parowania na projekcji.
+    /// </summary>
+    public void SetPinFromRemote(string pin)
+    {
+        Pin = pin;
+        _server.Pin = pin;
+        RefreshQr();
+    }
+
+    /// <summary>
+    /// Włączenie wymagania PIN-u z tabletu. Wyłączenia zdalnie NIE MA — odmawia warstwa
+    /// protokołu (<c>PilotSystemSettings</c>), więc ta metoda zna tylko jeden kierunek.
+    /// Reszta (zapis, rozłączenie już podłączonych, QR) dzieje się w <see cref="OnRequirePinChanged"/>.
+    /// </summary>
+    public void EnableRequirePinFromRemote() => RequirePin = true;
+
+    /// <summary>
+    /// „Zapomnij urządzenia" z tabletu — dokładnie ta sama ścieżka co przycisk „nowy PIN"
+    /// w oknie (kasacja tokenów, rozłączenie klientów, odświeżenie QR), tyle że PIN JEST JUŻ
+    /// WYLOSOWANY przez warstwę protokołu i poszedł w acku do nadawcy, ZANIM to wywołanie
+    /// zerwie mu połączenie. Losowanie drugiego PIN-u tutaj dałoby tabletowi kod, który
+    /// nie obowiązuje.
+    /// </summary>
+    public void ForgetPairedDevicesFromRemote(string pin) => NewPin(pin);
+
+    /// <summary>
+    /// Przeładowanie serwera na nowym porcie (klucz <c>pilot_port</c>, zmiana „na próbę").
+    /// KOLEJNOŚĆ JEST ISTOTNA: najpierw zwolnienie gniazda (<see cref="StopForRestart"/>),
+    /// dopiero potem podniesienie serwera — odwrotna zostawia mini PC bez żadnego interfejsu,
+    /// bo nowy nasłuch nie ma się gdzie zabindować.
+    /// Nieudany start (port zajęty) NIE jest tu obsługiwany ciszą: <see cref="ToggleServer"/>
+    /// ustawia <see cref="StartFailure"/> i pokazuje powód na projekcji, a bezpiecznik próby
+    /// i tak wróci za chwilę na poprzedni port tą samą metodą.
+    /// </summary>
+    public void ApplyPortFromRemote(int port)
+    {
+        bool wasRunning = _server.IsRunning;
+        Port = port;
+        if (!wasRunning)
+        {
+            PersistState();   // serwer nie działa — zostaje sam zapis, jest co podnieść później
+            return;
+        }
+        StopForRestart();
+        ToggleServer();
     }
 
     private void RefreshQr()

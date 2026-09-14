@@ -81,6 +81,7 @@ public partial class SzablonViewModel : ObservableObject
             MarginH              = TextMarginH,
             MarginV              = TextMarginV,
             AutoFit              = FontAutoFit,
+            FitScope             = FontAutoFit ? FitScope : FontFitScope.Song,
         };
         var parts = Services.SlideLayoutService.SplitVerse(PreviewText, layout);
         var firstSlide = parts.Count > 0 ? parts[0] : PreviewText;
@@ -241,6 +242,13 @@ public partial class SzablonViewModel : ObservableObject
         DioceseChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Diecezja zmieniona Z ZEWNĄTRZ (tablet). Zapis zrobił już rdzeń, a <c>LoadAsync</c>
+    /// wczytuje wartość z guardem (żeby nie zapisywać drugi raz), więc skutki uboczne odpalamy
+    /// TYM SAMYM zdarzeniem co zmiana w oknie — bez drugiej listy odbiorców.
+    /// </summary>
+    public void RaiseDioceseChanged() => DioceseChanged?.Invoke();
+
     // Lekcjonarz (wydanie: nowy "N" / stary "S") — steruje FILTREM ZWROTEK psalmu na PROJEKCJI.
     // Ustawienie desktopu, świadomie NIEZALEŻNE od ustawienia „Dziś" w Pilocie (organista ustawia
     // wydanie parafii na desktopie sterującym projektorem).
@@ -259,6 +267,9 @@ public partial class SzablonViewModel : ObservableObject
         _ = _db.SaveSettingAsync("lectionary", value ? "N" : "S");
         LectionaryChanged?.Invoke();
     }
+
+    /// <summary>Wydanie lekcjonarza zmienione Z ZEWNĄTRZ (tablet) — zob. <see cref="RaiseDioceseChanged"/>.</summary>
+    public void RaiseLectionaryChanged() => LectionaryChanged?.Invoke();
 
     // Pętla slajdów („tryb przed mszą") — interwał w sekundach
 
@@ -472,6 +483,7 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("language", SelectedLanguage);
         await _db.SaveSettingAsync("load_last_setlist", LoadLastSetlistOnStartup ? "1" : "0");
         await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
+        await _db.SaveSettingAsync(SlideFontFit.SettingKey, SlideFontFit.ToSetting(FitScope));
         await _db.SaveSettingAsync("psalm_category_id", (SelectedPsalmCategory?.Id ?? 0).ToString());
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
@@ -507,6 +519,7 @@ public partial class SzablonViewModel : ObservableObject
         TextPosition = "center";
         TextMarginH = 80; TextMarginV = 60;
         FontAutoFit = true;
+        FitScope = FontFitScope.Song;
         await SaveAsync();
     }
 
@@ -514,7 +527,31 @@ public partial class SzablonViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
+    [NotifyPropertyChangedFor(nameof(FontFitMode))]
+    [NotifyPropertyChangedFor(nameof(FontSizeLabel))]
     private bool _fontAutoFit = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FontFitMode))]
+    private FontFitScope _fitScope = FontFitScope.Song;
+
+    /// <summary>
+    /// Trzy tryby dopasowania czcionki jako JEDNA pozycja comboboksa (0 = stała wielkość,
+    /// 1 = dopasowana do zwrotki, 2 = dopasowana do pieśni). Nośnikiem w bazie zostają DWA
+    /// niezależne klucze (`font_auto_fit` + `font_fit_scope`) — stary Pilot i stare bazy
+    /// rozumieją pierwszy z nich bez zmiany znaczenia.
+    /// </summary>
+    public int FontFitMode
+    {
+        get => !FontAutoFit ? 0 : (FitScope == FontFitScope.Verse ? 1 : 2);
+        set
+        {
+            FontAutoFit = value != 0;
+            // Tryb „stała wielkość" nie ma zakresu — zostaje ostatnio wybrany, żeby powrót do
+            // auto-dopasowania nie gubił wyboru użytkownika.
+            if (value != 0) FitScope = value == 1 ? FontFitScope.Verse : FontFitScope.Song;
+        }
+    }
 
     // Autostart
 
@@ -559,12 +596,12 @@ public partial class SzablonViewModel : ObservableObject
 
     // Baza danych
 
-    private static string DbPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Cantio", "cantio.db");
+    // Ścieżki liczy Helpers/AppPaths — to samo miejsce, z którego korzystają operacje
+    // wywoływane z tabletu (PilotMaintenance). Dwie niezależne arytmetyki tych samych
+    // ścieżek oznaczałyby, że kopia z okna i kopia z tabletu mogą dotyczyć innej bazy.
+    private static string DbPath => AppPaths.DbPath;
 
-    private static string AppDataFolder => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cantio");
+    private static string AppDataFolder => AppPaths.Root;
 
     [RelayCommand]
     private void BackupDatabase()
@@ -573,10 +610,12 @@ public partial class SzablonViewModel : ObservableObject
         {
             Title = LocalizationManager.Get("Settings.BackupDb"),
             Filter = "SQLite (*.db)|*.db",
-            FileName = $"cantio_backup_{DateTime.Now:yyyyMMdd_HHmm}.db"
+            FileName = MaintenanceOps.BackupFileName(DateTime.Now)
         };
         if (dlg.ShowDialog() != true) return;
-        File.Copy(DbPath, dlg.FileName, overwrite: true);
+        // Ta sama operacja, co `maintenance_run {op:"backup_db"}` z tabletu — różni się
+        // WYŁĄCZNIE tym, skąd bierze się ścieżka docelowa.
+        MaintenanceOps.BackupDatabase(dlg.FileName);
     }
 
     [RelayCommand]
@@ -588,9 +627,17 @@ public partial class SzablonViewModel : ObservableObject
             Filter = "SQLite (*.db)|*.db"
         };
         if (dlg.ShowDialog() != true) return;
+        // Ta sama kontrola, co przy przywracaniu z tabletu: plik, który nie jest bazą SQLite,
+        // daje program, który nie wstaje. W oknie ktoś to odkręci, przy mini PC w zakrystii nikt.
+        if (!MaintenanceOps.LooksLikeSqliteDatabase(dlg.FileName))
+        {
+            MessageBox.Show(LocalizationManager.Get("Msg.RestoreDbNotDatabase"), "Cantio",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
         if (MessageBox.Show(LocalizationManager.Get("Msg.RestoreDbConfirm"), "Cantio",
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-        File.Copy(dlg.FileName, DbPath, overwrite: true);
+        MaintenanceOps.RestoreDatabase(dlg.FileName);
         RestartApp();
     }
 
@@ -599,7 +646,7 @@ public partial class SzablonViewModel : ObservableObject
     {
         if (MessageBox.Show(LocalizationManager.Get("Msg.ClearDbConfirm"), "Cantio",
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-        await _db.ClearAllDataAsync();
+        await MaintenanceOps.ClearDatabaseAsync(_db);
         RestartApp();
     }
 
@@ -610,16 +657,12 @@ public partial class SzablonViewModel : ObservableObject
         {
             Title = LocalizationManager.Get("Settings.ExportZip"),
             Filter = "ZIP (*.zip)|*.zip",
-            FileName = $"cantio_export_{DateTime.Now:yyyyMMdd_HHmm}.zip"
+            FileName = MaintenanceOps.ExportFileName(DateTime.Now)
         };
         if (dlg.ShowDialog() != true) return;
-        if (File.Exists(dlg.FileName)) File.Delete(dlg.FileName);
-        using var zip = ZipFile.Open(dlg.FileName, ZipArchiveMode.Create);
-        zip.CreateEntryFromFile(DbPath, "cantio.db");
-        var imagesDir = Path.Combine(AppDataFolder, "images");
-        if (Directory.Exists(imagesDir))
-            foreach (var f in Directory.EnumerateFiles(imagesDir))
-                zip.CreateEntryFromFile(f, "images/" + Path.GetFileName(f));
+        // Jak przy kopii zapasowej: identyczna operacja co `maintenance_run {op:"export_zip"}`,
+        // tylko ścieżka pochodzi z okna dialogowego zamiast z folderu wymiany.
+        MaintenanceOps.ExportZip(dlg.FileName);
     }
 
     [RelayCommand]
@@ -633,13 +676,21 @@ public partial class SzablonViewModel : ObservableObject
         if (dlg.ShowDialog() != true) return;
         if (MessageBox.Show(LocalizationManager.Get("Msg.ImportZipConfirm"), "Cantio",
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-        using (var zip = ZipFile.OpenRead(dlg.FileName))
-            foreach (var entry in zip.Entries)
-            {
-                var dest = Path.Combine(AppDataFolder, entry.FullName.Replace('/', Path.DirectorySeparatorChar));
-                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-                entry.ExtractToFile(dest, overwrite: true);
-            }
+        try
+        {
+            // Rozpakowanie ma JEDNĄ implementację (`MaintenanceOps.ImportZip`) wspólną z komendą
+            // z tabletu — i to ona odrzuca wpisy wychodzące poza katalog danych („zip slip”).
+            // Wcześniej pętla tutaj rozpakowywała `Path.Combine(katalog, entry.FullName)` bez
+            // żadnej kontroli, więc wpis `..\..\cokolwiek` zapisywał plik gdzie indziej.
+            MaintenanceOps.ImportZip(dlg.FileName);
+        }
+        catch (MaintenanceOps.UnsafeZipEntryException ex)
+        {
+            MessageBox.Show(
+                LocalizationManager.Get("Msg.ImportZipUnsafeEntry") + "\n\n" + ex.EntryName,
+                "Cantio", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;   // NIC nie zostało rozpakowane — restart byłby kłamstwem o wykonanej operacji
+        }
         RestartApp();
     }
 
@@ -751,6 +802,7 @@ public partial class SzablonViewModel : ObservableObject
         LoopIntervalSeconds = SlideLoop.ParseInterval(await _db.GetSettingAsync("loop_interval"));
         _loopIntervalLoading = false;
         FontAutoFit = s.FontAutoFit;
+        FitScope = s.FontFitScope;
 
         var allCategories = await _db.GetCategoriesAsync();
         var noneCategory = new Category { Id = 0, Name = "(brak)" };

@@ -2221,16 +2221,10 @@ public partial class DisplayViewModel : ObservableObject
                     });
             }
             // Wyrównaj czcionkę zwrotek psalmu (refreny mają AutoFit=false → settings.FontSize)
-            var verseFonts = psalmSlides
+            var psalmVerseSlides = psalmSlides
                 .Where(s => !s.IsImageSlide && Verses[s.VerseIndex].Type != "c")
-                .Select(s => s.FontSize)
                 .ToList();
-            if (verseFonts.Count > 1)
-            {
-                double unifiedVerseFont = verseFonts.Min();
-                foreach (var slide in psalmSlides.Where(s => Verses[s.VerseIndex].Type != "c"))
-                    slide.FontSize = unifiedVerseFont;
-            }
+            SlideFontFit.Unify(psalmVerseSlides, settings.FitScope);
 
             _slides = psalmSlides;
         }
@@ -2332,16 +2326,8 @@ public partial class DisplayViewModel : ObservableObject
             }
             // Normalizuj czcionkę w każdej grupie osobno (pomijaj obrazki i slajdy preview-only)
             var normalSlidesForFont = normalSlides.Where(s => !s.IsImageSlide && !s.IsPreviewOnlySlide).ToList();
-            if (normalSlidesForFont.Count > 1)
-            {
-                double u = normalSlidesForFont.Min(s => s.FontSize);
-                foreach (var sl in normalSlidesForFont) sl.FontSize = u;
-            }
-            if (privateSlides.Count > 1)
-            {
-                double u = privateSlides.Min(s => s.FontSize);
-                foreach (var sl in privateSlides) sl.FontSize = u;
-            }
+            SlideFontFit.Unify(normalSlidesForFont, settings.FitScope);
+            SlideFontFit.Unify(privateSlides, settings.FitScope);
             _slides = allSlides;
         }
 
@@ -2633,7 +2619,11 @@ public partial class DisplayViewModel : ObservableObject
             SlideHeight = ProjectionScreenHeight,
             MarginH = s.TextMarginH,
             MarginV = s.TextMarginV,
-            AutoFit = s.FontAutoFit
+            AutoFit = s.FontAutoFit,
+            // Zakres wyrównania liczy się tylko przy włączonym auto-dopasowaniu — przy stałej
+            // wielkości każdy slajd i tak dostaje rozmiar z ustawień, więc wymuszamy Song
+            // (zachowanie sprzed wprowadzenia klucza `font_fit_scope`).
+            FitScope = s.FontAutoFit ? s.FontFitScope : FontFitScope.Song
         };
     }
 }
