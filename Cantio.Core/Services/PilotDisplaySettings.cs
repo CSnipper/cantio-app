@@ -77,6 +77,9 @@ public static class PilotDisplaySettings
         new("font_size",           Kind.Number, 8,    400),
         new("font_bold",           Kind.Flag),
         new("font_auto_fit",       Kind.Flag),
+        // Zakres auto-dopasowania (v1.70). Liczy się tylko przy `font_auto_fit: true` —
+        // trzy tryby UI to: false / true+verse / true+song.
+        new(SlideFontFit.SettingKey, Kind.Text, TextOk: v => v is SlideFontFit.ValueSong or SlideFontFit.ValueVerse),
         new("text_align",          Kind.Text,   TextOk: v => v is "left" or "center" or "right"),
         new("text_color",          Kind.Text,   TextOk: IsHexColor),
         new("line_height",         Kind.Number, 0.5,  4),
@@ -96,6 +99,9 @@ public static class PilotDisplaySettings
         new("bg_gradient_color2",  Kind.Text,   TextOk: IsHexColor),
         new("bg_gradient_angle",   Kind.Number, 0,    360),
         new("psalm_category_id",   Kind.Count,  0,    int.MaxValue),
+        // Wygaszony ekran (v1.52): własny kolor/obrazek zamiast czerni.
+        new("blank_color",         Kind.Text,   TextOk: IsHexColor),
+        new("blank_image_path",    Kind.Text,   TextOk: IsClearOrExistingImage),
     ];
 
     private static readonly Dictionary<string, Field> ByKey =
@@ -130,6 +136,7 @@ public static class PilotDisplaySettings
         ["font_size"]           = s.FontSize,
         ["font_bold"]           = s.FontBold,
         ["font_auto_fit"]       = s.FontAutoFit,
+        [SlideFontFit.SettingKey] = SlideFontFit.ToSetting(s.FontFitScope),
         ["text_align"]          = s.TextAlign,
         ["text_color"]          = s.TextColor,
         ["line_height"]         = s.LineHeightMultiplier,
@@ -151,6 +158,9 @@ public static class PilotDisplaySettings
         ["bg_gradient_color2"]  = s.GradientColor2,
         ["bg_gradient_angle"]   = s.GradientAngle,
         ["psalm_category_id"]   = s.PsalmCategoryId,
+        ["blank_color"]         = s.BlankColor,
+        // jak przy `bg_image`: pusty string, nigdy null
+        ["blank_image_path"]    = s.BlankImagePath ?? "",
     };
 
     // ─── Wejście ─────────────────────────────────────────────────────────
@@ -269,6 +279,16 @@ public static class PilotDisplaySettings
     /// z czarnym tłem i nikt by nie wiedział dlaczego.
     /// </summary>
     public static bool IsClearOrExistingFile(string v) => v.Length == 0 || File.Exists(v);
+
+    /// <summary>
+    /// To samo co <see cref="IsClearOrExistingFile"/>, ale dla ścieżek zapisanych przez
+    /// <c>ImageStorage.Import</c> — one są WZGLĘDNE („images\plik.jpg"), więc gołe
+    /// <c>File.Exists</c> odrzuciłoby poprawną wartość, którą sam desktop właśnie przysłał
+    /// (pułapka opisana w CLAUDE.md przy v1.52). <c>Resolve</c> przepuszcza też stare
+    /// ścieżki absolutne bez zmiany.
+    /// </summary>
+    public static bool IsClearOrExistingImage(string v) =>
+        v.Length == 0 || File.Exists(Helpers.ImageStorage.Resolve(v));
 
     /// <summary>
     /// Czcionka musi być wbudowana albo zainstalowana w systemie. Literówka z tabletu

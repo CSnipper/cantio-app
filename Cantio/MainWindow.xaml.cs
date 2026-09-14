@@ -28,6 +28,14 @@ public partial class MainWindow : Window
     private DevicesViewModel _devicesVm = null!;
     /// <summary>Trwające wysyłki obrazków z Pilota — jeden magazyn na aplikację (v1.69).</summary>
     private readonly PilotImages.UploadStore _pilotUploads = new();
+    /// <summary>Zmiana ekranu projekcji „na próbę" z tabletu — jeden stan na aplikację.</summary>
+    private readonly SystemSettingsTrial _systemSettingsTrial = new();
+    /// <summary>
+    /// Blokada „jedna operacja konserwacyjna naraz" (etap 4A). Stan jest APLIKACYJNY, nie
+    /// per-klient: operacja trwa dalej, gdy tablet się rozłączy, a drugi tablet ma wtedy
+    /// dostać <c>busy</c>.
+    /// </summary>
+    private readonly PilotMaintenance.Runner _maintenanceRunner = new();
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
@@ -280,6 +288,15 @@ public partial class MainWindow : Window
         {
             var (state, count) = _devicesVm.GetAggregateState();
             try { await _remoteControl.BroadcastDevicesAsync(state, count); } catch { }
+            // Pełna lista dla tabletu — JEDNO miejsce, więc zmiana stanu wykryta odpytywaniem
+            // w tle dociera tak samo jak ta wywołana komendą. Stary komunikat `devices`
+            // (stan zbiorczy) zostaje bez zmian obok, bo stary Pilot ma na nim swój przycisk.
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotDevices.BuildDevicesJson(_devicesVm.SnapshotForRemote()));
+            }
+            catch { }
         };
 
         _remoteControl.NextRequested  += (_, _) =>
@@ -494,23 +511,7 @@ public partial class MainWindow : Window
         };
 
         _remoteControl.RestartAppRequested += ws =>
-            Dispatcher.InvokeAsync(() =>
-            {
-                AppLog.Write("Pilot", "Restart aplikacji na żądanie Pilota");
-                try
-                {
-                    // Port MUSI zostać zwolniony PRZED startem nowego procesu — inaczej świeża
-                    // kopia wchodzi na zajęte gniazdo, jej serwer pilota nie startuje i mini PC
-                    // zostaje bez żadnego interfejsu. Dotychczas kolejność była odwrotna.
-                    // `ack` poszedł już z RemoteControlServer, zanim ten handler ruszył.
-                    _remoteControl.StopForRestart();
-                    System.Diagnostics.Process.Start(
-                        new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
-                        { UseShellExecute = true });
-                    Application.Current.Shutdown();
-                }
-                catch (Exception ex) { AppLog.Write("Pilot", $"Restart nieudany: {ex.Message}"); }
-            });
+            Dispatcher.InvokeAsync(() => RestartApplication("na żądanie Pilota"));
 
         _remoteControl.ProjectionRequested += (ws, open) =>
             Dispatcher.InvokeAsync(async () =>
@@ -658,6 +659,107 @@ public partial class MainWindow : Window
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda ustawień wyglądu: {ex.Message}"); }
         };
 
+        // ─── Ustawienia systemowe (tryb / ekran projekcji / język) z Pilota ───
+        // Jedyne wyjście z trybu serwerowego na mini PC bez klawiatury. Logika (walidacja,
+        // wymuszenie autostartu serwera pilota, bezpiecznik ekranu) siedzi w PilotSystemSettings;
+        // tu zostaje wysyłka, broadcast, przestawienie okna projekcji i odświeżenie zakładki
+        // USTAWIENIA — tą samą ścieżką co przy ustawieniach wyglądu (ApplyExternalSettingsAsync
+        // celowo NIE odpala `Saved`, więc drugi broadcast nie poleci).
+        // Autostart Windows stoi w rejestrze, nie w tabeli `settings` — rdzeń kompiluje się też
+        // pod Androida i rejestru nie zna, więc dostaje port od gospodarza. Zapis idzie DOKŁADNIE
+        // tą samą ścieżką co checkbox w oknie (OnRunOnStartupChanged), żeby zakładka USTAWIENIA
+        // nie kłamała o stanie rejestru; odczyt czyta rejestr, a nie zapamiętane życzenie.
+        PilotSystemSettings.RunOnStartup = new PilotSystemSettings.RunOnStartupPort(
+            Read:  () => Dispatcher.Invoke(() => _szablonVm.RunOnStartup),
+            Write: v  => Dispatcher.Invoke(() => _szablonVm.RunOnStartup = v));
+
+        // Serwer pilota (PIN, tokeny, port) — rdzeń mówi CO, wykonuje RemoteControlViewModel
+        // swoimi istniejącymi ścieżkami (te same, co przyciski w zakładce USTAWIENIA), więc
+        // kod QR i ekran parowania na projekcji odświeżają się same.
+        PilotSystemSettings.PilotServer = new PilotSystemSettings.PilotServerPort(
+            IsRunning:        () => Dispatcher.Invoke(() => _remoteControl.IsRunning),
+            PairedDevices:    () => Dispatcher.Invoke(() => _remoteControl.PairedDeviceCount),
+            SetPin:           p  => Dispatcher.Invoke(() => _remoteControl.SetPinFromRemote(p)),
+            EnableRequirePin: () => Dispatcher.Invoke(() => _remoteControl.EnableRequirePinFromRemote()),
+            ApplyPort:        p  => Dispatcher.Invoke(() => _remoteControl.ApplyPortFromRemote(p)),
+            ForgetDevices:    p  => Dispatcher.Invoke(() => _remoteControl.ForgetPairedDevicesFromRemote(p)));
+
+        _remoteControl.SystemSettingsCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotSystemSettings.HandleAsync(
+                    db, raw, BuildScreenList(), _systemSettingsTrial);
+                await ApplySystemSettingsResultAsync(result, ws);
+
+                // Odliczanie bezpiecznika. Budzik jest „głupi": po przebudzeniu pyta stan
+                // maszyny, więc przedłużenie odliczania drugą zmianą (albo potwierdzenie
+                // z tabletu) zwyczajnie zamienia go w nic-nie-robienie. Stan próby żyje
+                // w `_systemSettingsTrial` — POZA gniazdem klienta, bo potwierdzenie zmiany
+                // portu przychodzi INNYM połączeniem (rozłączenie klienta go nie rusza).
+                if (result.ApplyScreen != null && _systemSettingsTrial.IsScreenPending(DateTime.UtcNow))
+                    ScheduleSystemSettingsExpiry(db, SystemSettingsTrial.DefaultSeconds + 1);
+                if (result.ApplyPort != null && _systemSettingsTrial.IsPortPending(DateTime.UtcNow))
+                    ScheduleSystemSettingsExpiry(db, SystemSettingsTrial.PortSeconds + 1);
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda ustawień systemowych: {ex.Message}"); }
+        };
+
+        // ─── Folder wymiany i operacje konserwacyjne z Pilota (etap 4A) ───
+        // Handler jest GŁUPI: cała logika (folder wymiany, blokada „jedna operacja naraz",
+        // gwarancja komunikatu terminalnego) siedzi w PilotMaintenance. Tu zostaje kolejność,
+        // która jest częścią kontraktu: ack WYCHODZI PIERWSZY, a długa operacja rusza dopiero
+        // po nim i leci W TLE (bez `await`) — tablet ma dostać identyfikator zadania od razu,
+        // a nie po skończonym pakowaniu archiwum.
+        // Restart po operacji NIEODWRACALNEJ (etap 4B) — rdzeń mówi „teraz", wykonuje gospodarz
+        // TĄ SAMĄ ścieżką co `restart_app`. Rdzeń kompiluje się też pod Androida i nie zna ani
+        // `Application.Shutdown`, ani gniazda serwera pilota. Kolejność jest częścią kontraktu:
+        // PilotMaintenance woła to DOPIERO po wysłaniu komunikatu terminalnego.
+        PilotMaintenance.Restart = () =>
+            Dispatcher.InvokeAsync(() => RestartApplication("po operacji konserwacyjnej"));
+
+        _remoteControl.MaintenanceCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = PilotMaintenance.Handle(_maintenanceRunner, db, raw);
+                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                if (result.Work != null)
+                    _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda konserwacji: {ex.Message}"); }
+        };
+
+        // ─── Zarządzanie telewizorami i projektorami z tabletu ───
+        // Rdzeń (PilotDevices) rozstrzyga i składa komunikaty, a WYKONUJE to DevicesViewModel
+        // swoimi istniejącymi ścieżkami — tymi samymi, których używa sekcja „Urządzenia
+        // projekcyjne" w USTAWIENIACH. Wszystko idzie przez Dispatcher, bo lista urządzeń
+        // jest przypięta do UI.
+        Task<T> OnDevicesUiAsync<T>(Func<Task<T>> body) => Dispatcher.InvokeAsync(body).Task.Unwrap();
+
+        PilotDevices.Port = new PilotDevices.DevicesPort(
+            List:     () => Task.FromResult(Dispatcher.Invoke(() => _devicesVm.SnapshotForRemote())),
+            Power:    (id, on) => OnDevicesUiAsync(() => _devicesVm.SetPowerFromRemoteAsync(id, on)),
+            Rename:   (id, label) => OnDevicesUiAsync(() => _devicesVm.RenameFromRemoteAsync(id, label)),
+            Remove:   id => OnDevicesUiAsync(() => _devicesVm.RemoveFromRemoteAsync(id)),
+            Test:     id => OnDevicesUiAsync(() => _devicesVm.TestFromRemoteAsync(id)),
+            Discover: () => OnDevicesUiAsync(() => _devicesVm.DiscoverFromRemoteAsync()),
+            Pair:     (ip, name, mac) => OnDevicesUiAsync(() => _devicesVm.PairFromRemoteAsync(ip, name, mac)),
+            Add:      req => OnDevicesUiAsync(() => _devicesVm.AddFromRemoteAsync(req)));
+
+        _remoteControl.DevicesCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotDevices.HandleAsync(raw);
+                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                // BEZ await: ack ma wyjść natychmiast, a wykrywanie i parowanie trwają sekundy.
+                if (result.Work != null)
+                    _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda urządzeń: {ex.Message}"); }
+        };
+
         // ─── Edytor pieśni z Pilota ───
         // Logika siedzi w PilotSongEdit; tu zostaje wysyłka, broadcast `song_changed` i odświeżenie
         // okna Cantio TĄ SAMĄ ścieżką co zapis w edytorze pieśni (listy + przeładowanie pieśni,
@@ -766,6 +868,8 @@ public partial class MainWindow : Window
                 var (devState, devCount) = _devicesVm.GetAggregateState();
                 var devJson = JsonSerializer.Serialize(new { type = "devices", state = devState, count = devCount });
                 await _remoteControl.SendToClientAsync(ws, devJson);
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotDevices.BuildDevicesJson(_devicesVm.SnapshotForRemote()));
             }
             catch { }
         };
@@ -980,6 +1084,138 @@ public partial class MainWindow : Window
         _vm.PinnedSetlists.Where(s => s.HasCelebration)
                           .Select(s => new KeyValuePair<int, string>(s.Id, s.Celebration))
                           .ToList();
+
+    /// <summary>
+    /// Lista monitorów dla Pilota. Rdzeń nie zna <c>WpfScreenHelper</c> (kompiluje się też pod
+    /// Androida), więc ekrany przechodzą przez granicę jako zwykłe dane. Etykieta i słowa
+    /// „Ekran"/„(główny)" są te same co w comboboksie zakładki USTAWIENIA, a wymiary podajemy
+    /// w FIZYCZNYCH pikselach — operator poznaje monitor po rozdzielczości, nie po DIU.
+    /// </summary>
+    private IReadOnlyList<PilotSystemSettings.ScreenInfo> BuildScreenList() =>
+        Dispatcher.Invoke(() =>
+        {
+            var screenWord  = TryFindResource("Settings.Screen") as string ?? "Screen";
+            var primaryWord = TryFindResource("Settings.ScreenPrimary") as string ?? "(primary)";
+            return WpfScreenHelper.Screen.AllScreens
+                .Select((s, i) => new PilotSystemSettings.ScreenInfo(
+                    i,
+                    $"{screenWord} {i + 1}{(s.Primary ? $" {primaryWord}" : "")}  {(int)s.Bounds.Width}×{(int)s.Bounds.Height}",
+                    (int)s.Bounds.Width,
+                    (int)s.Bounds.Height,
+                    s.Primary))
+                .ToList();
+        });
+
+    /// <summary>
+    /// Wykonanie wyniku komendy ustawień systemowych: odpowiedź do nadawcy, broadcast do
+    /// wszystkich, przestawienie okna projekcji i odświeżenie zakładki USTAWIENIA. Jedno
+    /// miejsce dla obu ścieżek — komendy z tabletu i samoczynnego cofnięcia ekranu.
+    /// </summary>
+    /// <summary>
+    /// Restart procesu — JEDNA ścieżka dla komendy <c>restart_app</c> i dla operacji
+    /// nieodwracalnych etapu 4B. Port MUSI zostać zwolniony PRZED startem nowego procesu:
+    /// inaczej świeża kopia wchodzi na zajęte gniazdo, jej serwer pilota nie startuje i mini PC
+    /// zostaje bez żadnego interfejsu. Komunikat do tabletu wyszedł, zanim tu dotarliśmy
+    /// (ack z <c>RemoteControlServer</c>, komunikat terminalny z <c>PilotMaintenance</c>).
+    /// </summary>
+    private void RestartApplication(string why)
+    {
+        AppLog.Write("Pilot", $"Restart aplikacji {why}");
+        try
+        {
+            _remoteControl.StopForRestart();
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
+                { UseShellExecute = true });
+            Application.Current.Shutdown();
+        }
+        catch (Exception ex) { AppLog.Write("Pilot", $"Restart nieudany: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Budzik bezpiecznika: po <paramref name="seconds"/> pyta maszynę próby, czy jest co cofać.
+    /// Jedna metoda dla obu przedmiotów próby (ekran, port) — cofanie ma JEDNO miejsce
+    /// (<c>PilotSystemSettings.ExpireTrialAsync</c>), a budzik jednego nie rusza drugiego,
+    /// bo każdy ma własny termin.
+    /// </summary>
+    private void ScheduleSystemSettingsExpiry(DatabaseService db, int seconds) =>
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(seconds));
+            try
+            {
+                var back = await PilotSystemSettings.ExpireTrialAsync(
+                    db, BuildScreenList(), _systemSettingsTrial);
+                await ApplySystemSettingsResultAsync(back);
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Cofnięcie próbnej zmiany: {ex.Message}"); }
+        });
+
+    private async Task ApplySystemSettingsResultAsync(
+        PilotSystemSettings.Result result,
+        System.Net.WebSockets.WebSocket? ws = null)
+    {
+        if (result.Response != null && ws != null)
+            await _remoteControl.SendToClientAsync(ws, result.Response);
+        if (result.Broadcast != null)
+            await _remoteControl.BroadcastJsonAsync(result.Broadcast);
+
+        // Port przeładowujemy DOPIERO TERAZ — przeładowanie zrywa wszystkie połączenia, więc
+        // ack i broadcast muszą zdążyć wyjść wcześniej. To samo dotyczy powrotu na stary port
+        // po nieudanej próbie (`ApplyPort` niesie wtedy poprzednią wartość).
+        if (result.ApplyPort != null)
+        {
+            int newPort = result.ApplyPort.Value;
+            _ = Dispatcher.InvokeAsync(() =>
+            {
+                try { _remoteControl.ApplyPortFromRemote(newPort); }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Zmiana portu serwera: {ex.Message}"); }
+            });
+        }
+
+        // Odpięcie urządzeń („nowy PIN") tak samo jak port: DOPIERO TERAZ, bo kasacja tokenów
+        // rozłącza wszystkich klientów — łącznie z nadawcą, który czeka na ack z nowym PIN-em.
+        // PIN przyszedł gotowy z rdzenia (ten sam, który poszedł w acku) — tu się go tylko ustawia.
+        if (result.ApplyForgetPin != null)
+        {
+            string newPin = result.ApplyForgetPin;
+            _ = Dispatcher.InvokeAsync(() =>
+            {
+                try { _remoteControl.ForgetPairedDevicesFromRemote(newPin); }
+                catch (Exception ex) { AppLog.Write("Pilot", $"Odpięcie urządzeń: {ex.Message}"); }
+            });
+        }
+
+        if (!result.Refresh) return;
+
+        _ = Dispatcher.InvokeAsync(async () =>
+        {
+            try
+            {
+                // Ekran przestawiamy TYLKO wtedy, gdy projekcja JEST otwarta — zmiana ustawienia
+                // nie jest poleceniem „otwórz projekcję" (od tego jest `open_projection`).
+                // Sama przeprowadzka idzie istniejącą ścieżką, która re-czyta `projection_screen`
+                // i przelicza metryki DPI; drugiego takiego miejsca nie piszemy.
+                if (result.ApplyScreen != null && _vm.IsProjectionOpen)
+                    await _vm.OpenProjectionFromRemoteAsync();
+
+                // Bez tego zakładka USTAWIENIA kłamałaby o trybie/ekranie/języku po powrocie
+                // do trybu dual, a najbliższe „ZAPISZ USTAWIENIA" cofnęłoby zmianę z tabletu.
+                // `ApplyExternalSettingsAsync` świadomie nie odpala `Saved`, więc broadcast
+                // `display_settings_data` nie poleci przy okazji drugi raz. Wczytuje też
+                // diecezję, lekcjonarz, interwał pętli i wygaszony ekran — ale z guardami
+                // (`_dioceseLoading` itp.), więc SKUTKI UBOCZNE trzeba odpalić osobno, tym
+                // samym zdarzeniem co zmiana w oknie.
+                await _szablonVm.ApplyExternalSettingsAsync();
+
+                // Diecezja zmienia obchody → dzień liturgiczny na pasku i podpisy PRZYPIĘTYCH.
+                if (result.DioceseChanged) _szablonVm.RaiseDioceseChanged();
+                // Wydanie lekcjonarza zmienia TREŚĆ psalmu na projekcji → przeładowanie pieśni.
+                if (result.LectionaryChanged) _szablonVm.RaiseLectionaryChanged();
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Odświeżenie ustawień systemowych: {ex.Message}"); }
+        });
+    }
 
     /// <summary>Tekst podsumowania „Przypnij tydzień" (7 dni: data · nazwa — obchód).</summary>
     private string BuildPinWeekSummary(PilotPinWeek.Result result)

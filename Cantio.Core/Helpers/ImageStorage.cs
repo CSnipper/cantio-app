@@ -9,9 +9,11 @@ namespace Cantio.Helpers;
 /// </summary>
 public static class ImageStorage
 {
-    private static string ImagesFolder => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Cantio", "images");
+    // Ścieżkę liczy WYŁĄCZNIE AppPaths — jedno miejsce dla całego katalogu danych.
+    // Dzięki temu `AppPaths.RootOverride` (używany przez harness) obejmuje także obrazki;
+    // wcześniej testy pisały do PRAWDZIWEGO katalogu użytkownika, bo ta klasa liczyła
+    // ścieżkę po swojemu.
+    private static string ImagesFolder => AppPaths.ImagesFolder;
 
     /// <summary>
     /// Kopiuje plik do folderu images i zwraca ścieżkę relatywną do zapisania w bazie.
@@ -52,8 +54,6 @@ public static class ImageStorage
         if (string.IsNullOrEmpty(storedPath)) return storedPath;
         if (Path.IsPathRooted(storedPath)) return storedPath; // legacy — absolutna ścieżka
 
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Cantio", storedPath);
+        return Path.Combine(AppPaths.Root, storedPath);
     }
 }

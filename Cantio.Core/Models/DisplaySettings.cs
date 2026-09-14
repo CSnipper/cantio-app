@@ -27,5 +27,20 @@ public class DisplaySettings
     public double GradientAngle { get; set; } = 180;
     public List<TextFormatTag> TextTags { get; set; } = [];
     public bool FontAutoFit { get; set; } = true;
+    /// <summary>
+    /// Zakres auto-dopasowania czcionki (klucz <c>font_fit_scope</c>). Liczy się WYŁĄCZNIE gdy
+    /// <see cref="FontAutoFit"/> = true; przy stałej wielkości nie ma czego wyrównywać.
+    /// </summary>
+    public FontFitScope FontFitScope { get; set; } = FontFitScope.Song;
     public int PsalmCategoryId { get; set; } = 0; // 0 = wyłączone
+
+    /// <summary>Kolor wygaszonego ekranu (klucz <c>blank_color</c>).</summary>
+    public string BlankColor { get; set; } = "#000000";
+
+    /// <summary>
+    /// Obrazek wygaszonego ekranu (klucz <c>blank_image_path</c>), <c>null</c> = sam kolor.
+    /// Ścieżka jest WZGLĘDNA (<c>ImageStorage.Import</c>) — do wyświetlenia zawsze
+    /// <c>ImageStorage.Resolve</c>.
+    /// </summary>
+    public string? BlankImagePath { get; set; }
 }

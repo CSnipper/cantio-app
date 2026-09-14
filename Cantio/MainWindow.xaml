@@ -2948,10 +2948,15 @@
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.RunOnStartup}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
-                            <CheckBox IsChecked="{Binding FontAutoFit}"
-                                      Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
-                                <TextBlock Text="{DynamicResource Settings.FontAutoFit}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>
-                            </CheckBox>
+                            <TextBlock Text="{DynamicResource Settings.FontFit}"
+                                       Foreground="#959fb9" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>
+                            <ComboBox Style="{StaticResource DarkCombo}"
+                                      SelectedIndex="{Binding FontFitMode}"
+                                      FontSize="14" Height="34">
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitFixed}"/>
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitVerse}"/>
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitSong}"/>
+                            </ComboBox>
                             <CheckBox IsChecked="{Binding ServerMode}"
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.ServerMode}" Foreground="#e8eaf0" FontSize="16" TextWrapping="Wrap"/>

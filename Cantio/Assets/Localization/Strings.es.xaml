@@ -214,10 +214,15 @@
     <sys:String x:Key="Msg.ClearDbConfirm">¿Eliminar todas las canciones, estrofas y listas? La configuración se mantendrá. La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="Msg.RestoreDbConfirm">¿Reemplazar la base de datos actual con el archivo seleccionado? La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="Msg.ImportZipConfirm">¿Reemplazar base de datos e imágenes con datos del ZIP? La aplicación se reiniciará.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbNotDatabase">El archivo seleccionado no es una base de datos de Cantio. No se ha cambiado nada.</sys:String>
+    <sys:String x:Key="Msg.ImportZipUnsafeEntry">El archivo comprimido contiene una entrada que apunta fuera de la carpeta de datos de la aplicación. La importación se rechazó por completo: no se ha cambiado nada.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Instalar actualización</sys:String>
     <sys:String x:Key="About.Downloading">Descargando...</sys:String>
     <sys:String x:Key="About.Changelog">Novedades:</sys:String>
-    <sys:String x:Key="Settings.FontAutoFit">Ajuste automático del tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.FontFit">Ajuste del tamaño de fuente</sys:String>
+    <sys:String x:Key="Settings.FontFitFixed">Tamaño fijo</sys:String>
+    <sys:String x:Key="Settings.FontFitVerse">Ajustado a la estrofa</sys:String>
+    <sys:String x:Key="Settings.FontFitSong">Ajustado al cántico</sys:String>
     <sys:String x:Key="Settings.ServerMode">Modo servidor (control solo desde CantioPilot)</sys:String>
     <sys:String x:Key="Settings.ServerModeHint">Para un equipo con una sola pantalla que muestra únicamente la proyección. La ventana de Cantio queda oculta y el servidor del mando se inicia automáticamente. Para recuperar la ventana: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">El cambio de modo se aplicará al reiniciar Cantio.</sys:String>

@@ -215,10 +215,15 @@
     <sys:String x:Key="Msg.ClearDbConfirm">Usunąć wszystkie pieśni, zwrotki i zestawy? Ustawienia zostaną zachowane. Aplikacja zostanie zrestartowana.</sys:String>
     <sys:String x:Key="Msg.RestoreDbConfirm">Zastąpić obecną bazę danych wybranym plikiem? Aplikacja zostanie zrestartowana.</sys:String>
     <sys:String x:Key="Msg.ImportZipConfirm">Zastąpić bazę danych i obrazki danymi z pliku ZIP? Aplikacja zostanie zrestartowana.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbNotDatabase">Wybrany plik nie jest bazą danych Cantio. Nic nie zostało zmienione.</sys:String>
+    <sys:String x:Key="Msg.ImportZipUnsafeEntry">Archiwum zawiera wpis prowadzący poza folder danych aplikacji. Import został odrzucony w całości — nic nie zostało zmienione.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Zainstaluj aktualizację</sys:String>
     <sys:String x:Key="About.Downloading">Pobieranie...</sys:String>
     <sys:String x:Key="About.Changelog">Co nowego:</sys:String>
-    <sys:String x:Key="Settings.FontAutoFit">Automatyczne dopasowanie rozmiaru</sys:String>
+    <sys:String x:Key="Settings.FontFit">Dopasowanie rozmiaru czcionki</sys:String>
+    <sys:String x:Key="Settings.FontFitFixed">Stała wielkość</sys:String>
+    <sys:String x:Key="Settings.FontFitVerse">Dopasowana do zwrotki</sys:String>
+    <sys:String x:Key="Settings.FontFitSong">Dopasowana do pieśni</sys:String>
     <sys:String x:Key="Settings.ServerMode">Tryb serwerowy (sterowanie tylko z CantioPilota)</sys:String>
     <sys:String x:Key="Settings.ServerModeHint">Dla komputera z jednym ekranem, który pokazuje wyłącznie projekcję. Okno Cantio jest ukryte, serwer pilota startuje automatycznie. Powrót do okna: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">Zmiana trybu zadziała po ponownym uruchomieniu Cantio.</sys:String>

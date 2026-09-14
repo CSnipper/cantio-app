@@ -15,6 +15,8 @@ public class SlideLayoutSettings
     public double MarginH { get; set; } = 80;
     public double MarginV { get; set; } = 60;
     public bool AutoFit { get; set; } = true;
+    /// <summary>Zakres wyrównania czcionki po auto-dopasowaniu (bez znaczenia gdy <see cref="AutoFit"/> = false).</summary>
+    public FontFitScope FitScope { get; set; } = FontFitScope.Song;
     public bool ForceSingleSlide { get; set; } = false; // psalm mode: nigdy nie dziel, auto-fit bez minimum
 }
 

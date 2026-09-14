@@ -214,10 +214,15 @@
     <sys:String x:Key="Msg.ClearDbConfirm">Delete all songs, verses and setlists? Settings will be kept. The app will restart.</sys:String>
     <sys:String x:Key="Msg.RestoreDbConfirm">Replace the current database with the selected file? The app will restart.</sys:String>
     <sys:String x:Key="Msg.ImportZipConfirm">Replace database and images with data from ZIP? The app will restart.</sys:String>
+    <sys:String x:Key="Msg.RestoreDbNotDatabase">The selected file is not a Cantio database. Nothing was changed.</sys:String>
+    <sys:String x:Key="Msg.ImportZipUnsafeEntry">The archive contains an entry pointing outside the application data folder. The import was rejected entirely — nothing was changed.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Install update</sys:String>
     <sys:String x:Key="About.Downloading">Downloading...</sys:String>
     <sys:String x:Key="About.Changelog">What's new:</sys:String>
-    <sys:String x:Key="Settings.FontAutoFit">Automatic font size fitting</sys:String>
+    <sys:String x:Key="Settings.FontFit">Font size fitting</sys:String>
+    <sys:String x:Key="Settings.FontFitFixed">Fixed size</sys:String>
+    <sys:String x:Key="Settings.FontFitVerse">Fitted to verse</sys:String>
+    <sys:String x:Key="Settings.FontFitSong">Fitted to song</sys:String>
     <sys:String x:Key="Settings.ServerMode">Server mode (control only from CantioPilot)</sys:String>
     <sys:String x:Key="Settings.ServerModeHint">For a computer with a single screen that shows the projection only. The Cantio window stays hidden and the remote server starts automatically. To bring the window back: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">The mode change takes effect after restarting Cantio.</sys:String>

@@ -1,4 +1,4 @@
-# Cantio/Services — lokalny kontekst
+﻿# Cantio/Services — lokalny kontekst
 
 ## DatabaseService — zasady
 
@@ -152,11 +152,25 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `song_delete` | `id`, **`force?`** | usunięcie pieśni; pieśń w zapisanych zestawach wymaga `force:true` |
 | `get_display_settings` | — | → `display_settings_data` **do nadawcy** |
 | `set_display_settings` | `settings` (obiekt klucz→wartość) | częściowa zmiana wyglądu projekcji (→ `ack` + broadcast `display_settings_data`) |
+| `get_system_settings` | — | → `system_settings_data` **do nadawcy** (tryb pracy, ekran projekcji, język + lista monitorów) |
+| `set_system_settings` | `settings` (obiekt klucz→wartość) | zmiana ustawień SYSTEMOWYCH (→ `ack {keys, trial, restartRequired}` + broadcast `system_settings_data`); `reason`: `unknown_key` · `invalid_value` (+ `key`) · `empty_payload` |
+| `system_settings_confirm` | — | potwierdzenie zmiany „na próbę" — ekranu projekcji i/lub portu pilota (→ `ack {confirmed}`); bez niego ekran wraca sam po 20 s, a port po 60 s |
+| `pilot_forget_devices` | — | odpowiednik „nowy PIN": losuje PIN, KASUJE wszystkie tokeny, rozłącza klientów (→ `ack {pin, pairedDevices:0}`); `reason`: `unavailable` (brak wstrzykniętego serwera) |
+| `get_exchange_files` | — | → `exchange_files_data` **do nadawcy**: zawartość FOLDERU WYMIANY + jego pełna ścieżka (v1.70) |
+| `maintenance_run` | `op` (`backup_db`/`export_zip`/`import_psalms`) | długa operacja na plikach → `ack {op, taskId}` **natychmiast**, wynik osobnym broadcastem `maintenance_progress`; `reason`: `busy` (+ `taskId` TRWAJĄCEGO zadania) · `unknown_op` (v1.70) |
 | `image_get` | `ref`, **`maxDim?`** | podgląd obrazka → `image_data` **do nadawcy**; brak pliku → `ack ok:false, reason:"not_found"` (v1.69) |
 | `image_put_begin` | `name`, `totalChunks` | początek wysyłki obrazka z telefonu → `ack {uploadId}`; `reason`: `too_large` (>512 kawałków) · `bad_total` (0/brak) · `busy` (>2 uploady z klienta) |
 | `image_put_chunk` | `uploadId`, `seq`, `data` (base64 ≤64 kB) | kolejny kawałek → `ack {uploadId, seq}`; `reason`: `bad_seq` · `unknown_upload` · `bad_data` · `too_large` |
 | `image_put_end` | `uploadId` | sklejenie + `ImageStorage.Import` → `ack {uploadId, ref}`; `reason`: `unknown_upload` · `incomplete` · `read_failed` |
 | `setlist_add_image` | `ref` | dodaj pozycję-obrazek do BIEŻĄCEGO zestawu (ścieżka przycisku 🖼 w oknie) → `ack {ref}` + broadcast `setlist`; brak pliku → `reason:"not_found"` |
+| `get_devices` | — | → `devices_data` **do nadawcy**: lista urządzeń projekcyjnych (v1.70) |
+| `device_power` | `id`, `on` (bool) | włącz/wyłącz JEDNO urządzenie → `ack {id,on}` **natychmiast**, stan w broadcastcie `devices_data`; `reason`: `not_found` · `invalid_value` (+ `key`) |
+| `device_rename` | `id`, `label` | własne oznaczenie na pasku, **maks. 4 znaki** (puste = numer) → `ack {id,label}` + broadcast `devices_data`; `reason`: `too_long` (+ `max`) · `not_found` · `invalid_value` |
+| `device_remove` | `id` | usuń urządzenie z listy → `ack {id}` + broadcast `devices_data`; `reason`: `not_found` · `invalid_value` |
+| `device_test` | `id` | test łączności — **wynik w ACKU** (`ok` + `message` = stan) + broadcast `devices_data`; `reason`: `not_found` |
+| `device_discover` | — | skan sieci (SSDP) → `ack` **natychmiast**, wynik broadcastem `devices_found`; `reason`: `busy` (skan już trwa) |
+| `device_pair` | `ip` **albo** `discoveredId`, `kind?` | parowanie i dodanie → `ack {ip}` **natychmiast**, wynik broadcastem `device_pair_result`; `reason`: `invalid_value` (brak obu pól) · `not_found` (nieznany `discoveredId`) · `unsupported_kind` |
+| `device_add` | `kind` (`pjlink`\|`sony`\|`wol`), `ip`/`mac`, `name?`, `label?`, `port?`, `password?`/`psk?` | dodanie BEZ parowania → `ack {id,kind}` + broadcast `devices_data`; wymagane: `ip` (pjlink/sony), `psk` (sony), `mac` (wol); `reason`: `invalid_value` (+ `key`) · `unsupported_kind` (m.in. `samsung` — ten idzie przez `device_pair`) · `duplicate` (to samo IP/MAC już jest) · `too_long` (oznaczenie) |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
 | `status` | — | → `status_data` (diagnostyka zdalna) |
 | `restart_app` | — | restart procesu Cantio (→ `ack`) |
@@ -313,7 +327,13 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `song_data` | `id, title, number, categoryId, author, verses[]` (`{type,text}`), `playOrderJson`, **`updatedAt`** | pełna treść pieśni — TYLKO na żądanie `song_get` (v1.63; `updatedAt` v1.65) |
 | `song_update_conflict` | dokładnie te same pola co `song_data` (tylko inny `type`) | pieśń zmieniono po OBU stronach — NIC nie zapisano; pola niosą wersję **desktopową** (v1.65) |
 | `song_changed` | `id`, `action` (`created`/`updated`/`deleted`), **`updatedAt`** | pieśń dodano/zmieniono/usunięto — broadcast do WSZYSTKICH, w tym do nadawcy (v1.63); `updatedAt` = znacznik PO zapisie, 0 przy `deleted` (v1.65) |
-| `display_settings_data` | `settings` (23 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
+| `display_settings_data` | `settings` (24 klucze wyglądu), `fonts[]` (wbudowane), `systemFonts[]` (zainstalowane w Windows) | ustawienia projekcji — na `get_display_settings` (do nadawcy) i broadcastem po każdej zmianie: z tabletu ORAZ po „ZAPISZ USTAWIENIA" w oknie Cantio (v1.63) |
+| `system_settings_data` | `settings` (`app_mode`, `projection_screen`, `language`, … , `pilot_pin`, `pilot_require_pin`, `pilot_port`), `screens[]` (`{index,label,width,height,primary}`), `languages[]`, `dioceses[]`, `restartRequired`, `trialSeconds`, **`pilotRunning`**, **`pairedDevices`** (dwa ostatnie TYLKO DO ODCZYTU) | ustawienia systemowe — na `get_system_settings` (do nadawcy), broadcastem po zmianie z tabletu i po samoczynnym cofnięciu ekranu |
+| `exchange_files_data` | `path` (pełna ścieżka katalogu), `files[]` (`{name,size,modified,kind}`) | zawartość folderu wymiany — TYLKO na żądanie `get_exchange_files`, do nadawcy; `kind`: `db`·`zip`·`osz`·`sqlite`·`xml`·`image`·`other` (po rozszerzeniu); pusty katalog = pusta lista (v1.70) |
+| `maintenance_progress` | `taskId`, `op`, `state` (`running`/`done`/`failed`), `percent`, `message?`, `result?` | postęp i wynik długiej operacji — broadcast do WSZYSTKICH; `result` przy `done`: `{file}` (backup/eksport) albo `{count}` (psalmy); `message` przy `failed` (v1.70) |
+| `devices_data` | `devices[]` (`{id,label,name,kind,ip,state}`), `discovering` (bool) | PEŁNA lista urządzeń projekcyjnych — na `get_devices` (do nadawcy), na `ClientConnected` i broadcastem po KAŻDEJ zmianie listy lub stanu (także wykrytej odpytywaniem w tle); **żadnych poświadczeń**, zob. niżej (v1.70) |
+| `devices_found` | `devices[]` (`{discoveredId,name,ip,kind}`), `done` (zawsze `true`), `error?` | wynik wykrywania — komunikat KOŃCOWY, wychodzi także po wyjątku (v1.70) |
+| `device_pair_result` | `ok` (bool), `ip`, `error?` | wynik parowania — komunikat KOŃCOWY, wychodzi także po wyjątku (v1.70) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
 | `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists`, `pinned`, `days` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
@@ -600,13 +620,14 @@ WYGLĄD jest więc dostępna zdalnie. Kierunek prawdy jak przy kategoriach: **ba
   w stanie w pół drogi — a to wygląda jak awaria w trakcie mszy.
 - `reason`: `unknown_key` · `invalid_value` · `empty_payload`.
 
-**Biała lista (23 klucze — dokładnie te, których używa `DatabaseService.GetSettings`):**
+**Biała lista (26 kluczy — dokładnie te, których używa `DatabaseService.GetSettings`):**
 
 | klucz | typ JSON | dozwolone |
 |---|---|---|
 | `font_family` | string | czcionka **wbudowana albo zainstalowana w systemie** (literówka = fallback WPF na inny krój w środku mszy) |
 | `font_size` | number | 8–400 |
 | `font_bold`, `font_auto_fit`, `shadow_enabled`, `bg_gradient_enabled` | bool | wyłącznie `true`/`false` (string `"true"` odrzucany) |
+| `font_fit_scope` | string | `song` · `verse` (v1.70; zakres auto-dopasowania czcionki) |
 | `text_align` | string | `left` · `center` · `right` |
 | `text_position` | string | `top` · `center` · `bottom` |
 | `text_color`, `bg_color`, `bg_gradient_color1`, `bg_gradient_color2` | string | `#RRGGBB` albo `#AARRGGBB` |
@@ -619,19 +640,45 @@ WYGLĄD jest więc dostępna zdalnie. Kierunek prawdy jak przy kategoriach: **ba
 | `bg_gradient_type` | string | `linear` · `radial` |
 | `bg_gradient_angle` | number | 0–360 |
 | `psalm_category_id` | number | ≥ 0 (0 = tryb psalm wyłączony) |
+| `blank_color` | string | `#RRGGBB` albo `#AARRGGBB` (kolor wygaszonego ekranu) |
+| `blank_image_path` | string | `""` = wyłącz obrazek; niepusta ścieżka **musi istnieć** — ale sprawdzana przez `ImageStorage.Resolve` (zob. niżej) |
 
-Czego na liście NIE MA i nie będzie bez osobnej decyzji: `projection_screen`, `language`, `app_mode`,
-`pilot_*`, `blank_*`, `text_tags`. Zdalna zmiana ekranu projekcji albo trybu pracy potrafi odciąć
-operatora od obrazu, a to nie jest „wygląd”.
+Czego na liście NIE MA: `text_tags` (nie jest klucz→wartość, tylko lista obiektów z nazwą, kolorem,
+flagą „tylko podgląd" i skrótem — potrzebuje własnego edytora na tablecie i osobnego kontraktu;
+świadomie odłożone). `projection_screen`, `language`, `app_mode` i `pilot_*` mają własną rodzinę
+komend („Ustawienia systemowe" niżej) — to nie jest „wygląd", a zdalna zmiana ekranu wymaga
+bezpiecznika. `blank_color`/`blank_image_path` **doszły** w etapie 2 (2026-09-14): wygaszony ekran
+jest wyglądem, a jego zmiana nie odcina nikogo od obrazu.
+
+- **PUŁAPKA ścieżek obrazków (CLAUDE.md, v1.52).** `blank_image_path` zapisuje `ImageStorage.Import`,
+  więc wartość jest **WZGLĘDNA** (`images\plik.jpg`). Walidacja gołym `File.Exists` odrzuciłaby
+  ścieżkę, którą desktop sam przed chwilą przysłał w `display_settings_data` — czyli round-trip
+  byłby niemożliwy. Stąd osobny walidator `IsClearOrExistingImage` (`File.Exists(ImageStorage.Resolve(v))`);
+  `bg_image` zostaje przy `IsClearOrExistingFile`, bo tam ścieżka jest absolutna (`OpenFileDialog`).
+  Zmiana obu kluczy wchodzi na ekran od razu — `ApplyExternalSettingsAsync` → `LoadAsync` →
+  `SzablonViewModel.ApplyBlank` (`ProjectionViewModel.BlankBrush`/`BlankImagePath`).
 
 - **Czcionki lecą w DWÓCH listach**, tak jak grupy w comboboksie okna Cantio: `fonts` (wbudowane —
   te same na każdym komputerze) i `systemFonts` (zainstalowane w Windows). Systemowych świadomie
   nie pomijamy: domyślne ustawienie parafii to „Segoe UI”, więc lista bez nich nie pozwoliłaby nawet
   wrócić do stanu wyjściowego. Koszt zmierzony u użytkownika: **9,6 kB przy 602 czcionkach** — rząd
   wielkości mniej niż `setlists_data`.
+- **Trzy tryby dopasowania czcionki na DWÓCH kluczach** (v1.70). `font_auto_fit` **nie zmieniło
+  znaczenia** (`false` = stała wielkość z ustawień), a `font_fit_scope` mówi tylko, co uznajemy
+  za grupę przy wyrównywaniu rozmiaru policzonego per slajd: `song` = minimum z CAŁEJ pieśni
+  (domyślne, zachowanie sprzed zmiany), `verse` = minimum w obrębie ZWROTKI (zwrotka podzielona
+  na trzy slajdy ma na nich tę samą czcionkę, różnice występują między zwrotkami). Combobox
+  w oknie Cantio pokazuje to jako jedną listę: stała / do zwrotki / do pieśni.
+  **Przy `font_auto_fit: false` nowy klucz nie robi NIC** — każdy slajd i tak dostaje rozmiar
+  z ustawień (`DisplayViewModel.BuildLayoutSettings` wymusza wtedy `Song`).
+  Arytmetyka wyrównania: czysta `Cantio.Core/Services/SlideFontFit.Unify` — jedno miejsce dla
+  wszystkich czterech grup slajdów (zwykłe, prywatne `p`, zwrotki psalmu, `BuildSlides`).
+  **Zgodność wsteczna:** klucz jest DOPISANY; stary Pilot go nie zna, nie wyśle i dalej przełącza
+  samo `font_auto_fit` — parafia dostaje wtedy dotychczasowe „dopasowana do pieśni”. Brak klucza
+  w bazie = `song`.
 - **Liczby zapisywane są w BIEŻĄCEJ kulturze** (`ToString(CultureInfo.CurrentCulture)`), bo tak
   zapisuje je `SzablonViewModel.SaveAsync` i tak czyta `GetSettings`. Zapis „1.45” w pl-PL wróciłby
-  jako śmieć. Harness ma na to asercję round-tripu każdego z 23 kluczy.
+  jako śmieć. Harness ma na to asercję round-tripu każdego z 26 kluczy.
 - **Po zapisie MUSI iść przebudowa slajdów.** `MainWindow` woła `SzablonViewModel.ApplyExternalSettingsAsync()`
   (przeładowanie pól zakładki + `ProjectionViewModel.ApplySettings`) i `DisplayViewModel.RebuildSlides()`
   — tę samą parę co „ZAPISZ USTAWIENIA”. Bez przeładowania zakładki najbliższy zapis w oknie cofnąłby
@@ -646,6 +693,319 @@ operatora od obrazu, a to nie jest „wygląd”.
 - **Zgodność wsteczna:** wyłącznie DOPISANE typy — żaden istniejący komunikat nie zmienił kształtu.
   Stary Pilot nowych komend nie zna, więc ich nie wyśle, a nieznanego `display_settings_data`
   po prostu zignoruje. Obie komendy przechodzą normalną bramą auth (przed `auth_ok` cisza).
+
+##### Ustawienia systemowe: tryb pracy, ekran, język, diecezja, lekcjonarz… (v1.70+)
+
+W trybie serwerowym okno główne jest ukryte, a mini PC w zakrystii nie ma klawiatury — skrót
+ratunkowy Ctrl+Alt+Shift+C jest tam bezużyteczny. Do tej pory oznaczało to, że **trybu
+serwerowego nie dało się opuścić ani zmienić ekranu projekcji ŻADNYM sposobem**. Biała lista
+`PilotDisplaySettings` świadomie tych kluczy nie dopuszcza („zdalna zmiana ekranu potrafi
+odciąć operatora od obrazu") — ale to rozumowanie zakłada operatora PRZY komputerze, a takiego
+tu nie ma. Stąd osobna rodzina komend, z własnym bezpiecznikiem.
+
+| P→D | pola | akcja |
+|---|---|---|
+| `get_system_settings` | — | → `system_settings_data` do nadawcy |
+| `set_system_settings` | `settings:{klucz:wartość,…}` | zapis + `ack {command, ok, keys, trial, restartRequired}` do NADAWCY + broadcast `system_settings_data` do WSZYSTKICH |
+| `system_settings_confirm` | — | `ack {command, ok:true, confirmed}` — `confirmed:false` = nie było czego potwierdzać (odliczanie minęło albo go nie było) |
+| `system_settings_revert` | — | **natychmiastowe** cofnięcie trwającej próby (ekran i/lub port): `ack {command, ok:true, reverted}` do NADAWCY + broadcast `system_settings_data`; `reverted:false` = nie było trwającej próby (nic nie zmieniamy, nic nie rozgłaszamy) |
+| `pilot_forget_devices` | — | „nowy PIN" z tabletu: losowanie PIN-u + KASACJA wszystkich tokenów + rozłączenie klientów; `ack {command, ok, pin, pairedDevices:0}` + broadcast `system_settings_data` |
+
+`system_settings_data` niesie: `settings`, `screens`, `languages`, **`dioceses`** (kanoniczna lista
+z `DiocesanCalendarService.Diecezje` — tablet nie ma jej skąd wziąć), `restartRequired`, `trialSeconds`
+oraz stan serwera pilota TYLKO DO ODCZYTU: **`pilotRunning`**, **`pairedDevices`** (liczba tokenów).
+
+**Biała lista (11 kluczy):**
+
+| klucz | typ JSON | dozwolone |
+|---|---|---|
+| `app_mode` | string | `dual` · `server` |
+| `projection_screen` | number | `0..screens-1` (poza zakresem → `invalid_value`, **nic nie zapisane**) |
+| `language` | string | `pl` · `en` · `es` |
+| `diocese` | string | `""` (kalendarz ogólny) albo nazwa z `dioceses` — porównanie DOKŁADNE, bo literówka dałaby kalendarz bez obchodów diecezjalnych, wyglądający na poprawny |
+| `lectionary` | string | `N` (nowy) · `S` (stary, druk 1975); **bez** `LectionaryFilter.Normalize` — ono zamienia śmieci na domyślne, a cicha podmiana wydania wygląda jak samowolna zmiana treści na projekcji |
+| `loop_interval` | number | 3–120 s; **odrzucamy zamiast dociąć** (`ClampInterval`), tablet ma dostać odmowę, a nie inną liczbę niż wybrał |
+| `load_last_setlist` | bool | w bazie `"1"`/`"0"` (tak zapisuje „ZAPISZ USTAWIENIA"), nie `"true"`/`"false"` |
+| `run_on_startup` | bool | **NIE jest wierszem tabeli `settings`** — stoi w rejestrze Windows (`HKCU\…\Run`) |
+| `pilot_pin` | string | DOKŁADNIE 4 cyfry ASCII (`12a4`, `12345`, `123`, `""`, `1234` jako liczba i cyfry pełnej szerokości → `invalid_value`); zmiana **NIE kasuje tokenów** |
+| `pilot_require_pin` | bool | **wyłącznie `true`** — próba wyłączenia → `ok:false, reason:"not_allowed"`, zero zmian (niżej: „Asymetria PIN-u") |
+| `pilot_port` | number | 1024–65535; zmiana na PRÓBĘ z automatycznym cofnięciem po 60 s |
+
+**Czego świadomie NIE wystawiamy:** `pilot_remember` i `pilot_was_running` (`unknown_key`).
+Ich wyłączenie oznacza mini PC, które po restarcie wstaje bez serwera pilota — dokładnie ten
+lockout, przed którym broni cała ta rodzina komend.
+
+- **Skutki uboczne wykonuje gospodarz, ale decyduje rdzeń.** `Result` niesie `DioceseChanged`
+  i `LectionaryChanged` (ustawiane tylko przy REALNEJ zmianie wartości), a `MainWindow` odpala
+  ISTNIEJĄCE zdarzenia `SzablonViewModel.RaiseDioceseChanged()` / `RaiseLectionaryChanged()` —
+  te same, które odpala przełącznik w oknie, więc odbiorcy (dzień liturgiczny na pasku, podpisy
+  PRZYPIĘTYCH, przeładowanie pieśni z filtrem lekcjonarza) są jedną listą, nie dwiema.
+  Samo `ApplyExternalSettingsAsync` ich nie odpali — `LoadAsync` wczytuje te pola z guardami
+  (`_dioceseLoading`, `_lectionaryLoading`), żeby nie zapisywać wartości drugi raz.
+  `loop_interval` i wygaszony ekran wchodzą już w samym `LoadAsync`.
+- **Autostart Windows przechodzi PORTEM.** `Cantio.Core` jest czystym `net10.0` i rejestru nie zna,
+  więc gospodarz wstrzykuje `PilotSystemSettings.RunOnStartup = new RunOnStartupPort(Read, Write)`
+  (ten sam wzorzec co `PilotImages.Scaler`). `Write` idzie przez `SzablonViewModel.RunOnStartup`,
+  czyli DOKŁADNIE tą samą ścieżką co checkbox w oknie — inaczej zakładka USTAWIENIA kłamałaby
+  o stanie rejestru. Broadcast po zapisie czyta port PONOWNIE, więc mówi o rejestrze, a nie
+  o życzeniu tabletu. Brak portu (host bez rejestru) = `invalid_value`; świadomie nie udajemy,
+  że zapis się udał. Harness podstawia atrapę portu i **nie dotyka rejestru**.
+
+- Wzorzec 1:1 jak przy wyglądzie: klucze komunikatu = klucze tabeli `settings`, aktualizacja
+  CZĘŚCIOWA przyjmowana ATOMOWO (jeden zły klucz = nie zapisujemy niczego, `ack ok:false`,
+  `reason` + `key`, **żadnego broadcastu**), komunikaty składa WYŁĄCZNIE
+  `Services/PilotSystemSettings.cs` (+ `PilotStatus.BuildAckJson`).
+- **PUŁAPKA, dla której ta rodzina w ogóle dotyka kluczy pilota.** W trybie `dual` serwer
+  pilota startuje TYLKO gdy `pilot_remember=1` **i** `pilot_was_running=1`
+  (`AppModeRules.ShouldAutoStartPilotServer`, `RemoteControlViewModel.InitAsync`); w trybie
+  serwerowym startuje zawsze. Naiwne przełączenie `server → dual` z tabletu kończyłoby się
+  maszyną, która po restarcie **nie ma ŻADNEGO interfejsu** — ani okna, ani klawiatury, ani
+  pilota, czyli stanem GORSZYM niż przed zmianą. Dlatego każdy zdalny zapis `app_mode` wymusza
+  oba klucze na `"1"` (w obie strony — powrót ma być możliwy także po `dual → server`).
+  Ścieżka UI (`SzablonViewModel.OnServerModeChanged`) wymusza tylko autostart **Windows**,
+  co tu nie wystarcza. Niezmiennik dowiedziony sabotażem: zdjęcie wymuszenia = 5 FAIL.
+  Sam `pilot_remember` z tabletu **nie jest przyjmowany** (`unknown_key`) — tablet nie może
+  sobie odciąć drogi powrotu.
+- **Zmiana ekranu „na próbę"** (wzorzec ze zmiany rozdzielczości w Windows) dotyczy WYŁĄCZNIE
+  `projection_screen`: zmiana wchodzi od razu (`trial:true` w acku), desktop odlicza
+  `trialSeconds` (20), a bez `system_settings_confirm` wraca na poprzedni ekran, przestawia
+  okno projekcji i **rozgłasza `system_settings_data`** (tablet widzi powrót bez pytania).
+  Reguła to czysta maszyna stanu `Services/SystemSettingsTrial.cs` — czas przychodzi z zewnątrz,
+  więc całość jest testowalna bez czekania 20 s. Druga zmiana w trakcie odliczania **nie
+  nadpisuje ekranu powrotu** (wracamy do stanu sprzed zdalnego grzebania), przedłuża tylko
+  termin; budzik w `MainWindow` jest „głupi" i po przebudzeniu pyta maszynę stanu, więc
+  spóźniony po prostu nic nie robi. Sabotaż „brak potwierdzenia nie cofa ekranu" = 6 FAIL.
+  **Cofanie jest w JEDNYM miejscu** (`ApplyRevertAsync`): prowadzą do niego obie drogi —
+  wygaśnięcie odliczania (bez acka) i `system_settings_revert` z tabletu (z ackiem). Dwie
+  niezależne implementacje cofania to układ, który w tym projekcie gubił już dane (dwie listy
+  pól przy zapisie zestawu, v1.6). Sabotaż „revert nie cofa ekranu" = 4 FAIL.
+  `app_mode` bezpiecznika nie potrzebuje (działa dopiero po restarcie), `language` też nie.
+- **Restartu desktop NIE robi sam** — `restartRequired` (zapisany `app_mode` różni się od trybu,
+  w którym proces realnie działa) mówi tabletowi, żeby zapytał użytkownika i wysłał istniejącą
+  komendę `restart_app`.
+- **Wykonanie po stronie okna:** ekran przestawia `DisplayViewModel.OpenProjectionFromRemoteAsync`
+  (ta sama ścieżka co `open_projection` — re-czyta `projection_screen` i przelicza metryki DPI;
+  drugiego takiego miejsca nie piszemy), i to **tylko gdy projekcja JEST otwarta** — zmiana
+  ustawienia nie jest poleceniem „otwórz projekcję". Zakładkę USTAWIENIA odświeża
+  `SzablonViewModel.ApplyExternalSettingsAsync()` (stamtąd też idzie podmiana języka w locie,
+  przez `OnSelectedLanguageChanged` → `LocalizationManager`), która celowo NIE odpala `Saved` —
+  inaczej przy okazji poleciałby drugi broadcast `display_settings_data`.
+- **Indeks ekranu w `system_settings_data` jest PRZYCIĘTY** do liczby monitorów: dokładnie tak
+  zachowuje się otwieranie projekcji (indeks poza zakresem spada na ostatni ekran), więc tablet
+  widzi stan faktyczny, a nie liczbę, której nie da się wybrać z listy.
+- **Rdzeń nie zna ekranów.** `WpfScreenHelper` żyje w projekcie WPF, więc listę monitorów podaje
+  gospodarz jako zwykłe dane (`PilotSystemSettings.ScreenInfo`); wymiary w FIZYCZNYCH pikselach
+  (`Screen.Bounds`), bo operator poznaje monitor po rozdzielczości, nie po DIU.
+- **Zgodność wsteczna:** wyłącznie DOPISANE typy, żaden istniejący komunikat nie zmienił kształtu.
+  Stary desktop nowych komend nie rozpozna i zamilknie, więc Pilot musi użyć wzorca
+  `RemoteQueryMachine` („funkcja wymaga nowszego Cantio"); stary Pilot ich nie wyśle.
+  Wszystkie cztery komendy przechodzą normalną bramą auth (`if (!authed) continue;`) — przed
+  `auth_ok` cisza.
+- Harness: `SystemSettingsTests.cs` (y1–y15).
+
+###### Serwer pilota z tabletu: PIN, port, sparowane urządzenia (etap 3)
+
+Wszystko, co dotyka ŻYWEGO serwera (PIN w pamięci, tokeny, przeładowanie gniazda), wchodzi
+portem `PilotSystemSettings.PilotServerPort` — ten sam wzorzec co `RunOnStartupPort`
+i `PilotImages.Scaler`. Rdzeń mówi CO, a `RemoteControlViewModel` wykonuje to swoimi
+ISTNIEJĄCYMI ścieżkami (`SetPinFromRemote`, `EnableRequirePinFromRemote`,
+`ForgetPairedDevicesFromRemote` → `NewPin`, `ApplyPortFromRemote`), więc kod QR i ekran
+parowania na projekcji odświeżają się przy okazji, bez drugiej implementacji.
+
+**ASYMETRIA PIN-u — NIE „naprawiać".** Wymaganie PIN-u wolno zdalnie **włączyć**, ale
+**nie wyłączyć**: `pilot_require_pin:false` → `ok:false, reason:"not_allowed"` i zero zmian
+w bazie oraz w serwerze. Powody:
+1. Nic w scenariuszu ratunkowym (mini PC bez klawiatury) nie wymaga ZDJĘCIA uwierzytelniania —
+   wszystkie problemy tego etapu rozwiązuje się z tabletu, który JEST już sparowany.
+2. To jedyne ustawienie, którego zdalna zmiana może **wyłącznie obniżyć** bezpieczeństwo.
+   Brak uwierzytelniania nazwaliśmy „jedyną realną dziurą" i zamknęliśmy go PIN-em w v1.6;
+   zdalny wyłącznik oddawałby tę zdobycz każdemu, kto ma jeden ważny token.
+3. Odmowa jest REGUŁĄ, nie porównaniem ze stanem bazy — „wyłącz" odpada nawet wtedy, gdy PIN
+   już jest wyłączony, żeby nie dało się jej obejść kolejnością zapisów.
+   Wyłączenie zostaje przy komputerze. Ta sama asymetria co przy autostarcie serwera pilota.
+   Sabotaż „wyłączenie zaczyna przechodzić" = 8 FAIL.
+
+**Zmiana PIN-u to NIE „nowy PIN".** Zapis `pilot_pin` zmienia kod i tyle — tokeny zostają,
+połączone tablety zostają połączone, nowy PIN dotyczy KOLEJNYCH parowań. Kasowanie tokenów robi
+wyłącznie `pilot_forget_devices` (odpowiednik przycisku „nowy PIN" w oknie: losuje PIN, kasuje
+tokeny, rozłącza klientów). Pierwsza operacja jest codzienna, druga awaryjna (zginął tablet) —
+skręcenie ich w jedno wyrzucałoby parafię z połączenia przy każdej zmianie kodu.
+Sabotaż „zmiana PIN-u kasuje tokeny" = 5 FAIL.
+**Ack `pilot_forget_devices` wychodzi PRZED odpięciem urządzeń** (ten sam układ co
+`restart_app`), bo odpięcie zrywa połączenie nadawcy, a ack niesie nowy PIN: rdzeń losuje go
+sam, zapowiada wykonanie polem `Result.ApplyForgetPin`, a gospodarz odpina DOPIERO po wysłaniu
+acka i broadcastu — i ustawia PIN PODANY, nigdy własny (inaczej tablet pokazałby kod, który nie
+obowiązuje). Sabotaż „odpięcie wraca przed ack" = 5 FAIL (y16).
+Tablet MUSI ostrzec użytkownika przed wysłaniem
+(„stracisz też swoje parowanie") i po wykonaniu pokazać, gdzie szukać nowego PIN-u: na
+projektorze (tryb serwerowy, ekran parowania wraca sam, bo tokenów jest zero) albo w oknie Cantio.
+
+**Port na próbę (60 s, nie 20).** Zmiana `pilot_port` rozłącza WSZYSTKIE tablety — i właśnie
+dlatego jest najczystszym możliwym testem: potwierdzenie może przyjść tylko stamtąd, gdzie
+serwer naprawdę jest. Desktop zapisuje port, przeładowuje serwer i odlicza; brak
+`system_settings_confirm` = tablet nie dał rady wrócić = port był zły → powrót na poprzedni
+i ponowne przeładowanie. Termin jest dłuższy niż przy ekranie, bo musi starczyć na zauważenie
+zerwanego połączenia, odnalezienie serwera i UWIERZYTELNIENIE.
+- **NIEZMIENNIK: stan próby MUSI przeżyć zerwanie połączenia.** Potwierdzenie przychodzi INNYM
+  gniazdem niż komenda, po ponownym auth. Stan żyje w jednym `SystemSettingsTrial` w `MainWindow`
+  (nie per-klient) i **nie wolno go czyścić w `ClientDisconnected`** — a jest to łatwa pomyłka
+  przez analogię, bo obok stoi `ClientDisconnected → PilotUploads.DropOwner` (porzucone wysyłki
+  obrazków), gdzie sprzątanie po rozłączeniu jest poprawne. Sabotaż „rozłączenie czyści próbę"
+  = 3 FAIL (w tym samo potwierdzenie z drugiego gniazda).
+- **Kolejność przy przeładowaniu:** ack i broadcast wychodzą PIERWSZE, dopiero potem
+  `ApplyPortFromRemote` (najpierw `StopForRestart` = zwolnienie gniazda, potem `ToggleServer`).
+  Odwrotna kolejność zostawiła już raz mini PC bez żadnego interfejsu. Nieudany start (port
+  zajęty) nie jest ciszą: `StartFailure` ląduje na projekcji, a bezpiecznik i tak wraca na
+  poprzedni port tą samą metodą.
+- **Serwer wyłączony = zwykły zapis** (`trial:false`): nie ma czego rozłączać ani czym potwierdzić.
+- Cofanie ma dalej JEDNO miejsce: `SystemSettingsTrial` trzyma dwa przedmioty próby (ekran, port)
+  z własnymi terminami, ale JEDNĄ regułą (prywatna klasa `Subject`), a `ApplyRevertAsync` cofa
+  oba. Jedno `system_settings_confirm` rozbraja obie próby naraz — tablet, który je przysłał,
+  udowodnił i że widzi obraz, i że dobił się na nowy port.
+
+##### Folder wymiany i operacje konserwacyjne na plikach (v1.70+, etap 4A)
+
+Mini PC w zakrystii pracuje bez klawiatury i z ukrytym oknem, a tablet jest jedynym interfejsem.
+Wszystko, co wymaga PLIKU (kopia zapasowa, eksport archiwum, import śpiewnika), było poza jego
+zasięgiem, bo tablet nie widzi dysku komputera.
+
+**Mechanizm: FOLDER WYMIANY `%LocalAppData%\Cantio\wymiana`** (obok `cantio.db` i `images`,
+tworzony przy pierwszym użyciu; ścieżki liczy `Helpers/AppPaths`). Cantio pilnuje JEDNEGO
+katalogu, tablet widzi wyłącznie jego zawartość, a pliki wkłada tam CZŁOWIEK — pendrivem,
+udziałem sieciowym, czymkolwiek. Tablet nie przegląda dysku i nie przesyła wielkich plików przez
+łącze, które służy do sterowania projekcją.
+
+- **Tablet NIGDY nie podaje ścieżki zapisu.** Kopia i eksport lądują w folderze wymiany pod nazwą
+  z datą i godziną (`MaintenanceOps.BackupFileName`/`ExportFileName`). Gdyby ścieżkę podawał
+  tablet, miałby wpływ na to, gdzie komputer zapisuje pliki — a to jest dokładnie ta władza,
+  której folder wymiany ma nie dawać.
+- **`exchange_files_data` niesie PEŁNĄ ŚCIEŻKĘ katalogu** — bez niej instrukcja „włóż plik do
+  folderu wymiany" jest nie do wykonania, bo operator nie wie, gdzie ten folder jest.
+- **Listujemy WYŁĄCZNIE pliki leżące w katalogu WPROST**: bez rekurencji, bez `..`, bez ścieżek
+  absolutnych. Ta sama zasada co `PilotImages.IsSafeRef`, tylko OSTRZEJ — tam ścieżki absolutne
+  przechodzą (legacy obrazków w bazach parafii), tu nie ma żadnego legacy. Jedyne miejsce, w
+  którym nazwa z protokołu zamienia się w ścieżkę na dysku, to `ExchangeFolder.Resolve`
+  (kształt nazwy + sprawdzenie, że ZNORMALIZOWANY wynik nadal leży wprost w katalogu) — na tym
+  strażniku stanie 4B, gdzie tablet będzie nazwy PODAWAŁ. Sabotaż „listowanie przepuszcza
+  ścieżki spoza katalogu" = 5 FAIL.
+- **Pusty katalog = PUSTA LISTA, nie błąd.** „Nic jeszcze nie wrzuciłem" to normalny stan.
+
+**Długa operacja: ack natychmiast, wynik broadcastem.** `maintenance_run {op}` odpowiada od razu
+`ack {op, taskId}`, a operacja rusza DOPIERO po wysłaniu acka i leci w tle (handler w
+`MainWindow` woła `Result.Work` **bez `await`**). Postęp i wynik idą broadcastem
+`maintenance_progress` do WSZYSTKICH — drugi tablet w zakrystii ma widzieć, że ktoś właśnie robi
+kopię. `percent` dziś: `0` przy starcie, rosnący przy pakowaniu archiwum, `100` przy `done`.
+
+- **NIEZMIENNIK: operacja ZAWSZE kończy się komunikatem TERMINALNYM** (`done` albo `failed`),
+  także gdy rzuci wyjątkiem. Po acku tablet CZEKA, więc cisza to zawieszony ekran bez wyjścia.
+  To ten sam wniosek, co przy `get_songs` („desktop NIGDY nie milczy", v1.64) — tam połknięty
+  `catch{}` potrafił zawiesić Pilota na stronie 0 biblioteki. Gwarancję daje jedno miejsce:
+  `PilotMaintenance.ExecuteAsync` (całe ciało w `try`, każda ścieżka wyjścia wysyła komunikat,
+  `finally` zwalnia blokadę). Nawet wysyłka jest osłonięta — zerwane łącze w trakcie kopiowania
+  bazy jest normalne i nie może zjeść wyniku. Sabotaż „wyjątek przestaje wysyłać komunikat
+  terminalny" = 1 FAIL.
+- **Jedna operacja naraz.** Druga dostaje `ok:false, reason:"busy"` + `taskId` zadania, które
+  TRWA. Sprawdzenie, rezerwacja i odczyt trwającego identyfikatora są w JEDNEJ sekcji krytycznej
+  (`Runner.TryStart(out taskId)`) — odczyt „kto zajmuje" poza blokadą trafiał w `null`, gdy
+  operacja kończyła się w tej samej milisekundzie (złapane w harnessie).
+- **Nieznana operacja NIE rezerwuje blokady** — literówka z tabletu nie może zablokować maszyny
+  na czas, którego nikt nie zwolni.
+- **Stan blokady jest APLIKACYJNY, nie per-klient** (`MainWindow._maintenanceRunner`): operacja
+  trwa dalej, gdy tablet się rozłączy, i drugi tablet ma wtedy dostać `busy`.
+
+**JEDNA implementacja operacji dla okna i tabletu** — `Services/MaintenanceOps.cs`. Przycisk
+w zakładce USTAWIENIA i komenda z tabletu robią dokładnie to samo, różniąc się WYŁĄCZNIE tym,
+skąd bierze się ścieżka docelowa (okno dialogowe vs folder wymiany). Dwie niezależne kopie tej
+samej operacji to układ, który w tym projekcie już raz zgubił dane (dwie listy pól przy zapisie
+zestawu, v1.6). `import_psalms` idzie wprost przez `DatabaseService.ImportPsalmySeedAsync` (ta
+sama metoda co przycisk); `-1` = brak kategorii „Psalmy responsoryjne" → `failed` z
+`message:"psalms_category_missing"`, nie „sukces z zerem psalmów".
+
+**Etap 4A świadomie NIE daje:** pobrania kopii na tablet (archiwum z obrazkami potrafi ważyć
+setki megabajtów — plik czeka w folderze wymiany na człowieka) ani żadnej operacji NISZCZĄCEJ.
+Przywrócenie bazy, import archiwum, czyszczenie bazy i importy OpenLP/OpenSong/OSZ to **4B**.
+Razem z 4B do naprawy jest „zip slip" w `SzablonViewModel.ImportZip` (wpis `..\..\cokolwiek`
+zapisuje plik poza `AppData\Cantio`) — dziś trzeba go samemu wyklikać, ale po 4B archiwum będzie
+pochodzić z folderu, do którego pliki wkłada ktokolwiek.
+
+**Zgodność wsteczna:** wyłącznie DOPISANE typy, żaden istniejący komunikat nie zmienił kształtu.
+Stary desktop nowych komend nie rozpozna i zamilknie, więc Pilot musi użyć wzorca
+`RemoteQueryMachine` („funkcja wymaga nowszego Cantio"); stary Pilot ich nie wyśle. Obie komendy
+przechodzą normalną bramą auth — przed `auth_ok` cisza i zero plików na dysku.
+
+Harness: `MaintenanceTests.cs` (m1–m8).
+
+##### Telewizory i projektory z tabletu (v1.70+, etap 5)
+
+Do v1.69 z tabletu dało się wyłącznie włączyć i wyłączyć WSZYSTKIE urządzenia naraz. Dodać
+nowego telewizora, sparować go, nazwać ani usunąć nie dało się w ogóle — więc parafia w trybie
+serwerowym (mini PC bez klawiatury, ukryte okno) nie podłączyła nowego ekranu bez podpinania
+klawiatury. Odpowiednikiem w oknie jest `DevicesViewModel` (USTAWIENIA → „Urządzenia
+projekcyjne") i to JEGO ścieżki wykonują tu całą robotę.
+
+- **NIGDY nie wysyłamy poświadczeń.** `projection_devices` trzyma token parowania Samsunga
+  i klucz PSK Sony — to dostęp do sprzętu w sieci parafialnej. `PilotDevices.BuildDevicesJson`
+  dostaje PEŁNE encje, ale wypisuje z nich **ręcznie sześć pól** (`id,label,name,kind,ip,state`);
+  nigdzie w tym pliku nie ma serializacji całego `ProjectionDevice`, bo wtedy dopisanie pola do
+  modelu wypuściłoby poświadczenie bez jednej linijki zmiany. Adres MAC też nie wychodzi (tablet
+  go nie potrzebuje, a to identyfikator sprzętu). Strażnik: asercja harnessu na **pełną listę
+  pól** pozycji. Sabotaż „do listy wycieka pole z tokenem" = 3 FAIL (d1).
+- **Wykrywanie MUSI mieć ścieżkę ręczną po IP.** Lekcja z hotfiksu v1.55 robionego z kościoła:
+  SSDP nie przechodzi w sieciach z izolacją klientów, a telewizor jest wtedy normalnie osiągalny
+  po adresie. Dlatego `device_pair` przyjmuje SAMO `ip`, bez wcześniejszego wykrycia — i tak samo
+  musi to wyglądać w interfejsie tabletu. `discoveredId` z `devices_found` jest wygodą: niesie
+  adres, nazwę i MAC z wykrycia, więc oszczędza jedno zapytanie do telewizora.
+- **Parowanie Samsunga wymaga CZŁOWIEKA PRZY TELEWIZORZE** (ekran pyta o zgodę). Tablet ma to
+  powiedzieć PRZED wysłaniem komendy, a nie pokazywać kręciołek i po czasie „nie udało się".
+- **Ack natychmiast, wynik broadcastem.** Wykrywanie i parowanie trwają sekundy, a Wake-on-LAN
+  wysyła serię pakietów kilkanaście — więc `device_discover`, `device_pair` i `device_power`
+  potwierdzają PRZYJĘCIE komendy od razu, a wynik idzie osobno. **NIEZMIENNIK: operacja ZAWSZE
+  kończy się komunikatem KOŃCOWYM** (`devices_found` / `device_pair_result`), także gdy rzuci
+  wyjątkiem — po acku tablet CZEKA, więc cisza to kręciołek bez wyjścia (ten sam wniosek co przy
+  `get_songs` i przy operacjach konserwacyjnych). Sabotaż „wykrywanie z wyjątkiem przestaje
+  wysyłać komunikat końcowy" = 1 FAIL (d8). Wynik `device_test` jest WYJĄTKIEM i wraca w acku:
+  to jedno zapytanie z timeoutem, nie skan sieci.
+- **Oznaczenie za długie ODRZUCAMY, zamiast dociąć** (to samo rozstrzygnięcie co `loop_interval`
+  w ustawieniach systemowych): ciche docięcie pokazałoby na pasku co innego, niż tablet wysłał.
+  Puste oznaczenie jest POPRAWNE — znaczy „numer porządkowy".
+- **Jedno wykrywanie naraz**, stan aplikacyjny (nie per klient): drugie dostaje `busy`, a pole
+  `discovering` w `devices_data` mówi świeżo podłączonemu tabletowi, że coś trwa.
+- **Sterowniki wchodzą PORTEM** `PilotDevices.Port` (ten sam wzorzec co `PilotImages.Scaler`,
+  `RunOnStartupPort`, `PilotServerPort`). Rdzeń mówi CO, a `MainWindow` wykonuje to przez
+  `DevicesViewModel.*FromRemoteAsync` — czyli te same ścieżki co przyciski w oknie, więc lista
+  w USTAWIENIACH, odpytywanie w tle i przyciski paska górnego widzą zmiany z tabletu od razu.
+  Wszystko idzie przez `Dispatcher`, bo lista urządzeń jest przypięta do UI. Harness podstawia
+  atrapę i **nie wysyła pakietów do prawdziwej sieci**.
+- **Broadcast `devices_data` ma JEDNO miejsce**: `DevicesViewModel.DevicesChanged` w `MainWindow`
+  (obok istniejącego `devices`). Dzięki temu zmiana stanu wykryta odpytywaniem w tle dociera do
+  tabletu tak samo jak ta wywołana komendą.
+- **Parujemy wyłącznie Samsunga, resztę DODAJEMY.** `device_pair` robi handshake z telewizorem,
+  który pyta o zgodę na swoim ekranie; inne `kind` dostaje tam jawną odmowę `unsupported_kind` —
+  sparowanie projektora PJLink „jako Samsunga" dałoby wpis, który wygląda poprawnie i nigdy nie
+  zadziała. PJLink, Sony i Wake-on-LAN wchodzą osobną komendą `device_add` (niżej): to nie jest
+  ten sam czasownik z innym parametrem, tylko inna operacja — nic nie leci do sieci, dopisujemy
+  wpis do listy, więc wynik jest w ACKU od razu, bez komunikatu końcowego. Symetrycznie:
+  `device_add` z `kind:"samsung"` też odmawia `unsupported_kind`.
+- **`device_add` — projektor kościelny to najczęściej PJLink.** Bez tej komendy pierwsza runda
+  domykała tylko telewizory Samsung, a zdanie „parafia nie podłączy nowego sprzętu bez klawiatury"
+  zostawało prawdziwe dla projektorów. Wykonuje ją `DevicesViewModel.AddFromRemoteAsync` ścieżką
+  formularza „Dodaj" z okna (`CreateItem` + `PersistAsync`) — żadnego drugiego zapisu do
+  `projection_devices`. Rozstrzyganie jest w rdzeniu: typ, pola obowiązkowe zależne od typu
+  (`ip` dla pjlink/sony, `psk` dla sony, `mac` dla wol), postać adresu (IP albo nazwa hosta —
+  śmieć odrzucamy) i MAC-a, zakres portu TCP, długość oznaczenia.
+- **Duplikaty `device_add`:** to samo IP albo ten sam MAC (porównywany bez separatorów i wielkości
+  liter, więc `aa-bb-…` = `AA:BB:…`) → `duplicate` i NIC się nie dzieje. Parafia z jednym
+  projektorem nie ma go mieć na liście trzy razy dlatego, że ktoś kliknął dwa razy.
+- **Poświadczenia z `device_add` jadą TYLKO w jedną stronę:** `password` (PJLink) i `psk` (Sony)
+  przychodzą z tabletu, lądują w `projection_devices` i nie wracają w ŻADNYM komunikacie ani do
+  logu — pilnuje tego ten sam strażnik pełnej listy pól co przy `get_devices` (d1) plus osobne
+  przeszukanie surowych komunikatów w d11. Sabotaż „PSK wycieka do listy urządzeń" = 8 FAIL.
+  W interfejsie tabletu ostrzeżenie o zgodzie na ekranie telewizora należy pokazywać WYŁĄCZNIE
+  dla Samsunga — projektor PJLink o nic nie pyta.
+- **Zgodność wsteczna:** wyłącznie DOPISANE typy. `devices` (stan zbiorczy) i `devices_power_all`
+  BEZ ZMIAN — stary Pilot ma na nich swój przycisk; strażnikiem jest asercja na pełną listę pól
+  `devices` (d9). Komendy przechodzą normalną bramą auth — przed `auth_ok` cisza.
+- Harness: `DevicesTests.cs` (d1–d11).
 
 ##### Edytor pieśni (v1.63+)
 
