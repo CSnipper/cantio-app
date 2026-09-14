@@ -1,4 +1,4 @@
-# Cantio/Services — lokalny kontekst
+﻿# Cantio/Services — lokalny kontekst
 
 ## DatabaseService — zasady
 
@@ -163,6 +163,14 @@ Ustawienia: `pilot_pin`, `pilot_tokens`, `pilot_require_pin` (+ istniejące `pil
 | `image_put_chunk` | `uploadId`, `seq`, `data` (base64 ≤64 kB) | kolejny kawałek → `ack {uploadId, seq}`; `reason`: `bad_seq` · `unknown_upload` · `bad_data` · `too_large` |
 | `image_put_end` | `uploadId` | sklejenie + `ImageStorage.Import` → `ack {uploadId, ref}`; `reason`: `unknown_upload` · `incomplete` · `read_failed` |
 | `setlist_add_image` | `ref` | dodaj pozycję-obrazek do BIEŻĄCEGO zestawu (ścieżka przycisku 🖼 w oknie) → `ack {ref}` + broadcast `setlist`; brak pliku → `reason:"not_found"` |
+| `get_devices` | — | → `devices_data` **do nadawcy**: lista urządzeń projekcyjnych (v1.70) |
+| `device_power` | `id`, `on` (bool) | włącz/wyłącz JEDNO urządzenie → `ack {id,on}` **natychmiast**, stan w broadcastcie `devices_data`; `reason`: `not_found` · `invalid_value` (+ `key`) |
+| `device_rename` | `id`, `label` | własne oznaczenie na pasku, **maks. 4 znaki** (puste = numer) → `ack {id,label}` + broadcast `devices_data`; `reason`: `too_long` (+ `max`) · `not_found` · `invalid_value` |
+| `device_remove` | `id` | usuń urządzenie z listy → `ack {id}` + broadcast `devices_data`; `reason`: `not_found` · `invalid_value` |
+| `device_test` | `id` | test łączności — **wynik w ACKU** (`ok` + `message` = stan) + broadcast `devices_data`; `reason`: `not_found` |
+| `device_discover` | — | skan sieci (SSDP) → `ack` **natychmiast**, wynik broadcastem `devices_found`; `reason`: `busy` (skan już trwa) |
+| `device_pair` | `ip` **albo** `discoveredId`, `kind?` | parowanie i dodanie → `ack {ip}` **natychmiast**, wynik broadcastem `device_pair_result`; `reason`: `invalid_value` (brak obu pól) · `not_found` (nieznany `discoveredId`) · `unsupported_kind` |
+| `device_add` | `kind` (`pjlink`\|`sony`\|`wol`), `ip`/`mac`, `name?`, `label?`, `port?`, `password?`/`psk?` | dodanie BEZ parowania → `ack {id,kind}` + broadcast `devices_data`; wymagane: `ip` (pjlink/sony), `psk` (sony), `mac` (wol); `reason`: `invalid_value` (+ `key`) · `unsupported_kind` (m.in. `samsung` — ten idzie przez `device_pair`) · `duplicate` (to samo IP/MAC już jest) · `too_long` (oznaczenie) |
 | `devices_power_all` | `on` (bool) | włącz/wyłącz wszystkie urządzenia projekcyjne |
 | `status` | — | → `status_data` (diagnostyka zdalna) |
 | `restart_app` | — | restart procesu Cantio (→ `ack`) |
@@ -323,6 +331,9 @@ Pilot edytuje zestawy offline, więc ten sam zestaw może się zmienić po obu s
 | `system_settings_data` | `settings` (`app_mode`, `projection_screen`, `language`, … , `pilot_pin`, `pilot_require_pin`, `pilot_port`), `screens[]` (`{index,label,width,height,primary}`), `languages[]`, `dioceses[]`, `restartRequired`, `trialSeconds`, **`pilotRunning`**, **`pairedDevices`** (dwa ostatnie TYLKO DO ODCZYTU) | ustawienia systemowe — na `get_system_settings` (do nadawcy), broadcastem po zmianie z tabletu i po samoczynnym cofnięciu ekranu |
 | `exchange_files_data` | `path` (pełna ścieżka katalogu), `files[]` (`{name,size,modified,kind}`) | zawartość folderu wymiany — TYLKO na żądanie `get_exchange_files`, do nadawcy; `kind`: `db`·`zip`·`osz`·`sqlite`·`xml`·`image`·`other` (po rozszerzeniu); pusty katalog = pusta lista (v1.70) |
 | `maintenance_progress` | `taskId`, `op`, `state` (`running`/`done`/`failed`), `percent`, `message?`, `result?` | postęp i wynik długiej operacji — broadcast do WSZYSTKICH; `result` przy `done`: `{file}` (backup/eksport) albo `{count}` (psalmy); `message` przy `failed` (v1.70) |
+| `devices_data` | `devices[]` (`{id,label,name,kind,ip,state}`), `discovering` (bool) | PEŁNA lista urządzeń projekcyjnych — na `get_devices` (do nadawcy), na `ClientConnected` i broadcastem po KAŻDEJ zmianie listy lub stanu (także wykrytej odpytywaniem w tle); **żadnych poświadczeń**, zob. niżej (v1.70) |
+| `devices_found` | `devices[]` (`{discoveredId,name,ip,kind}`), `done` (zawsze `true`), `error?` | wynik wykrywania — komunikat KOŃCOWY, wychodzi także po wyjątku (v1.70) |
+| `device_pair_result` | `ok` (bool), `ip`, `error?` | wynik parowania — komunikat KOŃCOWY, wychodzi także po wyjątku (v1.70) |
 | `devices` | `state` (`on`/`off`/`mixed`), `count` | zbiorczy stan urządzeń |
 | `status_data` | `version`, `mode`, `projectionOpen`, `projectionScreen`, `screenCount`, `pairedDevices`, `uptimeSeconds` | odpowiedź na `status` |
 | `ack` | `command`, `ok` (bool) + opcjonalne `reason`, `id`, `name`, `newName`, `number`, `songs`, `setlists`, `pinned`, `days` | przyjęto komendę `restart_app` / `open_projection` / `close_projection` (bez rozszerzeń) albo wynik komendy kategorii/grup (z rozszerzeniami) |
@@ -923,6 +934,78 @@ Stary desktop nowych komend nie rozpozna i zamilknie, więc Pilot musi użyć wz
 przechodzą normalną bramą auth — przed `auth_ok` cisza i zero plików na dysku.
 
 Harness: `MaintenanceTests.cs` (m1–m8).
+
+##### Telewizory i projektory z tabletu (v1.70+, etap 5)
+
+Do v1.69 z tabletu dało się wyłącznie włączyć i wyłączyć WSZYSTKIE urządzenia naraz. Dodać
+nowego telewizora, sparować go, nazwać ani usunąć nie dało się w ogóle — więc parafia w trybie
+serwerowym (mini PC bez klawiatury, ukryte okno) nie podłączyła nowego ekranu bez podpinania
+klawiatury. Odpowiednikiem w oknie jest `DevicesViewModel` (USTAWIENIA → „Urządzenia
+projekcyjne") i to JEGO ścieżki wykonują tu całą robotę.
+
+- **NIGDY nie wysyłamy poświadczeń.** `projection_devices` trzyma token parowania Samsunga
+  i klucz PSK Sony — to dostęp do sprzętu w sieci parafialnej. `PilotDevices.BuildDevicesJson`
+  dostaje PEŁNE encje, ale wypisuje z nich **ręcznie sześć pól** (`id,label,name,kind,ip,state`);
+  nigdzie w tym pliku nie ma serializacji całego `ProjectionDevice`, bo wtedy dopisanie pola do
+  modelu wypuściłoby poświadczenie bez jednej linijki zmiany. Adres MAC też nie wychodzi (tablet
+  go nie potrzebuje, a to identyfikator sprzętu). Strażnik: asercja harnessu na **pełną listę
+  pól** pozycji. Sabotaż „do listy wycieka pole z tokenem" = 3 FAIL (d1).
+- **Wykrywanie MUSI mieć ścieżkę ręczną po IP.** Lekcja z hotfiksu v1.55 robionego z kościoła:
+  SSDP nie przechodzi w sieciach z izolacją klientów, a telewizor jest wtedy normalnie osiągalny
+  po adresie. Dlatego `device_pair` przyjmuje SAMO `ip`, bez wcześniejszego wykrycia — i tak samo
+  musi to wyglądać w interfejsie tabletu. `discoveredId` z `devices_found` jest wygodą: niesie
+  adres, nazwę i MAC z wykrycia, więc oszczędza jedno zapytanie do telewizora.
+- **Parowanie Samsunga wymaga CZŁOWIEKA PRZY TELEWIZORZE** (ekran pyta o zgodę). Tablet ma to
+  powiedzieć PRZED wysłaniem komendy, a nie pokazywać kręciołek i po czasie „nie udało się".
+- **Ack natychmiast, wynik broadcastem.** Wykrywanie i parowanie trwają sekundy, a Wake-on-LAN
+  wysyła serię pakietów kilkanaście — więc `device_discover`, `device_pair` i `device_power`
+  potwierdzają PRZYJĘCIE komendy od razu, a wynik idzie osobno. **NIEZMIENNIK: operacja ZAWSZE
+  kończy się komunikatem KOŃCOWYM** (`devices_found` / `device_pair_result`), także gdy rzuci
+  wyjątkiem — po acku tablet CZEKA, więc cisza to kręciołek bez wyjścia (ten sam wniosek co przy
+  `get_songs` i przy operacjach konserwacyjnych). Sabotaż „wykrywanie z wyjątkiem przestaje
+  wysyłać komunikat końcowy" = 1 FAIL (d8). Wynik `device_test` jest WYJĄTKIEM i wraca w acku:
+  to jedno zapytanie z timeoutem, nie skan sieci.
+- **Oznaczenie za długie ODRZUCAMY, zamiast dociąć** (to samo rozstrzygnięcie co `loop_interval`
+  w ustawieniach systemowych): ciche docięcie pokazałoby na pasku co innego, niż tablet wysłał.
+  Puste oznaczenie jest POPRAWNE — znaczy „numer porządkowy".
+- **Jedno wykrywanie naraz**, stan aplikacyjny (nie per klient): drugie dostaje `busy`, a pole
+  `discovering` w `devices_data` mówi świeżo podłączonemu tabletowi, że coś trwa.
+- **Sterowniki wchodzą PORTEM** `PilotDevices.Port` (ten sam wzorzec co `PilotImages.Scaler`,
+  `RunOnStartupPort`, `PilotServerPort`). Rdzeń mówi CO, a `MainWindow` wykonuje to przez
+  `DevicesViewModel.*FromRemoteAsync` — czyli te same ścieżki co przyciski w oknie, więc lista
+  w USTAWIENIACH, odpytywanie w tle i przyciski paska górnego widzą zmiany z tabletu od razu.
+  Wszystko idzie przez `Dispatcher`, bo lista urządzeń jest przypięta do UI. Harness podstawia
+  atrapę i **nie wysyła pakietów do prawdziwej sieci**.
+- **Broadcast `devices_data` ma JEDNO miejsce**: `DevicesViewModel.DevicesChanged` w `MainWindow`
+  (obok istniejącego `devices`). Dzięki temu zmiana stanu wykryta odpytywaniem w tle dociera do
+  tabletu tak samo jak ta wywołana komendą.
+- **Parujemy wyłącznie Samsunga, resztę DODAJEMY.** `device_pair` robi handshake z telewizorem,
+  który pyta o zgodę na swoim ekranie; inne `kind` dostaje tam jawną odmowę `unsupported_kind` —
+  sparowanie projektora PJLink „jako Samsunga" dałoby wpis, który wygląda poprawnie i nigdy nie
+  zadziała. PJLink, Sony i Wake-on-LAN wchodzą osobną komendą `device_add` (niżej): to nie jest
+  ten sam czasownik z innym parametrem, tylko inna operacja — nic nie leci do sieci, dopisujemy
+  wpis do listy, więc wynik jest w ACKU od razu, bez komunikatu końcowego. Symetrycznie:
+  `device_add` z `kind:"samsung"` też odmawia `unsupported_kind`.
+- **`device_add` — projektor kościelny to najczęściej PJLink.** Bez tej komendy pierwsza runda
+  domykała tylko telewizory Samsung, a zdanie „parafia nie podłączy nowego sprzętu bez klawiatury"
+  zostawało prawdziwe dla projektorów. Wykonuje ją `DevicesViewModel.AddFromRemoteAsync` ścieżką
+  formularza „Dodaj" z okna (`CreateItem` + `PersistAsync`) — żadnego drugiego zapisu do
+  `projection_devices`. Rozstrzyganie jest w rdzeniu: typ, pola obowiązkowe zależne od typu
+  (`ip` dla pjlink/sony, `psk` dla sony, `mac` dla wol), postać adresu (IP albo nazwa hosta —
+  śmieć odrzucamy) i MAC-a, zakres portu TCP, długość oznaczenia.
+- **Duplikaty `device_add`:** to samo IP albo ten sam MAC (porównywany bez separatorów i wielkości
+  liter, więc `aa-bb-…` = `AA:BB:…`) → `duplicate` i NIC się nie dzieje. Parafia z jednym
+  projektorem nie ma go mieć na liście trzy razy dlatego, że ktoś kliknął dwa razy.
+- **Poświadczenia z `device_add` jadą TYLKO w jedną stronę:** `password` (PJLink) i `psk` (Sony)
+  przychodzą z tabletu, lądują w `projection_devices` i nie wracają w ŻADNYM komunikacie ani do
+  logu — pilnuje tego ten sam strażnik pełnej listy pól co przy `get_devices` (d1) plus osobne
+  przeszukanie surowych komunikatów w d11. Sabotaż „PSK wycieka do listy urządzeń" = 8 FAIL.
+  W interfejsie tabletu ostrzeżenie o zgodzie na ekranie telewizora należy pokazywać WYŁĄCZNIE
+  dla Samsunga — projektor PJLink o nic nie pyta.
+- **Zgodność wsteczna:** wyłącznie DOPISANE typy. `devices` (stan zbiorczy) i `devices_power_all`
+  BEZ ZMIAN — stary Pilot ma na nich swój przycisk; strażnikiem jest asercja na pełną listę pól
+  `devices` (d9). Komendy przechodzą normalną bramą auth — przed `auth_ok` cisza.
+- Harness: `DevicesTests.cs` (d1–d11).
 
 ##### Edytor pieśni (v1.63+)
 

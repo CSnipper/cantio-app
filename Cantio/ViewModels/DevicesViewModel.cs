@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Threading;
@@ -442,7 +442,14 @@ public partial class DevicesViewModel : ObservableObject
     // ─── Wykrywanie / parowanie Samsung ──────────────────────────────────
 
     [RelayCommand]
-    private async Task Discover()
+    private Task Discover() => DiscoverInternalAsync();
+
+    /// <summary>
+    /// Skan SSDP + wypełnienie listy „Sparuj i dodaj". Jedyna ścieżka wykrywania — używa jej
+    /// przycisk w oknie i komenda <c>device_discover</c> z tabletu, więc obie widzą ten sam
+    /// wynik i ten sam status.
+    /// </summary>
+    private async Task<IReadOnlyList<DiscoveredTv>> DiscoverInternalAsync()
     {
         IsDiscovering = true;
         Discovered.Clear();
@@ -461,6 +468,7 @@ public partial class DevicesViewModel : ObservableObject
             DiscoverStatus = LocalizationManager.Get("Devices.DiscoverNone");
         }
         finally { IsDiscovering = false; }
+        return [.. Discovered];
     }
 
     [RelayCommand]
@@ -543,6 +551,133 @@ public partial class DevicesViewModel : ObservableObject
             PairStatus = ex.Message;
             return false;
         }
+    }
+
+    // ─── Zdalne zarządzanie z tabletu (PilotDevices) ─────────────────────
+    // Wszystko poniżej WOŁA ISTNIEJĄCE ścieżki tej klasy — nie ma tu drugiej implementacji
+    // zasilania, parowania ani zapisu listy. Dzięki temu lista w oknie, odpytywanie w tle
+    // i przyciski paska górnego widzą zmiany z tabletu od razu.
+
+    private DeviceItemViewModel? FindById(string id) =>
+        Devices.FirstOrDefault(d => d.Device.Id == id);
+
+    /// <summary>Lista urządzeń z ostatnio znanym stanem — bez ruchu w sieci.</summary>
+    public IReadOnlyList<PilotDevices.DeviceEntry> SnapshotForRemote() =>
+        [.. Devices.Select(d => new PilotDevices.DeviceEntry(d.Device, d.State))];
+
+    /// <summary>Włącza/wyłącza jedno urządzenie na żądanie tabletu; false = nie ma takiego id.</summary>
+    public async Task<bool> SetPowerFromRemoteAsync(string id, bool on)
+    {
+        var item = FindById(id);
+        if (item is null) return false;
+        await (on ? PowerOn(item) : PowerOff(item));
+        return true;
+    }
+
+    /// <summary>Zapisuje własne oznaczenie (długość pilnuje już PilotDevices); false = nie ma takiego id.</summary>
+    public async Task<bool> RenameFromRemoteAsync(string id, string label)
+    {
+        var item = FindById(id);
+        if (item is null) return false;
+        item.Label = label;
+        await PersistAsync();
+        return true;
+    }
+
+    /// <summary>Usuwa urządzenie z listy; false = nie ma takiego id.</summary>
+    public async Task<bool> RemoveFromRemoteAsync(string id)
+    {
+        var item = FindById(id);
+        if (item is null) return false;
+        await RemoveDevice(item);
+        return true;
+    }
+
+    /// <summary>
+    /// Test łączności z jednym urządzeniem: odpytanie stanu tą samą drogą co przycisk odświeżania.
+    /// <c>Ok=false</c> znaczy „nie odpowiada" (stan nieznany), a nie „wyłączone".
+    /// </summary>
+    public async Task<(bool Found, bool Ok, string Message)> TestFromRemoteAsync(string id)
+    {
+        var item = FindById(id);
+        if (item is null) return (false, false, "");
+        item.IsBusy = true;
+        try
+        {
+            var state = await _control.GetStateAsync(item.Device);
+            item.State = state;
+            item.ConsecutivePollFailures = 0;
+            return (true, state != DevicePowerState.Unknown, PilotDevices.StateName(state));
+        }
+        finally { item.IsBusy = false; NotifyDevicesChanged(); }
+    }
+
+    /// <summary>Wykrywanie na żądanie tabletu — ta sama ścieżka co przycisk „Szukaj".</summary>
+    public async Task<IReadOnlyList<PilotDevices.Found>> DiscoverFromRemoteAsync()
+    {
+        var found = await DiscoverInternalAsync();
+        return [.. found.Select(f => new PilotDevices.Found(f.Name, f.Ip, f.Mac, "samsung"))];
+    }
+
+    /// <summary>
+    /// Parowanie i dodanie Samsunga na żądanie tabletu. <paramref name="name"/> i
+    /// <paramref name="mac"/> są znane tylko po wykryciu — przy ścieżce RĘCZNEJ (samo IP,
+    /// lekcja v1.55: SSDP nie przechodzi w sieciach z izolacją klientów) dobieramy je
+    /// tak samo jak przycisk „Połącz i sparuj".
+    /// </summary>
+    public async Task<(bool Ok, string? Error)> PairFromRemoteAsync(string ip, string? name, string? mac)
+    {
+        ip = (ip ?? "").Trim();
+        if (ip.Length == 0) return (false, "missing_ip");
+
+        if (name is null || mac is null)
+        {
+            var (infoName, infoMac) = await SamsungTvDriver.GetInfoAsync(ip);
+            // Kod, nie zdanie: tablet ma własne tłumaczenia, a komunikat okna byłby
+            // w języku KOMPUTERA, nie tabletu.
+            if (infoName is null) return (false, "no_connection");
+            name ??= infoName;
+            mac ??= infoMac ?? "";
+        }
+
+        var device = new ProjectionDevice
+        {
+            Type = "samsung",
+            Name = string.IsNullOrWhiteSpace(name) ? ip : name,
+            Ip = ip,
+            Mac = mac ?? ""
+        };
+        var ok = await PairAndAddDeviceAsync(device);
+        return (ok, ok ? null : (string.IsNullOrWhiteSpace(PairStatus) ? "pair_failed" : PairStatus));
+    }
+
+    /// <summary>
+    /// Dodanie urządzenia BEZ parowania (PJLink / Sony / Wake-on-LAN) na żądanie tabletu —
+    /// odpowiednik przycisku „Dodaj" w sekcji „Urządzenia projekcyjne". Zwraca nadany identyfikator.
+    ///
+    /// <para>Wartości są już sprawdzone przez <see cref="PilotDevices"/> (typ, adres, duplikaty,
+    /// długość oznaczenia), więc tutaj zostaje wyłącznie zbudowanie encji i zapis TĄ SAMĄ drogą
+    /// co formularz w oknie: <c>CreateItem</c> + <c>PersistAsync</c>. Hasło PJLink i klucz PSK Sony
+    /// lądują w <c>projection_devices</c> i nigdy stamtąd nie wracają na łącze.</para>
+    /// </summary>
+    public async Task<string> AddFromRemoteAsync(PilotDevices.AddRequest request)
+    {
+        var name = (request.Name ?? "").Trim();
+        var device = new ProjectionDevice
+        {
+            Type = request.Kind,
+            // Nazwa pusta = to, po czym urządzenie da się rozpoznać na liście (jak w oknie).
+            Name = name.Length > 0 ? name : (request.Ip.Length > 0 ? request.Ip : request.Mac),
+            Label = TrimLabel(request.Label),
+            Ip = request.Ip,
+            Mac = request.Mac,
+            Password = request.Password ?? "",
+            Port = request.Port
+        };
+        Devices.Add(CreateItem(device));
+        await PersistAsync();
+        _ = RefreshStatesInternalAsync();
+        return device.Id;
     }
 
     // ─── Test PJLink ─────────────────────────────────────────────────────

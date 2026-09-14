@@ -67,6 +67,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
     public event Action<System.Net.WebSockets.WebSocket, string>? TextItemCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? ImageCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket, string>? MaintenanceCommandRequested;
+    public event Action<System.Net.WebSockets.WebSocket, string>? DevicesCommandRequested;
     public event Action<System.Net.WebSockets.WebSocket>? ClientDisconnected;
 
     /// <summary>
@@ -110,6 +111,7 @@ public partial class RemoteControlViewModel : ObservableObject, IDisposable
         _server.TextItemCommandRequested    += (ws, raw)  => TextItemCommandRequested?.Invoke(ws, raw);
         _server.ImageCommandRequested       += (ws, raw)  => ImageCommandRequested?.Invoke(ws, raw);
         _server.MaintenanceCommandRequested += (ws, raw)  => MaintenanceCommandRequested?.Invoke(ws, raw);
+        _server.DevicesCommandRequested     += (ws, raw)  => DevicesCommandRequested?.Invoke(ws, raw);
         _server.ClientDisconnected          += ws         => ClientDisconnected?.Invoke(ws);
         _server.TokenIssued                 += OnTokenIssued;
         _server.ClientRejected              += info =>

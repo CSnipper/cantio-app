@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -81,6 +81,10 @@ public sealed class RemoteControlServer : IDisposable
     public event Action<WebSocket, string>? ImageCommandRequested;
     /// <summary>Folder wymiany i operacje konserwacyjne (get_exchange_files / maintenance_run) — logika w PilotMaintenance.</summary>
     public event Action<WebSocket, string>? MaintenanceCommandRequested;
+    /// <summary>Urządzenia projekcyjne: lista, zasilanie pojedynczego, oznaczenie, usunięcie,
+    /// test, wykrywanie, parowanie — logika w PilotDevices. Stare <c>devices_power_all</c>
+    /// zostaje na swojej dotychczasowej ścieżce (zgodność ze starym Pilotem).</summary>
+    public event Action<WebSocket, string>? DevicesCommandRequested;
     /// <summary>Klient odpadł — do sprzątnięcia jego niedokończonych uploadów.</summary>
     public event Action<WebSocket>? ClientDisconnected;
     public event Action<WebSocket>? ClientConnected;
@@ -600,6 +604,12 @@ public sealed class RemoteControlServer : IDisposable
                     // psalmów) — logika w PilotMaintenance. Ack leci NATYCHMIAST z handlera,
                     // wynik osobnym broadcastem `maintenance_progress`.
                     MaintenanceCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
+                }
+                else if (PilotDevices.IsCommand(type))
+                {
+                    // Zarządzanie telewizorami/projektorami — logika w PilotDevices. Ack leci
+                    // NATYCHMIAST z handlera, wynik wykrywania i parowania osobnym broadcastem.
+                    DevicesCommandRequested?.Invoke(ws, Encoding.UTF8.GetString(ms.ToArray()));
                 }
                 else if (type == "devices_power_all")
                 {

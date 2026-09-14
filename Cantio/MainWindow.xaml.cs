@@ -288,6 +288,15 @@ public partial class MainWindow : Window
         {
             var (state, count) = _devicesVm.GetAggregateState();
             try { await _remoteControl.BroadcastDevicesAsync(state, count); } catch { }
+            // Pełna lista dla tabletu — JEDNO miejsce, więc zmiana stanu wykryta odpytywaniem
+            // w tle dociera tak samo jak ta wywołana komendą. Stary komunikat `devices`
+            // (stan zbiorczy) zostaje bez zmian obok, bo stary Pilot ma na nim swój przycisk.
+            try
+            {
+                await _remoteControl.BroadcastJsonAsync(
+                    PilotDevices.BuildDevicesJson(_devicesVm.SnapshotForRemote()));
+            }
+            catch { }
         };
 
         _remoteControl.NextRequested  += (_, _) =>
@@ -721,6 +730,36 @@ public partial class MainWindow : Window
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda konserwacji: {ex.Message}"); }
         };
 
+        // ─── Zarządzanie telewizorami i projektorami z tabletu ───
+        // Rdzeń (PilotDevices) rozstrzyga i składa komunikaty, a WYKONUJE to DevicesViewModel
+        // swoimi istniejącymi ścieżkami — tymi samymi, których używa sekcja „Urządzenia
+        // projekcyjne" w USTAWIENIACH. Wszystko idzie przez Dispatcher, bo lista urządzeń
+        // jest przypięta do UI.
+        Task<T> OnDevicesUiAsync<T>(Func<Task<T>> body) => Dispatcher.InvokeAsync(body).Task.Unwrap();
+
+        PilotDevices.Port = new PilotDevices.DevicesPort(
+            List:     () => Task.FromResult(Dispatcher.Invoke(() => _devicesVm.SnapshotForRemote())),
+            Power:    (id, on) => OnDevicesUiAsync(() => _devicesVm.SetPowerFromRemoteAsync(id, on)),
+            Rename:   (id, label) => OnDevicesUiAsync(() => _devicesVm.RenameFromRemoteAsync(id, label)),
+            Remove:   id => OnDevicesUiAsync(() => _devicesVm.RemoveFromRemoteAsync(id)),
+            Test:     id => OnDevicesUiAsync(() => _devicesVm.TestFromRemoteAsync(id)),
+            Discover: () => OnDevicesUiAsync(() => _devicesVm.DiscoverFromRemoteAsync()),
+            Pair:     (ip, name, mac) => OnDevicesUiAsync(() => _devicesVm.PairFromRemoteAsync(ip, name, mac)),
+            Add:      req => OnDevicesUiAsync(() => _devicesVm.AddFromRemoteAsync(req)));
+
+        _remoteControl.DevicesCommandRequested += async (ws, raw) =>
+        {
+            try
+            {
+                var result = await PilotDevices.HandleAsync(raw);
+                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
+                // BEZ await: ack ma wyjść natychmiast, a wykrywanie i parowanie trwają sekundy.
+                if (result.Work != null)
+                    _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Komenda urządzeń: {ex.Message}"); }
+        };
+
         // ─── Edytor pieśni z Pilota ───
         // Logika siedzi w PilotSongEdit; tu zostaje wysyłka, broadcast `song_changed` i odświeżenie
         // okna Cantio TĄ SAMĄ ścieżką co zapis w edytorze pieśni (listy + przeładowanie pieśni,
@@ -829,6 +868,8 @@ public partial class MainWindow : Window
                 var (devState, devCount) = _devicesVm.GetAggregateState();
                 var devJson = JsonSerializer.Serialize(new { type = "devices", state = devState, count = devCount });
                 await _remoteControl.SendToClientAsync(ws, devJson);
+                await _remoteControl.SendToClientAsync(ws,
+                    PilotDevices.BuildDevicesJson(_devicesVm.SnapshotForRemote()));
             }
             catch { }
         };
