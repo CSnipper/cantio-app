@@ -852,7 +852,11 @@ public partial class DisplayViewModel : ObservableObject
             foreach (var v in items)
             {
                 counters[v.Type] = counters.GetValueOrDefault(v.Type) + 1;
-                EditingVerses.Add(new VerseEditorItem { Type = v.Type, Text = v.Text, Number = counters[v.Type], ImagePath = v.ImagePath });
+                // Pola treści przepisuje WYŁĄCZNIE VerseSnapshot — to samo miejsce, z którego
+                // korzysta zapis (inaczej pole widziane tylko przez jedną stronę ginie po cichu).
+                var item = new VerseEditorItem { Number = counters[v.Type] };
+                VerseSnapshot.ToDraft(v, item);
+                EditingVerses.Add(item);
             }
 
             if (!string.IsNullOrEmpty(full.PlayOrderJson))
@@ -898,14 +902,9 @@ public partial class DisplayViewModel : ObservableObject
         // kategorii" — tak wraca z edytora pieśń odczepiona od skasowanej kategorii.
         _editingSong.CategoryId = _editCategoryId;
         int pos = 0;
-        _editingSong.Verses = EditingVerses.Select(v => new Verse
-        {
-            Type = v.Type,
-            Text = v.Text,
-            ImagePath = v.ImagePath,
-            Position = pos++,
-            SongId = _editingSong.Id
-        }).ToList();
+        _editingSong.Verses = EditingVerses
+            .Select(v => VerseSnapshot.ForSave(v, pos++, _editingSong.Id))
+            .ToList();
 
         // Zapisz kolejność odtwarzania
         var verseList = EditingVerses.ToList();

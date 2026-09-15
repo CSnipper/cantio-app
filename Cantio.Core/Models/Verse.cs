@@ -1,6 +1,6 @@
 namespace Cantio.Models;
 
-public class Verse
+public class Verse : Cantio.Services.IVerseDraft
 {
     public int Id { get; set; }
     public int Position { get; set; }

@@ -346,16 +346,12 @@ public class DatabaseService
             var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
             db.Verses.RemoveRange(oldVerses);
 
+            // Pola treści przepisuje WYŁĄCZNIE VerseSnapshot. Ta metoda miała własną listę
+            // i gubiła `Lekcjonarz` przy KAŻDYM zapisie istniejącej pieśni — także z tabletu
+            // (`song_update`) i z edytora „wklej całość". Dla psalmów znaczyło to skasowanie
+            // podziału na wydanie nowe i stare, czyli pokazanie obu naraz.
             foreach (var v in song.Verses)
-                db.Verses.Add(new Verse
-                {
-                    SongId = song.Id,
-                    Position = v.Position,
-                    Type = v.Type,
-                    Text = v.Text,
-                    ImagePath = v.ImagePath,
-                    BackgroundImagePath = v.BackgroundImagePath
-                });
+                db.Verses.Add(VerseSnapshot.ForSave(v, v.Position, song.Id));
         }
         await db.SaveChangesAsync();
     }
