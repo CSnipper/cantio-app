@@ -452,4 +452,8 @@
     <sys:String x:Key="Acc.LicenseEmpty">No key was pasted</sys:String>
     <sys:String x:Key="Acc.LicenseWrongProduct">This key is not for this program</sys:String>
 
+    <sys:String x:Key="Editor.VerseBackground">Background:</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundPick">Choose verse background</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundClear">Remove verse background</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
 </ResourceDictionary>

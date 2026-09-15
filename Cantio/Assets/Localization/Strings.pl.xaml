@@ -453,4 +453,8 @@
     <sys:String x:Key="Acc.LicenseEmpty">Nie wklejono klucza</sys:String>
     <sys:String x:Key="Acc.LicenseWrongProduct">Klucz nie jest przeznaczony dla tego programu</sys:String>
 
+    <sys:String x:Key="Editor.VerseBackground">Tło:</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundPick">Wybierz tło zwrotki</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundClear">Usuń tło zwrotki</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
 </ResourceDictionary>

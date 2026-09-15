@@ -1206,6 +1206,56 @@
                                                                     Command="{Binding BrowseImageCommand}"
                                                                     ToolTip="Wybierz plik obrazka"/>
                                                         </StackPanel>
+                                                        <!-- Tło POD tekstem zwrotki. Ukryte dla zwrotek "img",
+                                                             bo obrazek-zwrotka nie ma pod czym mieć tła.
+                                                             Układ 1:1 z edytorem podręcznym. -->
+                                                        <Grid Margin="0,4,0,0">
+                                                            <Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="img">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{DynamicResource Editor.VerseBackground}"
+                                                                       Foreground="#7080a0" FontSize="12"
+                                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding BackgroundFileName}"
+                                                                       Foreground="#9aa3b8" FontSize="12" VerticalAlignment="Center"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Visibility="{Binding HasBackground, Converter={StaticResource BoolToVis}}"/>
+                                                            <TextBlock Grid.Column="1" Text="{DynamicResource Editor.VerseBackgroundNone}"
+                                                                       Foreground="#556070" FontSize="12" VerticalAlignment="Center">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding HasBackground}" Value="False">
+                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <Button Grid.Column="2" Content="…" Width="26" Height="24" Margin="4,0,0,0"
+                                                                    Style="{StaticResource SmallIconBtn}"
+                                                                    Command="{Binding BrowseBackgroundCommand}"
+                                                                    ToolTip="{DynamicResource Editor.VerseBackgroundPick}"/>
+                                                            <Button Grid.Column="3" Content="×" Width="24" Height="24" Margin="2,0,0,0"
+                                                                    Style="{StaticResource SmallIconBtn}"
+                                                                    Command="{Binding ClearBackgroundCommand}"
+                                                                    ToolTip="{DynamicResource Editor.VerseBackgroundClear}"
+                                                                    Visibility="{Binding HasBackground, Converter={StaticResource BoolToVis}}"/>
+                                                        </Grid>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="4,16,0,0">
                                                         <!-- Zmień typ zwrotki (v → c → b → v), ukryty dla obrazków -->
