@@ -133,6 +133,7 @@
     <sys:String x:Key="Editor.PlayOrder.Rebuild">Odbuduj</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Clear">Wyczyść</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Add">+ Dodaj</sys:String>
+    <sys:String x:Key="Editor.PlayOrder.Short">Kolejność</sys:String>
     <sys:String x:Key="Btn.NewSong">NOWA PIEŚŃ</sys:String>
     <sys:String x:Key="Btn.AddToOrder">DODAJ DO KOLEJNOŚCI</sys:String>
     <sys:String x:Key="Btn.SaveSong">ZAPISZ PIEŚŃ</sys:String>

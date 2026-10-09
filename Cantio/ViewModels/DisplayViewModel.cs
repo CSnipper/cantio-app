@@ -581,6 +581,21 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private VerseEditorItem? _selectedPlayOrderAddVerse;
 
     /// <summary>
+    /// Popup „Kolejność odtwarzania" w pełnym edytorze. Zamyka się sam przy każdym wejściu
+    /// i wyjściu z edytora (inaczej wisiałby nad listą pieśni albo nad następną pieśnią);
+    /// resztę przypadków (Esc, ukrycie zakładki, dezaktywacja okna) domyka MainWindow.
+    /// </summary>
+    [ObservableProperty] private bool _isPlayOrderPopupOpen;
+
+    partial void OnIsEditModeChanged(bool value) => IsPlayOrderPopupOpen = false;
+
+    [RelayCommand]
+    private void TogglePlayOrderPopup() => IsPlayOrderPopupOpen = !IsPlayOrderPopupOpen;
+
+    [RelayCommand]
+    private void ClosePlayOrderPopup() => IsPlayOrderPopupOpen = false;
+
+    /// <summary>
     /// Kategoria wybrana przez operatora w edytorze — JEDYNE źródło prawdy przy zapisie.
     /// <see cref="EditCategory"/> jest tylko stanem kontrolki: ComboBox ma
     /// <c>ItemsSource="{Binding Categories}"</c>, więc każda podmiana INSTANCJI kolekcji
@@ -826,6 +841,7 @@ public partial class DisplayViewModel : ObservableObject
     private void NewSong()
     {
         StopLoop();
+        IsPlayOrderPopupOpen = false;
         _editingSong = new Song { Id = 0 };
         EditTitle = string.Empty;
         EditNumber = string.Empty;
@@ -842,6 +858,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task EditSongAsync(Song song)
     {
         StopLoop();
+        IsPlayOrderPopupOpen = false;
         _editingSong = song;
         EditTitle = song.Title;
         EditNumber = song.Number > 0 ? song.Number.ToString() : string.Empty;

@@ -96,6 +96,10 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Popup „Kolejność odtwarzania" w edytorze pieśni
+        if (_vm.IsPlayOrderPopupOpen && HandlePlayOrderPopupKey(e))
+            return;
+
         // Nie przechwytuj gdy fokus jest na polu tekstowym
         if (e.OriginalSource is TextBox || e.OriginalSource is RichTextBox)
         {
@@ -1460,6 +1464,85 @@ public partial class MainWindow : Window
             SongListShow.Focus();
 
         e.Handled = true;
+    }
+
+    /// <summary>
+    /// Klawisze przy otwartym popupie kolejności. Zwraca true, gdy klawisz został obsłużony
+    /// (albo świadomie przepuszczony do kontrolek popupu) i nie wolno go już oddać projekcji.
+    /// </summary>
+    private bool HandlePlayOrderPopupKey(KeyEventArgs e)
+    {
+        // Rozwinięta lista ComboBoksa — wszystkie klawisze (także Esc) należą do niej
+        if (PlayOrderAddCombo.IsDropDownOpen)
+        {
+            base.OnPreviewKeyDown(e);
+            return true;
+        }
+
+        bool focusInPopup = Keyboard.FocusedElement is DependencyObject f
+                            && PlayOrderPopup.Child is { } child
+                            && child.IsAncestorOf(f);
+
+        if (e.Key == Key.Escape)
+        {
+            _vm.IsPlayOrderPopupOpen = false;
+            // Fokus z zamkniętego popupu wraca na przycisk, który go otworzył
+            if (focusInPopup) PlayOrderButton.Focus();
+            e.Handled = true;
+            return true;
+        }
+
+        // Fokus w popupie (ComboBox, przyciski) — klawisze należą do kontrolek, nie do projekcji
+        if (focusInPopup)
+        {
+            base.OnPreviewKeyDown(e);
+            return true;
+        }
+        return false;
+    }
+
+    // Asekuracja: Esc z fokusem w popupie zwykle obsłuży już OnPreviewKeyDown okna (zdarzenia
+    // z popupu idą przez jego logicznego rodzica), ale gdyby trasa tam nie doszła — domykamy tutaj.
+    private void PlayOrderPopup_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Handled || e.Key != Key.Escape || PlayOrderAddCombo.IsDropDownOpen) return;
+        _vm.IsPlayOrderPopupOpen = false;
+        PlayOrderButton.Focus();
+        e.Handled = true;
+    }
+
+    // Edytor schowany (Wróć/Zapisz/Usuń, zmiana zakładki) — popup nie może zostać nad resztą okna
+    private void SongEditOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is false) _vm.IsPlayOrderPopupOpen = false;
+    }
+
+    // Popup WPF to osobne okno: po przełączeniu do innej aplikacji wisiałby nad nią
+    protected override void OnDeactivated(EventArgs e)
+    {
+        _vm.IsPlayOrderPopupOpen = false;
+        base.OnDeactivated(e);
+    }
+
+    // ...a przy przesunięciu/zmianie rozmiaru okna nie jedzie za nim sam — wymuszamy przeliczenie
+    protected override void OnLocationChanged(EventArgs e)
+    {
+        base.OnLocationChanged(e);
+        RepositionPlayOrderPopup();
+    }
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        base.OnRenderSizeChanged(sizeInfo);
+        RepositionPlayOrderPopup();
+    }
+
+    private void RepositionPlayOrderPopup()
+    {
+        if (PlayOrderPopup is not { IsOpen: true } p) return;
+        var offset = p.HorizontalOffset;
+        p.HorizontalOffset = offset + 1;
+        p.HorizontalOffset = offset;
     }
 
     // Czy fokus klawiatury znajduje się wewnątrz podanej listy?

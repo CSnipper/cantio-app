@@ -1098,13 +1098,15 @@
                         </Grid.RowDefinitions>
 
                         <!-- Song Edit Mode overlay — covers entire Col 1 -->
-                        <Grid Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
-                              Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}">
+                        <Grid x:Name="SongEditOverlay" Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
+                              Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
+                              IsVisibleChanged="SongEditOverlay_IsVisibleChanged">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>  <!-- 0: Wróć -->
+                                <RowDefinition Height="Auto"/>  <!-- 1: metadane -->
+                                <RowDefinition Height="*"/>     <!-- 2: zwrotki (przewijane) -->
+                                <RowDefinition Height="Auto"/>  <!-- 3: STAŁY pasek dodawania zwrotek -->
+                                <RowDefinition Height="Auto"/>  <!-- 4: STAŁY pasek Zapisz/Edytuj/Kolejność/Usuń -->
                             </Grid.RowDefinitions>
 
                             <!-- Nagłówek: Wróć -->
@@ -1305,142 +1307,199 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <!-- Dodaj zwrotkę + Edytuj całość -->
-                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,4">
-                                        <Button Content="{DynamicResource VerseType.Verse}" Style="{StaticResource OutlineBtn}"
-                                                Margin="0,0,4,0" Padding="10,6" FontSize="23"
-                                                Command="{Binding AddVerseToEditorCommand}"
-                                                CommandParameter="v"/>
-                                        <Button Content="{DynamicResource VerseType.Chorus}" Style="{StaticResource OutlineBtn}"
-                                                Margin="0,0,4,0" Padding="10,6" FontSize="23"
-                                                Command="{Binding AddVerseToEditorCommand}"
-                                                CommandParameter="c"/>
-                                        <Button Content="{DynamicResource VerseType.Bridge}" Style="{StaticResource OutlineBtn}"
-                                                Margin="0,0,4,0" Padding="10,6" FontSize="23"
-                                                Command="{Binding AddVerseToEditorCommand}"
-                                                CommandParameter="b"/>
-                                        <Button Content="{DynamicResource VerseType.Private}" Style="{StaticResource OutlineBtn}"
-                                                Margin="0,0,4,0" Padding="10,6" FontSize="23"
-                                                Command="{Binding AddVerseToEditorCommand}"
-                                                CommandParameter="p"/>
-                                        <Button Content="{DynamicResource VerseType.Image}" Style="{StaticResource OutlineBtn}"
-                                                Padding="10,6" FontSize="23"
-                                                Command="{Binding AddVerseToEditorCommand}"
-                                                CommandParameter="img"/>
-                                    </StackPanel>
-                                    <Button Content="{DynamicResource VerseType.EditAll}" Style="{StaticResource OutlineBtn}"
-                                            HorizontalAlignment="Left" Padding="13,8" Margin="0,0,0,4" FontSize="23"
-                                            Command="{Binding OpenPasteTextEditorCommand}"/>
-
-                                    <!-- Kolejność odtwarzania -->
-                                    <Border Margin="0,8,0,4" Padding="8,6" Background="#181b24"
-                                            CornerRadius="4" BorderBrush="#2a3347" BorderThickness="1">
-                                        <StackPanel>
-                                            <!-- Nagłówek -->
-                                            <Grid Margin="0,0,0,6">
-                                                <TextBlock Text="{DynamicResource Editor.PlayOrder}"
-                                                           FontSize="14" FontWeight="Bold" Foreground="#c9a84c"
-                                                           VerticalAlignment="Center"/>
-                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                    <Button Content="{DynamicResource Editor.PlayOrder.Rebuild}"
-                                                            Style="{StaticResource OutlineBtn}"
-                                                            Padding="8,4" FontSize="14" Margin="0,0,4,0"
-                                                            Command="{Binding RebuildPlayOrderAutoCommand}"/>
-                                                    <Button Content="{DynamicResource Editor.PlayOrder.Clear}"
-                                                            Style="{StaticResource OutlineBtn}"
-                                                            Padding="8,4" FontSize="14"
-                                                            Command="{Binding ClearPlayOrderCommand}"/>
-                                                </StackPanel>
-                                            </Grid>
-
-                                            <!-- Lista kolejności -->
-                                            <ItemsControl x:Name="PlayOrderList" ItemsSource="{Binding EditPlayOrder}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,1">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="36"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Label}"
-                                                                       FontFamily="{StaticResource BodyFont}" FontSize="17"
-                                                                       FontWeight="Bold" Foreground="#c9a84c"
-                                                                       VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Column="1"
-                                                                       Text="{Binding Verse.Text}"
-                                                                       FontSize="16" Foreground="#8a8e9e"
-                                                                       TextTrimming="CharacterEllipsis"
-                                                                       VerticalAlignment="Center"/>
-                                                            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                                <Button Width="29" Height="29" Content="↑" FontSize="16"
-                                                                        Style="{StaticResource SmallIconBtn}"
-                                                                        Command="{Binding DataContext.MovePlayOrderUpCommand,
-                                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                        CommandParameter="{Binding}"/>
-                                                                <Button Width="29" Height="29" Content="↓" FontSize="16"
-                                                                        Style="{StaticResource SmallIconBtn}"
-                                                                        Command="{Binding DataContext.MovePlayOrderDownCommand,
-                                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                        CommandParameter="{Binding}"/>
-                                                                <Button Width="29" Height="29" Content="✕" FontSize="16"
-                                                                        Style="{StaticResource SmallIconBtn}"
-                                                                        Foreground="#c04040"
-                                                                        Command="{Binding DataContext.RemoveFromPlayOrderCommand,
-                                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                        CommandParameter="{Binding}"/>
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
-                                            <!-- Dodaj do kolejności -->
-                                            <Grid Margin="0,6,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <ComboBox Grid.Column="0" Style="{StaticResource DarkCombo}"
-                                                          ItemsSource="{Binding EditingVerses}"
-                                                          SelectedItem="{Binding SelectedPlayOrderAddVerse}"
-                                                          Height="36" FontSize="16" Margin="0,0,4,0">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal" TextElement.FontSize="16">
-                                                                <TextBlock Text="{Binding Label}" FontWeight="Bold"
-                                                                           Foreground="#c9a84c" Margin="0,0,6,0"/>
-                                                                <TextBlock Text="{Binding Text}"
-                                                                           TextTrimming="CharacterEllipsis"
-                                                                           MaxWidth="234"/>
-                                                            </StackPanel>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
-                                                <Button Grid.Column="1" Content="{DynamicResource Editor.PlayOrder.Add}"
-                                                        Style="{StaticResource GoldBtn}"
-                                                        Height="36" Padding="10,0" FontSize="21"
-                                                        Command="{Binding AddVerseToPlayOrderCommand}"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
                                 </StackPanel>
                             </ScrollViewer>
 
-                            <!-- Zapisz / Usuń -->
-                            <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                            <!-- STAŁY pasek: dodawanie zwrotek (nie przewija się z pieśnią).
+                                 UniformGrid dzieli szerokość po równo — przy wąskiej kolumnie
+                                 tekst się przycina, ale przyciski nie wyjeżdżają poza kolumnę. -->
+                            <Border x:Name="EditorVerseToolbar" Grid.Row="3" Background="#161b25"
+                                    BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="8,6">
+                                <UniformGrid Rows="1" Columns="5">
+                                    <Button Style="{StaticResource OutlineBtn}"
+                                            Margin="0,0,4,0" Padding="6,6" FontSize="23"
+                                            Command="{Binding AddVerseToEditorCommand}"
+                                            CommandParameter="v">
+                                        <TextBlock Text="{DynamicResource VerseType.Verse}" TextTrimming="CharacterEllipsis"/>
+                                    </Button>
+                                    <Button Style="{StaticResource OutlineBtn}"
+                                            Margin="0,0,4,0" Padding="6,6" FontSize="23"
+                                            Command="{Binding AddVerseToEditorCommand}"
+                                            CommandParameter="c">
+                                        <TextBlock Text="{DynamicResource VerseType.Chorus}" TextTrimming="CharacterEllipsis"/>
+                                    </Button>
+                                    <Button Style="{StaticResource OutlineBtn}"
+                                            Margin="0,0,4,0" Padding="6,6" FontSize="23"
+                                            Command="{Binding AddVerseToEditorCommand}"
+                                            CommandParameter="b">
+                                        <TextBlock Text="{DynamicResource VerseType.Bridge}" TextTrimming="CharacterEllipsis"/>
+                                    </Button>
+                                    <Button Style="{StaticResource OutlineBtn}"
+                                            Margin="0,0,4,0" Padding="6,6" FontSize="23"
+                                            Command="{Binding AddVerseToEditorCommand}"
+                                            CommandParameter="p">
+                                        <TextBlock Text="{DynamicResource VerseType.Private}" TextTrimming="CharacterEllipsis"/>
+                                    </Button>
+                                    <Button Style="{StaticResource OutlineBtn}"
+                                            Padding="6,6" FontSize="23"
+                                            Command="{Binding AddVerseToEditorCommand}"
+                                            CommandParameter="img">
+                                        <TextBlock Text="{DynamicResource VerseType.Image}" TextTrimming="CharacterEllipsis"/>
+                                    </Button>
+                                </UniformGrid>
+                            </Border>
+
+                            <!-- STAŁY pasek: Zapisz / Edytuj całość / Kolejność / Usuń -->
+                            <Border Grid.Row="4" Background="#161b25" BorderBrush="#2a3347"
                                     BorderThickness="0,1,0,0" Padding="8,8">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSong}"
                                             Style="{StaticResource GoldBtn}" Margin="0,0,8,0" FontSize="21"
                                             Command="{Binding SaveEditedSongCommand}"/>
-                                    <Button Grid.Column="1" Content="{DynamicResource Btn.Delete}"
+                                    <Button Grid.Column="1" Content="{DynamicResource VerseType.EditAll}"
+                                            Style="{StaticResource OutlineBtn}"
+                                            Padding="13,8" Margin="0,0,8,0" FontSize="23"
+                                            Command="{Binding OpenPasteTextEditorCommand}"/>
+                                    <!-- Kolejność: otwiera/zamyka popup; licznik pozycji, gdy lista niepusta -->
+                                    <Button x:Name="PlayOrderButton" Grid.Column="2"
+                                            Style="{StaticResource OutlineBtn}"
+                                            Padding="13,8" Margin="0,0,8,0" FontSize="23"
+                                            ToolTip="{DynamicResource Editor.PlayOrder}"
+                                            Command="{Binding TogglePlayOrderPopupCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{DynamicResource Editor.PlayOrder.Short}"/>
+                                            <TextBlock Text="{Binding EditPlayOrder.Count, StringFormat=' ({0})'}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditPlayOrder.Count}" Value="0">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="3" Content="{DynamicResource Btn.Delete}"
                                             Style="{StaticResource RedBtn}" Padding="16,0" FontSize="23"
                                             Command="{Binding DeleteEditedSongCommand}"/>
+
+                                    <!-- Popup „Kolejność odtwarzania” — nad stałymi paskami, szerokość kolumny edytora.
+                                         Stan: DisplayViewModel.IsPlayOrderPopupOpen. StaysOpen=True: klik poza nim
+                                         NIE zamyka; zamykają ✕, Esc (MainWindow.OnPreviewKeyDown), ponowny klik
+                                         „Kolejność”, zamknięcie/ukrycie edytora, dezaktywacja okna. -->
+                                    <Popup x:Name="PlayOrderPopup"
+                                           IsOpen="{Binding IsPlayOrderPopupOpen, Mode=OneWay}"
+                                           StaysOpen="True"
+                                           PreviewKeyDown="PlayOrderPopup_PreviewKeyDown"
+                                           Placement="Top"
+                                           PlacementTarget="{Binding ElementName=EditorVerseToolbar}"
+                                           Width="{Binding ActualWidth, ElementName=EditorVerseToolbar}">
+                                        <Border Padding="8,6" Background="#181b24"
+                                                CornerRadius="4" BorderBrush="#2a3347" BorderThickness="1">
+                                            <DockPanel>
+                                                <!-- Nagłówek -->
+                                                <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
+                                                    <TextBlock Text="{DynamicResource Editor.PlayOrder}"
+                                                               FontSize="14" FontWeight="Bold" Foreground="#c9a84c"
+                                                               VerticalAlignment="Center"/>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <Button Content="{DynamicResource Editor.PlayOrder.Rebuild}"
+                                                                Style="{StaticResource OutlineBtn}"
+                                                                Padding="8,4" FontSize="14" Margin="0,0,4,0"
+                                                                Command="{Binding RebuildPlayOrderAutoCommand}"/>
+                                                        <Button Content="{DynamicResource Editor.PlayOrder.Clear}"
+                                                                Style="{StaticResource OutlineBtn}"
+                                                                Padding="8,4" FontSize="14" Margin="0,0,8,0"
+                                                                Command="{Binding ClearPlayOrderCommand}"/>
+                                                        <Button Content="✕" Width="29" Height="29" FontSize="16"
+                                                                Style="{StaticResource SmallIconBtn}"
+                                                                Command="{Binding ClosePlayOrderPopupCommand}"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <!-- Dodaj do kolejności -->
+                                                <Grid DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ComboBox x:Name="PlayOrderAddCombo" Grid.Column="0" Style="{StaticResource DarkCombo}"
+                                                              ItemsSource="{Binding EditingVerses}"
+                                                              SelectedItem="{Binding SelectedPlayOrderAddVerse}"
+                                                              Height="36" FontSize="16" Margin="0,0,4,0">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <StackPanel Orientation="Horizontal" TextElement.FontSize="16">
+                                                                    <TextBlock Text="{Binding Label}" FontWeight="Bold"
+                                                                               Foreground="#c9a84c" Margin="0,0,6,0"/>
+                                                                    <TextBlock Text="{Binding Text}"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               MaxWidth="234"/>
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                    <Button Grid.Column="1" Content="{DynamicResource Editor.PlayOrder.Add}"
+                                                            Style="{StaticResource GoldBtn}"
+                                                            Height="36" Padding="10,0" FontSize="21"
+                                                            Command="{Binding AddVerseToPlayOrderCommand}"/>
+                                                </Grid>
+
+                                                <!-- Lista kolejności (przewijana) -->
+                                                <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto"
+                                                              HorizontalScrollBarVisibility="Disabled">
+                                                    <ItemsControl x:Name="PlayOrderList" ItemsSource="{Binding EditPlayOrder}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid Margin="0,1">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="36"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                                               FontFamily="{StaticResource BodyFont}" FontSize="17"
+                                                                               FontWeight="Bold" Foreground="#c9a84c"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text="{Binding Verse.Text}"
+                                                                               FontSize="16" Foreground="#8a8e9e"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                                        <Button Width="29" Height="29" Content="↑" FontSize="16"
+                                                                                Style="{StaticResource SmallIconBtn}"
+                                                                                Command="{Binding DataContext.MovePlayOrderUpCommand,
+                                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                                CommandParameter="{Binding}"/>
+                                                                        <Button Width="29" Height="29" Content="↓" FontSize="16"
+                                                                                Style="{StaticResource SmallIconBtn}"
+                                                                                Command="{Binding DataContext.MovePlayOrderDownCommand,
+                                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                                CommandParameter="{Binding}"/>
+                                                                        <Button Width="29" Height="29" Content="✕" FontSize="16"
+                                                                                Style="{StaticResource SmallIconBtn}"
+                                                                                Foreground="#c04040"
+                                                                                Command="{Binding DataContext.RemoveFromPlayOrderCommand,
+                                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                                CommandParameter="{Binding}"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </DockPanel>
+                                        </Border>
+                                    </Popup>
                                 </Grid>
                             </Border>
                         </Grid>
