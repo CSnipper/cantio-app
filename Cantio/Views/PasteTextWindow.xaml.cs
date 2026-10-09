@@ -12,6 +12,11 @@ public partial class PasteTextWindow : Window
     public PasteTextWindow(string initialText = "", bool isPsalm = false)
     {
         InitializeComponent();
+        // Okno ma podwójną czcionkę i jest duże (900×680) — na laptopie 1366×768 przy skali 125%
+        // dolny pasek z przyciskiem OK wyjechałby poza ekran. Przycinamy do obszaru roboczego.
+        var work = SystemParameters.WorkArea;
+        Width  = Math.Min(Width,  work.Width  * 0.95);
+        Height = Math.Min(Height, work.Height * 0.95);
         Loaded += (_, _) =>
         {
             InputBox.Text = initialText;

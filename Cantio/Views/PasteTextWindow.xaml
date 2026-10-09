@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource PasteText.Title}"
-        Width="540" Height="420"
+        Width="900" Height="680"
+        MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         Background="#0f1117"
@@ -18,7 +19,7 @@
 
         <TextBlock Grid.Row="0" Margin="0,0,0,10"
                    Text="{DynamicResource PasteText.Hint}"
-                   Foreground="#959fb9" FontSize="13" TextWrapping="Wrap"/>
+                   Foreground="#959fb9" FontSize="26" TextWrapping="Wrap"/>
 
         <TextBox Grid.Row="1"
                  x:Name="InputBox"
@@ -33,18 +34,25 @@
                  CaretBrush="#e8eaf0"
                  BorderBrush="#2a3347"
                  BorderThickness="1"
-                 Padding="10"
-                 FontSize="14"/>
+                 Padding="14"
+                 FontSize="28"/>
 
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <CheckBox x:Name="PsalmCheck"
                       Content="{DynamicResource PasteText.PsalmCheck}"
                       VerticalAlignment="Center"
-                      Foreground="#9aa3b8" FontSize="13"/>
+                      Foreground="#9aa3b8" FontSize="13">
+                <!-- Skala 2x zamiast FontSize=26: systemowy kwadracik CheckBoksa nie rośnie
+                     razem z czcionką, a obok tekstu 26 px wyglądałby jak kropka. -->
+                <CheckBox.LayoutTransform>
+                    <ScaleTransform ScaleX="2" ScaleY="2"/>
+                </CheckBox.LayoutTransform>
+            </CheckBox>
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-            <Button Content="{DynamicResource Btn.Cancel}" Width="100" Height="38" Margin="0,0,8,0"
+            <Button Content="{DynamicResource Btn.Cancel}" MinWidth="160" Height="60" Margin="0,0,12,0"
+                    Padding="24,0" FontSize="24"
                     Click="Cancel_Click"
                     Background="#1e2535" Foreground="#e8eaf0"
                     BorderBrush="#2a3347" BorderThickness="1">
@@ -53,13 +61,14 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button Content="{DynamicResource PasteText.OkBtn}" Width="160" Height="38"
+            <Button Content="{DynamicResource PasteText.OkBtn}" MinWidth="240" Height="60"
+                    Padding="24,0" FontSize="24"
                     Click="Ok_Click"
                     Background="#c9a84c" Foreground="#0f1117"
                     FontWeight="Bold"
@@ -68,7 +77,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>

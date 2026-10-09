@@ -205,6 +205,13 @@ public partial class DisplayViewModel : ObservableObject
     // Pieśni
 
     [ObservableProperty] private ObservableCollection<Song> _songs = [];
+
+    /// <summary>
+    /// Lista PIEŚNI pokazuje nazwę kategorii pod tytułem — tylko dla wyników wyszukiwania
+    /// (mieszają kategorie). W widoku jednej kategorii byłaby to ta sama nazwa w każdym wierszu.
+    /// Ustawiana RAZEM z <see cref="Songs"/> w obu miejscach, które je ładują.
+    /// </summary>
+    [ObservableProperty] private bool _showSongCategory;
     [ObservableProperty] private Song? _selectedSong;
     [ObservableProperty] private string _searchText = string.Empty;
 
@@ -2056,6 +2063,7 @@ public partial class DisplayViewModel : ObservableObject
         var list = categoryId == CategoryEditorItem.UncategorizedId
             ? await _db.GetUncategorizedSongsAsync()
             : await _db.GetSongsByCategoryAsync(categoryId);
+        ShowSongCategory = false;
         Songs = new ObservableCollection<Song>(SortSongs(list));
     }
 
@@ -2092,6 +2100,7 @@ public partial class DisplayViewModel : ObservableObject
         var list = await _db.SearchSongsAsync(query, ct);
         // Wyszukiwanie po numerze ma własny porządek (dokładne trafienie pierwsze) — nie przesortowuj
         var hasNumber = SongSearch.Parse(query).NumberPrefix != null;
+        ShowSongCategory = true;
         Songs = new ObservableCollection<Song>(hasNumber ? list : SortSongs(list));
     }
 

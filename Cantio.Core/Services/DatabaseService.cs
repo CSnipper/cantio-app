@@ -163,11 +163,16 @@ public class DatabaseService
         return await db.Songs.CountAsync(s => s.CategoryId == null);
     }
 
-    /// <summary>Szuka po tytule i/lub numerze ze śpiewnika — logika w <see cref="SongSearch"/>.</summary>
+    /// <summary>
+    /// Szuka po tytule i/lub numerze ze śpiewnika — logika w <see cref="SongSearch"/>.
+    /// Z kategorią (Include): wyniki wyszukiwania mieszają kategorie, więc lista pokazuje
+    /// jej nazwę pod tytułem. LEFT JOIN na małej tabeli — nie rusza filtrów ani sortowania.
+    /// </summary>
     public async Task<List<Song>> SearchSongsAsync(string query, CancellationToken ct = default)
     {
         await using var db = new CantioDbContext();
-        return await SongSearch.SearchAsync(db.Songs.AsNoTracking(), query, ct);
+        return await SongSearch.SearchAsync(
+            db.Songs.AsNoTracking().Include(s => s.Category), query, ct);
     }
 
     public async Task<Song?> GetSongWithVersesAsync(int songId)
@@ -223,6 +228,7 @@ public class DatabaseService
     {
         await using var db = new CantioDbContext();
         return await db.Songs.AsNoTracking()
+            .Include(s => s.Category)   // popup „Ostatnie" pokazuje kategorię pod tytułem
             .Where(s => s.LastUsedAt != null)
             .OrderByDescending(s => s.LastUsedAt)
             .Take(limit)
