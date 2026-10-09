@@ -228,6 +228,8 @@
     <sys:String x:Key="Settings.ServerModeHint">Dla komputera z jednym ekranem, który pokazuje wyłącznie projekcję. Okno Cantio jest ukryte, serwer pilota startuje automatycznie. Powrót do okna: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">Zmiana trybu zadziała po ponownym uruchomieniu Cantio.</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Kategoria psalmu responsoryjnego</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScale">Rozmiar refrenu psalmu (%)</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScaleHint">Refren i aklamacja w trybie psalmu: procent rozmiaru czcionki. Za długi refren zmniejsza się tak, by zmieścił się na jednym slajdzie.</sys:String>
     <sys:String x:Key="Settings.LoopInterval">Pętla slajdów — odstęp (sekundy, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>
     <sys:String x:Key="Settings.SectionFont">CZCIONKA</sys:String>

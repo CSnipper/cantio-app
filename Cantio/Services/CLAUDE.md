@@ -620,7 +620,7 @@ WYGLĄD jest więc dostępna zdalnie. Kierunek prawdy jak przy kategoriach: **ba
   w stanie w pół drogi — a to wygląda jak awaria w trakcie mszy.
 - `reason`: `unknown_key` · `invalid_value` · `empty_payload`.
 
-**Biała lista (26 kluczy — dokładnie te, których używa `DatabaseService.GetSettings`):**
+**Biała lista (27 kluczy — dokładnie te, których używa `DatabaseService.GetSettings`):**
 
 | klucz | typ JSON | dozwolone |
 |---|---|---|
@@ -640,6 +640,7 @@ WYGLĄD jest więc dostępna zdalnie. Kierunek prawdy jak przy kategoriach: **ba
 | `bg_gradient_type` | string | `linear` · `radial` |
 | `bg_gradient_angle` | number | 0–360 |
 | `psalm_category_id` | number | ≥ 0 (0 = tryb psalm wyłączony) |
+| `psalm_refrain_scale` | number (całkowita) | 100–300, % rozmiaru czcionki dla refrenu/aklamacji psalmu; brak w bazie = 200. To SUFIT: za długi refren maleje, aż zmieści się na JEDNYM slajdzie (`PsalmRefrain` + `SlideLayoutService.ComputeCappedFitFontSize`); pieśń ze sztywną czcionką (`FontSizeOverride`) — bez skali, dawne zachowanie |
 | `blank_color` | string | `#RRGGBB` albo `#AARRGGBB` (kolor wygaszonego ekranu) |
 | `blank_image_path` | string | `""` = wyłącz obrazek; niepusta ścieżka **musi istnieć** — ale sprawdzana przez `ImageStorage.Resolve` (zob. niżej) |
 

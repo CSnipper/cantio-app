@@ -485,6 +485,7 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
         await _db.SaveSettingAsync(SlideFontFit.SettingKey, SlideFontFit.ToSetting(FitScope));
         await _db.SaveSettingAsync("psalm_category_id", (SelectedPsalmCategory?.Id ?? 0).ToString());
+        await _db.SaveSettingAsync(PsalmRefrain.SettingKey, PsalmRefrain.ToSetting(PsalmRefrainScale));
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
         _projection.ApplySettings(_db.GetSettings());
@@ -520,6 +521,7 @@ public partial class SzablonViewModel : ObservableObject
         TextMarginH = 80; TextMarginV = 60;
         FontAutoFit = true;
         FitScope = FontFitScope.Song;
+        PsalmRefrainScale = PsalmRefrain.DefaultScale;
         await SaveAsync();
     }
 
@@ -735,6 +737,18 @@ public partial class SzablonViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<Category> _psalmCategories = [];
     [ObservableProperty] private Category? _selectedPsalmCategory;
 
+    /// <summary>
+    /// Rozmiar refrenu/aklamacji psalmu w % czcionki (klucz <c>psalm_refrain_scale</c>). Zapisywany
+    /// razem z resztą przez „ZAPISZ USTAWIENIA"; wartość spoza zakresu przycinana (<see cref="PsalmRefrain"/>).
+    /// </summary>
+    [ObservableProperty] private int _psalmRefrainScale = PsalmRefrain.DefaultScale;
+
+    partial void OnPsalmRefrainScaleChanged(int value)
+    {
+        var clamped = PsalmRefrain.Clamp(value);
+        if (clamped != value) PsalmRefrainScale = clamped;
+    }
+
     // Load
 
     private async Task LoadAsync()
@@ -810,6 +824,7 @@ public partial class SzablonViewModel : ObservableObject
             new[] { noneCategory }.Concat(allCategories.OrderBy(c => c.Number))
         );
         SelectedPsalmCategory = PsalmCategories.FirstOrDefault(c => c.Id == s.PsalmCategoryId) ?? noneCategory;
+        PsalmRefrainScale = s.PsalmRefrainScale;
     }
 
     private void LoadScreens()

@@ -227,6 +227,8 @@
     <sys:String x:Key="Settings.ServerModeHint">For a computer with a single screen that shows the projection only. The Cantio window stays hidden and the remote server starts automatically. To bring the window back: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">The mode change takes effect after restarting Cantio.</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Responsorial psalm category</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScale">Psalm refrain size (%)</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScaleHint">Refrain and acclamation in psalm mode: percent of the font size. A refrain that is too long shrinks to fit on a single slide.</sys:String>
     <sys:String x:Key="Settings.LoopInterval">Slide loop — interval (seconds, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
     <sys:String x:Key="Settings.SectionFont">FONT</sys:String>

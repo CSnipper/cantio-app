@@ -3036,6 +3036,34 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
 
+                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScale}"
+                                       Foreground="#959fb9" FontSize="14" TextWrapping="Wrap" Margin="0,12,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Style="{StaticResource DarkSlider}"
+                                        Minimum="100" Maximum="300" TickFrequency="10"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding PsalmRefrainScale}" VerticalAlignment="Center"/>
+                                <Border Grid.Column="2" Background="#1e2535" BorderBrush="#2a3347"
+                                        BorderThickness="1" Padding="6,4">
+                                    <TextBox Text="{Binding PsalmRefrainScale, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource DarkTextBox}"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="#c9a84c" FontSize="14" FontWeight="Bold"
+                                             Padding="0" TextAlignment="Center"
+                                             helpers:NumericBox.IsEnabled="True"
+                                             helpers:NumericBox.Min="100"
+                                             helpers:NumericBox.Max="300"
+                                             helpers:NumericBox.Step="10"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScaleHint}"
+                                       Foreground="#959fb9" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
+
                             <Border BorderBrush="#2a3347" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
 
                             <TextBlock Text="{DynamicResource Settings.SectionDatabase}" FontFamily="{StaticResource HeaderFont}"

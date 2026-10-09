@@ -1089,6 +1089,7 @@ public class DatabaseService
             FontAutoFit = Get("font_auto_fit", true, v => v == "true"),
             FontFitScope = Get(SlideFontFit.SettingKey, FontFitScope.Song, SlideFontFit.Parse),
             PsalmCategoryId = Get("psalm_category_id", 0, v => int.TryParse(v, out var id) ? id : 0),
+            PsalmRefrainScale = Get(PsalmRefrain.SettingKey, PsalmRefrain.DefaultScale, PsalmRefrain.Parse),
             BlankColor = Get("blank_color", "#000000", v => string.IsNullOrEmpty(v) ? "#000000" : v),
             BlankImagePath = Get("blank_image_path", (string?)null, v => string.IsNullOrEmpty(v) ? null : v),
         };
