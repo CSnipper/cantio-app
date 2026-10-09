@@ -452,4 +452,8 @@
     <sys:String x:Key="Acc.LicenseEmpty">No se ha pegado ninguna clave</sys:String>
     <sys:String x:Key="Acc.LicenseWrongProduct">Esta clave no es para este programa</sys:String>
 
+    <sys:String x:Key="Editor.VerseBackground">Fondo:</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundPick">Elegir fondo de la estrofa</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundClear">Quitar fondo de la estrofa</sys:String>
+    <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
 </ResourceDictionary>
