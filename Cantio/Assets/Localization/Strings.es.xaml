@@ -133,6 +133,7 @@
     <sys:String x:Key="Editor.PlayOrder.Rebuild">Reconstruir</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Clear">Restablecer</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Add">+ Añadir</sys:String>
+    <sys:String x:Key="Editor.PlayOrder.Short">Orden</sys:String>
     <sys:String x:Key="Btn.NewSong">NUEVA CANCIÓN</sys:String>
     <sys:String x:Key="Btn.AddToOrder">AÑADIR AL ORDEN</sys:String>
     <sys:String x:Key="Btn.SaveSong">GUARDAR CANCIÓN</sys:String>
