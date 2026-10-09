@@ -34,6 +34,12 @@ public class DisplaySettings
     public FontFitScope FontFitScope { get; set; } = FontFitScope.Song;
     public int PsalmCategoryId { get; set; } = 0; // 0 = wyłączone
 
+    /// <summary>
+    /// Rozmiar refrenu/aklamacji psalmu w % <see cref="FontSize"/> (klucz <c>psalm_refrain_scale</c>,
+    /// 100–300). To SUFIT — za długi refren maleje, aż zmieści się na jednym slajdzie (<see cref="PsalmRefrain"/>).
+    /// </summary>
+    public int PsalmRefrainScale { get; set; } = PsalmRefrain.DefaultScale;
+
     /// <summary>Kolor wygaszonego ekranu (klucz <c>blank_color</c>).</summary>
     public string BlankColor { get; set; } = "#000000";
 

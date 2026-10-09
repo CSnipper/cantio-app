@@ -205,6 +205,13 @@ public partial class DisplayViewModel : ObservableObject
     // Pieśni
 
     [ObservableProperty] private ObservableCollection<Song> _songs = [];
+
+    /// <summary>
+    /// Lista PIEŚNI pokazuje nazwę kategorii pod tytułem — tylko dla wyników wyszukiwania
+    /// (mieszają kategorie). W widoku jednej kategorii byłaby to ta sama nazwa w każdym wierszu.
+    /// Ustawiana RAZEM z <see cref="Songs"/> w obu miejscach, które je ładują.
+    /// </summary>
+    [ObservableProperty] private bool _showSongCategory;
     [ObservableProperty] private Song? _selectedSong;
     [ObservableProperty] private string _searchText = string.Empty;
 
@@ -2056,6 +2063,7 @@ public partial class DisplayViewModel : ObservableObject
         var list = categoryId == CategoryEditorItem.UncategorizedId
             ? await _db.GetUncategorizedSongsAsync()
             : await _db.GetSongsByCategoryAsync(categoryId);
+        ShowSongCategory = false;
         Songs = new ObservableCollection<Song>(SortSongs(list));
     }
 
@@ -2092,6 +2100,7 @@ public partial class DisplayViewModel : ObservableObject
         var list = await _db.SearchSongsAsync(query, ct);
         // Wyszukiwanie po numerze ma własny porządek (dokładne trafienie pierwsze) — nie przesortowuj
         var hasNumber = SongSearch.Parse(query).NumberPrefix != null;
+        ShowSongCategory = true;
         Songs = new ObservableCollection<Song>(hasNumber ? list : SortSongs(list));
     }
 
@@ -2183,7 +2192,12 @@ public partial class DisplayViewModel : ObservableObject
         if (IsPsalmMode)
         {
             // Zwrotki psalmu: ForceSingleSlide + auto-fit (cały tekst na jednym slajdzie)
-            // Refren psalmu: stały rozmiar czcionki z ustawień (AutoFit=false, ForceSingleSlide=false)
+            // Refren/aklamacja psalmu (Type "c"): POWIĘKSZONY — FontSize × psalm_refrain_scale/100
+            // jako sufit, a gdy tak duży nie wchodzi na JEDEN slajd, czcionka maleje (nigdy nie
+            // dzielimy refrenu — wierni widzą na ekranie tylko jego). Zob. PsalmRefrain.
+            // Pieśń ze sztywną czcionką (FontSizeOverride) zostaje przy dawnym zachowaniu: refren
+            // w rozmiarze sztywnym, bez skali i bez dopasowania — operator świadomie wyłączył
+            // dopasowanie dla tej pieśni.
             var verseSettings = new SlideLayoutSettings
             {
                 FontFamily = settings.FontFamily, FontBold = settings.FontBold,
@@ -2198,8 +2212,12 @@ public partial class DisplayViewModel : ObservableObject
                 FontSize = settings.FontSize, LineHeightMultiplier = settings.LineHeightMultiplier,
                 SlideWidth = settings.SlideWidth, SlideHeight = settings.SlideHeight,
                 MarginH = settings.MarginH, MarginV = settings.MarginV,
-                ForceSingleSlide = false, AutoFit = false
+                ForceSingleSlide = !hardFont, AutoFit = false
             };
+            double chorusCeiling = PsalmRefrain.CeilingFontSize(settings.FontSize, dbSettings.PsalmRefrainScale);
+            double ChorusFit(string t) => hardFont
+                ? settings.FontSize
+                : SlideLayoutService.ComputeCappedFitFontSize(t, chorusSettings, chorusCeiling);
             var psalmSlides = new List<Slide>();
             for (int vi = 0; vi < Verses.Count; vi++)
             {
@@ -2208,18 +2226,19 @@ public partial class DisplayViewModel : ObservableObject
                     psalmSlides.Add(new Slide { VerseIndex = vi, PartIndex = 0, ImagePath = Verses[vi].ImagePath });
                     continue;
                 }
-                var s = Verses[vi].Type == "c" ? chorusSettings : verseSettings;
+                bool isChorus = Verses[vi].Type == "c";
+                var s = isChorus ? chorusSettings : verseSettings;
                 var parts = SlideLayoutService.SplitVerse(Verses[vi].Text, s);
                 for (int pi = 0; pi < parts.Count; pi++)
                     psalmSlides.Add(new Slide
                     {
                         Text = parts[pi],
-                        FontSize = Fit(parts[pi], s),
+                        FontSize = isChorus ? ChorusFit(parts[pi]) : Fit(parts[pi], s),
                         VerseIndex = vi,
                         PartIndex = pi
                     });
             }
-            // Wyrównaj czcionkę zwrotek psalmu (refreny mają AutoFit=false → settings.FontSize)
+            // Wyrównaj czcionkę zwrotek psalmu (refreny mają własny rozmiar — PsalmRefrain)
             var psalmVerseSlides = psalmSlides
                 .Where(s => !s.IsImageSlide && Verses[s.VerseIndex].Type != "c")
                 .ToList();

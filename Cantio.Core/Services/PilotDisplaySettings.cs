@@ -99,6 +99,8 @@ public static class PilotDisplaySettings
         new("bg_gradient_color2",  Kind.Text,   TextOk: IsHexColor),
         new("bg_gradient_angle",   Kind.Number, 0,    360),
         new("psalm_category_id",   Kind.Count,  0,    int.MaxValue),
+        // Powiększony refren psalmu (v1.71): % rozmiaru czcionki, liczba całkowita.
+        new(PsalmRefrain.SettingKey, Kind.Count, PsalmRefrain.MinScale, PsalmRefrain.MaxScale),
         // Wygaszony ekran (v1.52): własny kolor/obrazek zamiast czerni.
         new("blank_color",         Kind.Text,   TextOk: IsHexColor),
         new("blank_image_path",    Kind.Text,   TextOk: IsClearOrExistingImage),
@@ -158,6 +160,7 @@ public static class PilotDisplaySettings
         ["bg_gradient_color2"]  = s.GradientColor2,
         ["bg_gradient_angle"]   = s.GradientAngle,
         ["psalm_category_id"]   = s.PsalmCategoryId,
+        [PsalmRefrain.SettingKey] = s.PsalmRefrainScale,
         ["blank_color"]         = s.BlankColor,
         // jak przy `bg_image`: pusty string, nigdy null
         ["blank_image_path"]    = s.BlankImagePath ?? "",

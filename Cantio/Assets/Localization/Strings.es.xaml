@@ -227,6 +227,8 @@
     <sys:String x:Key="Settings.ServerModeHint">Para un equipo con una sola pantalla que muestra únicamente la proyección. La ventana de Cantio queda oculta y el servidor del mando se inicia automáticamente. Para recuperar la ventana: Ctrl+Alt+Shift+C.</sys:String>
     <sys:String x:Key="Settings.ServerModeRestart">El cambio de modo se aplicará al reiniciar Cantio.</sys:String>
     <sys:String x:Key="Settings.PsalmCategory">Categoría de salmo responsorial</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScale">Tamaño del estribillo del salmo (%)</sys:String>
+    <sys:String x:Key="Settings.PsalmRefrainScaleHint">Estribillo y aclamación en modo salmo: porcentaje del tamaño de fuente. Un estribillo demasiado largo se reduce para caber en una sola diapositiva.</sys:String>
     <sys:String x:Key="Settings.LoopInterval">Bucle de diapositivas — intervalo (segundos, 3–120)</sys:String>
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
     <sys:String x:Key="Settings.SectionFont">FUENTE</sys:String>

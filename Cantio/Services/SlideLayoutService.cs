@@ -198,6 +198,18 @@ public static class SlideLayoutService
     }
 
     /// <summary>
+    /// Rozmiar „do sufitu" dla refrenu psalmu (<see cref="PsalmRefrain"/>): <paramref name="ceiling"/>,
+    /// chyba że w takim rozmiarze tekst nie mieści się na JEDNYM slajdzie — wtedy największy
+    /// rozmiar, w którym się mieści (ten sam pomiar co zwrotki psalmu: <c>ForceSingleSlide</c>).
+    /// </summary>
+    public static double ComputeCappedFitFontSize(string slideText, SlideLayoutSettings settings, double ceiling)
+    {
+        var single = CloneWithFontSize(settings, ceiling);
+        single.ForceSingleSlide = true;
+        return PsalmRefrain.FinalFontSize(ceiling, ComputeFitFontSize(slideText, single));
+    }
+
+    /// <summary>
     /// Mierzy naturalną szerokość najszerszej jawnej linii tekstu (split po \n, bez MaxTextWidth).
     /// Zapobiega zawijaniu WPF wewnątrz linii przy znakach interpunkcyjnych i diakrytycznych.
     /// </summary>
