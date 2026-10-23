@@ -305,6 +305,7 @@
     <sys:String x:Key="Shortcuts.SongNext">Siguiente canción</sys:String>
     <sys:String x:Key="Shortcuts.SongPrev">Canción anterior</sys:String>
     <sys:String x:Key="Shortcuts.Blank">Mostrar / Oscurecer pantalla</sys:String>
+    <sys:String x:Key="Shortcuts.SetlistShow">Mostrar canción seleccionada del repertorio</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Cambio de pestañas</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Presentación</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ajustes</sys:String>

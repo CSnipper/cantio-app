@@ -1916,6 +1916,12 @@ public partial class DisplayViewModel : ObservableObject
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.Blank))
         { ToggleBlank(); return; }
 
+        if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SetlistShow))
+        {
+            if (SelectedSetlistItem is { } selected) LoadSongFromSetlist(selected);
+            return;
+        }
+
         // Home always goes to first slide (not configurable)
         if (key == Key.Home && _slides.Count > 0)
         { GoToSlide(0); return; }

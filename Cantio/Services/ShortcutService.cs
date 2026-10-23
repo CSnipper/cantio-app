@@ -14,6 +14,7 @@ public class ShortcutService
     public const string SongNext    = "song_next";
     public const string SongPrev    = "song_prev";
     public const string Blank       = "blank";
+    public const string SetlistShow = "setlist_show";
     public const string TabShow     = "tab_show";
     public const string TabTemplate = "tab_template";
     public const string TabImport   = "tab_import";
@@ -23,7 +24,7 @@ public class ShortcutService
 
     public static readonly IReadOnlyList<string> AllActions =
     [
-        SlideNext, SlidePrev, SongNext, SongPrev, Blank,
+        SlideNext, SlidePrev, SongNext, SongPrev, Blank, SetlistShow,
         TabShow, TabTemplate, TabImport, SearchOpen, SongSearch,
         PowerAll
     ];
@@ -35,6 +36,7 @@ public class ShortcutService
         [SongNext]    = "Down",
         [SongPrev]    = "Up",
         [Blank]       = "Escape",
+        [SetlistShow] = string.Empty,
         [TabShow]     = string.Empty,
         [TabTemplate] = string.Empty,
         [TabImport]   = string.Empty,

@@ -58,6 +58,7 @@ public partial class ShortcutsViewModel : ObservableObject
             (ShortcutService.SongNext,    "Shortcuts.SongNext",    nav),
             (ShortcutService.SongPrev,    "Shortcuts.SongPrev",    nav),
             (ShortcutService.Blank,       "Shortcuts.Blank",       nav),
+            (ShortcutService.SetlistShow, "Shortcuts.SetlistShow", nav),
             (ShortcutService.TabShow,     "Shortcuts.TabShow",     tabs),
             (ShortcutService.TabTemplate, "Shortcuts.TabTemplate", tabs),
             (ShortcutService.TabImport,   "Shortcuts.TabImport",   tabs),

@@ -305,6 +305,7 @@
     <sys:String x:Key="Shortcuts.SongNext">Next song</sys:String>
     <sys:String x:Key="Shortcuts.SongPrev">Previous song</sys:String>
     <sys:String x:Key="Shortcuts.Blank">Show / Blank screen</sys:String>
+    <sys:String x:Key="Shortcuts.SetlistShow">Show selected setlist song</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Tab switching</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Display</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Settings</sys:String>

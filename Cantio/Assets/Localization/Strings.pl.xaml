@@ -306,6 +306,7 @@
     <sys:String x:Key="Shortcuts.SongNext">Następna pieśń</sys:String>
     <sys:String x:Key="Shortcuts.SongPrev">Poprzednia pieśń</sys:String>
     <sys:String x:Key="Shortcuts.Blank">Pokaż / Zaciemnij ekran</sys:String>
+    <sys:String x:Key="Shortcuts.SetlistShow">Wyświetl zaznaczoną pieśń z zestawu</sys:String>
     <sys:String x:Key="Shortcuts.Tabs">Przełączanie zakładek</sys:String>
     <sys:String x:Key="Shortcuts.TabShow">Tab: Wyświetlanie</sys:String>
     <sys:String x:Key="Shortcuts.TabTemplate">Tab: Ustawienia</sys:String>
