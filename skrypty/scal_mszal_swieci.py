@@ -42,7 +42,7 @@ import sys
 import unicodedata
 from collections import Counter
 
-IN_SCRAPE = r"C:\Users\konta\source\repos\Cantio\tools\mszal-swieci.json"
+IN_SCRAPE = r"H:\Claude\Cantio\tools\mszal-swieci.json"
 ASSET = r"C:\Users\konta\AndroidStudioProjects\CantioPilot\app\src\main\assets\baza_mszal.json"
 KALENDARZ = r"C:\Users\konta\AndroidStudioProjects\CantioPilot\app\src\main\assets\kalendarz_diecezji.json"
 

@@ -7,11 +7,11 @@ PDF = r"D:\Pobrane\kalendarz diecezji polskich-7.10.2023.pdf"
 # obie używane kopie danych (Pilot Android + desktop Cantio jako EmbeddedResource)
 OUTS = [
     r"C:\Users\konta\AndroidStudioProjects\CantioPilot\app\src\main\assets\kalendarz_diecezji.json",
-    r"C:\Users\konta\source\repos\Cantio\Cantio.Core\Assets\Data\kalendarz_diecezji.json",
+    r"H:\Claude\Cantio\Cantio.Core\Assets\Data\kalendarz_diecezji.json",
 ]
 # obchody ruchome NIE trafiają do assetu (patrz MOVABLE_HEADER_RE) — ten plik jest wyłącznie
 # materiałem referencyjnym dla kodu kalendarza, żaden komponent go nie czyta
-OUT_MOVABLE = r"C:\Users\konta\source\repos\Cantio\skrypty\kalendarz_ruchome.json"
+OUT_MOVABLE = r"H:\Claude\Cantio\skrypty\kalendarz_ruchome.json"
 
 # miejscownik (z PDF) -> mianownik kanoniczny (do selektora diecezji w apce)
 DIECEZJE_MAP = {
