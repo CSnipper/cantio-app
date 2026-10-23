@@ -146,6 +146,35 @@ public partial class MainWindow : Window
         base.OnPreviewKeyDown(e);
     }
 
+    // Prawy przycisk myszy → następny slajd (poza polami edycji i elementami z własnym ContextMenu)
+    protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Right
+            && !IsRightClickOwnedByControl(e.OriginalSource as DependencyObject))
+        {
+            var cmd = _vm.NextSlideCommand;
+            if (cmd.CanExecute(null)) cmd.Execute(null);
+            e.Handled = true;
+            return;
+        }
+        base.OnPreviewMouseDown(e);
+    }
+
+    private static bool IsRightClickOwnedByControl(DependencyObject? source)
+    {
+        var current = source;
+        while (current is not null)
+        {
+            if (current is System.Windows.Controls.Primitives.TextBoxBase or PasswordBox) return true;
+            if (current is FrameworkElement { ContextMenu: not null }) return true;
+            if (current is FrameworkContentElement { ContextMenu: not null }) return true;
+            current = current is Visual or System.Windows.Media.Media3D.Visual3D
+                ? VisualTreeHelper.GetParent(current)
+                : LogicalTreeHelper.GetParent(current);
+        }
+        return false;
+    }
+
     /// <summary>
     /// Nawigacja literami po liście zestawu (tylko przy otwartej projekcji — poza nią litery
     /// nie mają w oknie znaczenia i nie ma po co odbierać ich innym kontrolkom).

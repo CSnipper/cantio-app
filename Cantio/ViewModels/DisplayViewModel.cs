@@ -1308,7 +1308,7 @@ public partial class DisplayViewModel : ObservableObject
     private void DisplaySetlistItem(SetlistItem item) => LoadSongFromSetlist(item);
 
     [RelayCommand]
-    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id, restoreSlide: CurrentSlideIndex);
+    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id, restoreSlide: SelectedSong?.Id == song.Id ? CurrentSlideIndex : -1);
 
     [RelayCommand]
     private async Task SaveSetlistAsync()
@@ -2132,6 +2132,7 @@ public partial class DisplayViewModel : ObservableObject
         _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
         if (song == null) { _loadingVerses = false; return; }
+        bool otherSong = SelectedSong?.Id != songId; // sprawdzane PRZED podmianą SelectedSong
         SelectedSong = song;
         _loadingVerses = false;
         _ = _db.TouchSongUsageAsync(songId); // lista „Ostatnie" — fire-and-forget
@@ -2158,7 +2159,7 @@ public partial class DisplayViewModel : ObservableObject
         ProjectedSlide = null;
 
         Verses = new ObservableCollection<Verse>(ordered);
-        RebuildSlides();
+        RebuildSlides(resetPosition: otherSong);
         // Kotwica w RebuildSlides już ustawiła slajd i wypchnęła go na projektor
         if (keepPosition) return;
         if (_slides.Count > 0)
@@ -2188,9 +2189,10 @@ public partial class DisplayViewModel : ObservableObject
     /// Przebudowuje listę slajdów i wypycha bieżący slajd na projektor OD RAZU (zmiana wyglądu i poprawka
     /// treści muszą być widoczne natychmiast). Pozycję utrzymuje kotwica zwrotka/część (<see cref="SlideAnchor"/>).
     /// </summary>
-    public void RebuildSlides()
+    public void RebuildSlides(bool resetPosition = false)
     {
-        int prevIndex = CurrentSlideIndex;
+        // resetPosition: zmiana pieśni — stara kotwica (zwrotka z POPRZEDNIEJ pieśni) nie może przeskoczyć nowej
+        int prevIndex = resetPosition ? -1 : CurrentSlideIndex;
         // Kotwica pozycji: trzymamy zwrotkę/część, bo po edycji treści indeks może wskazać inną zwrotkę
         var anchor = prevIndex >= 0 && prevIndex < _slides.Count
             ? (_slides[prevIndex].VerseIndex, _slides[prevIndex].PartIndex)
