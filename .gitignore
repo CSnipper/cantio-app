@@ -371,6 +371,14 @@ FodyWeavers.xsd
 .superpowers/
 SKILL.md
 
+# Prywatne notatki projektu (decyzje biznesowe, konfiguracja Play/RevenueCat).
+# Repo jest PUBLICZNE; kopia tych plikow zyje w prywatnym CSnipper/cantio-notes.
+# Tylko katalog glowny: Cantio/*/CLAUDE.md sa sledzone od dawna.
+/CLAUDE.md
+/AGENTS.md
+/plugins.md
+/tasks/
+
 # Strona landing — osobne repo
 Cantio.Landing/
 
