@@ -541,13 +541,15 @@ public partial class DisplayViewModel : ObservableObject
             await _db.SaveSongFontSizeOverrideAsync(editedSongId.Value, fontOverride);
             if (SelectedSong?.Id == editedSongId.Value)
                 SelectedSong.FontSizeOverride = fontOverride;
+            if (_loadedSongId == editedSongId.Value)
+                _loadedFontSizeOverride = fontOverride;
         }
 
         IsInlineEditorOpen = false;
 
         // Edytowana pieśń jest na ekranie — przeładuj z DB i pokaż poprawkę OD RAZU (operator poprawia
         // po wykonaniu zwrotki i musi zobaczyć efekt), zostając na tej samej zwrotce (kotwica).
-        if (editedSongId.HasValue && SelectedSong?.Id == editedSongId.Value)
+        if (editedSongId.HasValue && _loadedSongId == editedSongId.Value)
             await LoadVersesAsync(editedSongId.Value, keepPosition: true);
         else
             RebuildSlides();
@@ -964,7 +966,7 @@ public partial class DisplayViewModel : ObservableObject
 
         // Edytowana pieśń jest aktualnie wyświetlana — przebuduj slajdy i odśwież projektor od razu,
         // zostając na tej samej zwrotce (kotwica)
-        if (savedSongId != 0 && SelectedSong?.Id == savedSongId)
+        if (savedSongId != 0 && _loadedSongId == savedSongId)
             await LoadVersesAsync(savedSongId, keepPosition: true);
     }
 
@@ -996,7 +998,7 @@ public partial class DisplayViewModel : ObservableObject
         if (deleted) RemoveSongFromSetlist(songId);
         await LoadCategoriesAsync();
         await ReloadCurrentSongListAsync();
-        if (deleted || SelectedSong?.Id != songId) return;
+        if (deleted || _loadedSongId != songId) return;
         await LoadVersesAsync(songId, keepPosition: true);
     }
 
@@ -1218,6 +1220,13 @@ public partial class DisplayViewModel : ObservableObject
     private bool _loadingFromSetlist;
     private bool _loadingVerses;
 
+    // Co FAKTYCZNIE jest w slajdach. SelectedSong i SelectedSetlistItem zmienia też samo UI
+    // (strzałka po liście, dodanie do zestawu) bez wczytania, więc nie nadają się do pytania „czy to jest na ekranie".
+    private int? _loadedSongId;
+    // Czcionka WCZYTANEJ pieśni: SelectedSong może wskazywać inną pieśń z listy
+    private double? _loadedFontSizeOverride;
+    private SetlistItem? _displayedSetlistItem;
+
     partial void OnSelectedSetlistItemChanged(SetlistItem? value)
     {
         // Ładowanie tylko na jawne polecenie (dwuklik / ikona oka), nie na samo zaznaczenie
@@ -1338,7 +1347,12 @@ public partial class DisplayViewModel : ObservableObject
     private void DisplaySetlistItem(SetlistItem item) => LoadSongFromSetlist(item);
 
     [RelayCommand]
-    private async Task DisplaySongAsync(Song song) => await LoadVersesAsync(song.Id, restoreSlide: SelectedSong?.Id == song.Id ? CurrentSlideIndex : -1);
+    private async Task DisplaySongAsync(Song song)
+    {
+        int restore = _loadedSongId == song.Id ? CurrentSlideIndex : -1;
+        _displayedSetlistItem = null; // pieśń z listy nie jest żadną pozycją zestawu
+        await LoadVersesAsync(song.Id, restoreSlide: restore);
+    }
 
     [RelayCommand]
     private async Task SaveSetlistAsync()
@@ -1440,6 +1454,9 @@ public partial class DisplayViewModel : ObservableObject
         StopLoop();
         SelectedSetlistItem = null;
         SelectedSong = null;
+        _loadedSongId = null;
+        _loadedFontSizeOverride = null;
+        _displayedSetlistItem = null;
         IsPsalmMode = false;
         ProjectedSlide = null;
         Verses.Clear();
@@ -1778,6 +1795,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task DisplayRecentSong(Song song)
     {
         IsRecentPopupOpen = false;
+        _displayedSetlistItem = null;
         await LoadVersesAsync(song.Id);
     }
 
@@ -1927,34 +1945,34 @@ public partial class DisplayViewModel : ObservableObject
 
     // Klawiatura
 
-    public void HandleKey(Key key, ModifierKeys modifiers)
+    public bool HandleKey(Key key, ModifierKeys modifiers)
     {
         // Space is kept as a secondary hardcoded alias for slide_next (remote controls)
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SlideNext)
             || (key == Key.Space && modifiers == ModifierKeys.None))
-        { NextSlide(); return; }
+        { NextSlide(); return true; }
 
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SlidePrev))
-        { PrevSlide(); return; }
+        { PrevSlide(); return true; }
 
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SongNext))
-        { NextSong(); return; }
+        { NextSong(); return true; }
 
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SongPrev))
-        { PrevSong(); return; }
+        { PrevSong(); return true; }
 
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.Blank))
-        { ToggleBlank(); return; }
+        { ToggleBlank(); return true; }
 
         if (_shortcuts.IsMatch(key, modifiers, ShortcutService.SetlistShow))
         {
             if (SelectedSetlistItem is { } selected) LoadSongFromSetlist(selected);
-            return;
+            return true;
         }
 
         // Home always goes to first slide (not configurable)
         if (key == Key.Home && _slides.Count > 0)
-        { GoToSlide(0); return; }
+        { GoToSlide(0); return true; }
 
         // Klawisze 1–0: skok do N-tej zwrotki
         int digit = key switch {
@@ -1970,7 +1988,9 @@ public partial class DisplayViewModel : ObservableObject
             Key.D0 or Key.NumPad0 => 0,
             _ => -1
         };
-        if (digit >= 0) HandleNumericKey(digit);
+        if (digit < 0) return false;
+        HandleNumericKey(digit);
+        return true;
     }
 
     private DispatcherTimer? _slideJumpTimer;
@@ -2168,7 +2188,7 @@ public partial class DisplayViewModel : ObservableObject
         _loadingVerses = true;
         var song = await _db.GetSongWithVersesAsync(songId);
         if (song == null) { _loadingVerses = false; return; }
-        bool otherSong = SelectedSong?.Id != songId; // sprawdzane PRZED podmianą SelectedSong
+        bool otherSong = _loadedSongId != songId; // względem tego, co jest w slajdach, nie zaznaczenia na liście
         SelectedSong = song;
         _loadingVerses = false;
         _ = _db.TouchSongUsageAsync(songId); // lista „Ostatnie" — fire-and-forget
@@ -2194,8 +2214,12 @@ public partial class DisplayViewModel : ObservableObject
         IsPsalmMode = psalmCategoryId > 0 && song.CategoryId == psalmCategoryId;
         ProjectedSlide = null;
 
+        // Dopiero tu: await wyżej oddaje sterowanie, a Verses/_slides nadal są poprzedniej pieśni
+        _loadedSongId = songId;
+        _loadedFontSizeOverride = song.FontSizeOverride;
         Verses = new ObservableCollection<Verse>(ordered);
-        RebuildSlides(resetPosition: otherSong);
+        // Kotwica zostaje tylko przy keepPosition/restoreSlide; inaczej start od zera (bez mignięcia starej zwrotki)
+        RebuildSlides(resetPosition: otherSong || (!keepPosition && restoreSlide < 0));
         // Kotwica w RebuildSlides już ustawiła slajd i wypchnęła go na projektor
         if (keepPosition) return;
         if (_slides.Count > 0)
@@ -2217,8 +2241,8 @@ public partial class DisplayViewModel : ObservableObject
     /// </summary>
     public async Task ReloadCurrentSongAsync()
     {
-        if (SelectedSong == null) return;
-        await LoadVersesAsync(SelectedSong.Id, keepPosition: true);
+        if (_loadedSongId is not { } loadedId) return;
+        await LoadVersesAsync(loadedId, keepPosition: true);
     }
 
     /// <summary>
@@ -2235,9 +2259,9 @@ public partial class DisplayViewModel : ObservableObject
             : (VerseIndex: -1, PartIndex: 0);
         var dbSettings = _db.GetSettings();
         var settings = BuildLayoutSettings(dbSettings);
-        bool hardFont = SelectedSong?.FontSizeOverride.HasValue == true;
+        bool hardFont = _loadedFontSizeOverride.HasValue;
         if (hardFont)
-            settings.FontSize = SelectedSong!.FontSizeOverride!.Value;
+            settings.FontSize = _loadedFontSizeOverride!.Value;
         double Fit(string t, SlideLayoutSettings s) =>
             hardFont ? settings.FontSize : SlideLayoutService.ComputeFitFontSize(t, s);
         var previewOnlyTagNames = dbSettings.TextTags
@@ -2460,9 +2484,11 @@ public partial class DisplayViewModel : ObservableObject
             return;
         }
         if (!item.SongId.HasValue) return;
-        bool sameSong = SelectedSong?.Id == item.SongId.Value;
+        // Slajd wracamy tylko dla tej samej POZYCJI zestawu — ta sama pieśń wpisana drugi raz startuje od początku
+        bool sameSong = _loadedSongId == item.SongId.Value && ReferenceEquals(_displayedSetlistItem, item);
         _loadingFromSetlist = true;
         SelectedSetlistItem = item;
+        _displayedSetlistItem = item;
         _loadingFromSetlist = false;
         _ = LoadVersesAsync(item.SongId.Value, goToLast, restoreSlide: sameSong ? CurrentSlideIndex : -1);
     }
@@ -2474,12 +2500,15 @@ public partial class DisplayViewModel : ObservableObject
     private void LoadTextFromSetlist(SetlistItem item, bool goToLast = false)
     {
         SelectedSetlistItem = item;
+        _displayedSetlistItem = item;
+        _loadedSongId = null;
+        _loadedFontSizeOverride = null;
         // Transient Song (Id = 0, nigdy nie zapisywany) — żeby pasek/pilot pokazały tytuł elementu
         SelectedSong = new Song { Id = 0, Title = item.CustomTitle ?? string.Empty };
         IsPsalmMode = false;
         ProjectedSlide = null;
         Verses = new ObservableCollection<Verse>(SplitTextToVerses(item.CustomText));
-        RebuildSlides();
+        RebuildSlides(resetPosition: true); // bez resetu stary indeks trafiałby na projektor przed GoToSlide
         if (_slides.Count > 0) GoToSlide(goToLast ? _slides.Count - 1 : 0);
     }
 
@@ -2489,6 +2518,14 @@ public partial class DisplayViewModel : ObservableObject
         Verses.Clear();
         _slides.Clear();
         SlideList = new ObservableCollection<Slide>();
+        // Stan poprzedniej pieśni zerujemy przed SetImageSlide (indeks -1 niczego nie projektuje) — inaczej Prev/Next działają na starym
+        SelectedSong = null;
+        _loadedSongId = null;
+        _loadedFontSizeOverride = null;
+        _displayedSetlistItem = item;
+        IsPsalmMode = false;
+        ProjectedSlide = null;
+        CurrentSlideIndex = -1;
         OnPropertyChanged(nameof(CanLoop));
         _projection.ClearOperatorSlide();
         _projection.SetImageSlide(item.ImagePath!);

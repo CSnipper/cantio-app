@@ -56,7 +56,8 @@ public partial class AboutViewModel : ObservableObject
 
     private bool _isPromptActive;
 
-    public async Task CheckAndPromptAsync()
+    // prompt=false (cogodzinne sprawdzenie): tylko odświeża stan w „O programie", bez okna przerywającego mszę
+    public async Task CheckAndPromptAsync(bool prompt)
     {
         if (_isPromptActive) return;
         _isPromptActive = true;
@@ -70,6 +71,8 @@ public partial class AboutViewModel : ObservableObject
             ReleaseNotes      = result.Value.ReleaseNotes;
             IsUpdateAvailable = true;
 
+            if (!prompt) return;
+
             // Tryb serwerowy: brak operatora, więc pytanie „zainstalować?" zawiesiłoby aplikację
             // na zawsze. Aktualizacji tu NIE automatyzujemy — zostaje ślad w logu.
             if (!AppModeRules.CanShowBlockingDialog(AppMode.Current))
@@ -80,7 +83,7 @@ public partial class AboutViewModel : ObservableObject
 
             var choice = MessageBox.Show(
                 $"Dostępna jest nowa wersja Cantio {LatestVersion}.\n\nCzy chcesz ją teraz zainstalować?",
-                "Aktualizacja", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                "Aktualizacja", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
 
             if (choice == MessageBoxResult.Yes)
                 await DownloadAndInstallAsync();
@@ -98,7 +101,14 @@ public partial class AboutViewModel : ObservableObject
                 "https://api.github.com/repos/CSnipper/cantio-app/releases/latest");
 
             var latest = json.GetProperty("tag_name").GetString()?.TrimStart('v') ?? string.Empty;
-            if (string.IsNullOrEmpty(latest) || latest == AppVersion) return null;
+            if (string.IsNullOrEmpty(latest)) return null;
+            // Wersja zainstalowana nowsza niż opublikowana nie jest aktualizacją; przy błędzie parsowania porównanie napisów
+            bool upToDate;
+            if (Version.TryParse(latest, out var lv) && Version.TryParse(AppVersion, out var cv))
+                upToDate = lv <= cv;
+            else
+                upToDate = latest == AppVersion;
+            if (upToDate) return null;
 
             var notes = json.TryGetProperty("body", out var body)
                 ? body.GetString() ?? string.Empty : string.Empty;

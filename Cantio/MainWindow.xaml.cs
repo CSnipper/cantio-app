@@ -109,6 +109,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Lista rozwijana i suwak mają własne klawisze (strzałki, Spacja) — nie zmieniamy przy nich slajdu
+        if (IsFocusInComboOrSlider(e.OriginalSource as DependencyObject)
+            || IsFocusInComboOrSlider(Keyboard.FocusedElement as DependencyObject))
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
         // Fokus na liście pieśni — nawigacja i Enter należą do listy, nie do zestawu
         if (IsFocusInside(SongListShow))
         {
@@ -143,8 +151,11 @@ public partial class MainWindow : Window
         }
 
         // Skróty projekcji działają zawsze — niezależnie od fokusu listy pieśni
-        _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
-        e.Handled = true;
+        // Okno połyka wszystko, bo Enter na przycisku z fokusem nie może wykonać akcji w trakcie mszy; przepuszczane tylko Tab, Alt (Key.System, Alt+F4) i F1–F24
+        bool handled = _vm.HandleKey(e.Key, e.KeyboardDevice.Modifiers);
+        bool pass = e.Key == Key.Tab || e.Key == Key.System || (e.Key >= Key.F1 && e.Key <= Key.F24);
+        if (handled || !pass)
+            e.Handled = true;
         base.OnPreviewKeyDown(e);
     }
 
@@ -758,9 +769,13 @@ public partial class MainWindow : Window
             try
             {
                 var result = PilotMaintenance.Handle(_maintenanceRunner, db, raw);
-                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
-                if (result.Work != null)
-                    _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+                // Work musi wystartować zawsze — zwalnia blokadę „busy", nawet gdy tablet zniknął przed ack
+                try { if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response); }
+                finally
+                {
+                    if (result.Work != null)
+                        _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+                }
             }
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda konserwacji: {ex.Message}"); }
         };
@@ -787,10 +802,14 @@ public partial class MainWindow : Window
             try
             {
                 var result = await PilotDevices.HandleAsync(raw);
-                if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response);
-                // BEZ await: ack ma wyjść natychmiast, a wykrywanie i parowanie trwają sekundy.
-                if (result.Work != null)
-                    _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+                // BEZ await na Work: ack ma wyjść natychmiast, a wykrywanie i parowanie trwają sekundy.
+                // Work startuje zawsze, także gdy wysyłka ack rzuci (tablet się rozłączył).
+                try { if (result.Response != null) await _remoteControl.SendToClientAsync(ws, result.Response); }
+                finally
+                {
+                    if (result.Work != null)
+                        _ = result.Work(json => _remoteControl.BroadcastJsonAsync(json));
+                }
             }
             catch (Exception ex) { AppLog.Write("Pilot", $"Komenda urządzeń: {ex.Message}"); }
         };
@@ -1009,11 +1028,11 @@ public partial class MainWindow : Window
             await _remoteControl.InitAsync();
             RefreshPairingOverlay();
             await _devicesVm.InitAsync();
-            await _aboutVm.CheckAndPromptAsync();
+            await _aboutVm.CheckAndPromptAsync(prompt: true);
 
             var updateTimer = new System.Windows.Threading.DispatcherTimer
                 { Interval = TimeSpan.FromHours(1) };
-            updateTimer.Tick += async (_, _) => await _aboutVm.CheckAndPromptAsync();
+            updateTimer.Tick += async (_, _) => await _aboutVm.CheckAndPromptAsync(prompt: false);
             updateTimer.Start();
         };
         Closing += async (_, e) =>
@@ -1044,7 +1063,21 @@ public partial class MainWindow : Window
             }
             _vm.StopLoop(); SaveWindowPosition(); _remoteControl.Dispose();
         };
-        KeyDown += _vm.OnKeyDown;
+        // Spacja na suwaku / cyfra przy liście rozwijanej nie mogą zmienić slajdu (bąbelkowanie KeyDown)
+        KeyDown += (s, e) =>
+        {
+            if (IsFocusInComboOrSlider(e.OriginalSource as DependencyObject)
+                || IsFocusInComboOrSlider(Keyboard.FocusedElement as DependencyObject)) return;
+            // Pole tekstowe nie oznacza pisanych/nawigacyjnych klawiszy jako obsłużonych — bez tego cyfra w wyszukiwarce skacze do zwrotki
+            // AltGr = Ctrl+Alt = polskie znaki (ą/ę/ó…) to pisanie; pozostałe skróty Ctrl/Alt przechodzą do HandleKey
+            var mods = e.KeyboardDevice.Modifiers;
+            var key = e.Key == Key.System ? e.SystemKey : e.Key; // przy Alt WPF podaje Key.System, klawisz w SystemKey
+            if ((mods is ModifierKeys.None or ModifierKeys.Shift or (ModifierKeys.Control | ModifierKeys.Alt) or (ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift))
+                && (e.OriginalSource is TextBox || e.OriginalSource is RichTextBox)
+                && (key is >= Key.D0 and <= Key.D9 or >= Key.NumPad0 and <= Key.NumPad9
+                    or >= Key.A and <= Key.Z or Key.Space or Key.Home or Key.End or Key.Left or Key.Right)) return;
+            _vm.OnKeyDown(s, e);
+        };
 
         InitClock();
     }
@@ -1602,6 +1635,20 @@ public partial class MainWindow : Window
         var offset = p.HorizontalOffset;
         p.HorizontalOffset = offset + 1;
         p.HorizontalOffset = offset;
+    }
+
+    // Lista rozwijana (także jej otwarta lista w Popup) lub suwak wśród przodków elementu
+    private static bool IsFocusInComboOrSlider(DependencyObject? current)
+    {
+        while (current is not null)
+        {
+            if (current is ComboBox or Slider) return true;
+            if (current is ComboBoxItem && ItemsControl.ItemsControlFromItemContainer(current) is ComboBox) return true;
+            current = current is Visual or System.Windows.Media.Media3D.Visual3D
+                ? VisualTreeHelper.GetParent(current)
+                : LogicalTreeHelper.GetParent(current);
+        }
+        return false;
     }
 
     // Czy fokus klawiatury znajduje się wewnątrz podanej listy?
