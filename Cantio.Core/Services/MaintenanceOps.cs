@@ -35,7 +35,29 @@ public static class MaintenanceOps
     public static void BackupDatabase(string destPath)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
-        File.Copy(AppPaths.DbPath, destPath, overwrite: true);
+        if (!File.Exists(AppPaths.DbPath)) throw new FileNotFoundException("Brak pliku bazy", AppPaths.DbPath);
+        if (File.Exists(destPath)) File.Delete(destPath);
+
+        // API backupu SQLite zamiast File.Copy: żywa baza ma część danych w pliku WAL i bywa
+        // zapisywana w trakcie kopiowania — kopia samego .db jest wtedy niespójna albo niepełna.
+        // Pooling=False, żeby żaden z plików nie został zablokowany po zakończeniu.
+        using var src = new Microsoft.Data.Sqlite.SqliteConnection(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+            { DataSource = AppPaths.DbPath, Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadWrite, Pooling = false }.ToString());
+        using var dst = new Microsoft.Data.Sqlite.SqliteConnection(new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+            { DataSource = destPath, Pooling = false }.ToString());
+        try
+        {
+            src.Open();
+            dst.Open();
+            src.BackupDatabase(dst);
+        }
+        catch
+        {
+            // Pusty/częściowy plik wyglądałby jak kopia zapasowa — zostawiamy tylko brak pliku.
+            dst.Close();
+            try { File.Delete(destPath); } catch { /* best-effort: nie zasłaniamy oryginalnego wyjątku */ }
+            throw;
+        }
     }
 
     /// <summary>
@@ -56,15 +78,27 @@ public static class MaintenanceOps
             ? Directory.EnumerateFiles(AppPaths.ImagesFolder).ToArray()
             : [];
 
-        using var zip = ZipFile.Open(destPath, ZipArchiveMode.Create);
-        zip.CreateEntryFromFile(AppPaths.DbPath, "cantio.db");
-        progress?.Invoke(images.Length == 0 ? 100 : 5);
-
-        for (int i = 0; i < images.Length; i++)
+        // Do archiwum idzie spójna kopia bazy, nie żywy plik. Plik pośredni leży obok archiwum
+        // (nie w %TEMP%) i znika w finally.
+        var snapshot = destPath + ".db-tmp";
+        try
         {
-            zip.CreateEntryFromFile(images[i], "images/" + Path.GetFileName(images[i]));
-            // 5..100 — baza to pierwsze 5%, reszta rozłożona po obrazkach.
-            progress?.Invoke(5 + (int)((i + 1) * 95L / images.Length));
+            BackupDatabase(snapshot);
+
+            using var zip = ZipFile.Open(destPath, ZipArchiveMode.Create);
+            zip.CreateEntryFromFile(snapshot, "cantio.db");
+            progress?.Invoke(images.Length == 0 ? 100 : 5);
+
+            for (int i = 0; i < images.Length; i++)
+            {
+                zip.CreateEntryFromFile(images[i], "images/" + Path.GetFileName(images[i]));
+                // 5..100 — baza to pierwsze 5%, reszta rozłożona po obrazkach.
+                progress?.Invoke(5 + (int)((i + 1) * 95L / images.Length));
+            }
+        }
+        finally
+        {
+            if (File.Exists(snapshot)) File.Delete(snapshot);
         }
     }
 
@@ -100,11 +134,16 @@ public static class MaintenanceOps
         try
         {
             using var fs = File.OpenRead(path);
-            Span<byte> head = stackalloc byte[16];
-            int read = fs.ReadAtLeast(head, 16, throwOnEndOfStream: false);
-            return read == 16 && head.SequenceEqual(SqliteMagic);
+            return HasSqliteHeader(fs);
         }
         catch { return false; }
+    }
+
+    private static bool HasSqliteHeader(Stream s)
+    {
+        Span<byte> head = stackalloc byte[16];
+        int read = s.ReadAtLeast(head, 16, throwOnEndOfStream: false);
+        return read == 16 && head.SequenceEqual(SqliteMagic);
     }
 
     /// <summary>
@@ -122,10 +161,19 @@ public static class MaintenanceOps
     }
 
     /// <summary>Wpis archiwum, który wychodzi poza katalog docelowy — import jest wtedy ODRZUCANY w całości.</summary>
-    public sealed class UnsafeZipEntryException(string entryName)
+    public class UnsafeZipEntryException(string entryName)
         : IOException("zip_entry_outside_target: " + entryName)
     {
         public string EntryName { get; } = entryName;
+    }
+
+    /// <summary>
+    /// Wpis <c>cantio.db</c> w archiwum nie jest bazą SQLite. Dziedziczy po <see cref="UnsafeZipEntryException"/>,
+    /// żeby istniejąca obsługa w oknie (łapie ten typ) odrzuciła import przed jakimkolwiek zapisem.
+    /// </summary>
+    public sealed class NotADatabaseEntryException(string entryName) : UnsafeZipEntryException(entryName)
+    {
+        public override string Message => "zip_entry_not_a_database: " + EntryName;
     }
 
     /// <summary>
@@ -146,6 +194,7 @@ public static class MaintenanceOps
     public static string? SafeExtractPath(string destRoot, string entryFullName)
     {
         if (string.IsNullOrWhiteSpace(entryFullName)) return null;
+        if (entryFullName.Contains(':')) return null;   // dwukropek = strumień NTFS: `cantio.db::$DATA` podmienia bazę, a nie omija kontroli
 
         var root = Path.GetFullPath(destRoot);
         var rootWithSep = root.EndsWith(Path.DirectorySeparatorChar)
@@ -184,13 +233,28 @@ public static class MaintenanceOps
         // Przebieg 1 — kontrola. Katalogi (wpis z pustą nazwą pliku) też sprawdzamy: `..\` jako
         // wpis katalogowy jest tak samo podejrzany, choć sam nic nie zapisuje.
         var planned = new List<(ZipArchiveEntry Entry, string Path)>();
+        // Plik, który import faktycznie nadpisuje (nie AppPaths.DbPath: przy DbPathOverride to inny plik).
+        var dbTarget = Path.GetFullPath(Path.Combine(root, "cantio.db"));
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var entry in zip.Entries)
         {
             var dest = SafeExtractPath(root, entry.FullName);
             if (dest is null) throw new UnsafeZipEntryException(entry.FullName);
             if (entry.Name.Length == 0) continue;           // sam katalog — nie ma czego zapisywać
+            // Dwa wpisy na ten sam plik: drugi po cichu nadpisałby pierwszy (np. sprawdzony).
+            if (!seen.Add(dest)) throw new UnsafeZipEntryException(entry.FullName);
+            // Śmieć w miejscu bazy parafii = Cantio, które nie wstaje: sprawdzamy nagłówek PRZED zapisem.
+            // Decyduje ZNORMALIZOWANA ścieżka docelowa, nie nazwa wpisu (`./cantio.db`, `x/../cantio.db`).
+            if (string.Equals(dest, dbTarget, StringComparison.OrdinalIgnoreCase))
+            {
+                using var es = entry.Open();
+                if (!HasSqliteHeader(es)) throw new NotADatabaseEntryException(entry.FullName);
+            }
             planned.Add((entry, dest));
         }
+
+        // Pula trzyma plik bazy otwarty także po zamknięciu kontekstu — bez tego nadpisanie pada na blokadzie.
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
 
         // Przebieg 2 — zapis.
         for (int i = 0; i < planned.Count; i++)

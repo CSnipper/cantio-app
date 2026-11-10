@@ -232,11 +232,12 @@ public static class PilotSongEdit
             if (verses.Count == 0 && existing != null)
                 return Deny(cmd, ReasonEmptyVerses, ("id", existing.Id));
 
-            // Protokół NIE niesie obrazków (plik leży na dysku komputera, telefon go nie widzi),
-            // więc round-trip song_get → song_update wyzerowałby tła zwrotek. Przenosimy je
-            // z dotychczasowej treści po POZYCJI; ImagePath dodatkowo tylko przy zgodnym typie,
-            // bo zamiana zwrotki-obrazka na tekst to świadoma zmiana rodzaju, nie edycja tła.
-            CarryOverVerseImages(existing, verses);
+            // Protokół NIE niesie obrazków (plik leży na dysku komputera, telefon go nie widzi)
+            // ani znacznika lekcjonarza, więc round-trip song_get → song_update wyzerowałby tła
+            // zwrotek i podział psalmu na wydania. Przenosimy je z dotychczasowej treści po POZYCJI;
+            // ImagePath dodatkowo tylko przy zgodnym typie, bo zamiana zwrotki-obrazka na tekst
+            // to świadoma zmiana rodzaju, nie edycja tła.
+            CarryOverVerseFields(existing, verses);
         }
         else
         {
@@ -244,7 +245,8 @@ public static class PilotSongEdit
                         .Select((v, i) => new Verse
                         {
                             Type = v.Type, Text = v.Text, Position = i,
-                            ImagePath = v.ImagePath, BackgroundImagePath = v.BackgroundImagePath
+                            ImagePath = v.ImagePath, BackgroundImagePath = v.BackgroundImagePath,
+                            Lekcjonarz = v.Lekcjonarz
                         })];
         }
 
@@ -323,19 +325,21 @@ public static class PilotSongEdit
     }
 
     /// <summary>
-    /// Przenosi obrazki zwrotek (<c>ImagePath</c> / <c>BackgroundImagePath</c>) ze starej treści
-    /// do nowej, dopasowując PO POZYCJI. Protokół tych pól nie niesie — bez tego zwykła poprawka
-    /// literówki z tabletu kasowałaby tła ustawione w oknie Cantio.
+    /// Przenosi pola zwrotek, których protokół nie niesie (<c>ImagePath</c>, <c>BackgroundImagePath</c>,
+    /// <c>Lekcjonarz</c>), ze starej treści do nowej, dopasowując PO POZYCJI (zwrotka nie ma w protokole
+    /// identyfikatora). Bez tego zwykła poprawka literówki z tabletu kasowałaby tła ustawione w oknie
+    /// Cantio i znacznik wydania lekcjonarza.
     /// <c>ImagePath</c> wędruje tylko przy zgodnym typie zwrotki: zamiana zwrotki-obrazka na
     /// tekstową jest świadomą zmianą rodzaju, a nie edycją tła.
     /// </summary>
-    private static void CarryOverVerseImages(Song? existing, List<Verse> verses)
+    internal static void CarryOverVerseFields(Song? existing, List<Verse> verses)
     {
         if (existing == null) return;
         var old = existing.Verses.OrderBy(v => v.Position).ToList();
         for (int i = 0; i < verses.Count && i < old.Count; i++)
         {
             verses[i].BackgroundImagePath = old[i].BackgroundImagePath;
+            verses[i].Lekcjonarz = old[i].Lekcjonarz;
             if (old[i].Type == verses[i].Type) verses[i].ImagePath = old[i].ImagePath;
         }
     }

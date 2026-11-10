@@ -244,6 +244,8 @@ public class DatabaseService
         var mapping = new List<(int localId, int assignedId)>();
 
         await using var db = new CantioDbContext();
+        // Wsad w jednej transakcji: wadliwa pieśń w środku nie zostawia połowy zmian.
+        await using var tx = await db.Database.BeginTransactionAsync();
 
         foreach (var songEl in songsEl.EnumerateArray())
         {
@@ -251,6 +253,19 @@ public class DatabaseService
             var title      = songEl.GetProperty("title").GetString() ?? "";
             var author     = songEl.GetProperty("author").GetString() ?? "";
             var rawCategoryId = songEl.TryGetProperty("categoryId", out var catEl) ? catEl.GetInt32() : 0;
+
+            // Zwrotki parsujemy ZANIM cokolwiek zapiszemy — dawniej stare były kasowane przed
+            // odczytem `parts`, więc wadliwy komunikat zostawiał pieśń bez treści.
+            var newVerses = new List<Verse>();
+            foreach (var partEl in songEl.GetProperty("parts").EnumerateArray())
+            {
+                newVerses.Add(new Verse
+                {
+                    Position = newVerses.Count,
+                    Type     = partEl.GetProperty("type").GetString() ?? "v",
+                    Text     = partEl.GetProperty("text").GetString() ?? ""
+                });
+            }
 
             // 0 (albo brak pola) = „bez kategorii" — dokładnie to, co desktop wysyła w `songs_data`
             // dla pieśni z CategoryId == NULL. Bez tego pieśń bez kategorii wracałaby z telefonu
@@ -284,28 +299,18 @@ public class DatabaseService
                 // Treść pieśni przyjechała z telefonu = zmiana treści → znacznik w górę.
                 // Inaczej desktop wyglądałby dla drugiego tabletu na niezmieniony.
                 song.UpdatedAt = DateTime.UtcNow;
-                var oldVerses = await db.Verses.Where(v => v.SongId == song.Id).ToListAsync();
-                db.Verses.RemoveRange(oldVerses);
-                await db.SaveChangesAsync();
+                // Pilot nie niesie Lekcjonarz ani obrazków — przenosimy je po pozycji (jak song_update).
+                PilotSongEdit.CarryOverVerseFields(song, newVerses);
+                db.Verses.RemoveRange(song.Verses);
             }
 
-            var partsEl = songEl.GetProperty("parts");
-            int pos = 0;
-            foreach (var partEl in partsEl.EnumerateArray())
-            {
-                db.Verses.Add(new Verse
-                {
-                    SongId   = song.Id,
-                    Position = pos++,
-                    Type     = partEl.GetProperty("type").GetString() ?? "v",
-                    Text     = partEl.GetProperty("text").GetString() ?? ""
-                });
-            }
+            foreach (var v in newVerses) { v.SongId = song.Id; db.Verses.Add(v); }
             await db.SaveChangesAsync();
 
             mapping.Add((localId, song.Id));
         }
 
+        await tx.CommitAsync();
         return mapping;
     }
 
@@ -568,7 +573,10 @@ public class DatabaseService
         int? desktopId, string name, long updatedAtMs, IReadOnlyList<PilotSetlistItems.Entry> items)
     {
         await using var db = new CantioDbContext();
+        // Jedna transakcja: wcześniej dwa SaveChanges — awaria między nimi zostawiała zestaw bez pozycji.
+        await using var tx = await db.Database.BeginTransactionAsync();
         Setlist setlist;
+        List<SetlistItem> oldItems = [];
         if (desktopId.HasValue)
         {
             setlist = await db.Setlists.Include(s => s.Items)
@@ -576,6 +584,7 @@ public class DatabaseService
                 ?? new Setlist { Name = name };
             if (setlist.Id != 0)
             {
+                oldItems = [.. setlist.Items.OrderBy(i => i.Position)];
                 db.SetlistItems.RemoveRange(setlist.Items);
                 setlist.Name      = name;
                 setlist.UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(updatedAtMs).UtcDateTime;
@@ -624,8 +633,27 @@ public class DatabaseService
                 rows.Add(new SetlistItem { SetlistId = setlist.Id, SongId = entry.Id, Position = rows.Count });
             }
         }
+        // Pilot nie niesie Notes ani SelectedVerses — dziedziczy je pozycja o tym samym kluczu
+        // (pieśń / obrazek / tekst); k-te wystąpienie klucza w nowej liście bierze k-te ze starej.
+        static string Key(SetlistItem i) => i.SongId is int sid ? "s" + sid
+            : !string.IsNullOrEmpty(i.ImagePath) ? "i" + i.ImagePath
+            : "t" + i.CustomTitle + "\0" + i.CustomText;
+        var oldByKey = oldItems.GroupBy(Key).ToDictionary(g => g.Key, g => g.ToList());
+        var seen = new Dictionary<string, int>();
+        foreach (var row in rows)
+        {
+            var key = Key(row);
+            int k = seen.GetValueOrDefault(key);
+            seen[key] = k + 1;
+            if (oldByKey.TryGetValue(key, out var olds) && k < olds.Count)
+            {
+                row.Notes = olds[k].Notes;
+                row.SelectedVerses = olds[k].SelectedVerses;
+            }
+        }
         db.SetlistItems.AddRange(rows);
         await db.SaveChangesAsync();
+        await tx.CommitAsync();
         return setlist.Id;
     }
 
@@ -1123,8 +1151,10 @@ public class DatabaseService
     /// dwuwydaniowy) do kategorii "Psalmy responsoryjne". Buduje JEDNĄ pieśń per <c>dzien</c>,
     /// a jej zwrotki niosą OBA wydania lekcjonarza — każda oznaczona <see cref="Verse.Lekcjonarz"/>
     /// (<c>"S"</c>/<c>"N"</c>). Projekcja filtruje je po ustawieniu <c>lectionary</c>.
-    /// Re-import kasuje stare pieśni kategorii i wgrywa od nowa.
-    /// Zwraca liczbę dodanych pieśni lub -1 gdy kategoria nie istnieje.
+    /// Re-import AKTUALIZUJE po tytule: pieśń o istniejącym tytule zostaje (to samo <c>Id</c>, więc
+    /// pozycje zapisanych zestawów przeżywają) i dostaje nowe zwrotki; pieśni, których tytułu nie ma
+    /// w danych wbudowanych, są kasowane razem z pozycjami zestawów; nowe tytuły są dodawane.
+    /// Zwraca liczbę pieśni kategorii po imporcie (zaktualizowane + dodane) lub -1 gdy kategoria nie istnieje.
     /// </summary>
     public async Task<int> ImportPsalmySeedAsync()
     {
@@ -1142,19 +1172,17 @@ public class DatabaseService
             .FirstOrDefaultAsync(c => c.Name == "Psalmy responsoryjne");
         if (category == null) return -1;
 
-        // Usuń stare psalmy (mogą mieć inny format klucza) — importujemy od nowa
-        var oldSongIds = await db.Songs
-            .Where(s => s.CategoryId == category.Id)
-            .Select(s => s.Id)
-            .ToListAsync();
-        if (oldSongIds.Count > 0)
-        {
-            await db.SetlistItems.Where(i => i.SongId.HasValue && oldSongIds.Contains(i.SongId.Value)).ExecuteDeleteAsync();
-            await db.Verses.Where(v => oldSongIds.Contains(v.SongId)).ExecuteDeleteAsync();
-            await db.Songs.Where(s => oldSongIds.Contains(s.Id)).ExecuteDeleteAsync();
-        }                               
+        // Jedna transakcja: przerwanie w połowie nie zostawia kategorii bez zwrotek.
+        await using var tx = await db.Database.BeginTransactionAsync();
 
-        var existing = new HashSet<string>(); // po wyczyszczeniu nic nie istnieje
+        // Tytuły porównujemy po stronie klienta (SQLite lower()/LIKE znają tylko ASCII); dokładnie
+        // (ordinal, po Trim) — tak jak dedupe `existing` poniżej. Duplikat tytułu w bazie: zostaje
+        // pierwszy, reszta wypada razem z pozycjami zestawów jak każda pieśń spoza danych.
+        var oldSongs = await db.Songs.Where(s => s.CategoryId == category.Id).OrderBy(s => s.Id).ToListAsync();
+        var oldByTitle = new Dictionary<string, Song>(StringComparer.Ordinal);
+        foreach (var os in oldSongs) oldByTitle.TryAdd(os.Title.Trim(), os);
+
+        var existing = new HashSet<string>();
         int maxNumber = 0;
 
         // Faza 1: wstaw wszystkie nowe pieśni (jedna per dzień)
@@ -1168,11 +1196,32 @@ public class DatabaseService
             var blocks = rec.Psalm ?? [];
             if (blocks.Count == 0) continue; // brak danych — nie zakładamy pustej pieśni
             maxNumber++;
-            var song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };
-            db.Songs.Add(song);
+            Song song;
+            if (oldByTitle.TryGetValue(title, out var kept))
+            {
+                song = kept;
+                song.Number = maxNumber;           // numeracja jak po czystym imporcie
+                song.UpdatedAt = DateTime.UtcNow;  // zwrotki wymieniane = zmiana treści (wykrywanie konfliktów Pilota)
+            }
+            else
+            {
+                song = new Song { Number = maxNumber, Title = title, CategoryId = category.Id };
+                db.Songs.Add(song);
+            }
             toInsert.Add((song, blocks));
         }
-        await db.SaveChangesAsync(); // Pieśni otrzymują Id
+
+        // Pieśni spoza danych wbudowanych wypadają z pozycjami zestawów; zachowanym podmieniamy zwrotki.
+        var keptIds = toInsert.Where(t => t.Song.Id != 0).Select(t => t.Song.Id).ToList();
+        var staleIds = oldSongs.Select(s => s.Id).Except(keptIds).ToList();
+        var oldIds = oldSongs.Select(s => s.Id).ToList();
+        if (staleIds.Count > 0)
+            await db.SetlistItems.Where(i => i.SongId.HasValue && staleIds.Contains(i.SongId.Value)).ExecuteDeleteAsync();
+        if (oldIds.Count > 0)
+            await db.Verses.Where(v => oldIds.Contains(v.SongId)).ExecuteDeleteAsync();
+        if (staleIds.Count > 0)
+            await db.Songs.Where(s => staleIds.Contains(s.Id)).ExecuteDeleteAsync();
+        await db.SaveChangesAsync(); // Nowe pieśni otrzymują Id, zachowane — nowy Number
 
         // Faza 2: wstaw zwrotki OBU wydań. Kolejność bloków ze źródła (S przed N);
         // filtr projekcji i tak zostawia tylko zwrotki wybranego wydania + wspólne (null).
@@ -1191,6 +1240,7 @@ public class DatabaseService
             }
         }
         await db.SaveChangesAsync();
+        await tx.CommitAsync();
 
         return toInsert.Count;
     }

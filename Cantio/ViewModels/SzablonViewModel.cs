@@ -686,6 +686,12 @@ public partial class SzablonViewModel : ObservableObject
             // żadnej kontroli, więc wpis `..\..\cokolwiek` zapisywał plik gdzie indziej.
             MaintenanceOps.ImportZip(dlg.FileName);
         }
+        catch (MaintenanceOps.NotADatabaseEntryException)
+        {
+            MessageBox.Show(LocalizationManager.Get("Msg.ImportZipNotADatabase"),
+                "Cantio", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;   // NIC nie zostało rozpakowane (podklasa UnsafeZipEntryException — musi być przed nią)
+        }
         catch (MaintenanceOps.UnsafeZipEntryException ex)
         {
             MessageBox.Show(
@@ -699,6 +705,7 @@ public partial class SzablonViewModel : ObservableObject
     private static void RestartApp()
     {
         Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
+        App.IsShuttingDown = true;
         Application.Current.Shutdown();
     }
 

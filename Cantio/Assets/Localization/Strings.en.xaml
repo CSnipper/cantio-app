@@ -184,6 +184,7 @@
     <sys:String x:Key="Msg.SelectVerse">Select a verse</sys:String>
     <sys:String x:Key="Msg.SelectSetlist">Select a set</sys:String>
     <sys:String x:Key="Msg.UnsavedChanges">Unsaved changes!</sys:String>
+    <sys:String x:Key="Msg.CloseUnsavedEdit">The song being edited has unsaved changes.&#10;&#10;Yes — save and close&#10;No — discard changes and close&#10;Cancel — back to editing</sys:String>
 
     <!-- Groups -->
     <sys:String x:Key="Groups.AddNew">+ New group</sys:String>
@@ -217,6 +218,7 @@
     <sys:String x:Key="Msg.ImportZipConfirm">Replace database and images with data from ZIP? The app will restart.</sys:String>
     <sys:String x:Key="Msg.RestoreDbNotDatabase">The selected file is not a Cantio database. Nothing was changed.</sys:String>
     <sys:String x:Key="Msg.ImportZipUnsafeEntry">The archive contains an entry pointing outside the application data folder. The import was rejected entirely — nothing was changed.</sys:String>
+    <sys:String x:Key="Msg.ImportZipNotADatabase">The cantio.db file in the archive is not a Cantio database. The import was stopped, nothing was changed.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Install update</sys:String>
     <sys:String x:Key="About.Downloading">Downloading...</sys:String>
     <sys:String x:Key="About.Changelog">What's new:</sys:String>

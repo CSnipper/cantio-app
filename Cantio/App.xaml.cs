@@ -9,6 +9,9 @@ namespace Cantio;
 
 public partial class App : Application
 {
+    // Shutdown() podnosi Closing na oknie i ignoruje e.Cancel — pytanie o niezapisaną edycję nie może wisieć przy restarcie.
+    internal static bool IsShuttingDown;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         var dbFolder = Path.Combine(

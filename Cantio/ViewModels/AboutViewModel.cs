@@ -158,6 +158,7 @@ public partial class AboutViewModel : ObservableObject
         }
         catch { IsDownloading = false; return; }
         Process.Start(new ProcessStartInfo(tempFile) { UseShellExecute = true });
+        App.IsShuttingDown = true;
         Application.Current.Shutdown();
     }
 

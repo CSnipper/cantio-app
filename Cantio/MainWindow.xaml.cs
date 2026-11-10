@@ -18,6 +18,8 @@ namespace Cantio;
 public partial class MainWindow : Window
 {
     private readonly DisplayViewModel _vm;
+    private bool _closeAfterSave;
+    private bool _closeSaveInProgress;
     private readonly ImportViewModel _importVm;
     private readonly SzablonViewModel _szablonVm;
     private readonly ShortcutService _shortcutService;
@@ -1014,7 +1016,34 @@ public partial class MainWindow : Window
             updateTimer.Tick += async (_, _) => await _aboutVm.CheckAndPromptAsync();
             updateTimer.Start();
         };
-        Closing += (_, _) => { _vm.StopLoop(); SaveWindowPosition(); _remoteControl.Dispose(); };
+        Closing += async (_, e) =>
+        {
+            if (_closeSaveInProgress) { e.Cancel = true; return; } // zapis trwa — kolejny X nie może otworzyć drugiego pytania
+            // Niezapisana edycja pieśni nie może zginąć bez pytania (tryb serwerowy: bez dialogu, zamykamy jak dotąd)
+            if (!_closeAfterSave && !App.IsShuttingDown && _vm.IsEditMode && _vm.IsEditDirty
+                && AppModeRules.CanShowBlockingDialog(AppMode.Current))
+            {
+                var answer = MessageBoxResult.None;
+                try
+                {
+                    answer = MessageBox.Show(this, LocalizationManager.Get("Msg.CloseUnsavedEdit"),
+                        LocalizationManager.Get("Msg.UnsavedChanges"), MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                }
+                catch (Exception ex) { AppLog.Write("UI", $"Pytanie przy zamykaniu nieudane: {ex.Message}"); } // None = zamykamy jak dotąd
+                if (answer == MessageBoxResult.Cancel) { e.Cancel = true; return; }
+                if (answer == MessageBoxResult.Yes)
+                {
+                    e.Cancel = true; // zapis jest asynchroniczny — zamykamy ponownie po udanym zapisie
+                    _closeSaveInProgress = true;
+                    try { await _vm.SaveEditedSongCommand.ExecuteAsync(null); }
+                    catch (Exception ex) { AppLog.Write("UI", $"Zapis przy zamykaniu nieudany: {ex.Message}"); }
+                    finally { _closeSaveInProgress = false; }
+                    if (!_vm.IsEditMode) { _closeAfterSave = true; Close(); }
+                    return;
+                }
+            }
+            _vm.StopLoop(); SaveWindowPosition(); _remoteControl.Dispose();
+        };
         KeyDown += _vm.OnKeyDown;
 
         InitClock();
@@ -1160,6 +1189,7 @@ public partial class MainWindow : Window
             System.Diagnostics.Process.Start(
                 new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
                 { UseShellExecute = true });
+            App.IsShuttingDown = true;
             Application.Current.Shutdown();
         }
         catch (Exception ex) { AppLog.Write("Pilot", $"Restart nieudany: {ex.Message}"); }

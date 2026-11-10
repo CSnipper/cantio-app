@@ -446,6 +446,9 @@ public partial class DisplayViewModel : ObservableObject
         if (song != null) await EditSongAsync(song);
     }
 
+    private SetlistItem? _inlineEditItem;
+    private int _inlineEditIndex = -1;
+
     [RelayCommand]
     private async Task OpenInlineEditorAsync(SetlistItem item)
     {
@@ -474,6 +477,8 @@ public partial class DisplayViewModel : ObservableObject
                 };
                 return new EditableVerse { Id = v.Id, Type = v.Type, Label = label, Text = v.Text, ImagePath = v.ImagePath, BackgroundImagePath = v.BackgroundImagePath };
             }));
+        _inlineEditItem = item;
+        _inlineEditIndex = SetlistItems.IndexOf(item);
         IsInlineEditorOpen = true;
     }
 
@@ -501,30 +506,40 @@ public partial class DisplayViewModel : ObservableObject
         var order = EditableVerses.Select((ev, i) => (ev.Id, i));
         await _db.SaveVerseOrderAsync(order);
 
-        var editedSongId = SelectedSetlistItem?.SongId;
+        // Pozycja, dla której otwarto edytor — SelectedSetlistItem mógł się w międzyczasie zmienić
+        var target = _inlineEditItem;
+        var targetIndex = _inlineEditIndex;
+        _inlineEditItem = null;
+        _inlineEditIndex = -1;
+        var editedSongId = target?.SongId; // pieśń (nie pozycja) zapisuje się zawsze
+        // Pozycji nie ma już w zestawie (przeładowanie) — szukamy tej samej (indeks + pieśń); brak = nie zapisujemy uwag
+        if (target != null && !SetlistItems.Contains(target))
+            target = targetIndex >= 0 && targetIndex < SetlistItems.Count
+                && SetlistItems[targetIndex].SongId == target.SongId
+                ? SetlistItems[targetIndex] : null;
 
         // Refresh the song in the setlist item so changes are visible immediately
-        if (SelectedSetlistItem?.Song != null)
+        if (target?.Song != null)
         {
-            var refreshed = await _db.GetSongWithVersesAsync(SelectedSetlistItem.Song.Id);
-            if (refreshed != null) SelectedSetlistItem.Song = refreshed;
+            var refreshed = await _db.GetSongWithVersesAsync(target.Song.Id);
+            if (refreshed != null) target.Song = refreshed;
         }
 
-        if (SelectedSetlistItem != null)
+        if (target != null)
         {
             var trimmed = InlineEditorNotes.Trim();
             var notes = string.IsNullOrEmpty(trimmed) ? null : trimmed;
-            await _db.SaveSetlistItemNotesAsync(SelectedSetlistItem.Id, notes);
-            SelectedSetlistItem.Notes = notes;
+            await _db.SaveSetlistItemNotesAsync(target.Id, notes);
+            target.Notes = notes;
         }
 
-        if (SelectedSetlistItem?.SongId.HasValue == true)
+        if (editedSongId.HasValue)
         {
             double? fontOverride = InlineEditorFontSizeHard
                 && double.TryParse(InlineEditorFontSize.Trim(), out var fs) && fs >= 8
                 ? fs : null;
-            await _db.SaveSongFontSizeOverrideAsync(SelectedSetlistItem.SongId.Value, fontOverride);
-            if (SelectedSong?.Id == SelectedSetlistItem.SongId.Value)
+            await _db.SaveSongFontSizeOverrideAsync(editedSongId.Value, fontOverride);
+            if (SelectedSong?.Id == editedSongId.Value)
                 SelectedSong.FontSizeOverride = fontOverride;
         }
 
@@ -543,6 +558,8 @@ public partial class DisplayViewModel : ObservableObject
     {
         IsInlineEditorOpen = false;
         EditableVerses = [];
+        _inlineEditItem = null;
+        _inlineEditIndex = -1;
     }
 
     [RelayCommand]
@@ -976,6 +993,7 @@ public partial class DisplayViewModel : ObservableObject
             NotifyEditorClosedExternally?.Invoke(songId);
         }
 
+        if (deleted) RemoveSongFromSetlist(songId);
         await LoadCategoriesAsync();
         await ReloadCurrentSongListAsync();
         if (deleted || SelectedSong?.Id != songId) return;
@@ -994,6 +1012,7 @@ public partial class DisplayViewModel : ObservableObject
         if (_editingSong == null) return;
         if (!Confirm($"Usunąć pieśń \"{_editingSong.Title}\"?")) return;
         await _db.DeleteSongAsync(_editingSong.Id);
+        RemoveSongFromSetlist(_editingSong.Id);
         await ReloadCurrentSongListAsync();
         IsEditMode = false;
         _editingSong = null;
@@ -1302,6 +1321,17 @@ public partial class DisplayViewModel : ObservableObject
     {
         if (IsInlineEditorOpen) CancelInlineEdit();
         SetlistItems.Remove(item);
+    }
+
+    // Pieśń skasowana z bazy nie może zostać w bieżącym zestawie (zapis dałby martwe odwołanie)
+    private void RemoveSongFromSetlist(int songId)
+    {
+        var removed = SetlistItems.Where(i => i.SongId == songId).ToList();
+        // Zamykamy edytor tylko gdy edytowana pozycja znika (inaczej niezapisane zmiany by przepadły)
+        if (IsInlineEditorOpen && _inlineEditItem != null && removed.Contains(_inlineEditItem)) CancelInlineEdit();
+        foreach (var item in removed) SetlistItems.Remove(item);
+        if (IsInlineEditorOpen && _inlineEditItem != null) _inlineEditIndex = SetlistItems.IndexOf(_inlineEditItem);
+        for (int i = 0; i < SetlistItems.Count; i++) SetlistItems[i].Position = i + 1;
     }
 
     [RelayCommand]

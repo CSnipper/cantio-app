@@ -184,6 +184,7 @@
     <sys:String x:Key="Msg.SelectVerse">Seleccionar estrofa</sys:String>
     <sys:String x:Key="Msg.SelectSetlist">Seleccionar lista</sys:String>
     <sys:String x:Key="Msg.UnsavedChanges">¡Cambios sin guardar!</sys:String>
+    <sys:String x:Key="Msg.CloseUnsavedEdit">El canto en edición tiene cambios sin guardar.&#10;&#10;Sí — guardar y cerrar&#10;No — descartar los cambios y cerrar&#10;Cancelar — volver a la edición</sys:String>
 
     <!-- Grupos -->
     <sys:String x:Key="Groups.AddNew">+ Nuevo grupo</sys:String>
@@ -217,6 +218,7 @@
     <sys:String x:Key="Msg.ImportZipConfirm">¿Reemplazar base de datos e imágenes con datos del ZIP? La aplicación se reiniciará.</sys:String>
     <sys:String x:Key="Msg.RestoreDbNotDatabase">El archivo seleccionado no es una base de datos de Cantio. No se ha cambiado nada.</sys:String>
     <sys:String x:Key="Msg.ImportZipUnsafeEntry">El archivo comprimido contiene una entrada que apunta fuera de la carpeta de datos de la aplicación. La importación se rechazó por completo: no se ha cambiado nada.</sys:String>
+    <sys:String x:Key="Msg.ImportZipNotADatabase">El archivo cantio.db incluido en el archivo comprimido no es una base de datos de Cantio. La importación se detuvo y no se ha cambiado nada.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Instalar actualización</sys:String>
     <sys:String x:Key="About.Downloading">Descargando...</sys:String>
     <sys:String x:Key="About.Changelog">Novedades:</sys:String>
