@@ -433,7 +433,7 @@ public partial class MainWindow : Window
             {
                 await _remoteControl.SendToClientAsync(ws, await PilotSetlistSync.BuildSetlistsJsonAsync(db));
             }
-            catch { }
+            catch (Exception ex) { AppLog.Write("Pilot", $"get_setlists: {ex.Message}"); }
         };
 
         _remoteControl.GetSetlistDetailRequested += async (ws, setlistId) =>
@@ -453,7 +453,7 @@ public partial class MainWindow : Window
                 });
                 await _remoteControl.SendToClientAsync(ws, json);
             }
-            catch { }
+            catch (Exception ex) { AppLog.Write("Pilot", $"get_setlist_detail: {ex.Message}"); }
         };
 
         _remoteControl.SetlistSyncPushRequested += async (ws, rawJson) =>
@@ -464,7 +464,11 @@ public partial class MainWindow : Window
                 var json = await PilotSetlistSync.HandlePushAsync(db, rawJson);
                 if (json != null) await _remoteControl.SendToClientAsync(ws, json);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                AppLog.Write("Pilot", $"setlist_sync_push: {ex.GetType().Name}: {ex.Message}" +
+                                      (ex.InnerException != null ? $" | wewnętrzny: {ex.InnerException.Message}" : ""));
+            }
         };
 
         _remoteControl.SetlistDeleteRequested += async (ws, setlistId) =>
@@ -477,7 +481,7 @@ public partial class MainWindow : Window
                         await _vm.OnSetlistDeletedExternallyAsync(setlistId));
                 await _remoteControl.SendToClientAsync(ws, json);
             }
-            catch { }
+            catch (Exception ex) { AppLog.Write("Pilot", $"setlist_delete: {ex.Message}"); }
         };
 
         _remoteControl.OpenSetlistRequested += (ws, setlistId) =>
@@ -489,7 +493,7 @@ public partial class MainWindow : Window
                     if (setlist == null) return;
                     await _vm.LoadPinnedSetlistCommand.ExecuteAsync(setlist);
                 }
-                catch { }
+                catch (Exception ex) { AppLog.Write("Pilot", $"open_setlist: {ex.Message}"); }
             });
 
         _remoteControl.SyncPushRequested += async (ws, rawJson) =>
@@ -497,6 +501,7 @@ public partial class MainWindow : Window
             try
             {
                 var mapping = await db.SyncPushSongsAsync(rawJson);
+                AppLog.Write("Pilot", $"sync_push: przyjęto pieśni: {mapping.Count}");
                 var ackJson = JsonSerializer.Serialize(new
                 {
                     type    = "sync_push_ack",
@@ -504,7 +509,11 @@ public partial class MainWindow : Window
                 });
                 await _remoteControl.SendToClientAsync(ws, ackJson);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                AppLog.Write("Pilot", $"sync_push: {ex.GetType().Name}: {ex.Message}" +
+                                      (ex.InnerException != null ? $" | wewnętrzny: {ex.InnerException.Message}" : ""));
+            }
         };
         _remoteControl.GetSongsRequested += async (ws, offset, limit) =>
         {
@@ -553,7 +562,7 @@ public partial class MainWindow : Window
                     UptimeSeconds:    PilotStatus.UptimeSeconds()));
                 await _remoteControl.SendToClientAsync(ws, PilotStatus.BuildStatusJson(info));
             }
-            catch { }
+            catch (Exception ex) { AppLog.Write("Pilot", $"status: {ex.Message}"); }
         };
 
         _remoteControl.RestartAppRequested += ws =>
@@ -925,7 +934,7 @@ public partial class MainWindow : Window
                 await _remoteControl.SendToClientAsync(ws,
                     PilotDevices.BuildDevicesJson(_devicesVm.SnapshotForRemote()));
             }
-            catch { }
+            catch (Exception ex) { AppLog.Write("Pilot", $"client_connected: {ex.Message}"); }
         };
 
         async Task BroadcastCurrentState()
