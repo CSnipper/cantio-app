@@ -363,6 +363,13 @@ public sealed class RemoteControlServer : IDisposable
         await stream.WriteAsync(body, ct);
     }
 
+    // Przed uwierzytelnieniem serwer obsługuje wyłącznie krótki komunikat `auth` — 64 kB to duży zapas.
+    private const int MaxPreAuthMessageBytes = 64 * 1024;
+    // Po uwierzytelnieniu największy legalny komunikat to `sync_push` (cała biblioteka z tabletu w jednym JSON-ie):
+    // baza 2129 pieśni ma ~1,6 MB tekstu UTF-8 (zwrotki + tytuły), ×2 narzut JSON ≈ 3,2 MB; ×4 zapasu ≈ 13 MB,
+    // zaokrąglone do 32 MB. Kawałek uploadu obrazka (~88 kB) mieści się z ogromnym zapasem.
+    private const int MaxMessageBytes = 32 * 1024 * 1024;
+
     private async Task ReceiveLoopAsync(WebSocket ws, string ip, CancellationToken ct)
     {
         using var authCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -395,6 +402,14 @@ public sealed class RemoteControlServer : IDisposable
                 {
                     result = await ws.ReceiveAsync(buf, loopCt);
                     if (result.MessageType == WebSocketMessageType.Close) return;
+                    // Limit sprawdzany przy każdym kawałku — reszty zbyt dużej wiadomości nie doczytujemy.
+                    if (ms.Length + result.Count > (authed ? MaxMessageBytes : MaxPreAuthMessageBytes))
+                    {
+                        if (!authed) RegisterIpFailure(ip);
+                        Reject(ip, $"wiadomość przekracza limit rozmiaru ({(authed ? MaxMessageBytes : MaxPreAuthMessageBytes)} B)");
+                        await CloseTooBigAsync(ws);
+                        return;
+                    }
                     ms.Write(buf, 0, result.Count);
                 } while (!result.EndOfMessage);
             }
@@ -713,6 +728,16 @@ public sealed class RemoteControlServer : IDisposable
     {
         Debug.WriteLine($"[Pilot] Odrzucono urządzenie {ip}: {reason}");
         ClientRejected?.Invoke($"{ip} — {reason}");
+    }
+
+    private static async Task CloseTooBigAsync(WebSocket ws)
+    {
+        try
+        {
+            await ws.CloseOutputAsync(WebSocketCloseStatus.MessageTooBig,
+                "too big", CancellationToken.None);
+        }
+        catch { }
     }
 
     private static async Task CloseRejectedAsync(WebSocket ws)
