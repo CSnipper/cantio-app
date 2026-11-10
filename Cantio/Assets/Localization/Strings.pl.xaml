@@ -185,6 +185,7 @@
     <sys:String x:Key="Msg.SelectVerse">Wybierz zwrotkę</sys:String>
     <sys:String x:Key="Msg.SelectSetlist">Wybierz zestaw</sys:String>
     <sys:String x:Key="Msg.UnsavedChanges">Niezapisane zmiany!</sys:String>
+    <sys:String x:Key="Msg.CloseUnsavedEdit">Edytowana pieśń ma niezapisane zmiany.&#10;&#10;Tak — zapisz i zamknij&#10;Nie — odrzuć zmiany i zamknij&#10;Anuluj — wróć do edycji</sys:String>
 
     <!-- Grupy -->
     <sys:String x:Key="Groups.AddNew">+ Nowa grupa</sys:String>
@@ -218,6 +219,7 @@
     <sys:String x:Key="Msg.ImportZipConfirm">Zastąpić bazę danych i obrazki danymi z pliku ZIP? Aplikacja zostanie zrestartowana.</sys:String>
     <sys:String x:Key="Msg.RestoreDbNotDatabase">Wybrany plik nie jest bazą danych Cantio. Nic nie zostało zmienione.</sys:String>
     <sys:String x:Key="Msg.ImportZipUnsafeEntry">Archiwum zawiera wpis prowadzący poza folder danych aplikacji. Import został odrzucony w całości — nic nie zostało zmienione.</sys:String>
+    <sys:String x:Key="Msg.ImportZipNotADatabase">Plik cantio.db w archiwum nie jest bazą danych Cantio. Import przerwano, niczego nie zmieniono.</sys:String>
     <sys:String x:Key="About.InstallUpdate">Zainstaluj aktualizację</sys:String>
     <sys:String x:Key="About.Downloading">Pobieranie...</sys:String>
     <sys:String x:Key="About.Changelog">Co nowego:</sys:String>
