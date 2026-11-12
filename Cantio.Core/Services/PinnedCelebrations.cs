@@ -8,8 +8,9 @@ namespace Cantio.Services;
 /// Po co: „Przypnij tydzień" nazywa zestaw dniem temporalnym (np. „18 Pon”), a nazwa zmienia się
 /// tylko wtedy, gdy obchód REALNIE ją wypiera. Podpis zostaje dla JEDNEGO przypadku, w którym
 /// obchód jest obowiązujący, a nazwy nie zabiera: UROCZYSTOŚCI w niedzielę uprzywilejowaną
-/// (8 XII w niedzielę Adwentu, 3 V w niedzielę Wielkanocy) — aplikacja nie przenosi jej na
-/// poniedziałek, więc przypomnienie ma sens.
+/// (np. 3 V w niedzielę Wielkanocy) — aplikacja nie przenosi jej na poniedziałek, więc
+/// przypomnienie ma sens. (8 XII w niedzielę Adwentu podpisu nie potrzebuje: zostaje w niedzielę
+/// i sama jest nazwą dnia. Józef i Zwiastowanie są przenoszone — zob. ObservedDate.)
 ///
 /// <para>WSPOMNIENIA podpisu NIE dostają (decyzja użytkownika 2026-08-08): obowiązkowe mają od
 /// tej pory WŁASNY zestaw pod nazwą obchodu (<see cref="DiocesanCalendarService.PinSetlistName"/>),

@@ -121,8 +121,20 @@ public static class DiocesanCalendarService
         // Wspomnienia RUCHOME (Niepokalane Serce NMP) idą przed wpisami z pliku: przy równej randze
         // dedup i sortowanie są stabilne, więc obchód dnia wypływa jako pierwszy.
         IEnumerable<Celebration> all = LiturgicalCalendarService.MovableCelebrations(date);
-        if (_byDate != null && _byDate.TryGetValue(mmdd, out var fixedList))
-            all = all.Concat(fixedList);
+        if (_byDate != null)
+        {
+            // Uroczystości 19 i 25 III bywają przenoszone: w dniu pierwotnym ich nie ma, w docelowym są.
+            foreach (var origin in new[] { "03-19", "03-25" })
+            {
+                if (!_byDate.TryGetValue(origin, out var list)) continue;
+                var observed = LiturgicalCalendarService.ObservedDate(
+                    new DateOnly(date.Year, 3, origin == "03-19" ? 19 : 25));
+                if (observed == date) all = all.Concat(list.Where(c => origin == mmdd || c.Ranga == Ranga.Uroczystosc));
+                else if (origin == mmdd) all = all.Concat(list.Where(c => c.Ranga != Ranga.Uroczystosc));
+            }
+            if (mmdd is not ("03-19" or "03-25") && _byDate.TryGetValue(mmdd, out var fixedList))
+                all = all.Concat(fixedList);
+        }
         diocese ??= "";
         var applicable = all.Where(c => c.Powszechny ||
             (diocese.Length > 0 && c.Diecezje.Contains(diocese)));
@@ -144,7 +156,7 @@ public static class DiocesanCalendarService
     /// <summary>
     /// Efektywna nazwa zestawu dla dnia — do „Przypnij tydzień" i wyświetlania:
     /// ręczny wybór > uroczystość/święto wypierające dzień powszedni (na niedzielę tylko
-    /// uroczystość) > temporalna nazwa dnia.
+    /// uroczystość; wyjątek: 8 XII w niedzielę Adwentu) > temporalna nazwa dnia.
     /// </summary>
     public static string EffectiveSetlistName(DateOnly date, LiturgicalDay day)
         => EffectiveSetlistName(date, day, CurrentDiocese);
@@ -190,8 +202,10 @@ public static class DiocesanCalendarService
         bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
         // W niedzielę próg zostaje TWARDY (uroczystość) niezależnie od weekdayMin —
         // wspomnień w niedzielę się nie obchodzi, więc zestaw wspomnienia byłby fałszywką.
+        // 8 XII: w Polsce Niepokalane Poczęcie w niedzielę Adwentu NIE jest przenoszone i wypiera ją
+        // (to jedyna uroczystość stała, która wypiera niedzielę poza okresem zwykłym).
         bool displaces = isSunday
-            ? top.Ranga == Ranga.Uroczystosc && day.Group == "zwykly"
+            ? top.Ranga == Ranga.Uroczystosc && (day.Group == "zwykly" || (date.Month == 12 && date.Day == 8))
             : top.Ranga >= weekdayMin;
         // Dzień z WŁASNĄ rangą (obchód ruchomy: Boże Ciało, Chrystus Król…) ustępuje tylko
         // obchodowi WYŻSZEJ rangi. Bez tego warunku święto Nawiedzenia NMP (31 V) zabierało

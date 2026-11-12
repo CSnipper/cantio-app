@@ -47,7 +47,7 @@ for (var d = from; d <= to; d = d.AddDays(1))
 
     // Obchody RUCHOME (Boże Ciało, Chrystus Król…) mają WŁASNĄ nazwę zamiast
     // temporalnej, więc nie są dniem okresu — w bazie czytań żyją jako „US".
-    bool wlasny = day.Rank != Ranga.Brak;
+    bool wlasny = LiturgicalCalendarService.IsMovableCelebration(d);
     string okres = wlasny ? "US" : OkresFor(day.Group);
     string dzien = wlasny ? day.SetlistName : $"{okres} {day.SetlistName}";
 
@@ -57,7 +57,7 @@ for (var d = from; d <= to; d = d.AddDays(1))
         dzien,
         okres,
         cykl = day.Cycle,
-        ranga = day.Rank.ToString(),
+        ranga = (wlasny ? day.Rank : Ranga.Brak).ToString(),
     });
 }
 

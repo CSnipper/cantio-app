@@ -44,7 +44,9 @@ public static class LiturgicalCalendarService
         {
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string cycle = GetSundayCycle(year);
-            return new LiturgicalDay(GetLentName(date, easter, cycle), "wielki_post", isSunday ? cycle : "");
+            // Popielec i Niedziela Palmowa – Wielka Sobota: dni uprzywilejowane, nic ich nie wypiera.
+            var rank = date == ashWednesday || date >= easter.AddDays(-7) ? Ranga.Uroczystosc : Ranga.Brak;
+            return new LiturgicalDay(GetLentName(date, easter, cycle), "wielki_post", isSunday ? cycle : "", rank);
         }
 
         // Wielkanoc: Niedziela Wielkanocna do Zesłania Ducha Świętego (49 dni)
@@ -56,7 +58,9 @@ public static class LiturgicalCalendarService
             bool isSunday = date.DayOfWeek == DayOfWeek.Sunday;
             string cycle = GetSundayCycle(year);
             string name = isSunday ? $"{week} {dayAbbr} {cycle}" : $"{week} {dayAbbr}";
-            return new LiturgicalDay(name, "wielkanoc", isSunday ? cycle : "");
+            // Oktawa Wielkanocy (do 2. Niedzieli włącznie) jest dniem uprzywilejowanym.
+            var rank = date <= easter.AddDays(7) ? Ranga.Uroczystosc : Ranga.Brak;
+            return new LiturgicalDay(name, "wielkanoc", isSunday ? cycle : "", rank);
         }
 
         // Zwykły
@@ -114,6 +118,11 @@ public static class LiturgicalCalendarService
         return null;
     }
 
+    /// <summary>Czy dzień jest obchodem RUCHOMYM (własna nazwa zamiast temporalnej) — odróżnia go od
+    /// dni uprzywilejowanych, które też mają rangę, ale zachowują nazwę temporalną.</summary>
+    public static bool IsMovableCelebration(DateOnly date)
+        => GetMovable(date, ComputeEaster(date.Year), date.Year) != null;
+
     /// <summary>Tytuł wspomnienia ruchomego — jedno źródło dla warstwy sanktoralnej i testów.</summary>
     public const string ImmaculateHeartTitle = "Niepokalane Serce NMP";
 
@@ -137,6 +146,25 @@ public static class LiturgicalCalendarService
                 Powszechny: true,
                 Diecezje: [])
         ];
+    }
+
+    /// <summary>
+    /// Data, w której faktycznie obchodzi się uroczystość stałą z 19 III (św. Józef) lub 25 III
+    /// (Zwiastowanie Pańskie); dla pozostałych dat — ta sama data. Reguły przeniesienia:
+    /// niedziela Wielkiego Postu (nie Palmowa) → poniedziałek; Józef w Niedzielę Palmową / Wielkim
+    /// Tygodniu → sobota przed Palmową; Zwiastowanie w Palmową / Wielkim Tygodniu / oktawie
+    /// Wielkanocy → poniedziałek po 2. Niedzieli Wielkanocy.
+    /// </summary>
+    public static DateOnly ObservedDate(DateOnly date)
+    {
+        if (date.Month != 3 || (date.Day != 19 && date.Day != 25)) return date;
+        var easter = ComputeEaster(date.Year);
+        var palm = easter.AddDays(-7);
+        if (date.DayOfWeek == DayOfWeek.Sunday && date >= easter.AddDays(-42) && date < palm)
+            return date.AddDays(1);
+        if (date < palm || date > easter.AddDays(7)) return date;
+        if (date.Day == 19) return palm.AddDays(-1);
+        return easter.AddDays(8);
     }
 
     // Meeus-Jones-Butcher
