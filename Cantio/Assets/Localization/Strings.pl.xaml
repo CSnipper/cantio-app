@@ -210,6 +210,7 @@
     <sys:String x:Key="Settings.LoadLastSetlist">Ładuj ostatnio otwarty zestaw przy starcie</sys:String>
     <sys:String x:Key="Settings.RunOnStartup">Uruchamiaj przy starcie systemu</sys:String>
     <sys:String x:Key="Settings.SectionDatabase">BAZA DANYCH</sys:String>
+    <sys:String x:Key="Settings.SectionLiturgy">LITURGIA</sys:String>
     <sys:String x:Key="Settings.BackupDb">Backup bazy</sys:String>
     <sys:String x:Key="Settings.RestoreDb">Przywróć bazę</sys:String>
     <sys:String x:Key="Settings.ClearDb">Wyczyść bazę</sys:String>
@@ -346,6 +347,7 @@
     <sys:String x:Key="Import.FallbackCategoryAuto">(z pliku / domyślna)</sys:String>
     <sys:String x:Key="Import.FallbackCategoryTip">Dla pieśni bez kategorii w pliku</sys:String>
     <sys:String x:Key="Import.Log">LOG IMPORTU</sys:String>
+    <sys:String x:Key="Import.LogButton">Log</sys:String>
     <sys:String x:Key="Import.NoGroup">(bez grupy)</sys:String>
     <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>

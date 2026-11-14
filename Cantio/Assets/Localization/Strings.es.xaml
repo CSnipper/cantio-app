@@ -209,6 +209,7 @@
     <sys:String x:Key="Settings.LoadLastSetlist">Cargar último repertorio al iniciar</sys:String>
     <sys:String x:Key="Settings.RunOnStartup">Ejecutar al inicio del sistema</sys:String>
     <sys:String x:Key="Settings.SectionDatabase">BASE DE DATOS</sys:String>
+    <sys:String x:Key="Settings.SectionLiturgy">LITURGIA</sys:String>
     <sys:String x:Key="Settings.BackupDb">Copia de seguridad</sys:String>
     <sys:String x:Key="Settings.RestoreDb">Restaurar base de datos</sys:String>
     <sys:String x:Key="Settings.ClearDb">Limpiar base de datos</sys:String>
@@ -345,6 +346,7 @@
     <sys:String x:Key="Import.FallbackCategoryAuto">(del archivo / predeterminada)</sys:String>
     <sys:String x:Key="Import.FallbackCategoryTip">Para canciones sin categoría en el archivo</sys:String>
     <sys:String x:Key="Import.Log">REGISTRO DE IMPORTACIÓN</sys:String>
+    <sys:String x:Key="Import.LogButton">Registro</sys:String>
     <sys:String x:Key="Import.NoGroup">(sin grupo)</sys:String>
     <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
