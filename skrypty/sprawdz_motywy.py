@@ -1,15 +1,49 @@
-"""Strażnik motywów: te same klucze x:Key we wszystkich Theme.*.xaml i wartości w formacie #rrggbb."""
+"""Strażnik motywów: te same klucze x:Key we wszystkich Theme.*.xaml i wartości w formacie #rrggbb;
+oraz brak kolorów wpisanych wprost (#rrggbb / #aarrggbb) w XAML poza listą dozwolonych."""
 import re
 import sys
 from pathlib import Path
 
-DIR = Path(__file__).resolve().parent.parent / "Cantio" / "Assets" / "Themes"
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+ROOT = Path(__file__).resolve().parent.parent / "Cantio"
+DIR = ROOT / "Assets" / "Themes"
 NAMES = ["Obsidian", "Monochrome", "Sage"]
 ENTRY = re.compile(r'<SolidColorBrush\s+x:Key="([^"]+)"\s+Color="([^"]*)"')
 HEX = re.compile(r"#[0-9a-fA-F]{6}")
+# #rgb, #argb, #rrggbb, #aarrggbb; nie łapie encji (&#123;) ani ciągów 5- i 7-znakowych.
+LITERAL = re.compile(r"(?<!&)#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})(?![0-9a-fA-F])")
+
+# Pliki pomijane w kontroli kolorów (nazwa pliku -> dlaczego).
+EXCLUDED = {
+    "ProjectionWindow.xaml": "ekran projekcji ma własne, stałe kolory (wygląd slajdu, nie motyw interfejsu)",
+    "ProjectionView.xaml": "widok slajdu (też w podglądzie) pokazuje kolory slajdu, nie motyw",
+    "ColorPickerWindow.xaml": "okno wyboru koloru ma stały ciemny wygląd, niezależny od motywu",
+    "AccessibleWindow.xaml": "tryb wysokiego kontrastu ma własną, stałą paletę",
+}
+
+# Dozwolone literały: plik (względem Cantio/) -> {hex małymi literami: ile wystąpień}.
+ALLOWED = {
+    "MainWindow.xaml": {
+        "#3d8b40": 1,  # kropka okresu liturgicznego (kolor liturgiczny = dane)
+        "#4aad6f": 2,  # zielony: slajd prywatny w wierszu pieśni i znacznik zwrotki typu p
+        "#7a9abf": 1,  # niebieski znacznik zwrotki typu b (kolor typu zwrotki)
+        "#6db76d": 1,  # zielone potwierdzenie ✓ zapisu grupy (motyw nie ma roli sukcesu)
+        "#000": 2,  # kolor cienia w DropShadowEffect (typ Color, pędzla motywu nie da się tu użyć)
+        "#08ffffff": 1,  # półprzezroczyste podświetlenie
+        "#0dc9a84c": 1,  # półprzezroczyste podświetlenie akcentem
+        "#d44a4a15": 1,  # półprzezroczyste czerwone tło belki Trwa projekcja
+    },
+    "Views/RemoteControlTab.xaml": {
+        "#3a1e1e": 1,  # tło ostrzeżenia o braku PIN-u (odcień bez roli w motywie)
+        "#7a3030": 1,  # ramka ostrzeżenia o braku PIN-u
+        "#e0a0a0": 2,  # tekst ostrzeżenia o braku PIN-u i komunikatu o odrzuconym urządzeniu
+    },
+}
 
 
-def main():
+def check_themes():
     errors, keysets = [], {}
     for n in NAMES:
         f = DIR / f"Theme.{n}.xaml"
@@ -25,10 +59,45 @@ def main():
     for n, ks in keysets.items():
         if union - ks:
             errors.append(f"{n}: brakuje kluczy {sorted(union - ks)}")
+    return errors, len(union)
+
+
+def check_colors():
+    errors, total = [], {}
+    for f in sorted(ROOT.rglob("*.xaml")):
+        rel = f.relative_to(ROOT)
+        if rel.parts[0] in ("bin", "obj") or DIR in f.parents or f.name in EXCLUDED:
+            continue
+        allowed = ALLOWED.get(rel.as_posix(), {})
+        seen = {}
+        for no, line in enumerate(f.read_text(encoding="utf-8-sig").splitlines(), 1):
+            for h in LITERAL.findall(line):
+                h = h.lower()
+                seen[h] = seen.get(h, 0) + 1
+                if seen[h] > allowed.get(h, 0):
+                    errors.append(f"{rel.as_posix()}:{no}: {h}")
+        total[rel.as_posix()] = seen
+    for name, allowed in ALLOWED.items():
+        if name not in total:
+            errors.append(f"{name}: plik z listy ALLOWED nie istnieje lub jest wykluczony")
+            continue
+        for h, n in allowed.items():
+            if total[name].get(h, 0) < n:
+                errors.append(f"{name}: {h} występuje {total[name].get(h, 0)}x, na liście {n}x (usuń lub zmniejsz wpis w ALLOWED)")
+    return errors
+
+
+def main():
+    errors, count = check_themes()
     if errors:
         print("BŁĄD motywów:\n  " + "\n  ".join(errors))
         return 1
-    print(f"OK: {len(union)} kluczy w {len(NAMES)} motywach")
+    print(f"OK: {count} kluczy w {len(NAMES)} motywach")
+    errors = check_colors()
+    if errors:
+        print("BŁĄD: kolor wpisany wprost (użyj Brush.* albo dopisz do ALLOWED):\n  " + "\n  ".join(errors))
+        return 1
+    print("OK: brak niedozwolonych kolorów wpisanych wprost w XAML")
     return 0
 
 

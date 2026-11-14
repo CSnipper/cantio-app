@@ -844,20 +844,20 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="280*" MinWidth="280"/>
-                        <ColumnDefinition Width="580*" MinWidth="560"/>
+                        <ColumnDefinition Width="514*" MinWidth="514"/>
                         <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="270*" MinWidth="270"/>
+                        <ColumnDefinition Width="320*" MinWidth="320"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Col 0: ZWROTKI (slides list, full height) -->
-                    <Grid Grid.Column="0" Background="#0f1117">
+                    <Grid Grid.Column="0" Background="{DynamicResource Brush.BgApp}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Nagłówek: ZWROTKI + tytuł pieśni -->
-                        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                        <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                 BorderThickness="0,0,1,1" Padding="14,11,14,8">
                             <StackPanel>
                                 <Grid>
@@ -868,14 +868,14 @@
                                     <TextBlock Grid.Column="0" Text="{DynamicResource Section.Verses}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="20" FontWeight="Light"
-                                               Foreground="#c9a84c" Margin="0,0,16,0"/>
+                                               Foreground="{DynamicResource Brush.Accent}" Margin="0,0,16,0"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SelectedSong.Title}"
-                                               Foreground="#e8eaf0" FontSize="20" FontWeight="Light"
+                                               Foreground="{DynamicResource Brush.TextMain}" FontSize="20" FontWeight="Light"
                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
                                 <TextBlock Text="{DynamicResource Verses.KeysHint}"
-                                           Foreground="#8895bb" FontSize="14" Margin="4,10,4,0" TextWrapping="Wrap"/>
+                                           Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" Margin="4,10,4,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
@@ -914,8 +914,8 @@
                                             <ColumnDefinition Width="40"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Background="#1e2535"
-                                                BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                        <Border Grid.Column="0" Background="{DynamicResource Brush.BgPanelHover}"
+                                                BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0">
                                             <TextBlock Text="{Binding Label}"
                                                        FontFamily="{StaticResource BodyFont}"
                                                        FontSize="20"
@@ -923,7 +923,7 @@
                                                        VerticalAlignment="Center">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsPrivateSlide}" Value="True">
                                                                 <Setter Property="Foreground" Value="#4aad6f"/>
@@ -954,7 +954,7 @@
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ImagePath, Converter={StaticResource FileName}}"
                                                    FontSize="18" LineHeight="22"
-                                                   FontStyle="Italic" Foreground="#888"
+                                                   FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"
                                                    VerticalAlignment="Center"
                                                    Margin="14,12,12,12">
                                             <TextBlock.Style>
@@ -983,7 +983,7 @@
                                                                              RelativeSource="{RelativeSource AncestorType=ListBox}"/>
                                                                 </MultiBinding>
                                                             </DataTrigger.Binding>
-                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -995,15 +995,15 @@
                         </ListBox>
                     </Grid>
 
-                    <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
-                    <Grid Grid.Column="1" Background="#0f1117">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
-                            <RowDefinition Height="261"/>    <!-- Row 1: Sterowanie + belka (36) + podgląd 16:9 (225) -->
-                        </Grid.RowDefinitions>
+                    <!-- Col 1: ŚRODKOWA (dwie kolumny: kategorie + sterowanie | pieśni + belka + podgląd) -->
+                    <Grid Grid.Column="1" Background="{DynamicResource Brush.BgApp}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160*" MinWidth="160"/>  <!-- Col 0: Kategorie + sterowanie -->
+                            <ColumnDefinition Width="354*"/>                 <!-- Col 1: Pieśni + belka (36) + podgląd 16:9 -->
+                        </Grid.ColumnDefinitions>
 
                         <!-- Song Edit Mode overlay — covers entire Col 1 -->
-                        <Grid x:Name="SongEditOverlay" Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
+                        <Grid x:Name="SongEditOverlay" Grid.ColumnSpan="2" Panel.ZIndex="10" Background="{DynamicResource Brush.BgApp}"
                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
                               IsVisibleChanged="SongEditOverlay_IsVisibleChanged">
                             <Grid.RowDefinitions>
@@ -1015,7 +1015,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Nagłówek: Wróć -->
-                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                     BorderThickness="0,0,0,1" Padding="8,6">
                                 <Button Content="{DynamicResource Btn.Back}" Style="{StaticResource GoldBtn}"
                                         HorizontalAlignment="Left" Padding="16,8" FontSize="21"
@@ -1023,7 +1023,7 @@
                             </Border>
 
                             <!-- Metadane pieśni -->
-                            <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,0,1" Padding="10,8">
+                            <Border Grid.Row="1" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1" Padding="10,8">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
@@ -1073,7 +1073,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0">
                                                         <TextBlock Text="{Binding Label}"
-                                                                   FontSize="21" Foreground="#c9a84c"
+                                                                   FontSize="21" Foreground="{DynamicResource Brush.Accent}"
                                                                    Margin="0,0,0,2" FontWeight="SemiBold"/>
                                                         <!-- TextBox — ukryty dla zwrotek typu "img" -->
                                                         <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
@@ -1104,7 +1104,7 @@
                                                                 </Style>
                                                             </StackPanel.Style>
                                                             <TextBlock Text="{Binding ImageFileName}"
-                                                                       FontSize="21" Foreground="#9aa3b8"
+                                                                       FontSize="21" Foreground="{DynamicResource Brush.TextMuted}"
                                                                        FontStyle="Italic"
                                                                        VerticalAlignment="Center"
                                                                        Margin="0,0,8,0"/>
@@ -1134,14 +1134,14 @@
                                                                 <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{DynamicResource Editor.VerseBackground}"
-                                                                       Foreground="#7080a0" FontSize="16"
+                                                                       Foreground="{DynamicResource Brush.TextDim}" FontSize="16"
                                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding BackgroundFileName}"
-                                                                       Foreground="#9aa3b8" FontSize="16" VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16" VerticalAlignment="Center"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        Visibility="{Binding HasBackground, Converter={StaticResource BoolToVis}}"/>
                                                             <TextBlock Grid.Column="1" Text="{DynamicResource Editor.VerseBackgroundNone}"
-                                                                       Foreground="#556070" FontSize="16" VerticalAlignment="Center">
+                                                                       Foreground="{DynamicResource Brush.TextDim}" FontSize="16" VerticalAlignment="Center">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
                                                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -1171,10 +1171,10 @@
                                                                 ToolTip="Zmień typ: Zwrotka / Refren / Bridge">
                                                             <Button.Style>
                                                                 <Style TargetType="Button" BasedOn="{StaticResource SmallIconBtn}">
-                                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Type}" Value="c">
-                                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding Type}" Value="b">
                                                                             <Setter Property="Foreground" Value="#7a9abf"/>
@@ -1202,7 +1202,7 @@
                                                                 CommandParameter="{Binding}"/>
                                                         <Button Content="✕" Width="36" Height="36" FontSize="16"
                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                Foreground="#d44a4a"
+                                                                Foreground="{DynamicResource Brush.TextMain}"
                                                                 Command="{Binding DataContext.RemoveVerseFromEditorCommand,
                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>
@@ -1218,8 +1218,8 @@
                             <!-- STAŁY pasek: dodawanie zwrotek (nie przewija się z pieśnią).
                                  UniformGrid dzieli szerokość po równo — przy wąskiej kolumnie
                                  tekst się przycina, ale przyciski nie wyjeżdżają poza kolumnę. -->
-                            <Border x:Name="EditorVerseToolbar" Grid.Row="3" Background="#161b25"
-                                    BorderBrush="#2a3347" BorderThickness="0,1,0,0" Padding="8,6">
+                            <Border x:Name="EditorVerseToolbar" Grid.Row="3" Background="{DynamicResource Brush.BgPanel}"
+                                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Padding="8,6">
                                 <UniformGrid Rows="1" Columns="5">
                                     <Button Style="{StaticResource OutlineBtn}"
                                             Margin="0,0,4,0" Padding="6,6" FontSize="23"
@@ -1255,7 +1255,7 @@
                             </Border>
 
                             <!-- STAŁY pasek: Zapisz / Edytuj całość / Kolejność / Usuń -->
-                            <Border Grid.Row="4" Background="#161b25" BorderBrush="#2a3347"
+                            <Border Grid.Row="4" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                     BorderThickness="0,1,0,0" Padding="8,8">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -1307,13 +1307,13 @@
                                            Placement="Top"
                                            PlacementTarget="{Binding ElementName=EditorVerseToolbar}"
                                            Width="{Binding ActualWidth, ElementName=EditorVerseToolbar}">
-                                        <Border Padding="8,6" Background="#181b24"
-                                                CornerRadius="4" BorderBrush="#2a3347" BorderThickness="1">
+                                        <Border Padding="8,6" Background="{DynamicResource Brush.BgPanel}"
+                                                CornerRadius="4" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
                                             <DockPanel>
                                                 <!-- Nagłówek -->
                                                 <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
                                                     <TextBlock Text="{DynamicResource Editor.PlayOrder}"
-                                                               FontSize="14" FontWeight="Bold" Foreground="#c9a84c"
+                                                               FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Accent}"
                                                                VerticalAlignment="Center"/>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                         <Button Content="{DynamicResource Editor.PlayOrder.Rebuild}"
@@ -1344,7 +1344,7 @@
                                                             <DataTemplate>
                                                                 <StackPanel Orientation="Horizontal" TextElement.FontSize="16">
                                                                     <TextBlock Text="{Binding Label}" FontWeight="Bold"
-                                                                               Foreground="#c9a84c" Margin="0,0,6,0"/>
+                                                                               Foreground="{DynamicResource Brush.Accent}" Margin="0,0,6,0"/>
                                                                     <TextBlock Text="{Binding Text}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                MaxWidth="234"/>
@@ -1372,11 +1372,11 @@
                                                                     </Grid.ColumnDefinitions>
                                                                     <TextBlock Grid.Column="0" Text="{Binding Label}"
                                                                                FontFamily="{StaticResource BodyFont}" FontSize="17"
-                                                                               FontWeight="Bold" Foreground="#c9a84c"
+                                                                               FontWeight="Bold" Foreground="{DynamicResource Brush.Accent}"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="1"
                                                                                Text="{Binding Verse.Text}"
-                                                                               FontSize="16" Foreground="#8a8e9e"
+                                                                               FontSize="16" Foreground="{DynamicResource Brush.TextMuted}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                VerticalAlignment="Center"/>
                                                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
@@ -1392,7 +1392,7 @@
                                                                                 CommandParameter="{Binding}"/>
                                                                         <Button Width="29" Height="29" Content="✕" FontSize="16"
                                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                                Foreground="#c04040"
+                                                                                Foreground="{DynamicResource Brush.TextMain}"
                                                                                 Command="{Binding DataContext.RemoveFromPlayOrderCommand,
                                                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                                 CommandParameter="{Binding}"/>
@@ -1409,25 +1409,25 @@
                             </Border>
                         </Grid>
 
-                        <!-- Row 0: Kategorie (left) + Pieśni (right) -->
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="170*" MinWidth="170"/>
-                                <ColumnDefinition Width="410*"/>
-                            </Grid.ColumnDefinitions>
+                    <!-- Lewa kolumna: KATEGORIE (wypełnia) + sterowanie (wysokość z zawartości) -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
                             <!-- KATEGORIE -->
-                            <Grid Grid.Column="0">
+                            <Grid Grid.Row="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                         BorderThickness="0,0,1,1" Padding="10,3">
                                     <Grid>
                                         <TextBlock Text="{DynamicResource Section.Categories}"
                                                    FontFamily="{StaticResource HeaderFont}"
-                                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"
+                                                   FontSize="20" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}"
                                                    VerticalAlignment="Center"/>
                                         <Button Content="{DynamicResource Btn.EditCategories}"
                                                 Style="{StaticResource OutlineBtn}"
@@ -1435,7 +1435,7 @@
                                                 Click="EditCategories_Click"/>
                                     </Grid>
                                 </Border>
-                                <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                <Border Grid.Row="1" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0">
                                     <ListBox x:Name="CategoryListBox"
                                              ItemsSource="{Binding CategoryItems}"
                                              SelectedItem="{Binding SelectedCategoryItem}"
@@ -1457,14 +1457,119 @@
                                 </Border>
                             </Grid>
 
+                            <!-- Sterowanie (lewa kolumna): POKAŻ/WYGAŚ | ◀ | ▶ | pętla -->
+                            <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- POKAŻ / WYGAŚ button -->
+                                    <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
+                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                                    <Setter Property="FontSize" Value="30"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+
+                                    <!-- ◀ Poprzedni slajd -->
+                                    <Button Grid.Row="1" Grid.Column="0" Margin="0,8,4,0" Content="◀"
+                                            Style="{StaticResource NavBtn}"
+                                            FontSize="30" Height="56"
+                                            Command="{Binding PrevSlideCommand}"/>
+
+                                    <!-- ▶ Następny slajd -->
+                                    <Button Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" Content="▶"
+                                            Style="{StaticResource NavBtn}"
+                                            FontSize="30" Height="56"
+                                            Command="{Binding NextSlideCommand}"/>
+
+                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
+                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
+                                            Width="Auto" Height="48" FontSize="24"
+                                            IsEnabled="{Binding CanLoop}"
+                                            Command="{Binding ToggleLoopCommand}"
+                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                    </Grid>
+
+                    <!-- Prawa kolumna: PIEŚNI (wypełnia) + belka (36) i podgląd 16:9 na szerokość kolumny -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
                             <!-- PIEĹšNI -->
-                            <Grid Grid.Column="1">
+                            <Grid Grid.Row="0" MinHeight="150">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                         BorderThickness="0,0,1,1" Padding="10,3">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -1477,8 +1582,8 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{DynamicResource Section.Songs}"
                                                    FontFamily="{StaticResource HeaderFont}"
-                                                   FontSize="20" FontWeight="Light" Foreground="#c9a84c"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedCategory.Name}" Foreground="#9aa3b8"
+                                                   FontSize="20" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedCategory.Name}" Foreground="{DynamicResource Brush.TextMuted}"
                                                    FontSize="14" Margin="10,7" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
                                         <Button Grid.Column="2" Content="1-9"
@@ -1489,8 +1594,8 @@
                                                 <Style TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding SongSortMode}" Value="number">
-                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -1504,8 +1609,8 @@
                                                 <Style TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding SongSortMode}" Value="alpha">
-                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                            <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -1523,13 +1628,13 @@
                                                PlacementTarget="{Binding ElementName=BtnRecentSongs}"
                                                Placement="Bottom" StaysOpen="False"
                                                AllowsTransparency="True">
-                                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                                            <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                                     Padding="8" MinWidth="312" MaxWidth="456">
                                                 <StackPanel>
                                                     <TextBlock Text="{DynamicResource Btn.RecentSongs}"
                                                                FontFamily="{StaticResource HeaderFont}"
                                                                FontSize="16" FontWeight="Medium"
-                                                               Foreground="#c9a84c" Margin="2,0,0,8"/>
+                                                               Foreground="{DynamicResource Brush.Accent}" Margin="2,0,0,8"/>
                                                     <ItemsControl ItemsSource="{Binding RecentSongs}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
@@ -1545,7 +1650,7 @@
                                                                         <TextBlock Text="{Binding Title}" FontSize="22"
                                                                                    TextTrimming="CharacterEllipsis"
                                                                                    HorizontalAlignment="Center"/>
-                                                                        <TextBlock FontSize="13" Foreground="#7080a0"
+                                                                        <TextBlock FontSize="13" Foreground="{DynamicResource Brush.TextDim}"
                                                                                    FontFamily="{StaticResource BodyFont}"
                                                                                    FontWeight="Normal"
                                                                                    TextTrimming="CharacterEllipsis"
@@ -1567,7 +1672,7 @@
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
                                                     <TextBlock Text="{DynamicResource Recent.Empty}"
-                                                               Foreground="#9aa3b8" FontSize="13" Margin="2,2,0,2">
+                                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="13" Margin="2,2,0,2">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -1584,20 +1689,20 @@
                                         </Popup>
                                     </Grid>
                                 </Border>
-                                <Border Grid.Row="1" Background="#161b25">
+                                <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="🔍" Foreground="#959fb9" FontSize="20"
+                                        <TextBlock Grid.Column="0" Text="🔍" Foreground="{DynamicResource Brush.TextMuted}" FontSize="20"
                                                    IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                         <TextBox Grid.Column="1" x:Name="SearchBoxShow"
                                                  Style="{StaticResource SearchBox}"
                                                  Padding="4"
                                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                                  PreviewKeyDown="SearchBoxShow_PreviewKeyDown"/>
-                                        <TextBlock Grid.Column="1" Text="{DynamicResource Placeholder.SearchSongs}" Foreground="#959fb9" FontSize="16"
+                                        <TextBlock Grid.Column="1" Text="{DynamicResource Placeholder.SearchSongs}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
                                                    IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -1615,7 +1720,7 @@
                                         </TextBlock>
                                     </Grid>
                                 </Border>
-                                <Border Grid.Row="2" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
+                                <Border Grid.Row="2" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0">
                                     <ListBox x:Name="SongListShow"
                                              ItemsSource="{Binding Songs}"
                                              SelectedItem="{Binding SelectedSong}"
@@ -1641,7 +1746,7 @@
                                                                 RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             CommandParameter="{Binding}"
                                                             Background="Transparent" BorderThickness="0"
-                                                            Foreground="#959fb9" Cursor="Hand"
+                                                            Foreground="{DynamicResource Brush.TextMuted}" Cursor="Hand"
                                                             VerticalAlignment="Center" HorizontalAlignment="Center">
                                                         <Button.Template>
                                                             <ControlTemplate TargetType="Button">
@@ -1653,7 +1758,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -1699,7 +1804,7 @@
                                                                                     <DataTrigger Binding="{Binding IsMouseOver,
                                                                                         RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
                                                                                         Value="True">
-                                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                                     </DataTrigger>
                                                                                 </Style.Triggers>
                                                                             </Style>
@@ -1711,8 +1816,8 @@
                                                     </Button>
                                                     <Button Grid.Column="3" Content="+"
                                                             Width="40" Height="40"
-                                                            Background="#343f58" BorderBrush="#2a3347"
-                                                            BorderThickness="0" Foreground="#959fb9"
+                                                            Background="{DynamicResource Brush.BgSelected}" BorderBrush="{DynamicResource Brush.Border}"
+                                                            BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}"
                                                             Cursor="Hand"
                                                             Command="{Binding DataContext.AddToSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             CommandParameter="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -1730,9 +1835,9 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="#c9a84c"/>
-                                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                                                        <Setter Property="Foreground" Value="#0f1117"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -1744,125 +1849,19 @@
                                     </ListBox>
                                 </Border>
                             </Grid>
-                        </Grid>
 
-                        <!-- Row 1: Sterowanie (170) + Podgląd 16:9 (400x225) -->
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="170"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | ◀ | ▶ -->
-                            <Border Grid.Column="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,1,0" Padding="6">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
-                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
-                                            Width="Auto" Height="48" FontSize="24"
-                                            IsEnabled="{Binding CanLoop}"
-                                            Command="{Binding ToggleLoopCommand}"
-                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
-                                                        <Setter Property="Foreground" Value="#c9a84c"/>
-                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                                        <Setter Property="BorderThickness" Value="2"/>
-                                                    </DataTrigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Foreground" Value="#4a5266"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-
-                                    <!-- POKAŻ / WYGAŚ button -->
-                                    <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
-                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Background" Value="#252d3d"/>
-                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                    <Setter Property="BorderThickness" Value="0"/>
-                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-                                                    <Setter Property="FontSize" Value="30"/>
-                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="#2a3347"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                            <Setter Property="Background" Value="#1e2535"/>
-                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Button>
-                                    </Grid>
-
-                                    <!-- ◀ Poprzedni slajd -->
-                                    <Button Grid.Row="1" Grid.Column="0" Margin="0,8,4,0" Content="◀"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding PrevSlideCommand}"/>
-
-                                    <!-- ▶ Następny slajd -->
-                                    <Button Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" Content="▶"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding NextSlideCommand}"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- Podgląd 16:9 + belka statusu -->
-                            <!-- Belka (stały wiersz 36 px, miejsce zarezerwowane) nad podglądem 400x225 -->
-                            <Grid Grid.Column="1" Width="400" Height="261"
-                                  HorizontalAlignment="Left" VerticalAlignment="Bottom">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="36"/>
-                                    <RowDefinition Height="225"/>
-                                </Grid.RowDefinitions>
+                    <!-- Podgląd 16:9 + belka statusu -->
+                    <!-- Belka (stały wiersz 36 px) nad podglądem; podgląd: wysokość z szerokości, max 360 (MaxWidth 640 = 16:9), wyśrodkowany -->
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="36"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
                                 <!-- Belka "Trwa projekcja" -->
                                 <Border Grid.Row="0" Padding="2"
                                         Background="#d44a4a15"
-                                        BorderBrush="#2a3347" BorderThickness="0,1,0,0">
+                                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Opacity" Value="1"/>
@@ -1874,18 +1873,20 @@
                                         </Style>
                                     </Border.Style>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Ellipse Width="10" Height="10" Fill="#d44a4a" Margin="0,4,5,0" VerticalAlignment="Center"/>
+                                        <Ellipse Width="10" Height="10" Fill="{DynamicResource Brush.StatusLive}" Margin="0,4,5,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="{DynamicResource Live.Label}"
                                                    FontFamily="{StaticResource HeaderFont}"
                                                    FontSize="22" FontWeight="SemiBold"
-                                                   Foreground="#d44a4a" VerticalAlignment="Center"/>
+                                                   Foreground="{DynamicResource Brush.StatusLive}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- Podgląd 16:9 -->
                                 <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
-                                        BorderBrush="#2a3347" BorderThickness="0,1,0,1"
-                                        ClipToBounds="True">
+                                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,1"
+                                        ClipToBounds="True" MaxHeight="360" MaxWidth="640"
+                            Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
+                                     Converter={StaticResource WidthToHeight}}">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
                                     </Border.Effect>
@@ -1898,18 +1899,18 @@
                                                                        RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
                                     </Viewbox>
                                 </Border>
-                            </Grid>
-                        </Grid>
+                    </Grid>
+                    </Grid>
                     </Grid>
 
                     <!-- Col 2: Przypięte zestawy (pełna wysokość) -->
-                            <Border Grid.Column="2" Background="#0d1018"
-                                    BorderBrush="#2a3347" BorderThickness="1,1,0,1" Padding="6,8">
+                            <Border Grid.Column="2" Background="{DynamicResource Brush.BgApp}"
+                                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1" Padding="6,8">
                                 <DockPanel>
                                     <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center"
                                                Text="{DynamicResource Section.Pinned}"
                                                FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
-                                               FontSize="20" Foreground="#c9a84c" Margin="0,0,0,6"/>
+                                               FontSize="20" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,6"/>
                                     <Button DockPanel.Dock="Bottom"
                                             Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
                                             Command="{Binding PinNextWeekCommand}"
@@ -1947,7 +1948,7 @@
                                                                            TextTrimming="CharacterEllipsis"/>
                                                                 <TextBlock Text="{Binding Celebration}"
                                                                            ToolTip="{Binding Celebration}"
-                                                                           FontSize="11" Foreground="#7d8798"
+                                                                           FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"
                                                                            TextTrimming="CharacterEllipsis"
                                                                            Visibility="{Binding HasCelebration,
                                                                                Converter={StaticResource BoolToVis}}"/>
@@ -1970,7 +1971,7 @@
                             </Border>
 
                     <!-- Col 3: ZESTAW -->
-                    <Grid Grid.Column="3" Background="#0f1117" ClipToBounds="True">
+                    <Grid Grid.Column="3" Background="{DynamicResource Brush.BgApp}" ClipToBounds="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
@@ -1978,7 +1979,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                            <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                     BorderThickness="1,0,0,1" Padding="12,8">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -1990,16 +1991,16 @@
                                     <TextBlock Grid.Column="0" Text="{DynamicResource Section.CurrentSet}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="20" FontWeight="Light"
-                                               Foreground="#c9a84c" Margin="0,0,10,0"
+                                               Foreground="{DynamicResource Brush.Accent}" Margin="0,0,10,0"
                                                VerticalAlignment="Center"/>
-                                    <Border Grid.Column="1" Background="#252d3d" Padding="8,2" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding SetlistItems.Count}" Foreground="#9aa3b8" FontSize="10"/>
+                                    <Border Grid.Column="1" Background="{DynamicResource Brush.BgSelected}" Padding="8,2" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding SetlistItems.Count}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="10"/>
                                     </Border>
                                     <Button Grid.Column="3" x:Name="BtnOpenSetlist"
                                             Content="{DynamicResource Btn.OpenSet}"
                                             Command="{Binding OpenSetlistSearchCommand}"
-                                            Background="#252d3d" BorderThickness="0"
-                                            Foreground="#9aa3b8" FontSize="13" Cursor="Hand"
+                                            Background="{DynamicResource Brush.BgSelected}" BorderThickness="0"
+                                            Foreground="{DynamicResource Brush.TextMuted}" FontSize="13" Cursor="Hand"
                                             Padding="10,5" VerticalAlignment="Center">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2009,8 +2010,8 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#c9a84c"/>
-                                                        <Setter Property="Foreground" Value="#0f1117"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2028,7 +2029,7 @@
                                    StaysOpen="False"
                                    AllowsTransparency="True"
                                    Opened="SetlistSearchPopup_Opened">
-                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                         Width="340" MaxHeight="400">
                                     <Grid Margin="8">
                                         <Grid.RowDefinitions>
@@ -2058,15 +2059,15 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
                                                             <TextBlock Text="{Binding Name}"
-                                                                       FontSize="15" Foreground="#e8eaf0"
+                                                                       FontSize="15" Foreground="{DynamicResource Brush.TextMain}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Text="{Binding Group}"
-                                                                       FontSize="11" Foreground="#959fb9"/>
+                                                                       FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"/>
                                                         </StackPanel>
                                                         <Button Grid.Column="1" Content="{DynamicResource Btn.Open}"
                                                                 Margin="0,0,4,0" Padding="8,4"
-                                                                Background="#252d3d" BorderThickness="0"
-                                                                Foreground="#9aa3b8" FontSize="12" Cursor="Hand"
+                                                                Background="{DynamicResource Brush.BgSelected}" BorderThickness="0"
+                                                                Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Cursor="Hand"
                                                                 Command="{Binding DataContext.LoadSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}">
                                                             <Button.Template>
@@ -2076,8 +2077,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#c9a84c"/>
-                                                                            <Setter Property="Foreground" Value="#0f1117"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2085,8 +2086,8 @@
                                                         </Button>
                                                         <Button Grid.Column="2" Content="{DynamicResource Btn.Append}"
                                                                 Padding="8,4" Margin="0,0,4,0"
-                                                                Background="#252d3d" BorderThickness="0"
-                                                                Foreground="#9aa3b8" FontSize="12" Cursor="Hand"
+                                                                Background="{DynamicResource Brush.BgSelected}" BorderThickness="0"
+                                                                Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Cursor="Hand"
                                                                 Command="{Binding DataContext.AppendSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}">
                                                             <Button.Template>
@@ -2096,8 +2097,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#3a6ea8"/>
-                                                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2105,8 +2106,8 @@
                                                         </Button>
                                                         <Button Grid.Column="3" Content="✕"
                                                                 Padding="8,4"
-                                                                Background="#252d3d" BorderThickness="0"
-                                                                Foreground="#e05a5a" FontSize="12" Cursor="Hand"
+                                                                Background="{DynamicResource Brush.BgSelected}" BorderThickness="0"
+                                                                Foreground="{DynamicResource Brush.TextMain}" FontSize="12" Cursor="Hand"
                                                                 ToolTip="Usuń zestaw"
                                                                 Command="{Binding DataContext.DeleteSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}">
@@ -2117,8 +2118,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#7a2020"/>
-                                                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2126,8 +2127,8 @@
                                                         </Button>
                                                         <Button Grid.Column="4" Content="📌"
                                                                 Padding="8,4" Margin="4,0,0,0"
-                                                                Background="#252d3d" BorderThickness="0"
-                                                                Foreground="#c9a84c" FontSize="12" Cursor="Hand"
+                                                                Background="{DynamicResource Brush.BgSelected}" BorderThickness="0"
+                                                                Foreground="{DynamicResource Brush.Accent}" FontSize="12" Cursor="Hand"
                                                                 ToolTip="Przypnij zestaw"
                                                                 Command="{Binding DataContext.PinSetlistFromSearchCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                 CommandParameter="{Binding}">
@@ -2138,8 +2139,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#c9a84c"/>
-                                                                            <Setter Property="Foreground" Value="#0f1117"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2153,7 +2154,7 @@
                                 </Border>
                             </Popup>
 
-                            <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="1,0,0,0">
+                            <Border Grid.Row="1" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,0,0,0">
                                 <ListBox x:Name="SetlistListBox"
                                          ItemsSource="{Binding SetlistItems}"
                                          SelectedItem="{Binding SelectedSetlistItem}"
@@ -2184,7 +2185,7 @@
                                                         CommandParameter="{Binding}"
                                                         Width="30" Height="30"
                                                         Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" Cursor="Hand"
+                                                        Foreground="{DynamicResource Brush.TextMuted}" Cursor="Hand"
                                                         VerticalAlignment="Center" HorizontalAlignment="Center">
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
@@ -2196,7 +2197,7 @@
                                                             </Border>
                                                             <ControlTemplate.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                 </Trigger>
                                                             </ControlTemplate.Triggers>
                                                         </ControlTemplate>
@@ -2214,7 +2215,7 @@
                                                                 VerticalAlignment="Center" Margin="6,0"
                                                                 Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}">
                                                         <TextBlock Text="📝" FontSize="16" Margin="0,0,8,0"
-                                                                   VerticalAlignment="Center" Foreground="#c9a84c"/>
+                                                                   VerticalAlignment="Center" Foreground="{DynamicResource Brush.Accent}"/>
                                                         <TextBlock Text="{Binding CustomTitle}"
                                                                    VerticalAlignment="Center" FontSize="20"
                                                                    TextTrimming="CharacterEllipsis"/>
@@ -2228,7 +2229,7 @@
                                                                Stretch="Uniform" Margin="0,0,8,0" SnapsToDevicePixels="True"/>
                                                         <TextBlock Text="{Binding ImagePath, Converter={StaticResource FileName}}"
                                                                    VerticalAlignment="Center" FontSize="18"
-                                                                   Foreground="#9aa3b8" TextTrimming="CharacterEllipsis"/>
+                                                                   Foreground="{DynamicResource Brush.TextMuted}" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                 </Grid>
                                                 <!-- Ikony akcji: tylko na zaznaczonym wierszu (Collapsed, by tytuł dostał ich szerokość) -->
@@ -2246,7 +2247,7 @@
                                                     <Button Content="✏"
                                                             Width="36" Height="36"
                                                             Background="Transparent" BorderThickness="0"
-                                                            Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                            Foreground="{DynamicResource Brush.TextMuted}" FontSize="16" Cursor="Hand"
                                                             Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
                                                             IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             Command="{Binding DataContext.OpenInlineEditorCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -2262,10 +2263,10 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                     </Trigger>
                                                                     <Trigger Property="IsEnabled" Value="False">
-                                                                        <Setter Property="Foreground" Value="#3a4460"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.BorderStrong}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -2275,7 +2276,7 @@
                                                     <Button Content="✏"
                                                             Width="36" Height="36"
                                                             Background="Transparent" BorderThickness="0"
-                                                            Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                            Foreground="{DynamicResource Brush.TextMuted}" FontSize="16" Cursor="Hand"
                                                             ToolTip="{DynamicResource TextItem.Edit}"
                                                             Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}"
                                                             Command="{Binding DataContext.EditTextItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -2291,7 +2292,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -2300,7 +2301,7 @@
                                                     <Button 
                                                             Width="36" Height="36"
                                                             Background="Transparent" BorderThickness="0"
-                                                            Foreground="#959fb9" Cursor="Hand"
+                                                            Foreground="{DynamicResource Brush.TextMuted}" Cursor="Hand"
                                                             ToolTip="Pełny edytor"
                                                             Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
                                                             Command="{Binding DataContext.OpenFullEditorFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -2317,7 +2318,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -2326,7 +2327,7 @@
                                                     <Button Content="×"
                                                             Width="36" Height="36"
                                                             Background="Transparent" BorderThickness="0"
-                                                            Foreground="#959fb9" FontSize="20" Cursor="Hand"
+                                                            Foreground="{DynamicResource Brush.TextMuted}" FontSize="20" Cursor="Hand"
                                                             Command="{Binding DataContext.RemoveFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             CommandParameter="{Binding}">
                                                         <Button.Template>
@@ -2340,7 +2341,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -2349,7 +2350,7 @@
 </StackPanel>
                                                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                                                            Text="{Binding Notes}"
-                                                           FontSize="10" Foreground="#7080a0"
+                                                           FontSize="10" Foreground="{DynamicResource Brush.TextDim}"
                                                            Margin="10,0,0,4" TextWrapping="Wrap">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -2371,7 +2372,7 @@
                                 </ListBox>
                             </Border>
                             
-                            <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+                            <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                     BorderThickness="1,1,0,0" Padding="6,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -2385,7 +2386,7 @@
                                     <Button Grid.Column="0" Content="⏫" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToTop}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding MoveToTopCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2395,7 +2396,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2404,7 +2405,7 @@
                                     <Button Grid.Column="1" Content="🔼" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Up}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding MoveUpCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2414,7 +2415,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2423,7 +2424,7 @@
                                     <Button Grid.Column="2" Content="🔽" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.Down}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding MoveDownCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2433,7 +2434,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2442,7 +2443,7 @@
                                     <Button Grid.Column="3" Content="⏬" FontSize="16"
                                             ToolTip="{DynamicResource Tooltip.ToBottom}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding MoveToBottomCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2452,7 +2453,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2461,7 +2462,7 @@
                                     <Button Grid.Column="4" FontSize="16"
                                             ToolTip="{DynamicResource Setlist.AddImage}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding AddImageToSetlistCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2471,7 +2472,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2481,7 +2482,7 @@
                                     <Button x:Name="BtnAddTextItem" Grid.Column="5" FontSize="16"
                                             ToolTip="{DynamicResource Setlist.AddText}"
                                             Background="Transparent" BorderThickness="0"
-                                            Foreground="#959fb9" Height="36" Cursor="Hand"
+                                            Foreground="{DynamicResource Brush.TextMuted}" Height="36" Cursor="Hand"
                                             Command="{Binding OpenTextItemEditorCommand}">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
@@ -2491,7 +2492,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#1e2535"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -2502,21 +2503,21 @@
                                            Placement="Top" HorizontalOffset="-320"
                                            StaysOpen="False" AllowsTransparency="True"
                                            Opened="TextItemPopup_Opened">
-                                        <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                        <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                                 Width="440" Padding="12">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource TextItem.Header}"
                                                            FontFamily="{StaticResource HeaderFont}"
-                                                           FontSize="16" Foreground="#c9a84c"
+                                                           FontSize="16" Foreground="{DynamicResource Brush.Accent}"
                                                            Margin="0,0,0,8"/>
                                                 <TextBlock Text="{DynamicResource TextItem.TitleLabel}"
-                                                           FontSize="13" Foreground="#9aa3b8" Margin="0,0,0,2"/>
+                                                           FontSize="13" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,0,2"/>
                                                 <TextBox x:Name="TxtTextItemTitle"
                                                          Style="{StaticResource DarkTextBox}"
                                                          Text="{Binding TextItemTitle, UpdateSourceTrigger=PropertyChanged}"
                                                          FontSize="16" Height="32" Margin="0,0,0,8"/>
                                                 <TextBlock Text="{DynamicResource TextItem.ContentLabel}"
-                                                           FontSize="13" Foreground="#9aa3b8" Margin="0,0,0,2"/>
+                                                           FontSize="13" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,0,2"/>
                                                 <TextBox Style="{StaticResource DarkTextBox}"
                                                          Text="{Binding TextItemContent, UpdateSourceTrigger=PropertyChanged}"
                                                          FontSize="15" Height="180"
@@ -2526,14 +2527,14 @@
                                                          VerticalScrollBarVisibility="Auto"
                                                          Margin="0,0,0,4"/>
                                                 <TextBlock Text="{DynamicResource TextItem.ContentHint}"
-                                                           FontSize="12" Foreground="#7080a0"
+                                                           FontSize="12" Foreground="{DynamicResource Brush.TextDim}"
                                                            TextWrapping="Wrap" Margin="0,0,0,10"/>
                                                 <Button Content="{DynamicResource TextItem.AddToSetlist}"
                                                         Style="{StaticResource GoldBtn}"
                                                         HorizontalAlignment="Stretch" Height="36" FontSize="15"
                                                         Command="{Binding AddTextItemToSetlistCommand}"/>
                                                 <TextBlock Text="{DynamicResource TextItem.AddToSetlistHint}"
-                                                           FontSize="12" Foreground="#7080a0"
+                                                           FontSize="12" Foreground="{DynamicResource Brush.TextDim}"
                                                            TextWrapping="Wrap" Margin="0,4,0,12"/>
                                                 <Grid Margin="0,0,0,2">
                                                     <Grid.ColumnDefinitions>
@@ -2545,7 +2546,7 @@
                                                               ItemsSource="{Binding Categories}"
                                                               DisplayMemberPath="Name"
                                                               SelectedItem="{Binding TextItemCategory, Mode=TwoWay}"
-                                                              Foreground="#e8eaf0"
+                                                              Foreground="{DynamicResource Brush.TextMain}"
                                                               FontSize="14" Height="34" Margin="0,0,6,0"/>
                                                     <Button Grid.Column="1"
                                                             Content="{DynamicResource TextItem.SaveToDatabase}"
@@ -2554,7 +2555,7 @@
                                                             Command="{Binding SaveTextItemAsSongCommand}"/>
                                                 </Grid>
                                                 <TextBlock Text="{DynamicResource TextItem.SaveToDatabaseHint}"
-                                                           FontSize="12" Foreground="#7080a0"
+                                                           FontSize="12" Foreground="{DynamicResource Brush.TextDim}"
                                                            TextWrapping="Wrap" Margin="0,4,0,10"/>
                                                 <Button Content="{DynamicResource Btn.Cancel}"
                                                         Style="{StaticResource OutlineBtn}"
@@ -2567,7 +2568,7 @@
                                 </Grid>
                             </Border>
 
-                            <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                            <Border Grid.Row="3" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                     BorderThickness="1,1,0,0" Padding="8,8">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -2582,10 +2583,10 @@
                                                   ItemsSource="{Binding SetlistGroups}"
                                                   Text="{Binding SetlistGroup, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="True"
-                                                  Foreground="#e8eaf0"
+                                                  Foreground="{DynamicResource Brush.TextMain}"
                                                   FontSize="16" Height="34"/>
                                         <TextBlock Text="{DynamicResource Placeholder.SetlistGroup}"
-                                                   Foreground="#ffffff" FontSize="16"
+                                                   Foreground="{DynamicResource Brush.TextDim}" FontSize="16"
                                                    Padding="3" IsHitTestVisible="False" VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -2612,7 +2613,7 @@
                                                Placement="Bottom"
                                                StaysOpen="False"
                                                AllowsTransparency="True">
-                                            <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1"
+                                            <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                                     Width="300" MaxHeight="400">
                                                 <Grid Margin="8">
                                                     <Grid.RowDefinitions>
@@ -2623,7 +2624,7 @@
                                                     <Grid Grid.Row="0" Margin="0,0,0,6">
                                                         <TextBlock Text="{DynamicResource Section.Groups}"
                                                                    FontFamily="{StaticResource HeaderFont}"
-                                                                   FontSize="16" Foreground="#c9a84c"
+                                                                   FontSize="16" Foreground="{DynamicResource Brush.Accent}"
                                                                    VerticalAlignment="Center"/>
                                                         <Button Content="{DynamicResource Groups.AddNew}"
                                                                 Style="{StaticResource GoldBtn}"
@@ -2659,7 +2660,7 @@
                                                                                 CommandParameter="{Binding}"/>
                                                                         <Button Grid.Column="2" Content="✕"
                                                                                 Style="{StaticResource SmallIconBtn}"
-                                                                                Width="30" Height="40" Foreground="#d44a4a"
+                                                                                Width="30" Height="40" Foreground="{DynamicResource Brush.TextMain}"
                                                                                 Command="{Binding DataContext.DeleteGroupCommand,
                                                                                     RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                                 CommandParameter="{Binding}"/>
@@ -2709,7 +2710,7 @@
                                                  Text="{Binding SetlistName, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="18" Padding="3" Height="34"/>
                                         <TextBlock Text="{DynamicResource Placeholder.SetlistName}"
-                                                   Foreground="#555d70" FontSize="18"
+                                                   Foreground="{DynamicResource Brush.TextDim}" FontSize="18"
                                                    Padding="7,3" IsHitTestVisible="False" VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -2769,7 +2770,7 @@
 
                             <!-- Panel edycji zwrotek -->
                             <Grid Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="10"
-                                  Background="#1e2535"
+                                  Background="{DynamicResource Brush.BgPanelHover}"
                                   Visibility="{Binding IsInlineEditorOpen, Converter={StaticResource BoolToVis}}">
 
                                 <Grid>
@@ -2781,7 +2782,7 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Nagłówek -->
-                                    <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+                                    <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                             BorderThickness="0,0,0,1" Padding="12,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -2790,12 +2791,12 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="{Binding InlineEditorTitle}"
                                                        FontSize="20" FontWeight="SemiBold"
-                                                       Foreground="#e8eaf0"
+                                                       Foreground="{DynamicResource Brush.TextMain}"
                                                        TextTrimming="CharacterEllipsis"
                                                        VerticalAlignment="Center"/>
                                             <Button Grid.Column="1" Content="×"
                                                     Background="Transparent" BorderThickness="0"
-                                                    Foreground="#959fb9" FontSize="26" Cursor="Hand"
+                                                    Foreground="{DynamicResource Brush.TextMuted}" FontSize="26" Cursor="Hand"
                                                     Command="{Binding CancelInlineEditCommand}">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
@@ -2805,7 +2806,7 @@
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -2815,8 +2816,8 @@
                                     </Border>
 
                                     <!-- Uwagi + Czcionka -->
-                                    <Border Grid.Row="1" Padding="12,6" Background="#1e2535"
-                                            BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+                                    <Border Grid.Row="1" Padding="12,6" Background="{DynamicResource Brush.BgPanelHover}"
+                                            BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -2829,7 +2830,7 @@
                                                          Style="{StaticResource DarkTextBox}"
                                                          FontSize="17"/>
                                                 <TextBlock Text="Uwagi (np. zwrotki 1,5,8)…"
-                                                           Foreground="#556070" IsHitTestVisible="False"
+                                                           Foreground="{DynamicResource Brush.TextDim}" IsHitTestVisible="False"
                                                            Margin="7,0,0,0" VerticalAlignment="Center" FontSize="17">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -2845,7 +2846,7 @@
                                             </Grid>
                                             <!-- Czcionka min -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock Text="Czcionka:" Foreground="#7080a0" FontSize="14"
+                                                <TextBlock Text="Czcionka:" Foreground="{DynamicResource Brush.TextDim}" FontSize="14"
                                                            VerticalAlignment="Center" Margin="0,0,0,0"/>
                                                 <TextBox Text="{Binding InlineEditorFontSize, UpdateSourceTrigger=PropertyChanged}"
                                                          Style="{StaticResource DarkTextBox}"
@@ -2854,7 +2855,7 @@
                                                          ToolTip="{DynamicResource Inline.FontSizeTip}"/>
                                                 <CheckBox IsChecked="{Binding InlineEditorFontSizeHard}"
                                                           Content="{DynamicResource Inline.FontSizeHard}"
-                                                          Foreground="#9aa3b8" FontSize="14"
+                                                          Foreground="{DynamicResource Brush.TextMuted}" FontSize="14"
                                                           VerticalAlignment="Center" Margin="0,0,0,0"
                                                           ToolTip="{DynamicResource Inline.FontSizeHardTip}"/>
                                             </StackPanel>
@@ -2875,7 +2876,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding Label}"
-                                                                       FontSize="14" Foreground="#c9a84c"
+                                                                       FontSize="14" Foreground="{DynamicResource Brush.Accent}"
                                                                        Margin="0,0,0,3" FontWeight="SemiBold"/>
                                                             <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
                                                                      AcceptsReturn="True"
@@ -2896,7 +2897,7 @@
                                                                 </TextBox.Style>
                                                             </TextBox>
                                                             <!-- Podgląd obrazka (tylko odczyt w inline edytorze) -->
-                                                            <TextBlock FontSize="18" FontStyle="Italic" Foreground="#9aa3b8"
+                                                            <TextBlock FontSize="18" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"
                                                                        Padding="10,8">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
@@ -2927,11 +2928,11 @@
                                                                     <ColumnDefinition Width="Auto"/>
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
-                                                                <TextBlock Grid.Column="0" Text="Tło:" Foreground="#7080a0" FontSize="14"
+                                                                <TextBlock Grid.Column="0" Text="Tło:" Foreground="{DynamicResource Brush.TextDim}" FontSize="14"
                                                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
                                                                 <TextBlock Grid.Column="1"
                                                                            Text="{Binding BackgroundImagePath, Converter={StaticResource FileName}}"
-                                                                           Foreground="#9aa3b8" FontSize="14" VerticalAlignment="Center"
+                                                                           Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" VerticalAlignment="Center"
                                                                            TextTrimming="CharacterEllipsis">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
@@ -2944,7 +2945,7 @@
                                                                         </Style>
                                                                     </TextBlock.Style>
                                                                 </TextBlock>
-                                                                <TextBlock Grid.Column="1" Text="—" Foreground="#556070" FontSize="14"
+                                                                <TextBlock Grid.Column="1" Text="—" Foreground="{DynamicResource Brush.TextDim}" FontSize="14"
                                                                            VerticalAlignment="Center">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
@@ -2998,7 +2999,7 @@
                                     </ScrollViewer>
 
                                     <!-- Przyciski Zapisz / Anuluj -->
-                                    <Border Grid.Row="3" Background="#161b25" BorderBrush="#2a3347"
+                                    <Border Grid.Row="3" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                                             BorderThickness="0,1,0,0" Padding="8,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -3947,7 +3948,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{Binding Brush}"
-                                                            BorderBrush="#555" BorderThickness="2"/>
+                                                            BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="2"/>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="Opacity" Value="0.8"/>
@@ -3967,7 +3968,7 @@
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{Binding BgColorSwatch}"
-                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                         </ControlTemplate>
                                     </Button.Template>
                                 </Button>
@@ -4001,7 +4002,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{Binding GradientColor1Swatch}"
-                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
@@ -4018,7 +4019,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{Binding GradientColor2Swatch}"
-                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
@@ -4156,7 +4157,7 @@
                                         Command="{Binding PickBlankColorCommand}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border BorderBrush="#555" BorderThickness="1"
+                                            <Border BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"
                                                     Background="{Binding BlankColor}"/>
                                         </ControlTemplate>
                                     </Button.Template>
@@ -4213,7 +4214,7 @@
 
                 <!-- COL 3: Tagi formatowania + Podgląd -->
                 <Border Grid.Row="0" Grid.Column="2" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,0,0,0"
-                        Background="#0a0d14">
+                        Background="{DynamicResource Brush.BgApp}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -4278,7 +4279,7 @@
                                                         CommandParameter="{Binding}">
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
-                                                            <Border BorderBrush="#555" BorderThickness="1">
+                                                            <Border BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1">
                                                                 <Border.Background>
                                                                     <SolidColorBrush Color="{Binding Color, Converter={StaticResource HexToColor}, FallbackValue=White}"/>
                                                                 </Border.Background>
