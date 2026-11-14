@@ -44,8 +44,8 @@ public static class PilotSetlistPin
     /// Komunikat <c>setlist_pinned</c> — JEDYNE miejsce jego składania. Używają go obie ścieżki:
     /// komenda z Pilota i klik pinezki w oknie Cantio (przez `DisplayViewModel.SetlistPinChanged`).
     /// </summary>
-    public static string BuildPinnedJson(int desktopId, bool pinned) =>
-        JsonSerializer.Serialize(new { type = PinnedMessage, desktopId, pinned });
+    public static string BuildPinnedJson(int desktopId, bool pinned, bool weekly) =>
+        JsonSerializer.Serialize(new { type = PinnedMessage, desktopId, pinned, weekly });
 
     public static async Task<Result> HandleAsync(DatabaseService db, string rawJson)
     {
@@ -74,7 +74,7 @@ public static class PilotSetlistPin
 
         return new Result(
             PilotStatus.BuildAckJson(PinCommand, true, ("desktopId", desktopId), ("pinned", pinned)),
-            BuildPinnedJson(desktopId, pinned),
+            BuildPinnedJson(desktopId, pinned, await db.IsSetlistWeeklyAsync(desktopId)),
             desktopId, pinned);
     }
 

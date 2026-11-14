@@ -628,8 +628,15 @@ public partial class MainWindow : Window
         };
 
         // Pinezka kliknięta w oknie Cantio → ten sam komunikat do Pilotów (jeden builder, dwie ścieżki).
-        _vm.SetlistPinChanged += (setlistId, pinned) =>
-            _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned));
+        _vm.SetlistPinChanged += async (setlistId, pinned) =>
+        {
+            try
+            {
+                var weekly = await _db.IsSetlistWeeklyAsync(setlistId);
+                await _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned, weekly));
+            }
+            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast przypięcia: {ex.Message}"); }
+        };
 
         // ─── „Przypnij tydzień" z Pilota ───
         // Ta sama metoda co przycisk w oknie (PilotPinWeek.RunAsync pod spodem), więc UI desktopu

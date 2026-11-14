@@ -1905,32 +1905,21 @@
                     </Grid>
                     </Grid>
 
-                    <!-- Col 2: Przypięte zestawy (pełna wysokość) -->
+                    <!-- Col 2: Przypięte zestawy - góra TYDZIEŃ (z kalendarza), dół STAŁE (przewijane) -->
                             <Border Grid.Column="2" Background="{DynamicResource Brush.BgApp}"
                                     BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1" Padding="6,8">
-                                <DockPanel>
-                                    <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center"
-                                               Text="{DynamicResource Section.Pinned}"
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0">
+                                        <TextBlock HorizontalAlignment="Center"
+                                               Text="{DynamicResource Section.PinnedWeek}"
                                                FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                                FontSize="20" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,6"/>
-                                    <Button DockPanel.Dock="Bottom"
-                                            Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
-                                            Command="{Binding PinNextWeekCommand}"
-                                            Style="{StaticResource OutlineBtn}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinWeek}"
-                                                       TextWrapping="Wrap" TextAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Button>
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  HorizontalScrollBarVisibility="Disabled">
-                                        <ItemsControl ItemsSource="{Binding PinnedSetlists}">
+                                        <ItemsControl x:Name="PinnedWeeklyList" ItemsSource="{Binding PinnedWeekly}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="0,0,0,4">
@@ -1968,8 +1957,133 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                    </ScrollViewer>
-                                </DockPanel>
+                                    <Button Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
+                                            Command="{Binding PinNextWeekCommand}"
+                                            Style="{StaticResource OutlineBtn}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinWeek}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                    </StackPanel>
+                                    <TextBlock Grid.Row="1" HorizontalAlignment="Center"
+                                               Text="{DynamicResource Section.PinnedPermanent}"
+                                               FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                               FontSize="20" Foreground="{DynamicResource Brush.Accent}" Margin="0,10,0,6"/>
+                                    <DockPanel Grid.Row="2">
+                                    <Button DockPanel.Dock="Bottom"
+                                            Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
+                                            x:Name="BtnPinPermanent"
+                                            Command="{Binding OpenPinPickerCommand}"
+                                            Style="{StaticResource OutlineBtn}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinPermanent}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsControl x:Name="PinnedPermanentList" ItemsSource="{Binding PinnedPermanent}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Grid.Column="0"
+                                                                Command="{Binding DataContext.LoadPinnedSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}">
+                                                            <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
+                                                                 liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding Celebration}"
+                                                                           ToolTip="{Binding Celebration}"
+                                                                           FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           Visibility="{Binding HasCelebration,
+                                                                               Converter={StaticResource BoolToVis}}"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <Button Grid.Column="1" Content="✕"
+                                                                Margin="3,0,0,0" Padding="5,0"
+                                                                FontSize="11"
+                                                                ToolTip="{DynamicResource Pinned.Unpin}"
+                                                                Command="{Binding DataContext.UnpinSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                    <Popup x:Name="PinPickerPopup" Grid.Row="2"
+                                           IsOpen="{Binding IsPinPickerOpen, Mode=TwoWay}"
+                                           PlacementTarget="{Binding ElementName=BtnPinPermanent}"
+                                           Placement="Top" StaysOpen="False" AllowsTransparency="True">
+                                        <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}"
+                                                BorderThickness="1" CornerRadius="4" Width="300" MaxHeight="400">
+                                            <Grid Margin="8">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBox x:Name="PinPickerSearchBox"
+                                                             Style="{StaticResource DarkTextBox}"
+                                                             Text="{Binding PinPickerText, UpdateSourceTrigger=PropertyChanged}"
+                                                             FontSize="15" Padding="8,6"/>
+                                                    <TextBlock Text="{DynamicResource PinPicker.Hint}" IsHitTestVisible="False"
+                                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="15"
+                                                               Margin="11,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Text, ElementName=PinPickerSearchBox}" Value="">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                                <ListBox Grid.Row="1" x:Name="PinPickerList"
+                                                         ItemsSource="{Binding PinPickerItems}"
+                                                         Background="Transparent" BorderThickness="0" MaxHeight="340"
+                                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                         ItemContainerStyle="{StaticResource DarkListItem}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button Content="{Binding Name}" Padding="6,6" HorizontalContentAlignment="Left"
+                                                                    Command="{Binding DataContext.PinFromPickerCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource OutlineBtn}"/>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Grid>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
                             </Border>
 
                     <!-- Col 3: ZESTAW -->

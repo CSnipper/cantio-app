@@ -705,6 +705,21 @@ public class DatabaseService
     /// Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.
     /// Zwraca `false`, gdy zestawu nie ma (protokół WS odsyła wtedy `reason:"not_found"`).
     /// </summary>
+    /// <summary>Id zestawów z kalendarza (SeasonKey != null) — pole `weekly` w `setlists_data`.
+    /// Osobno od <see cref="GetSetlistSummariesAsync"/>, żeby nie zmieniać kształtu jego krotki.</summary>
+    public async Task<HashSet<int>> GetWeeklySetlistIdsAsync()
+    {
+        await using var db = new CantioDbContext();
+        return (await db.Setlists.AsNoTracking().Where(s => s.SeasonKey != null).Select(s => s.Id).ToListAsync()).ToHashSet();
+    }
+
+    /// <summary>Zestaw z kalendarza (SeasonKey != null) = „tygodniowy"; brak zestawu = false.</summary>
+    public async Task<bool> IsSetlistWeeklyAsync(int setlistId)
+    {
+        await using var db = new CantioDbContext();
+        return await db.Setlists.AsNoTracking().AnyAsync(s => s.Id == setlistId && s.SeasonKey != null);
+    }
+
     public async Task<bool> SetSetlistPinnedAsync(int setlistId, bool pinned)
     {
         await using var db = new CantioDbContext();

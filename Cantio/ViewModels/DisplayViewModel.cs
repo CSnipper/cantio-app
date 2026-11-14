@@ -368,6 +368,43 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
     [ObservableProperty] private bool _isCurrentSetlistPinned;
+    // Dwie listy kolumny PRZYPIĘTE: z kalendarza (SeasonKey != null) i stałe; odświeżane razem z PinnedSetlists.
+    [ObservableProperty] private ObservableCollection<Setlist> _pinnedWeekly = [];
+    [ObservableProperty] private ObservableCollection<Setlist> _pinnedPermanent = [];
+
+    // Wybór zestawu do „Przypnij stały": tylko niepodpięte i bez SeasonKey
+    [ObservableProperty] private bool _isPinPickerOpen;
+    [ObservableProperty] private string _pinPickerText = string.Empty;
+    [ObservableProperty] private ObservableCollection<Setlist> _pinPickerItems = [];
+    private List<Setlist> _pinPickerAll = [];
+
+    partial void OnPinPickerTextChanged(string value)
+    {
+        var q = value.Trim();
+        PinPickerItems = new ObservableCollection<Setlist>(
+            string.IsNullOrEmpty(q)
+                ? _pinPickerAll
+                : _pinPickerAll.Where(s => new System.Globalization.CultureInfo("pl-PL").CompareInfo.IndexOf(s.Name, q, System.Globalization.CompareOptions.IgnoreCase) >= 0));
+    }
+
+    [RelayCommand]
+    private async Task OpenPinPickerAsync()
+    {
+        if (IsPinPickerOpen) { IsPinPickerOpen = false; return; }
+        _pinPickerAll = (await _db.GetAllSetlistsAsync())
+            .Where(s => s.SeasonKey == null && !s.IsPinned)
+            .OrderBy(s => s.Name, PlComparer).ToList();
+        PinPickerText = string.Empty;
+        PinPickerItems = new ObservableCollection<Setlist>(_pinPickerAll);
+        IsPinPickerOpen = true;
+    }
+
+    [RelayCommand]
+    private async Task PinFromPicker(Setlist setlist)
+    {
+        IsPinPickerOpen = false;
+        await PinSetlistFromSearch(setlist);
+    }
 
     // Wyszukiwarka zestawów
 
@@ -2712,6 +2749,8 @@ public partial class DisplayViewModel : ObservableObject
             s.Celebration = captions.TryGetValue(s.Id, out var c) ? c : "";
 
         PinnedSetlists = new ObservableCollection<Setlist>(list);
+        PinnedWeekly = new ObservableCollection<Setlist>(list.Where(s => s.SeasonKey != null));
+        PinnedPermanent = new ObservableCollection<Setlist>(list.Where(s => s.SeasonKey == null));
         PinnedListRefreshed?.Invoke();
     }
 
