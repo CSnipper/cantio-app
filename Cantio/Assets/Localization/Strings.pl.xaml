@@ -120,9 +120,11 @@
     <sys:String x:Key="Btn.ShowText">POKAŻ</sys:String>
     <sys:String x:Key="Btn.LoopTooltip">Pętla slajdów — automatyczne przewijanie w kółko (dowolna akcja operatora przerywa)</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">ZAPISZ ZESTAW</sys:String>
-    <sys:String x:Key="Btn.Clear">WYCZYŚĆ</sys:String>
+    <sys:String x:Key="Btn.Clear">WYCZYŚĆ ZESTAW</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PRZYPNIJ</sys:String>
+    <sys:String x:Key="Btn.PinWeek">Przypnij tydzień</sys:String>
+    <sys:String x:Key="Verses.KeysHint">Klawisze 1–0: przejdź do zwrotki  ·  przy >10: 1 lub 2 + drugi klawisz</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">ODEPNIJ</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
     <sys:String x:Key="Btn.SaveOrder">ZAPISZ ZESTAW</sys:String>
