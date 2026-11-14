@@ -212,8 +212,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16"
+                        <DockPanel VerticalAlignment="Center">
+                            <Border x:Name="Box" DockPanel.Dock="Left" Width="16" Height="16"
                             Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Path x:Name="Check" Data="M2,8 L6,12 L14,4"
@@ -222,7 +222,7 @@
                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
+                        </DockPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
@@ -244,8 +244,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16"
+                        <DockPanel VerticalAlignment="Center">
+                            <Border x:Name="Box" DockPanel.Dock="Left" Width="16" Height="16"
                             Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Ellipse x:Name="Dot" Width="8" Height="8"
@@ -253,7 +253,7 @@
                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
+                        </DockPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
@@ -801,34 +801,34 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
-                    <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click">
+                    <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Padding="6,0" Click="TabShow_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Click="TabTemplate_Click">
+                    <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabTemplate_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1">
+                    <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabImport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Click="TabAbout_Click">
+                    <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabAbout_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Click="TabSupport_Click" BorderThickness="1,0,1,1">
+                    <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabSupport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -1864,10 +1864,10 @@
                                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Opacity" Value="1"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                    <Setter Property="Opacity" Value="0.22"/>
+                                                    <Setter Property="Visibility" Value="Hidden"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -3219,7 +3219,7 @@
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="14" FontWeight="Light"
                                                Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,8"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <WrapPanel Margin="0,0,0,6">
                                         <RadioButton Content="{DynamicResource Import.OpenLPSqlite}"
                                                      IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
                                                      Command="{Binding SelectFormatCommand}"
@@ -3231,8 +3231,8 @@
                                                      Command="{Binding SelectFormatCommand}"
                                                      CommandParameter="OpenLPXml"
                                                      Foreground="{DynamicResource Brush.TextMain}" FontSize="14"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    </WrapPanel>
+                                    <WrapPanel>
                                         <RadioButton Content="OpenSong (folder)"
                                                      IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
                                                      Command="{Binding SelectFormatCommand}"
@@ -3244,7 +3244,7 @@
                                                      Command="{Binding SelectFormatCommand}"
                                                      CommandParameter="OpenSongXml"
                                                      Foreground="{DynamicResource Brush.TextMain}" FontSize="14"/>
-                                    </StackPanel>
+                                    </WrapPanel>
                                 </StackPanel>
 
                                 <!-- Plik źródłowy -->
@@ -3341,7 +3341,7 @@
                                         <CheckBox IsChecked="{Binding OverwriteExisting}"
                                                   Foreground="{DynamicResource Brush.TextMain}" FontSize="15"
                                                   Margin="0,0,0,3">
-                                            <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="{DynamicResource Brush.TextMain}" FontSize="15"/>
+                                            <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="{DynamicResource Brush.TextMain}" FontSize="15" TextWrapping="Wrap"/>
                                         </CheckBox>
                                         <TextBlock Text="{DynamicResource Import.OverwriteTip}"
                                                    Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="22,0,0,0"
