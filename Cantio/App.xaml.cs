@@ -104,6 +104,7 @@ public partial class App : Application
                 lang ??= "pl";
             }
             LocalizationManager.SetLanguage(lang);
+            ThemeManager.SetTheme(await db.GetSettingAsync("ui_theme"));
 
             // Tryb pracy — ten sam wzorzec co język: ustawienie z bazy ma pierwszeństwo,
             // plik initial_mode.cfg jest wartością początkową z instalatora (nie kasujemy go).

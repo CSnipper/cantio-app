@@ -221,6 +221,15 @@ public partial class SzablonViewModel : ObservableObject
 
     [RelayCommand] private void SetLanguage(string lang) => SelectedLanguage = lang;
 
+    // Motyw interfejsu (zapis od razu, bez przycisku Zapisz)
+    [ObservableProperty] private string _selectedTheme = "obsidian";
+
+    partial void OnSelectedThemeChanged(string value)
+    {
+        ThemeManager.SetTheme(value);
+        _ = _db.SaveSettingAsync("ui_theme", value);
+    }
+
     // Diecezja (kalendarz diecezji polskich)
 
     /// <summary>Wywoływane po zmianie diecezji — MainWindow odświeża zegar/formularze.</summary>
@@ -791,6 +800,7 @@ public partial class SzablonViewModel : ObservableObject
             : Screens.Count > 1 ? Screens[1] : Screens.FirstOrDefault();
 
         SelectedLanguage = await _db.GetSettingAsync("language") ?? "pl";
+        SelectedTheme = await _db.GetSettingAsync("ui_theme") ?? "obsidian";
         RunOnStartup = WinReg.CurrentUser.OpenSubKey(RunKey)?.GetValue("Cantio") != null;
 
         _serverModeLoading = true;

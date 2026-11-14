@@ -8,6 +8,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Assets/Localization/Strings.pl.xaml"/>
+                <ResourceDictionary Source="Assets/Themes/Theme.Obsidian.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         <helpers:DoubleToThicknessConverter x:Key="DoubleToThickness"/>

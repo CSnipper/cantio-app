@@ -7,7 +7,7 @@
         Title="Cantio" Height="720" Width="1280"
         MinHeight="600" MinWidth="1000"
         WindowStartupLocation="Manual"
-        Background="#0f1117"
+        Background="{DynamicResource Brush.BgApp}"
         FontFamily="{StaticResource BodyFont}"
         Icon="cantio.ico">
 
@@ -629,7 +629,7 @@
         </Grid.RowDefinitions>
 
         <!--  TOP BAR  -->
-        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -3066,14 +3066,14 @@
 
             </Grid>
 
-            <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
 
 
             <!-- USTAWIENIA -->
 
-            <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -3630,7 +3630,7 @@
 
             <!-- WYGLĄD -->
 
-            <Grid x:Name="PaneImport" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneImport" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -4238,6 +4238,17 @@
                                         Padding="10,8" Command="{Binding RemoveBlankImageCommand}"/>
                             </Grid>
 
+                            <TextBlock Text="{DynamicResource Settings.Theme}" Foreground="{DynamicResource Brush.TextMain}" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                       Margin="0,16,0,8"/>
+                            <ComboBox Style="{StaticResource DarkCombo}" Margin="0,0,0,16"
+                                      Foreground="{DynamicResource Brush.Accent}"
+                                      SelectedValuePath="Tag" SelectedValue="{Binding SelectedTheme}">
+                                <ComboBoxItem Tag="obsidian"   Content="{DynamicResource Settings.Theme.Obsidian}"/>
+                                <ComboBoxItem Tag="monochrome" Content="{DynamicResource Settings.Theme.Monochrome}"/>
+                                <ComboBoxItem Tag="sage"       Content="{DynamicResource Settings.Theme.Sage}"/>
+                            </ComboBox>
+
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
@@ -4414,7 +4425,7 @@
             </Grid>
 
             <!-- TAB: O PROGRAMIE -->
-            <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
