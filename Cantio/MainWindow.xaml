@@ -736,68 +736,6 @@
                             </StackPanel>
                         </Border>
                     </Popup>
-
-                    <!-- Sterowanie urządzeniami projekcyjnymi (DataContext = DevicesViewModel) -->
-                    <Grid x:Name="DevicesBarHost"
-                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
-                        <Grid.Resources>
-                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
-                            <Style x:Key="DeviceBarBtn" TargetType="Button">
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="FontSize" Value="15"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="MinWidth" Value="30"/>
-                                <Setter Property="Padding" Value="8,4"/>
-                                <Setter Property="Margin" Value="6,0,0,0"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Grid.Resources>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
-                            <ItemsControl ItemsSource="{Binding Devices}" VerticalAlignment="Center">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Style="{StaticResource DeviceBarBtn}"
-                                                Content="{Binding BarLabel}"
-                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
-                                                Command="{Binding DataContext.ToggleDeviceCommand,
-                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Button Style="{StaticResource DeviceBarBtn}" Content="⏻"
-                                    Margin="10,0,0,0"
-                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
-                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                    Command="{Binding TogglePowerAllCommand}"/>
-                        </StackPanel>
-                    </Grid>
                 </StackPanel>
 
                 <Viewbox Grid.Column="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right">
@@ -1416,6 +1354,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                             <!-- KATEGORIE -->
@@ -1459,8 +1398,72 @@
                                 </Border>
                             </Grid>
 
+                    <!-- Urządzenia projekcyjne nad sterowaniem (DataContext = DevicesViewModel) -->
+                    <Grid x:Name="DevicesBarHost" Grid.Row="1" Background="{DynamicResource Brush.BgPanel}"
+                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
+                        <Grid.Resources>
+                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
+                            <Style x:Key="DeviceBarBtn" TargetType="Button">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="MinWidth" Value="40"/>
+                                <Setter Property="MinHeight" Value="40"/>
+                                <Setter Property="Padding" Value="8,4"/>
+                                <Setter Property="Margin" Value="0,0,6,6"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Grid.Resources>
+                        <DockPanel Margin="6,6,1,0">
+                            <!-- ⏻ po prawej; urządzenia zawijają się obok -->
+                            <Button DockPanel.Dock="Right" Style="{StaticResource DeviceBarBtn}" Content="⏻"
+                                    Margin="0,0,0,6"
+                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
+                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                    Command="{Binding TogglePowerAllCommand}"/>
+                            <ItemsControl ItemsSource="{Binding Devices}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource DeviceBarBtn}"
+                                                Content="{Binding BarLabel}"
+                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                                                Command="{Binding DataContext.ToggleDeviceCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </Grid>
+
                             <!-- Sterowanie (lewa kolumna): POKAŻ/WYGAŚ | ◀ | ▶ | pętla -->
-                            <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
+                            <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
