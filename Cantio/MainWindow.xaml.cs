@@ -1765,6 +1765,9 @@ public partial class MainWindow : Window
         win.ShowDialog();
     }
 
+    private void EditCategories_Click(object sender, RoutedEventArgs e) =>
+        new CategoryEditorWindow(_vm, this).ShowDialog();
+
     private void SaveAllSettings_Click(object sender, RoutedEventArgs e)
     {
         if (_szablonVm.SaveCommand.CanExecute(null))

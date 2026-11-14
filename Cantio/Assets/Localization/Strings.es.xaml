@@ -127,7 +127,6 @@
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
     <sys:String x:Key="Btn.SaveOrder">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>
-    <sys:String x:Key="Btn.AddCategory">+ CATEGORÍA</sys:String>
     <sys:String x:Key="Btn.ManageGroups">Gestionar grupos</sys:String>
     <sys:String x:Key="Editor.PlayOrder">ORDEN DE REPRODUCCIÓN</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Rebuild">Reconstruir</sys:String>
@@ -352,6 +351,7 @@
     <sys:String x:Key="Settings.ImportPsalmy">Importar salmos</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Se importaron {0} salmos responsoriales.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">No se encontró la categoría "Psalmy responsoryjne". Créala primero en el editor de categorías.</sys:String>
+    <sys:String x:Key="Msg.CategoryNameExists">Ya existe una categoría con este nombre.</sys:String>
     <sys:String x:Key="Inline.FontSizeTip">Tamaño de fuente fijo para esta canción</sys:String>
     <sys:String x:Key="Inline.FontSizeHard">fijo</sys:String>
     <sys:String x:Key="Inline.FontSizeHardTip">Activado: ignora el ajuste automático y los ajustes globales, usa el tamaño escrito tal cual. Desactivado: usa los ajustes de la pestaña Apariencia.</sys:String>
@@ -466,4 +466,8 @@
     <sys:String x:Key="Editor.VerseBackgroundPick">Elegir fondo de la estrofa</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundClear">Quitar fondo de la estrofa</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
+    <sys:String x:Key="Btn.EditCategories">Editar</sys:String>
+    <sys:String x:Key="CategoryEditor.Title">Editor de categorías</sys:String>
+    <sys:String x:Key="Btn.AddShort">Añadir</sys:String>
+    <sys:String x:Key="Btn.Close">Cerrar</sys:String>
 </ResourceDictionary>

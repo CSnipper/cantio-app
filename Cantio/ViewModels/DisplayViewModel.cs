@@ -45,7 +45,8 @@ public partial class DisplayViewModel : ObservableObject
     {
         get
         {
-            var w = Application.Current?.MainWindow;
+            var main = Application.Current?.MainWindow;
+            var w = Application.Current?.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive && main != null && x.Owner == main) ?? main;
             return w is { IsVisible: true } ? w : null;
         }
     }
@@ -650,6 +651,13 @@ public partial class DisplayViewModel : ObservableObject
     {
         var name = NewCategoryName.Trim();
         if (string.IsNullOrEmpty(name)) return;
+        if (await _db.FindCategoryByNameAsync(name) is not null)
+        {
+            if (CanPrompt("Dodaj kategorię"))
+                Ask(Loc("Msg.CategoryNameExists", "Kategoria o tej nazwie już istnieje."),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;   // tekst zostaje w polu NewCategoryName
+        }
         var cat = new Category
         {
             Name = name,
@@ -674,6 +682,14 @@ public partial class DisplayViewModel : ObservableObject
         if (item.IsVirtual) return;   // zapis wirtualnej pozycji założyłby kategorię-widmo
         var name = item.EditName.Trim();
         if (string.IsNullOrEmpty(name)) return;
+        var clash = await _db.FindCategoryByNameAsync(name);
+        if (clash != null && clash.Id != item.Id)
+        {
+            if (CanPrompt("Zmień nazwę kategorii"))
+                Ask(Loc("Msg.CategoryNameExists", "Kategoria o tej nazwie już istnieje."),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;   // wiersz zostaje w trybie edycji (IsEditing bez zmian)
+        }
         await _db.SaveCategoryAsync(new Category
         {
             Id = item.Id,
@@ -734,26 +750,9 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddNewCategoryInline()
-    {
-        foreach (var c in CategoryItems) c.IsEditing = false;
-        var item = new CategoryEditorItem
-        {
-            Id = 0,
-            Number = 0,
-            IsEditing = true
-        };
-        CategoryItems.Insert(0, item);
-        SelectedCategoryItem = item;
-    }
-
-    [RelayCommand]
     private void CancelEditCategory(CategoryEditorItem item)
     {
-        if (item.Id == 0)
-            CategoryItems.Remove(item);
-        else
-            item.IsEditing = false;
+        item.IsEditing = false;
     }
 
     public async Task SaveCategoryOrderAsync()
