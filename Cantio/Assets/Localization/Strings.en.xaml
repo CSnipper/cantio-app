@@ -209,6 +209,7 @@
     <sys:String x:Key="Settings.LoadLastSetlist">Load last opened setlist on startup</sys:String>
     <sys:String x:Key="Settings.RunOnStartup">Run on system startup</sys:String>
     <sys:String x:Key="Settings.SectionDatabase">DATABASE</sys:String>
+    <sys:String x:Key="Settings.SectionLiturgy">LITURGY</sys:String>
     <sys:String x:Key="Settings.BackupDb">Database backup</sys:String>
     <sys:String x:Key="Settings.RestoreDb">Restore database</sys:String>
     <sys:String x:Key="Settings.ClearDb">Clear database</sys:String>
@@ -345,6 +346,7 @@
     <sys:String x:Key="Import.FallbackCategoryAuto">(from file / default)</sys:String>
     <sys:String x:Key="Import.FallbackCategoryTip">For songs without a category in the file</sys:String>
     <sys:String x:Key="Import.Log">IMPORT LOG</sys:String>
+    <sys:String x:Key="Import.LogButton">Log</sys:String>
     <sys:String x:Key="Import.NoGroup">(no group)</sys:String>
     <sys:String x:Key="Import.OpenLPSqlite">OpenLP (sqlite)</sys:String>
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>

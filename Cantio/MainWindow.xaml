@@ -3060,15 +3060,6 @@
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.RunOnStartup}" Foreground="{DynamicResource Brush.TextMain}" FontSize="16" TextWrapping="Wrap"/>
                             </CheckBox>
-                            <TextBlock Text="{DynamicResource Settings.FontFit}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>
-                            <ComboBox Style="{StaticResource DarkCombo}"
-                                      SelectedIndex="{Binding FontFitMode}"
-                                      FontSize="14" Height="34">
-                                <ComboBoxItem Content="{DynamicResource Settings.FontFitFixed}"/>
-                                <ComboBoxItem Content="{DynamicResource Settings.FontFitVerse}"/>
-                                <ComboBoxItem Content="{DynamicResource Settings.FontFitSong}"/>
-                            </ComboBox>
                             <CheckBox IsChecked="{Binding ServerMode}"
                                       Style="{StaticResource DarkCheck}" Margin="0,10,0,0">
                                 <TextBlock Text="{DynamicResource Settings.ServerMode}" Foreground="{DynamicResource Brush.TextMain}" FontSize="16" TextWrapping="Wrap"/>
@@ -3085,6 +3076,35 @@
                                      FontSize="14" Height="30"
                                      Text="{Binding LoopIntervalSeconds, UpdateSourceTrigger=LostFocus, Mode=TwoWay, FallbackValue=10}"/>
 
+                            <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
+                            <TextBlock Text="{DynamicResource Settings.SectionLiturgy}" FontFamily="{StaticResource HeaderFont}"
+                                       FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,16"/>
+                            <TextBlock Text="{DynamicResource Settings.Lectionary}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock Text="{DynamicResource Settings.LectionaryDesc}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="{DynamicResource Settings.LectionaryNew}"
+                                             Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding LectionaryNew}"/>
+                                <RadioButton Content="{DynamicResource Settings.LectionaryOld}"
+                                             Style="{StaticResource DarkRadio}"
+                                             IsChecked="{Binding LectionaryNew, Converter={StaticResource InverseBool}}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Settings.Diocese}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,16,0,4"/>
+                            <TextBlock Text="{DynamicResource Settings.DioceseDesc}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <ComboBox Style="{StaticResource DarkCombo}"
+                                      ItemsSource="{Binding DioceseOptions}"
+                                      SelectedItem="{Binding SelectedDioceseOption}"
+                                      FontSize="14" Height="34"/>
+
                             <TextBlock Text="{DynamicResource Settings.PsalmCategory}"
                                        Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>
                             <ComboBox Style="{StaticResource DarkCombo}"
@@ -3097,64 +3117,6 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-
-                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScale}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" TextWrapping="Wrap" Margin="0,12,0,4"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Slider Grid.Column="0" Style="{StaticResource DarkSlider}"
-                                        Minimum="100" Maximum="300" TickFrequency="10"
-                                        IsSnapToTickEnabled="True"
-                                        Value="{Binding PsalmRefrainScale}" VerticalAlignment="Center"/>
-                                <Border Grid.Column="2" Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}"
-                                        BorderThickness="1" Padding="6,4">
-                                    <TextBox Text="{Binding PsalmRefrainScale, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource DarkTextBox}"
-                                             Background="Transparent" BorderThickness="0"
-                                             Foreground="{DynamicResource Brush.Accent}" FontSize="14" FontWeight="Bold"
-                                             Padding="0" TextAlignment="Center"
-                                             helpers:NumericBox.IsEnabled="True"
-                                             helpers:NumericBox.Min="100"
-                                             helpers:NumericBox.Max="300"
-                                             helpers:NumericBox.Step="10"/>
-                                </Border>
-                            </Grid>
-                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScaleHint}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
-
-                            <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
-
-                            <TextBlock Text="{DynamicResource Settings.SectionDatabase}" FontFamily="{StaticResource HeaderFont}"
-                                       FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,10"/>
-                            <WrapPanel Margin="0,0,0,6">
-                                <Button Content="{DynamicResource Settings.BackupDb}" Style="{StaticResource OutlineBtn}"
-                                        Padding="10,6" Margin="0,0,6,6"
-                                        Command="{Binding BackupDatabaseCommand}"/>
-                                <Button Content="{DynamicResource Settings.RestoreDb}" Style="{StaticResource OutlineBtn}"
-                                        Padding="10,6" Margin="0,0,6,6"
-                                        Command="{Binding RestoreDatabaseCommand}"/>
-                                <Button Content="{DynamicResource Settings.ClearDb}" Style="{StaticResource RedBtn}"
-                                        Padding="10,6" Margin="0,0,0,6"
-                                        Command="{Binding ClearDatabaseCommand}"/>
-                            </WrapPanel>
-                            <WrapPanel Margin="0,0,0,0">
-                                <Button Content="{DynamicResource Settings.ExportZip}" Style="{StaticResource OutlineBtn}"
-                                        Padding="10,6" Margin="0,0,6,6"
-                                        Command="{Binding ExportZipCommand}"/>
-                                <Button Content="{DynamicResource Settings.ImportZip}" Style="{StaticResource OutlineBtn}"
-                                        Padding="10,6" Margin="0,0,0,6"
-                                        Command="{Binding ImportZipCommand}"/>
-                            </WrapPanel>
-                            <WrapPanel Margin="0,6,0,0">
-                                <Button Content="{DynamicResource Settings.ImportPsalmy}" Style="{StaticResource OutlineBtn}"
-                                        Padding="10,6" Margin="0,0,0,6"
-                                        Command="{Binding ImportPsalmyCommand}"
-                                        IsEnabled="{Binding IsImportingPsalmy, Converter={StaticResource InverseBool}}"/>
-                            </WrapPanel>
 
                             <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,20,0,20"/>
 
@@ -3200,48 +3162,6 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <TextBlock Text="{DynamicResource Settings.Language}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
-                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                                       Margin="0,16,0,8"/>
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton Content="Polski" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
-                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=pl}"
-                                             Command="{Binding SetLanguageCommand}" CommandParameter="pl"/>
-                                <RadioButton Content="English" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
-                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=en}"
-                                             Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
-                                <RadioButton Content="Español" Style="{StaticResource DarkRadio}"
-                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
-                                             Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
-                            </StackPanel>
-
-                            <TextBlock Text="{DynamicResource Settings.Diocese}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
-                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                                       Margin="0,16,0,4"/>
-                            <TextBlock Text="{DynamicResource Settings.DioceseDesc}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                            <ComboBox Style="{StaticResource DarkCombo}"
-                                      ItemsSource="{Binding DioceseOptions}"
-                                      SelectedItem="{Binding SelectedDioceseOption}"
-                                      FontSize="14" Height="34"/>
-
-                            <TextBlock Text="{DynamicResource Settings.Lectionary}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
-                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
-                                       Margin="0,16,0,4"/>
-                            <TextBlock Text="{DynamicResource Settings.LectionaryDesc}"
-                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton Content="{DynamicResource Settings.LectionaryNew}"
-                                             Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
-                                             IsChecked="{Binding LectionaryNew}"/>
-                                <RadioButton Content="{DynamicResource Settings.LectionaryOld}"
-                                             Style="{StaticResource DarkRadio}"
-                                             IsChecked="{Binding LectionaryNew, Converter={StaticResource InverseBool}}"/>
-                            </StackPanel>
-
                             <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,20,0,0">
                                 <Button Content="{DynamicResource Btn.OpenShortcuts}"
                                         Style="{StaticResource GoldBtn}"
@@ -3273,11 +3193,12 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Kontrolki importu -->
-                        <StackPanel Grid.Row="0" Margin="24,24,24,16">
+                        <StackPanel x:Name="ImportPanelStack" Grid.Row="0" Margin="24,24,24,16">
 
                             <TextBlock Text="{DynamicResource Import.Title}"
                                        FontFamily="{StaticResource HeaderFont}"
@@ -3492,63 +3413,75 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Podgląd -->
-                            <Button Content="{DynamicResource Btn.Preview}"
-                                    Style="{StaticResource OutlineBtn}"
-                                    Height="44" Margin="0,0,0,8"
-                                    Command="{Binding PreviewCommand}"/>
-
-                            <!-- Importuj -->
-                            <Button Content="{DynamicResource Btn.Import}"
-                                    Height="54" FontSize="28" Padding="0"
-                                    Command="{Binding ImportCommand}"
-                                    IsEnabled="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource GoldBtn}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsImporting}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource Brush.BorderStrong}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                            <Border Margin="0,10,0,0"
-                                    Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding ProgressText}"
-                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                               TextTrimming="CharacterEllipsis"
-                                               Margin="0,0,0,6"/>
-                                    <ProgressBar Value="{Binding ProgressValue}"
-                                                 Maximum="{Binding ProgressMax}"
-                                                 Height="6" Background="{DynamicResource Brush.BgPanelHover}"
-                                                 Foreground="{DynamicResource Brush.Accent}" BorderThickness="0"/>
-                                </StackPanel>
-                            </Border>
+                            <!-- Podgląd | Importuj | Log w jednej linii -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="{DynamicResource Btn.Preview}"
+                                        Style="{StaticResource OutlineBtn}"
+                                        Height="54" Command="{Binding PreviewCommand}"/>
+                                <Button Grid.Column="2" Content="{DynamicResource Btn.Import}"
+                                        Height="54" FontSize="22" Padding="0"
+                                        Command="{Binding ImportCommand}"
+                                        IsEnabled="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource GoldBtn}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsImporting}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource Brush.BorderStrong}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Grid.Column="4" Style="{StaticResource OutlineBtn}"
+                                        Height="54" Command="{Binding ToggleLogCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{DynamicResource Import.LogButton}"/>
+                                        <TextBlock Text="{Binding LogEntries.Count, StringFormat=' ({0})'}"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
 
                         </StackPanel>
 
-                        <!-- Log -->
-                        <Grid Grid.Row="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
-                                    BorderThickness="0,1,0,1" Padding="24,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource Import.Log}"
-                                               FontFamily="{StaticResource HeaderFont}"
-                                               FontSize="14" FontWeight="Light"
-                                               Foreground="{DynamicResource Brush.Accent}" Margin="0,0,12,0"/>
-                                    <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0} wpisów)'}"
-                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                        <!-- Log importu: nakładka przykrywająca panel importu -->
+                        <Border Grid.Row="0" Panel.ZIndex="10" VerticalAlignment="Stretch"
+                                MaxHeight="{Binding ActualHeight, ElementName=ImportPanelStack}"
+                                Background="{DynamicResource Brush.BgApp}"
+                                Visibility="{Binding IsLogOpen, Converter={StaticResource BoolToVis}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
+                                        BorderThickness="0,0,0,1" Padding="24,4,8,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource Import.Log}"
+                                                       FontFamily="{StaticResource HeaderFont}"
+                                                       FontSize="14" FontWeight="Light"
+                                                       Foreground="{DynamicResource Brush.Accent}" Margin="0,0,12,0"/>
+                                            <TextBlock Text="{Binding LogEntries.Count, StringFormat='({0})'}"
+                                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="&#x2715;" Style="{StaticResource OutlineBtn}"
+                                                Width="44" Height="44" Padding="0"
+                                                Command="{Binding ToggleLogCommand}"/>
+                                    </Grid>
+                                </Border>
+                            <ScrollViewer x:Name="ImportLogScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Hidden"
                                           Padding="24,12">
                                 <ItemsControl ItemsSource="{Binding LogEntries}">
@@ -3570,7 +3503,59 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
-                        </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Postęp importu poza nakładką logu (DataContext: ImportViewModel) -->
+                        <Border Grid.Row="1" Margin="24,0,24,16"
+                                Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding ProgressText}"
+                                           Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                           TextTrimming="CharacterEllipsis"
+                                           Margin="0,0,0,6"/>
+                                <ProgressBar Value="{Binding ProgressValue}"
+                                             Maximum="{Binding ProgressMax}"
+                                             Height="6" Background="{DynamicResource Brush.BgPanelHover}"
+                                             Foreground="{DynamicResource Brush.Accent}" BorderThickness="0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Baza danych (przeniesiona z kolumny Ogólne); komendy są w SzablonViewModel, nie w ImportViewModel -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Padding="24,20,24,24"
+                                    DataContext="{Binding DataContext, ElementName=PaneTemplate}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.SectionDatabase}" FontFamily="{StaticResource HeaderFont}"
+                                               FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,10"/>
+                                    <WrapPanel Margin="0,0,0,6">
+                                        <Button Content="{DynamicResource Settings.BackupDb}" Style="{StaticResource OutlineBtn}"
+                                                Padding="10,6" Margin="0,0,6,6"
+                                                Command="{Binding BackupDatabaseCommand}"/>
+                                        <Button Content="{DynamicResource Settings.RestoreDb}" Style="{StaticResource OutlineBtn}"
+                                                Padding="10,6" Margin="0,0,6,6"
+                                                Command="{Binding RestoreDatabaseCommand}"/>
+                                        <Button Content="{DynamicResource Settings.ClearDb}" Style="{StaticResource RedBtn}"
+                                                Padding="10,6" Margin="0,0,0,6"
+                                                Command="{Binding ClearDatabaseCommand}"/>
+                                    </WrapPanel>
+                                    <WrapPanel Margin="0,0,0,0">
+                                        <Button Content="{DynamicResource Settings.ExportZip}" Style="{StaticResource OutlineBtn}"
+                                                Padding="10,6" Margin="0,0,6,6"
+                                                Command="{Binding ExportZipCommand}"/>
+                                        <Button Content="{DynamicResource Settings.ImportZip}" Style="{StaticResource OutlineBtn}"
+                                                Padding="10,6" Margin="0,0,0,6"
+                                                Command="{Binding ImportZipCommand}"/>
+                                    </WrapPanel>
+                                    <WrapPanel Margin="0,6,0,0">
+                                        <Button Content="{DynamicResource Settings.ImportPsalmy}" Style="{StaticResource OutlineBtn}"
+                                                Padding="10,6" Margin="0,0,0,6"
+                                                Command="{Binding ImportPsalmyCommand}"
+                                                IsEnabled="{Binding IsImportingPsalmy, Converter={StaticResource InverseBool}}"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </ScrollViewer>
 
                     </Grid>
                 </Border>
@@ -3606,8 +3591,75 @@
                                   Padding="24,24,24,0">
                         <StackPanel>
 
+                            <TextBlock Text="{DynamicResource Settings.Language}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="SemiBold"
+                                       Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Content="Polski" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=pl}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="pl"/>
+                                <RadioButton Content="English" Style="{StaticResource DarkRadio}" Margin="0,0,16,0"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=en}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="en"/>
+                                <RadioButton Content="Español" Style="{StaticResource DarkRadio}"
+                                             IsChecked="{Binding SelectedLanguage, Converter={StaticResource EnumBool}, ConverterParameter=es}"
+                                             Command="{Binding SetLanguageCommand}" CommandParameter="es"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Settings.Theme}" Foreground="{DynamicResource Brush.TextMain}" FontSize="16"
+                                       FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                       Margin="0,16,0,8"/>
+                            <ComboBox Style="{StaticResource DarkCombo}" Margin="0,0,0,16"
+                                      Foreground="{DynamicResource Brush.Accent}"
+                                      SelectedValuePath="Tag" SelectedValue="{Binding SelectedTheme}">
+                                <ComboBoxItem Tag="obsidian"   Content="{DynamicResource Settings.Theme.Obsidian}"/>
+                                <ComboBoxItem Tag="monochrome" Content="{DynamicResource Settings.Theme.Monochrome}"/>
+                                <ComboBoxItem Tag="sage"       Content="{DynamicResource Settings.Theme.Sage}"/>
+                            </ComboBox>
+
+                            <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,4,0,20"/>
+
                             <TextBlock Text="{DynamicResource Settings.SectionFont}" FontFamily="{StaticResource HeaderFont}"
                                        FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,16"/>
+
+                            <TextBlock Text="{DynamicResource Settings.FontFit}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <ComboBox Style="{StaticResource DarkCombo}"
+                                      SelectedIndex="{Binding FontFitMode}"
+                                      FontSize="14" Height="34">
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitFixed}"/>
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitVerse}"/>
+                                <ComboBoxItem Content="{DynamicResource Settings.FontFitSong}"/>
+                            </ComboBox>
+
+                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScale}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="14" TextWrapping="Wrap" Margin="0,16,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Style="{StaticResource DarkSlider}"
+                                        Minimum="100" Maximum="300" TickFrequency="10"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding PsalmRefrainScale}" VerticalAlignment="Center"/>
+                                <Border Grid.Column="2" Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}"
+                                        BorderThickness="1" Padding="6,4">
+                                    <TextBox Text="{Binding PsalmRefrainScale, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource DarkTextBox}"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="{DynamicResource Brush.Accent}" FontSize="14" FontWeight="Bold"
+                                             Padding="0" TextAlignment="Center"
+                                             helpers:NumericBox.IsEnabled="True"
+                                             helpers:NumericBox.Min="100"
+                                             helpers:NumericBox.Max="300"
+                                             helpers:NumericBox.Step="10"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{DynamicResource Settings.PsalmRefrainScaleHint}"
+                                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,16"/>
 
                             <TextBlock Text="{Binding FontSizeLabel}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="16"
                                        FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
@@ -4196,17 +4248,6 @@
                                 <Button Grid.Column="4" Content="&#x2715;" Style="{StaticResource RedBtn}"
                                         Padding="10,8" Command="{Binding RemoveBlankImageCommand}"/>
                             </Grid>
-
-                            <TextBlock Text="{DynamicResource Settings.Theme}" Foreground="{DynamicResource Brush.TextMain}" FontSize="16"
-                                       FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
-                                       Margin="0,16,0,8"/>
-                            <ComboBox Style="{StaticResource DarkCombo}" Margin="0,0,0,16"
-                                      Foreground="{DynamicResource Brush.Accent}"
-                                      SelectedValuePath="Tag" SelectedValue="{Binding SelectedTheme}">
-                                <ComboBoxItem Tag="obsidian"   Content="{DynamicResource Settings.Theme.Obsidian}"/>
-                                <ComboBoxItem Tag="monochrome" Content="{DynamicResource Settings.Theme.Monochrome}"/>
-                                <ComboBoxItem Tag="sage"       Content="{DynamicResource Settings.Theme.Sage}"/>
-                            </ComboBox>
 
                         </StackPanel>
                     </ScrollViewer>

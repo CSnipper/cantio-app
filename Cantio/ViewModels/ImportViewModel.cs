@@ -115,6 +115,12 @@ public partial class ImportViewModel : ObservableObject
 
     // Log
 
+    // Nakładka z logiem przykrywa panel importu; otwiera się sama przy podglądzie i imporcie
+    [ObservableProperty] private bool _isLogOpen;
+
+    [RelayCommand]
+    private void ToggleLog() => IsLogOpen = !IsLogOpen;
+
     [ObservableProperty]
     private ObservableCollection<LogEntry> _logEntries = [];
 
@@ -168,6 +174,7 @@ public partial class ImportViewModel : ObservableObject
     {
         try
         {
+            IsLogOpen = true;
             LogEntries.Clear();
             var importer = ImporterFactory.Create(SelectedFormat, FilePath);
             var preview = await importer.GetPreviewAsync();
@@ -196,6 +203,7 @@ public partial class ImportViewModel : ObservableObject
     {
         IsImporting = true;
         ProgressValue = 0;
+        IsLogOpen = true;
         LogEntries.Clear();
 
         try
