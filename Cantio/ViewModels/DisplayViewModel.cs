@@ -46,7 +46,7 @@ public partial class DisplayViewModel : ObservableObject
         get
         {
             var main = Application.Current?.MainWindow;
-            var w = Application.Current?.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive && x.Owner == main) ?? main;
+            var w = Application.Current?.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive && main != null && x.Owner == main) ?? main;
             return w is { IsVisible: true } ? w : null;
         }
     }
