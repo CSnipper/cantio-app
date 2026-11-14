@@ -844,9 +844,9 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="280*" MinWidth="280"/>
-                        <ColumnDefinition Width="580*" MinWidth="560"/>
+                        <ColumnDefinition Width="514*" MinWidth="514"/>
                         <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="270*" MinWidth="270"/>
+                        <ColumnDefinition Width="320*" MinWidth="320"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Col 0: ZWROTKI (slides list, full height) -->
@@ -997,13 +997,13 @@
 
                     <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
                     <Grid Grid.Column="1" Background="#0f1117">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
-                            <RowDefinition Height="261"/>    <!-- Row 1: Sterowanie + belka (36) + podgląd 16:9 (225) -->
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160*" MinWidth="160"/>  <!-- Col 0: Kategorie + sterowanie -->
+                            <ColumnDefinition Width="354*"/>                 <!-- Col 1: Pieśni + belka (36) + podgląd 16:9 -->
+                        </Grid.ColumnDefinitions>
 
                         <!-- Song Edit Mode overlay — covers entire Col 1 -->
-                        <Grid x:Name="SongEditOverlay" Grid.RowSpan="2" Panel.ZIndex="10" Background="#0f1117"
+                        <Grid x:Name="SongEditOverlay" Grid.ColumnSpan="2" Panel.ZIndex="10" Background="#0f1117"
                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
                               IsVisibleChanged="SongEditOverlay_IsVisibleChanged">
                             <Grid.RowDefinitions>
@@ -1409,15 +1409,15 @@
                             </Border>
                         </Grid>
 
-                        <!-- Row 0: Kategorie (left) + Pieśni (right) -->
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="170*" MinWidth="170"/>
-                                <ColumnDefinition Width="410*"/>
-                            </Grid.ColumnDefinitions>
+                    <!-- Lewa kolumna: KATEGORIE (wypełnia) + sterowanie (wysokość z zawartości) -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
                             <!-- KATEGORIE -->
-                            <Grid Grid.Column="0">
+                            <Grid Grid.Row="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
@@ -1457,8 +1457,113 @@
                                 </Border>
                             </Grid>
 
+                            <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | ◀ | ▶ -->
+                            <Border Grid.Row="1" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,1,0" Padding="6">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
+                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
+                                            Width="Auto" Height="48" FontSize="24"
+                                            IsEnabled="{Binding CanLoop}"
+                                            Command="{Binding ToggleLoopCommand}"
+                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
+                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Foreground" Value="#4a5266"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!-- POKAŻ / WYGAŚ button -->
+                                    <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
+                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#252d3d"/>
+                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                                    <Setter Property="FontSize" Value="30"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#2a3347"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                            <Setter Property="Background" Value="#1e2535"/>
+                                                            <Setter Property="Foreground" Value="#c9a84c"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+
+                                    <!-- ◀ Poprzedni slajd -->
+                                    <Button Grid.Row="1" Grid.Column="0" Margin="0,8,4,0" Content="◀"
+                                            Style="{StaticResource NavBtn}"
+                                            FontSize="30" Height="56"
+                                            Command="{Binding PrevSlideCommand}"/>
+
+                                    <!-- ▶ Następny slajd -->
+                                    <Button Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" Content="▶"
+                                            Style="{StaticResource NavBtn}"
+                                            FontSize="30" Height="56"
+                                            Command="{Binding NextSlideCommand}"/>
+                                </Grid>
+                            </Border>
+                    </Grid>
+
+                    <!-- Prawa kolumna: PIEŚNI (wypełnia) + belka (36) i podgląd 16:9 na szerokość kolumny -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
                             <!-- PIEĹšNI -->
-                            <Grid Grid.Column="1">
+                            <Grid Grid.Row="0" MinHeight="150">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -1744,120 +1849,14 @@
                                     </ListBox>
                                 </Border>
                             </Grid>
-                        </Grid>
 
-                        <!-- Row 1: Sterowanie (170) + Podgląd 16:9 (400x225) -->
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="170"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | ◀ | ▶ -->
-                            <Border Grid.Column="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,1,0" Padding="6">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
-                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
-                                            Width="Auto" Height="48" FontSize="24"
-                                            IsEnabled="{Binding CanLoop}"
-                                            Command="{Binding ToggleLoopCommand}"
-                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
-                                                        <Setter Property="Foreground" Value="#c9a84c"/>
-                                                        <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                                        <Setter Property="BorderThickness" Value="2"/>
-                                                    </DataTrigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Foreground" Value="#4a5266"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-
-                                    <!-- POKAŻ / WYGAŚ button -->
-                                    <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
-                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Background" Value="#252d3d"/>
-                                                    <Setter Property="Foreground" Value="#9aa3b8"/>
-                                                    <Setter Property="BorderThickness" Value="0"/>
-                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-                                                    <Setter Property="FontSize" Value="30"/>
-                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="#2a3347"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                            <Setter Property="Background" Value="#1e2535"/>
-                                                            <Setter Property="Foreground" Value="#c9a84c"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Button>
-                                    </Grid>
-
-                                    <!-- ◀ Poprzedni slajd -->
-                                    <Button Grid.Row="1" Grid.Column="0" Margin="0,8,4,0" Content="◀"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding PrevSlideCommand}"/>
-
-                                    <!-- ▶ Następny slajd -->
-                                    <Button Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" Content="▶"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding NextSlideCommand}"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- Podgląd 16:9 + belka statusu -->
-                            <!-- Belka (stały wiersz 36 px, miejsce zarezerwowane) nad podglądem 400x225 -->
-                            <Grid Grid.Column="1" Width="400" Height="261"
-                                  HorizontalAlignment="Left" VerticalAlignment="Bottom">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="36"/>
-                                    <RowDefinition Height="225"/>
-                                </Grid.RowDefinitions>
+                    <!-- Podgląd 16:9 + belka statusu -->
+                    <!-- Belka (stały wiersz 36 px) nad podglądem; podgląd: wysokość z szerokości, max 360 (MaxWidth 640 = 16:9), wyśrodkowany -->
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="36"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
                                 <!-- Belka "Trwa projekcja" -->
                                 <Border Grid.Row="0" Padding="2"
@@ -1885,7 +1884,9 @@
                                 <!-- Podgląd 16:9 -->
                                 <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
                                         BorderBrush="#2a3347" BorderThickness="0,1,0,1"
-                                        ClipToBounds="True">
+                                        ClipToBounds="True" MaxHeight="360" MaxWidth="640"
+                            Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
+                                     Converter={StaticResource WidthToHeight}}">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#000" ShadowDepth="0" BlurRadius="16" Opacity=".6"/>
                                     </Border.Effect>
@@ -1898,8 +1899,8 @@
                                                                        RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
                                     </Viewbox>
                                 </Border>
-                            </Grid>
-                        </Grid>
+                    </Grid>
+                    </Grid>
                     </Grid>
 
                     <!-- Col 2: Przypięte zestawy (pełna wysokość) -->
