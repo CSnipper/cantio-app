@@ -954,7 +954,7 @@
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ImagePath, Converter={StaticResource FileName}}"
                                                    FontSize="18" LineHeight="22"
-                                                   FontStyle="Italic" Foreground="#888"
+                                                   FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"
                                                    VerticalAlignment="Center"
                                                    Margin="14,12,12,12">
                                             <TextBlock.Style>
@@ -995,7 +995,7 @@
                         </ListBox>
                     </Grid>
 
-                    <!-- Col 1: ŚRODKOWA (Kat+Pieśni top, podglÄ…d middle, kontrolki bottom) -->
+                    <!-- Col 1: ŚRODKOWA (dwie kolumny: kategorie + sterowanie | pieśni + belka + podgląd) -->
                     <Grid Grid.Column="1" Background="{DynamicResource Brush.BgApp}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="160*" MinWidth="160"/>  <!-- Col 0: Kategorie + sterowanie -->
@@ -1457,7 +1457,7 @@
                                 </Border>
                             </Grid>
 
-                            <!-- Row 2: Kontrolki — LIVE | Tytuł+POKAĹ» | ◀ | ▶ -->
+                            <!-- Sterowanie (lewa kolumna): POKAŻ/WYGAŚ | ◀ | ▶ | pętla -->
                             <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -1469,28 +1469,6 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
-                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
-                                            Width="Auto" Height="48" FontSize="24"
-                                            IsEnabled="{Binding CanLoop}"
-                                            Command="{Binding ToggleLoopCommand}"
-                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
-                                                        <Setter Property="BorderThickness" Value="2"/>
-                                                    </DataTrigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
 
                                     <!-- POKAŻ / WYGAŚ button -->
                                     <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
@@ -1551,6 +1529,28 @@
                                             Style="{StaticResource NavBtn}"
                                             FontSize="30" Height="56"
                                             Command="{Binding NextSlideCommand}"/>
+
+                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
+                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
+                                            Width="Auto" Height="48" FontSize="24"
+                                            IsEnabled="{Binding CanLoop}"
+                                            Command="{Binding ToggleLoopCommand}"
+                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </Grid>
                             </Border>
                     </Grid>
@@ -1816,7 +1816,7 @@
                                                     </Button>
                                                     <Button Grid.Column="3" Content="+"
                                                             Width="40" Height="40"
-                                                            Background="#343f58" BorderBrush="{DynamicResource Brush.Border}"
+                                                            Background="{DynamicResource Brush.BgSelected}" BorderBrush="{DynamicResource Brush.Border}"
                                                             BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}"
                                                             Cursor="Hand"
                                                             Command="{Binding DataContext.AddToSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -1883,7 +1883,7 @@
 
                                 <!-- Podgląd 16:9 -->
                                 <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
-                                        BorderBrush="#2a3347" BorderThickness="0,1,0,1"
+                                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,1"
                                         ClipToBounds="True" MaxHeight="360" MaxWidth="640"
                             Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
                                      Converter={StaticResource WidthToHeight}}">
@@ -2097,8 +2097,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#3a6ea8"/>
-                                                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2118,8 +2118,8 @@
                                                                     </Border>
                                                                     <ControlTemplate.Triggers>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#7a2020"/>
-                                                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -2586,7 +2586,7 @@
                                                   Foreground="{DynamicResource Brush.TextMain}"
                                                   FontSize="16" Height="34"/>
                                         <TextBlock Text="{DynamicResource Placeholder.SetlistGroup}"
-                                                   Foreground="#ffffff" FontSize="16"
+                                                   Foreground="{DynamicResource Brush.TextDim}" FontSize="16"
                                                    Padding="3" IsHitTestVisible="False" VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -3948,7 +3948,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{Binding Brush}"
-                                                            BorderBrush="#555" BorderThickness="2"/>
+                                                            BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="2"/>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="Opacity" Value="0.8"/>
@@ -3968,7 +3968,7 @@
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{Binding BgColorSwatch}"
-                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                         </ControlTemplate>
                                     </Button.Template>
                                 </Button>
@@ -4002,7 +4002,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{Binding GradientColor1Swatch}"
-                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
@@ -4019,7 +4019,7 @@
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{Binding GradientColor2Swatch}"
-                                                                    BorderBrush="#555" BorderThickness="1"/>
+                                                                    BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"/>
                                                         </ControlTemplate>
                                                     </Button.Template>
                                                 </Button>
@@ -4157,7 +4157,7 @@
                                         Command="{Binding PickBlankColorCommand}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border BorderBrush="#555" BorderThickness="1"
+                                            <Border BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1"
                                                     Background="{Binding BlankColor}"/>
                                         </ControlTemplate>
                                     </Button.Template>
@@ -4279,7 +4279,7 @@
                                                         CommandParameter="{Binding}">
                                                     <Button.Template>
                                                         <ControlTemplate TargetType="Button">
-                                                            <Border BorderBrush="#555" BorderThickness="1">
+                                                            <Border BorderBrush="{DynamicResource Brush.BorderStrong}" BorderThickness="1">
                                                                 <Border.Background>
                                                                     <SolidColorBrush Color="{Binding Color, Converter={StaticResource HexToColor}, FallbackValue=White}"/>
                                                                 </Border.Background>
