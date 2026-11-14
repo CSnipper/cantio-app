@@ -3378,7 +3378,7 @@
                             <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                     Padding="14,12" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
+                                    <TextBlock Text="{DynamicResource Import.OszHeader}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="14" FontWeight="Light"
                                                Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,10"/>

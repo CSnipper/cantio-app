@@ -353,6 +353,9 @@
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
     <sys:String x:Key="Import.OszDialogTitle">Wybierz zestawy OpenLP (.osz)</sys:String>
     <sys:String x:Key="Import.OszDialogFilter">OpenLP Zestawy (*.osz)|*.osz</sys:String>
+    <sys:String x:Key="Import.OszHeader">ZESTAWY OPENLP (.OSZ)</sys:String>
+    <sys:String x:Key="Font.GroupEmbedded">Wbudowane</sys:String>
+    <sys:String x:Key="Font.GroupSystem">Systemowe</sys:String>
     <sys:String x:Key="Settings.ImportPsalmy">Importuj psalmy</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Zaimportowano {0} psalmów responsoryjnych.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">Nie znaleziono kategorii „Psalmy responsoryjne". Utwórz ją najpierw w edytorze kategorii.</sys:String>

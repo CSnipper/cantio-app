@@ -111,11 +111,11 @@ public partial class SzablonViewModel : ObservableObject
     {
         var embedded = Helpers.EmbeddedFonts.Names
             .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
-            .Select(n => new FontEntry(n, "Wbudowane"));
+            .Select(n => new FontEntry(n, LocalizationManager.Get("Font.GroupEmbedded")));
         var system = System.Windows.Media.Fonts.SystemFontFamilies
             .Select(f => f.Source)
             .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
-            .Select(n => new FontEntry(n, "Systemowe"));
+            .Select(n => new FontEntry(n, LocalizationManager.Get("Font.GroupSystem")));
         return embedded.Concat(system).ToList();
     }
 
