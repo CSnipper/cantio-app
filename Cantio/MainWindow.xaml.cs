@@ -309,6 +309,8 @@ public partial class MainWindow : Window
         PaneTemplate.DataContext = _szablonVm;
         PaneImport.DataContext = _szablonVm;
         ImportColumn.DataContext = _importVm;
+        // Dispatcher.InvokeAsync w tle: ScrollToEnd dopiero po layoucie nowego wpisu (inaczej przewija do starego końca).
+        _importVm.LogEntries.CollectionChanged += (_, _) => Dispatcher.InvokeAsync(() => ImportLogScroll.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.Background);
         ImportLogColumn.DataContext = _importVm;
 
         _shortcutsVm = new ShortcutsViewModel(db, _shortcutService);

@@ -3481,7 +3481,7 @@
                                                 Command="{Binding ToggleLogCommand}"/>
                                     </Grid>
                                 </Border>
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                            <ScrollViewer x:Name="ImportLogScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Hidden"
                                           Padding="24,12">
                                 <ItemsControl ItemsSource="{Binding LogEntries}">
