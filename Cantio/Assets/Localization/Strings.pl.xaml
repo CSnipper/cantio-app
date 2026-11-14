@@ -124,6 +124,10 @@
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PRZYPNIJ</sys:String>
     <sys:String x:Key="Btn.PinWeek">Przypnij tydzień</sys:String>
+    <sys:String x:Key="Section.PinnedWeek">TYDZIEŃ</sys:String>
+    <sys:String x:Key="Section.PinnedPermanent">STAŁE</sys:String>
+    <sys:String x:Key="Btn.PinPermanent">Przypnij stały</sys:String>
+    <sys:String x:Key="PinPicker.Hint">Szukaj zestawu…</sys:String>
     <sys:String x:Key="Verses.KeysHint">Klawisze 1–0: przejdź do zwrotki  ·  przy >10: 1 lub 2 + drugi klawisz</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">ODEPNIJ</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
@@ -353,6 +357,9 @@
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
     <sys:String x:Key="Import.OszDialogTitle">Wybierz zestawy OpenLP (.osz)</sys:String>
     <sys:String x:Key="Import.OszDialogFilter">OpenLP Zestawy (*.osz)|*.osz</sys:String>
+    <sys:String x:Key="Import.OszHeader">ZESTAWY OPENLP (.OSZ)</sys:String>
+    <sys:String x:Key="Font.GroupEmbedded">Wbudowane</sys:String>
+    <sys:String x:Key="Font.GroupSystem">Systemowe</sys:String>
     <sys:String x:Key="Settings.ImportPsalmy">Importuj psalmy</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Zaimportowano {0} psalmów responsoryjnych.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">Nie znaleziono kategorii „Psalmy responsoryjne". Utwórz ją najpierw w edytorze kategorii.</sys:String>

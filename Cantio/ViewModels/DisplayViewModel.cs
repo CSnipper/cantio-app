@@ -368,6 +368,61 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
     [ObservableProperty] private bool _isCurrentSetlistPinned;
+    // Dwie listy kolumny PRZYPIĘTE: tygodniowe (Setlist.IsWeekly) i stałe; odświeżane razem z PinnedSetlists.
+    [ObservableProperty] private ObservableCollection<Setlist> _pinnedWeekly = [];
+    [ObservableProperty] private ObservableCollection<Setlist> _pinnedPermanent = [];
+
+    // Wybór zestawu do „Przypnij stały": tylko niepodpięte i bez SeasonKey
+    [ObservableProperty] private bool _isPinPickerOpen;
+    [ObservableProperty] private string _pinPickerText = string.Empty;
+    [ObservableProperty] private ObservableCollection<Setlist> _pinPickerItems = [];
+    private List<Setlist> _pinPickerAll = [];
+
+    private static readonly System.Globalization.CompareInfo PlCompareInfo = new System.Globalization.CultureInfo("pl-PL").CompareInfo;
+    private long _pinPickerClosedAt;
+
+    partial void OnIsPinPickerOpenChanged(bool value) { if (!value) _pinPickerClosedAt = Environment.TickCount64; }
+
+    partial void OnPinPickerTextChanged(string value)
+    {
+        var q = value.Trim();
+        PinPickerItems = new ObservableCollection<Setlist>(
+            string.IsNullOrEmpty(q)
+                ? _pinPickerAll
+                : _pinPickerAll.Where(s => PlCompareInfo.IndexOf(s.Name, q, System.Globalization.CompareOptions.IgnoreCase) >= 0));
+    }
+
+    [RelayCommand]
+    private async Task OpenPinPickerAsync()
+    {
+        if (IsPinPickerOpen) { IsPinPickerOpen = false; return; }
+        // Klik w przycisk przy otwartym popupie: StaysOpen=False zamknął go chwilę wcześniej — nie otwieraj z powrotem
+        if (Environment.TickCount64 - _pinPickerClosedAt < 400) return;
+        try
+        {
+            _pinPickerAll = (await _db.GetAllSetlistsAsync())
+                .Where(s => s.SeasonKey == null && !s.IsPinned)
+                .OrderBy(s => s.Name, PlComparer).ToList();
+            PinPickerText = string.Empty;
+            PinPickerItems = new ObservableCollection<Setlist>(_pinPickerAll);
+            IsPinPickerOpen = true;
+        }
+        catch (Exception ex) { AppLog.Write("UI", $"Lista do Przypnij stały: {ex.Message}"); }
+    }
+
+    /// <summary>Enter w polu szukania: przypina wynik, gdy po filtrze został dokładnie jeden.</summary>
+    public void PinPickerEnter()
+    {
+        if (PinPickerItems.Count == 1) PinFromPickerCommand.Execute(PinPickerItems[0]);
+    }
+
+    [RelayCommand]
+    private async Task PinFromPicker(Setlist setlist)
+    {
+        IsPinPickerOpen = false;
+        try { await PinSetlistFromSearch(setlist); }
+        catch (Exception ex) { AppLog.Write("UI", $"Przypięcie stałego: {ex.Message}"); }
+    }
 
     // Wyszukiwarka zestawów
 
@@ -1704,13 +1759,16 @@ public partial class DisplayViewModel : ObservableObject
     /// `MainWindow` rozgłasza to Pilotom jako `setlist_pinned`. Komenda przychodząca Z Pilota tędy NIE
     /// idzie — jej broadcast składa `PilotSetlistPin` — żeby ten sam komunikat nie poleciał dwa razy.
     /// </summary>
-    public event Action<int, bool>? SetlistPinChanged;
+    public event Action<int, bool, bool>? SetlistPinChanged; // (id, pinned, weekly = Setlist.IsWeekly)
 
     /// <summary>Zapis flagi przypięcia + powiadomienie Pilotów. BEZ dotykania `UpdatedAt` zestawu.</summary>
-    private async Task SetPinnedAsync(int setlistId, bool pinned)
+    private async Task<bool> SetPinnedAsync(Setlist setlist, bool pinned)
     {
-        await _db.SetSetlistPinnedAsync(setlistId, pinned);
-        SetlistPinChanged?.Invoke(setlistId, pinned);
+        // Zestawu już nie ma (np. usunięty z Pilota) — cicho, bez broadcastu o nieistniejącym zestawie
+        if (!await _db.SetSetlistPinnedAsync(setlist.Id, pinned)) return false;
+        setlist.PinnedByWeek = false; // ręczne przypięcie/odpięcie nigdy nie jest „z tygodnia"
+        SetlistPinChanged?.Invoke(setlist.Id, pinned, setlist.IsWeekly);
+        return true;
     }
 
     /// <summary>Przypięcie przyszło z Pilota — odśwież UI dokładnie tak, jak po zmianie lokalnej.</summary>
@@ -1726,8 +1784,7 @@ public partial class DisplayViewModel : ObservableObject
         var setlist = await _db.GetSetlistAsync(_loadedSetlistId);
         if (setlist == null) return;
         setlist.IsPinned = !setlist.IsPinned;
-        await SetPinnedAsync(setlist.Id, setlist.IsPinned);
-        IsCurrentSetlistPinned = setlist.IsPinned;
+        if (await SetPinnedAsync(setlist, setlist.IsPinned)) IsCurrentSetlistPinned = setlist.IsPinned;
         await LoadPinnedSetlistsAsync();
     }
 
@@ -1750,7 +1807,7 @@ public partial class DisplayViewModel : ObservableObject
         var diocese = await PilotPinWeek.DioceseAsync(_db);
         var result = await PilotPinWeek.RunAsync(_db, today, diocese);
 
-        foreach (var id in result.ChangedIds) SetlistPinChanged?.Invoke(id, true);
+        foreach (var id in result.ChangedIds.Concat(result.AlsoBroadcastIds)) SetlistPinChanged?.Invoke(id, true, result.WeeklyIds.Contains(id));
 
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
@@ -1765,7 +1822,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task PinSetlistFromSearch(Setlist setlist)
     {
         setlist.IsPinned = true;
-        await SetPinnedAsync(setlist.Id, true);
+        await SetPinnedAsync(setlist, true);
         await LoadPinnedSetlistsAsync();
     }
 
@@ -1773,7 +1830,7 @@ public partial class DisplayViewModel : ObservableObject
     private async Task UnpinSetlist(Setlist setlist)
     {
         setlist.IsPinned = false;
-        await SetPinnedAsync(setlist.Id, false);
+        await SetPinnedAsync(setlist, false);
         if (setlist.Id == _loadedSetlistId) IsCurrentSetlistPinned = false;
         await LoadPinnedSetlistsAsync();
     }
@@ -2712,6 +2769,8 @@ public partial class DisplayViewModel : ObservableObject
             s.Celebration = captions.TryGetValue(s.Id, out var c) ? c : "";
 
         PinnedSetlists = new ObservableCollection<Setlist>(list);
+        PinnedWeekly = new ObservableCollection<Setlist>(list.Where(s => s.IsWeekly));
+        PinnedPermanent = new ObservableCollection<Setlist>(list.Where(s => !s.IsWeekly).OrderBy(s => s.Name, PlComparer));
         PinnedListRefreshed?.Invoke();
     }
 

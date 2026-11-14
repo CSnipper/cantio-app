@@ -17,6 +17,7 @@ public static class PilotSetlistSync
     public static async Task<string> BuildSetlistsJsonAsync(DatabaseService db)
     {
         var summaries = await db.GetSetlistSummariesAsync();
+        var weekly = await db.GetWeeklySetlistIdsAsync();
         return JsonSerializer.Serialize(new
         {
             type     = "setlists_data",
@@ -27,7 +28,8 @@ public static class PilotSetlistSync
                 group     = s.Group ?? "",
                 songCount = s.SongCount,
                 updatedAt = s.UpdatedAt,
-                pinned    = s.IsPinned
+                pinned    = s.IsPinned,
+                weekly    = weekly.Contains(s.Id)
             })
         });
     }

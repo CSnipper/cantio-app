@@ -124,6 +124,10 @@
     <sys:String x:Key="Btn.LoadToDisplay">▶ DISPLAY</sys:String>
     <sys:String x:Key="Btn.PinSetlist">PIN</sys:String>
     <sys:String x:Key="Btn.PinWeek">Pin the week</sys:String>
+    <sys:String x:Key="Section.PinnedWeek">WEEK</sys:String>
+    <sys:String x:Key="Section.PinnedPermanent">PERMANENT</sys:String>
+    <sys:String x:Key="Btn.PinPermanent">Pin permanent</sys:String>
+    <sys:String x:Key="PinPicker.Hint">Search setlist…</sys:String>
     <sys:String x:Key="Verses.KeysHint">Keys 1–0: go to verse · above 10: 1 or 2 + second key</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">UNPIN</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">DELETE SET</sys:String>
@@ -352,6 +356,9 @@
     <sys:String x:Key="Import.OpenLPXml">OpenLP (xml)</sys:String>
     <sys:String x:Key="Import.OszDialogTitle">Select OpenLP sets (.osz)</sys:String>
     <sys:String x:Key="Import.OszDialogFilter">OpenLP Sets (*.osz)|*.osz</sys:String>
+    <sys:String x:Key="Import.OszHeader">OPENLP SETS (.OSZ)</sys:String>
+    <sys:String x:Key="Font.GroupEmbedded">Built-in</sys:String>
+    <sys:String x:Key="Font.GroupSystem">System</sys:String>
     <sys:String x:Key="Settings.ImportPsalmy">Import psalms</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Imported {0} responsorial psalms.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">Category "Psalmy responsoryjne" not found. Please create it first in the category editor.</sys:String>

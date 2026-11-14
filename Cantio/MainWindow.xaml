@@ -212,8 +212,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16"
+                        <DockPanel VerticalAlignment="Center">
+                            <Border x:Name="Box" DockPanel.Dock="Left" Width="16" Height="16"
                             Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Path x:Name="Check" Data="M2,8 L6,12 L14,4"
@@ -222,7 +222,7 @@
                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
+                        </DockPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
@@ -244,8 +244,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border x:Name="Box" Width="16" Height="16"
+                        <DockPanel VerticalAlignment="Center">
+                            <Border x:Name="Box" DockPanel.Dock="Left" Width="16" Height="16"
                             Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                             Margin="0,0,8,0">
                                 <Ellipse x:Name="Dot" Width="8" Height="8"
@@ -253,7 +253,7 @@
                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
+                        </DockPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
@@ -633,8 +633,8 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
@@ -647,7 +647,7 @@
 
                 <!-- Zegar + dzień liturgiczny + formularze + notatka -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                            HorizontalAlignment="Left" VerticalAlignment="Center">
                     <TextBlock x:Name="TxtClock"
                                FontFamily="{StaticResource HeaderFont}"
                                FontSize="34" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextMain}"
@@ -736,71 +736,10 @@
                             </StackPanel>
                         </Border>
                     </Popup>
-
-                    <!-- Sterowanie urządzeniami projekcyjnymi (DataContext = DevicesViewModel) -->
-                    <Grid x:Name="DevicesBarHost"
-                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
-                        <Grid.Resources>
-                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
-                            <Style x:Key="DeviceBarBtn" TargetType="Button">
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="FontSize" Value="15"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="MinWidth" Value="30"/>
-                                <Setter Property="Padding" Value="8,4"/>
-                                <Setter Property="Margin" Value="6,0,0,0"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Grid.Resources>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
-                            <ItemsControl ItemsSource="{Binding Devices}" VerticalAlignment="Center">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Style="{StaticResource DeviceBarBtn}"
-                                                Content="{Binding BarLabel}"
-                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
-                                                Command="{Binding DataContext.ToggleDeviceCommand,
-                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Button Style="{StaticResource DeviceBarBtn}" Content="⏻"
-                                    Margin="10,0,0,0"
-                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
-                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                    Command="{Binding TogglePowerAllCommand}"/>
-                        </StackPanel>
-                    </Grid>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
+                <Viewbox Grid.Column="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" x:Name="TabBar">
                     <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
@@ -832,6 +771,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
+                </Viewbox>
             </Grid>
         </Border>
 
@@ -1414,6 +1354,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                             <!-- KATEGORIE -->
@@ -1457,8 +1398,72 @@
                                 </Border>
                             </Grid>
 
+                    <!-- Urządzenia projekcyjne nad sterowaniem (DataContext = DevicesViewModel) -->
+                    <Grid x:Name="DevicesBarHost" Grid.Row="1" Background="{DynamicResource Brush.BgPanel}"
+                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
+                        <Grid.Resources>
+                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
+                            <Style x:Key="DeviceBarBtn" TargetType="Button">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="MinWidth" Value="40"/>
+                                <Setter Property="MinHeight" Value="40"/>
+                                <Setter Property="Padding" Value="8,4"/>
+                                <Setter Property="Margin" Value="0,0,6,6"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Grid.Resources>
+                        <DockPanel Margin="6,6,1,0">
+                            <!-- ⏻ po prawej; urządzenia zawijają się obok -->
+                            <Button DockPanel.Dock="Right" Style="{StaticResource DeviceBarBtn}" Content="⏻"
+                                    Margin="0,0,0,6"
+                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
+                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                    Command="{Binding TogglePowerAllCommand}"/>
+                            <ItemsControl ItemsSource="{Binding Devices}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource DeviceBarBtn}"
+                                                Content="{Binding BarLabel}"
+                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                                                Command="{Binding DataContext.ToggleDeviceCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </Grid>
+
                             <!-- Sterowanie (lewa kolumna): POKAŻ/WYGAŚ | ◀ | ▶ | pętla -->
-                            <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
+                            <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -1864,10 +1869,10 @@
                                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Opacity" Value="1"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                    <Setter Property="Opacity" Value="0.22"/>
+                                                    <Setter Property="Visibility" Value="Hidden"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -1903,32 +1908,21 @@
                     </Grid>
                     </Grid>
 
-                    <!-- Col 2: Przypięte zestawy (pełna wysokość) -->
+                    <!-- Col 2: Przypięte zestawy - góra TYDZIEŃ (z kalendarza), dół STAŁE (przewijane) -->
                             <Border Grid.Column="2" Background="{DynamicResource Brush.BgApp}"
                                     BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1" Padding="6,8">
-                                <DockPanel>
-                                    <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center"
-                                               Text="{DynamicResource Section.Pinned}"
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0">
+                                        <TextBlock HorizontalAlignment="Center"
+                                               Text="{DynamicResource Section.PinnedWeek}"
                                                FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                                FontSize="20" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,6"/>
-                                    <Button DockPanel.Dock="Bottom"
-                                            Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
-                                            Command="{Binding PinNextWeekCommand}"
-                                            Style="{StaticResource OutlineBtn}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinWeek}"
-                                                       TextWrapping="Wrap" TextAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Button>
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                  HorizontalScrollBarVisibility="Disabled">
-                                        <ItemsControl ItemsSource="{Binding PinnedSetlists}">
+                                        <ItemsControl x:Name="PinnedWeeklyList" ItemsSource="{Binding PinnedWeekly}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="0,0,0,4">
@@ -1966,8 +1960,134 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                    </ScrollViewer>
-                                </DockPanel>
+                                    <Button Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
+                                            Command="{Binding PinNextWeekCommand}"
+                                            Style="{StaticResource OutlineBtn}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinWeek}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                    </StackPanel>
+                                    <TextBlock Grid.Row="1" HorizontalAlignment="Center"
+                                               Text="{DynamicResource Section.PinnedPermanent}"
+                                               FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
+                                               FontSize="20" Foreground="{DynamicResource Brush.Accent}" Margin="0,10,0,6"/>
+                                    <DockPanel Grid.Row="2">
+                                    <Button DockPanel.Dock="Bottom"
+                                            Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
+                                            x:Name="BtnPinPermanent"
+                                            Command="{Binding OpenPinPickerCommand}"
+                                            Style="{StaticResource OutlineBtn}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinPermanent}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsControl x:Name="PinnedPermanentList" ItemsSource="{Binding PinnedPermanent}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Grid.Column="0"
+                                                                Command="{Binding DataContext.LoadPinnedSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}">
+                                                            <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
+                                                                 liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding Celebration}"
+                                                                           ToolTip="{Binding Celebration}"
+                                                                           FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           Visibility="{Binding HasCelebration,
+                                                                               Converter={StaticResource BoolToVis}}"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <Button Grid.Column="1" Content="✕"
+                                                                Margin="3,0,0,0" Padding="5,0"
+                                                                FontSize="11"
+                                                                ToolTip="{DynamicResource Pinned.Unpin}"
+                                                                Command="{Binding DataContext.UnpinSetlistCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource OutlineBtn}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                    <Popup x:Name="PinPickerPopup" Grid.Row="2"
+                                           IsOpen="{Binding IsPinPickerOpen, Mode=TwoWay}"
+                                           PlacementTarget="{Binding ElementName=BtnPinPermanent}"
+                                           Placement="Top" StaysOpen="False" AllowsTransparency="True"
+                                           PreviewKeyDown="PinPickerPopup_PreviewKeyDown">
+                                        <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}"
+                                                BorderThickness="1" CornerRadius="4" Width="300" MaxHeight="400">
+                                            <Grid Margin="8">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBox x:Name="PinPickerSearchBox"
+                                                             Style="{StaticResource DarkTextBox}"
+                                                             Text="{Binding PinPickerText, UpdateSourceTrigger=PropertyChanged}"
+                                                             FontSize="15" Padding="8,6"/>
+                                                    <TextBlock Text="{DynamicResource PinPicker.Hint}" IsHitTestVisible="False"
+                                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="15"
+                                                               Margin="11,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Text, ElementName=PinPickerSearchBox}" Value="">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                                <ListBox Grid.Row="1" x:Name="PinPickerList"
+                                                         ItemsSource="{Binding PinPickerItems}"
+                                                         Background="Transparent" BorderThickness="0" MaxHeight="340"
+                                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                         ItemContainerStyle="{StaticResource DarkListItem}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button Content="{Binding Name}" Padding="6,6" HorizontalContentAlignment="Left"
+                                                                    Command="{Binding DataContext.PinFromPickerCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource OutlineBtn}"/>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Grid>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
                             </Border>
 
                     <!-- Col 3: ZESTAW -->
@@ -3219,7 +3339,7 @@
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="14" FontWeight="Light"
                                                Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,8"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <WrapPanel Margin="0,0,0,6">
                                         <RadioButton Content="{DynamicResource Import.OpenLPSqlite}"
                                                      IsChecked="{Binding IsOpenLPSqlite, Mode=OneWay}"
                                                      Command="{Binding SelectFormatCommand}"
@@ -3231,8 +3351,8 @@
                                                      Command="{Binding SelectFormatCommand}"
                                                      CommandParameter="OpenLPXml"
                                                      Foreground="{DynamicResource Brush.TextMain}" FontSize="14"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                    </WrapPanel>
+                                    <WrapPanel>
                                         <RadioButton Content="OpenSong (folder)"
                                                      IsChecked="{Binding IsOpenSongFolder, Mode=OneWay}"
                                                      Command="{Binding SelectFormatCommand}"
@@ -3244,7 +3364,7 @@
                                                      Command="{Binding SelectFormatCommand}"
                                                      CommandParameter="OpenSongXml"
                                                      Foreground="{DynamicResource Brush.TextMain}" FontSize="14"/>
-                                    </StackPanel>
+                                    </WrapPanel>
                                 </StackPanel>
 
                                 <!-- Plik źródłowy -->
@@ -3322,16 +3442,20 @@
                                                    TextWrapping="Wrap"/>
                                         <StackPanel Margin="22,6,0,0"
                                                     Visibility="{Binding ShowCategorySourceSelector, Converter={StaticResource BoolToVis}}">
-                                            <RadioButton Content="{DynamicResource Import.CategorySourceSongBooks}"
+                                            <RadioButton
                                                          IsChecked="{Binding IsCategorySourceSongBooks, Mode=OneWay}"
                                                          Command="{Binding SelectCategorySourceCommand}"
                                                          CommandParameter="SongBooks"
-                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13" Margin="0,0,0,2"/>
-                                            <RadioButton Content="{DynamicResource Import.CategorySourceTopics}"
+                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13" Margin="0,0,0,2">
+                                                <TextBlock Text="{DynamicResource Import.CategorySourceSongBooks}" TextWrapping="Wrap"/>
+                                            </RadioButton>
+                                            <RadioButton
                                                          IsChecked="{Binding IsCategorySourceTopics, Mode=OneWay}"
                                                          Command="{Binding SelectCategorySourceCommand}"
                                                          CommandParameter="Topics"
-                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13"/>
+                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13">
+                                                <TextBlock Text="{DynamicResource Import.CategorySourceTopics}" TextWrapping="Wrap"/>
+                                            </RadioButton>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -3341,7 +3465,7 @@
                                         <CheckBox IsChecked="{Binding OverwriteExisting}"
                                                   Foreground="{DynamicResource Brush.TextMain}" FontSize="15"
                                                   Margin="0,0,0,3">
-                                            <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="{DynamicResource Brush.TextMain}" FontSize="15"/>
+                                            <TextBlock Text="{DynamicResource Import.Overwrite}" Foreground="{DynamicResource Brush.TextMain}" FontSize="15" TextWrapping="Wrap"/>
                                         </CheckBox>
                                         <TextBlock Text="{DynamicResource Import.OverwriteTip}"
                                                    Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="22,0,0,0"
@@ -3378,7 +3502,7 @@
                             <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                     Padding="14,12" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="ZESTAWY OPENLP (.OSZ)"
+                                    <TextBlock Text="{DynamicResource Import.OszHeader}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="14" FontWeight="Light"
                                                Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,10"/>

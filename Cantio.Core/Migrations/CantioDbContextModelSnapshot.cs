@@ -79,6 +79,9 @@ namespace Cantio.Migrations
                     b.Property<int?>("PinPosition")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("PinnedByWeek")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SeasonKey")
                         .HasColumnType("TEXT");
 

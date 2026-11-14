@@ -41,6 +41,14 @@ public static class PilotPinWeek
     {
         /// <summary>Ile zestawów realnie przypięto/utworzono (0 = wszystko już wisiało).</summary>
         public int Pinned => ChangedIds.Count;
+
+        /// <summary>Id z <c>ChangedIds</c> i <c>AlsoBroadcastIds</c> (pole `weekly` w `setlist_pinned`) — po RunAsync
+        /// wszystkie zestawy dnia są tygodniowe (<see cref="Setlist.IsWeeklyExpr"/>), także „Dominik" bez SeasonKey.</summary>
+        public IReadOnlySet<int> WeeklyIds { get; init; } = new HashSet<int>();
+
+        /// <summary>Zestawy dnia przypięte już wcześniej RĘCZNIE — dostały PinnedByWeek, Pilot musi dostać
+        /// `setlist_pinned` z weekly:true, ale NIE liczą się do <see cref="Pinned"/> (ack.pinned = nowo przypięte).</summary>
+        public IReadOnlyList<int> AlsoBroadcastIds { get; init; } = [];
     }
 
     public static bool IsCommand(string? type) => type == Command;
@@ -57,6 +65,8 @@ public static class PilotPinWeek
     {
         var days = new List<DayInfo>(Days);
         var changed = new List<int>();
+        var weekly = new HashSet<int>();
+        var also = new List<int>();
 
         for (int i = 0; i < Days; i++)
         {
@@ -78,26 +88,35 @@ public static class PilotPinWeek
             bool created = false;
             if (existing == null)
             {
-                var fresh = new Setlist { Name = name, Group = group, SeasonKey = day.Group, IsPinned = true };
+                var fresh = new Setlist { Name = name, Group = group, SeasonKey = day.Group, IsPinned = true, PinnedByWeek = true };
                 await db.SaveSetlistAsync(fresh);
                 id = fresh.Id;
                 created = true;
                 changed.Add(id);
+                weekly.Add(id);
             }
             else
             {
                 id = existing.Id;
                 if (!existing.IsPinned)
                 {
-                    await db.SetSetlistPinnedAsync(id, true);
+                    await db.SetSetlistPinnedByWeekAsync(id);
                     changed.Add(id);
+                    weekly.Add(id);
+                }
+                else if (!existing.IsWeekly)
+                {
+                    // przypięty ręcznie wcześniej — przechodzi do TYDZIEŃ, ale to nie jest „nowo przypięty"
+                    await db.SetSetlistPinnedByWeekAsync(id);
+                    also.Add(id);
+                    weekly.Add(id);
                 }
             }
 
             days.Add(new DayInfo(date, name, PinnedCelebrations.CaptionFor(date, day, name, diocese), id, created));
         }
 
-        return new Result(days, changed);
+        return new Result(days, changed) { WeeklyIds = weekly, AlsoBroadcastIds = also };
     }
 
     /// <summary>
