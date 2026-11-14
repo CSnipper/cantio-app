@@ -41,6 +41,10 @@ public static class PilotPinWeek
     {
         /// <summary>Ile zestawów realnie przypięto/utworzono (0 = wszystko już wisiało).</summary>
         public int Pinned => ChangedIds.Count;
+
+        /// <summary>Podzbiór <c>ChangedIds</c> z <c>SeasonKey != null</c> (pole `weekly` w `setlist_pinned`);
+        /// zestaw użytkownika znaleziony po obchodzie („Dominik") ma SeasonKey == null i tu nie trafia.</summary>
+        public IReadOnlySet<int> WeeklyIds { get; init; } = new HashSet<int>();
     }
 
     public static bool IsCommand(string? type) => type == Command;
@@ -57,6 +61,7 @@ public static class PilotPinWeek
     {
         var days = new List<DayInfo>(Days);
         var changed = new List<int>();
+        var weekly = new HashSet<int>();
 
         for (int i = 0; i < Days; i++)
         {
@@ -83,6 +88,7 @@ public static class PilotPinWeek
                 id = fresh.Id;
                 created = true;
                 changed.Add(id);
+                weekly.Add(id);
             }
             else
             {
@@ -91,13 +97,14 @@ public static class PilotPinWeek
                 {
                     await db.SetSetlistPinnedAsync(id, true);
                     changed.Add(id);
+                    if (existing.SeasonKey != null) weekly.Add(id);
                 }
             }
 
             days.Add(new DayInfo(date, name, PinnedCelebrations.CaptionFor(date, day, name, diocese), id, created));
         }
 
-        return new Result(days, changed);
+        return new Result(days, changed) { WeeklyIds = weekly };
     }
 
     /// <summary>

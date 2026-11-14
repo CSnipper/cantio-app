@@ -1762,11 +1762,12 @@ public partial class DisplayViewModel : ObservableObject
     public event Action<int, bool, bool>? SetlistPinChanged; // (id, pinned, weekly = SeasonKey != null)
 
     /// <summary>Zapis flagi przypięcia + powiadomienie Pilotów. BEZ dotykania `UpdatedAt` zestawu.</summary>
-    private async Task SetPinnedAsync(Setlist setlist, bool pinned)
+    private async Task<bool> SetPinnedAsync(Setlist setlist, bool pinned)
     {
         // Zestawu już nie ma (np. usunięty z Pilota) — cicho, bez broadcastu o nieistniejącym zestawie
-        if (!await _db.SetSetlistPinnedAsync(setlist.Id, pinned)) return;
+        if (!await _db.SetSetlistPinnedAsync(setlist.Id, pinned)) return false;
         SetlistPinChanged?.Invoke(setlist.Id, pinned, setlist.SeasonKey != null);
+        return true;
     }
 
     /// <summary>Przypięcie przyszło z Pilota — odśwież UI dokładnie tak, jak po zmianie lokalnej.</summary>
@@ -1782,8 +1783,7 @@ public partial class DisplayViewModel : ObservableObject
         var setlist = await _db.GetSetlistAsync(_loadedSetlistId);
         if (setlist == null) return;
         setlist.IsPinned = !setlist.IsPinned;
-        await SetPinnedAsync(setlist, setlist.IsPinned);
-        IsCurrentSetlistPinned = setlist.IsPinned;
+        if (await SetPinnedAsync(setlist, setlist.IsPinned)) IsCurrentSetlistPinned = setlist.IsPinned;
         await LoadPinnedSetlistsAsync();
     }
 
@@ -1806,7 +1806,7 @@ public partial class DisplayViewModel : ObservableObject
         var diocese = await PilotPinWeek.DioceseAsync(_db);
         var result = await PilotPinWeek.RunAsync(_db, today, diocese);
 
-        foreach (var id in result.ChangedIds) SetlistPinChanged?.Invoke(id, true, true); // „Przypnij tydzień" przypina zestawy z kalendarza
+        foreach (var id in result.ChangedIds) SetlistPinChanged?.Invoke(id, true, result.WeeklyIds.Contains(id));
 
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
