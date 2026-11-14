@@ -42,7 +42,7 @@
                                     <Thumb>
                                         <Thumb.Template>
                                             <ControlTemplate TargetType="Thumb">
-                                                <Rectangle Fill="#3a4a65" RadiusX="2" RadiusY="2"/>
+                                                <Rectangle Fill="{DynamicResource Brush.BorderStrong}" RadiusX="2" RadiusY="2"/>
                                             </ControlTemplate>
                                         </Thumb.Template>
                                     </Thumb>

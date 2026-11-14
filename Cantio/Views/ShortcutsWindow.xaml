@@ -5,8 +5,8 @@
         Title="{DynamicResource Shortcuts.Title}"
         Width="680" Height="580" MinWidth="500" MinHeight="420"
         WindowStartupLocation="CenterOwner"
-        Background="#0f1117"
-        Foreground="#e8eaf0"
+        Background="{DynamicResource Brush.BgApp}"
+        Foreground="{DynamicResource Brush.TextMain}"
         ShowInTaskbar="False"
         KeyDown="Window_KeyDown">
     <Window.Resources>
@@ -48,23 +48,23 @@
         </Grid.RowDefinitions>
 
         <!-- Header + wyszukiwarka -->
-        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347"
+        <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                 BorderThickness="0,0,0,1" Padding="20,16">
             <StackPanel>
                 <TextBlock Text="{DynamicResource Shortcuts.Title}"
                            FontFamily="{StaticResource HeaderFont}"
                            FontSize="22" FontWeight="SemiBold"
-                           Foreground="#c9a84c" Margin="0,0,0,12"/>
-                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1">
+                           Foreground="{DynamicResource Brush.Accent}" Margin="0,0,0,12"/>
+                <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
                     <Grid>
                         <TextBox x:Name="SearchBox"
                                  Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                  Background="Transparent" BorderThickness="0"
-                                 Foreground="#e8eaf0" FontSize="16"
+                                 Foreground="{DynamicResource Brush.TextMain}" FontSize="16"
                                  FontFamily="{StaticResource BodyFont}"
                                  Padding="10,8"/>
                         <TextBlock Text="{DynamicResource Shortcuts.SearchPlaceholder}"
-                                   Foreground="#4a5570" FontSize="16" Padding="12,8"
+                                   Foreground="{DynamicResource Brush.TextDim}" FontSize="16" Padding="12,8"
                                    IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -95,7 +95,7 @@
                                     <TextBlock Text="{Binding Name}"
                                                FontFamily="{StaticResource HeaderFont}"
                                                FontSize="13" FontWeight="SemiBold"
-                                               Foreground="#c9a84c"/>
+                                               Foreground="{DynamicResource Brush.Accent}"/>
                                 </Border>
                             </DataTemplate>
                         </GroupStyle.HeaderTemplate>
@@ -114,13 +114,13 @@
                                     <ColumnDefinition Width="34"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding Name}"
-                                           Foreground="#e8eaf0" FontSize="16"
+                                           Foreground="{DynamicResource Brush.TextMain}" FontSize="16"
                                            VerticalAlignment="Center"/>
                                 <TextBox Grid.Column="2"
                                          Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="#1e2535" Foreground="#c9a84c"
-                                         BorderBrush="#2a3347" BorderThickness="1"
-                                         CaretBrush="#c9a84c"
+                                         Background="{DynamicResource Brush.BgPanelHover}" Foreground="{DynamicResource Brush.Accent}"
+                                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                                         CaretBrush="{DynamicResource Brush.Accent}"
                                          FontFamily="Consolas" FontSize="15"
                                          Padding="8,6" TextAlignment="Center"
                                          Height="36" VerticalAlignment="Center"
@@ -137,12 +137,12 @@
                                                            VerticalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="#3a4a65"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.BorderStrong}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsMouseOver,
                                                                     RelativeSource={RelativeSource AncestorType=Button}}"
                                                                     Value="True">
-                                                                    <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -160,7 +160,7 @@
         </ScrollViewer>
 
         <!-- Dolny pasek -->
-        <Border Grid.Row="2" Background="#161b25" BorderBrush="#2a3347"
+        <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}"
                 BorderThickness="0,1,0,0" Padding="20,14">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -173,21 +173,21 @@
                 <Button Grid.Column="0"
                         Content="{DynamicResource Btn.ResetShortcuts}"
                         Style="{StaticResource ActionBtn}"
-                        Background="Transparent" BorderBrush="#d44a4a"
-                        Foreground="#d44a4a" Padding="16,0"
+                        Background="Transparent" BorderBrush="{DynamicResource Brush.BorderStrong}"
+                        Foreground="{DynamicResource Brush.TextMain}" Padding="16,0"
                         Click="Reset_Click"/>
                 <Button Grid.Column="2"
                         Content="{DynamicResource Btn.SaveShortcuts}"
                         Style="{StaticResource ActionBtn}"
-                        Background="#c9a84c" BorderBrush="#c9a84c"
-                        Foreground="#0f1117" FontWeight="Bold"
+                        Background="{DynamicResource Brush.Accent}" BorderBrush="{DynamicResource Brush.Accent}"
+                        Foreground="{DynamicResource Brush.AccentText}" FontWeight="Bold"
                         Padding="24,0"
                         Click="Save_Click"/>
                 <Button Grid.Column="4"
                         Content="{DynamicResource Btn.CancelSettings}"
                         Style="{StaticResource ActionBtn}"
-                        Background="Transparent" BorderBrush="#2a3347"
-                        Foreground="#959fb9" Padding="16,0"
+                        Background="Transparent" BorderBrush="{DynamicResource Brush.Border}"
+                        Foreground="{DynamicResource Brush.TextMuted}" Padding="16,0"
                         Click="Cancel_Click"/>
             </Grid>
         </Border>

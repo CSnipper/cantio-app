@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:helpers="clr-namespace:Cantio.Helpers"
-             Background="#0f1117">
+             Background="{DynamicResource Brush.BgApp}">
     <UserControl.Resources>
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
         <helpers:InverseBoolConverter x:Key="InverseBool"/>
@@ -15,26 +15,26 @@
                 <Grid>
                     <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     <Path Data="M0,0 L4,4 L8,0" x:Name="Arrow"
-                          Stroke="#959fb9" StrokeThickness="1.5"
+                          Stroke="{DynamicResource Brush.TextMuted}" StrokeThickness="1.5"
                           HorizontalAlignment="Right" VerticalAlignment="Center"
                           Margin="0,0,12,0"/>
                 </Grid>
             </Border>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="Bd" Property="BorderBrush" Value="#3a4a65"/>
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}"/>
                 </Trigger>
                 <Trigger Property="IsChecked" Value="True">
-                    <Setter TargetName="Bd" Property="BorderBrush" Value="#c9a84c"/>
-                    <Setter TargetName="Arrow" Property="Stroke" Value="#c9a84c"/>
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                    <Setter TargetName="Arrow" Property="Stroke" Value="{DynamicResource Brush.Accent}"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
         <Style x:Key="DarkCombo" TargetType="ComboBox">
-            <Setter Property="Background" Value="#1e2535"/>
-            <Setter Property="Foreground" Value="#e8eaf0"/>
-            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,7"/>
             <Setter Property="FontSize" Value="14"/>
@@ -63,7 +63,7 @@
                                    PlacementTarget="{Binding ElementName=ToggleButton}"
                                    MinWidth="{Binding ActualWidth, ElementName=ToggleButton}"
                                    StaysOpen="False">
-                                <Border Background="#1e2535" BorderBrush="#2a3347" BorderThickness="1" Margin="0,2,0,0">
+                                <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" Margin="0,2,0,0">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
                                         <ItemsPresenter/>
                                     </ScrollViewer>
@@ -77,16 +77,16 @@
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="#e8eaf0"/>
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
                         <Setter Property="Padding" Value="10,7"/>
                         <Setter Property="FontSize" Value="13"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#252d3d"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#2a3347"/>
-                                <Setter Property="Foreground" Value="#c9a84c"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -95,14 +95,14 @@
         </Style>
 
         <Style x:Key="DarkTextBox" TargetType="TextBox">
-            <Setter Property="Background"      Value="#1e2535"/>
-            <Setter Property="Foreground"      Value="#e8eaf0"/>
-            <Setter Property="BorderBrush"     Value="#2a3347"/>
+            <Setter Property="Background"      Value="{DynamicResource Brush.BgPanelHover}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource Brush.TextMain}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource Brush.Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding"         Value="8,6"/>
             <Setter Property="FontSize"        Value="14"/>
-            <Setter Property="CaretBrush"      Value="#c9a84c"/>
-            <Setter Property="SelectionBrush"  Value="#c9a84c"/>
+            <Setter Property="CaretBrush"      Value="{DynamicResource Brush.Accent}"/>
+            <Setter Property="SelectionBrush"  Value="{DynamicResource Brush.Accent}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -113,10 +113,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="#c9a84c"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="BorderBrush" Value="#3a4a65"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -125,8 +125,8 @@
         </Style>
 
         <Style x:Key="GoldBtn" TargetType="Button">
-            <Setter Property="Background" Value="#c9a84c"/>
-            <Setter Property="Foreground" Value="#0f1117"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
             <Setter Property="FontSize" Value="14"/>
@@ -141,7 +141,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#e8c97a"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.AccentHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -151,8 +151,8 @@
 
         <Style x:Key="OutlineBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#9aa3b8"/>
-            <Setter Property="BorderBrush" Value="#2a3347"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
             <Setter Property="FontSize" Value="14"/>
@@ -170,8 +170,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="BorderBrush" Value="#c9a84c"/>
-                                <Setter Property="Foreground" Value="#c9a84c"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -193,18 +193,18 @@
 
             <!-- Nagłówek sekcji -->
             <TextBlock Text="{DynamicResource Devices.Section}"
-                       Foreground="#c9a84c"
+                       Foreground="{DynamicResource Brush.Accent}"
                        FontFamily="{StaticResource HeaderFont}"
                        FontSize="20" Margin="0,0,0,4"/>
             <TextBlock Text="{DynamicResource Devices.SectionDesc}"
-                       Foreground="#959fb9" FontSize="12"
+                       Foreground="{DynamicResource Brush.TextMuted}" FontSize="12"
                        TextWrapping="Wrap" Margin="0,0,0,16"/>
 
             <!-- Lista urządzeń -->
             <ItemsControl ItemsSource="{Binding Devices}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                        <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                 Padding="10,8" Margin="0,0,0,8">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -221,7 +221,7 @@
                                 <!-- Krótkie oznaczenie — zawsze widoczne, zapis po Enterze / utracie fokusu -->
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
                                     <TextBlock Text="{DynamicResource Devices.Label}"
-                                               Foreground="#6b7488" FontSize="9"
+                                               Foreground="{DynamicResource Brush.TextDim}" FontSize="9"
                                                TextAlignment="Center" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding Label, UpdateSourceTrigger=LostFocus}"
                                              Style="{StaticResource DarkTextBox}" Width="54" FontSize="13"
@@ -236,7 +236,7 @@
                                     <!-- Tryb podglądu -->
                                     <StackPanel Orientation="Horizontal"
                                                 Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
-                                        <TextBlock Text="{Binding Name}" Foreground="#e8eaf0"
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.TextMain}"
                                                    FontSize="15" VerticalAlignment="Center"/>
                                         <Button Content="✎" Style="{StaticResource IconBtn}"
                                                 ToolTip="{DynamicResource Devices.Rename}"
@@ -254,7 +254,7 @@
                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding TypeLabel}" Foreground="#6b7488"
+                                    <TextBlock Text="{Binding TypeLabel}" Foreground="{DynamicResource Brush.TextDim}"
                                                FontSize="11" Margin="0,1,0,0"/>
                                 </StackPanel>
 
@@ -297,11 +297,11 @@
                         Command="{Binding OpenLogFolderCommand}"/>
             </StackPanel>
 
-            <Separator Background="#1e2535" Margin="0,0,0,16"/>
+            <Separator Background="{DynamicResource Brush.BgPanelHover}" Margin="0,0,0,16"/>
 
             <!-- Dodawanie urządzenia -->
             <TextBlock Text="{DynamicResource Devices.Add}"
-                       Foreground="#c9a84c"
+                       Foreground="{DynamicResource Brush.Accent}"
                        FontFamily="{StaticResource HeaderFont}"
                        FontSize="16" Margin="0,0,0,8"/>
 
@@ -316,23 +316,23 @@
 
             <!-- ── Samsung ── -->
             <StackPanel Visibility="{Binding IsSamsung, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
                          MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
                          ToolTip="{DynamicResource Devices.LabelHint}"/>
-                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="{DynamicResource Brush.TextDim}"
                            FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
                 <Button Content="{DynamicResource Devices.Discover}" Style="{StaticResource GoldBtn}"
                         HorizontalAlignment="Left" Height="36"
                         Command="{Binding DiscoverCommand}"
                         IsEnabled="{Binding IsDiscovering, Converter={StaticResource InverseBool}}"/>
-                <TextBlock Text="{Binding DiscoverStatus}" Foreground="#959fb9"
+                <TextBlock Text="{Binding DiscoverStatus}" Foreground="{DynamicResource Brush.TextMuted}"
                            FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
                 <ItemsControl ItemsSource="{Binding Discovered}" Margin="0,8,0,0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#161b25" BorderBrush="#2a3347" BorderThickness="1"
+                            <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                     Padding="10,8" Margin="0,0,0,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -340,8 +340,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" Foreground="#e8eaf0" FontSize="14"/>
-                                        <TextBlock Text="{Binding Ip}" Foreground="#6b7488" FontSize="11"/>
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.TextMain}" FontSize="14"/>
+                                        <TextBlock Text="{Binding Ip}" Foreground="{DynamicResource Brush.TextDim}" FontSize="11"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="{DynamicResource Devices.PairAdd}"
                                             Style="{StaticResource OutlineBtn}" VerticalAlignment="Center"
@@ -353,13 +353,13 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Text="{Binding PairStatus}" Foreground="#c9a84c"
+                <TextBlock Text="{Binding PairStatus}" Foreground="{DynamicResource Brush.Accent}"
                            FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
 
-                <Separator Background="#1e2535" Margin="0,16,0,12"/>
-                <TextBlock Text="{DynamicResource Devices.ManualIpLabel}" Foreground="#959fb9"
+                <Separator Background="{DynamicResource Brush.BgPanelHover}" Margin="0,16,0,12"/>
+                <TextBlock Text="{DynamicResource Devices.ManualIpLabel}" Foreground="{DynamicResource Brush.TextMuted}"
                            FontSize="12" Margin="0,0,0,6"/>
-                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
                 <Button Content="{DynamicResource Devices.PairManual}" Style="{StaticResource OutlineBtn}"
@@ -369,23 +369,23 @@
 
             <!-- ── PJLink ── -->
             <StackPanel Visibility="{Binding IsPjlink, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
                          MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
                          ToolTip="{DynamicResource Devices.LabelHint}"/>
-                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="{DynamicResource Brush.TextDim}"
                            FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
-                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Port}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Port}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewPort, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Width="90" HorizontalAlignment="Left" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Password}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Password}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewPassword, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal">
@@ -394,33 +394,33 @@
                     <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
                             Command="{Binding AddDeviceCommand}"/>
                 </StackPanel>
-                <TextBlock Text="{Binding TestResult}" Foreground="#959fb9"
+                <TextBlock Text="{Binding TestResult}" Foreground="{DynamicResource Brush.TextMuted}"
                            FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                <TextBlock Text="{Binding AddError}" Foreground="{DynamicResource Brush.StatusWarning}"
                            FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- ── Sony Bravia ── -->
             <StackPanel Visibility="{Binding IsSony, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{DynamicResource Devices.SonyHint}" Foreground="#6b7488"
+                <TextBlock Text="{DynamicResource Devices.SonyHint}" Foreground="{DynamicResource Brush.TextDim}"
                            FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
                          MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
                          ToolTip="{DynamicResource Devices.LabelHint}"/>
-                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="{DynamicResource Brush.TextDim}"
                            FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
-                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Ip}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewIp, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Psk}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Psk}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewPassword, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.MacOptional}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.MacOptional}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal">
@@ -429,30 +429,30 @@
                     <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
                             Command="{Binding AddDeviceCommand}"/>
                 </StackPanel>
-                <TextBlock Text="{Binding TestResult}" Foreground="#959fb9"
+                <TextBlock Text="{Binding TestResult}" Foreground="{DynamicResource Brush.TextMuted}"
                            FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                <TextBlock Text="{Binding AddError}" Foreground="{DynamicResource Brush.StatusWarning}"
                            FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- ── Wake-on-LAN ── -->
             <StackPanel Visibility="{Binding IsWol, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Name}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,8"/>
-                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Label}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewLabel, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Width="70" HorizontalAlignment="Left"
                          MaxLength="4" TextAlignment="Center" Margin="0,0,0,4"
                          ToolTip="{DynamicResource Devices.LabelHint}"/>
-                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="#6b7488"
+                <TextBlock Text="{DynamicResource Devices.LabelHint}" Foreground="{DynamicResource Brush.TextDim}"
                            FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
-                <TextBlock Text="{DynamicResource Devices.Mac}" Foreground="#959fb9" FontSize="12" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Devices.Mac}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="12" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding NewMac, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkTextBox}" Margin="0,0,0,10"/>
                 <Button Content="{DynamicResource Devices.Add}" Style="{StaticResource GoldBtn}"
                         HorizontalAlignment="Left" Command="{Binding AddDeviceCommand}"/>
-                <TextBlock Text="{Binding AddError}" Foreground="#d44a4a"
+                <TextBlock Text="{Binding AddError}" Foreground="{DynamicResource Brush.StatusWarning}"
                            FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
             </StackPanel>
 
