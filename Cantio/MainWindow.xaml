@@ -3193,6 +3193,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
@@ -3448,20 +3449,6 @@
                                 </Button>
                             </Grid>
 
-                            <Border Margin="0,10,0,0"
-                                    Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding ProgressText}"
-                                               Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                               TextTrimming="CharacterEllipsis"
-                                               Margin="0,0,0,6"/>
-                                    <ProgressBar Value="{Binding ProgressValue}"
-                                                 Maximum="{Binding ProgressMax}"
-                                                 Height="6" Background="{DynamicResource Brush.BgPanelHover}"
-                                                 Foreground="{DynamicResource Brush.Accent}" BorderThickness="0"/>
-                                </StackPanel>
-                            </Border>
-
                         </StackPanel>
 
                         <!-- Log importu: nakładka przykrywająca panel importu -->
@@ -3519,8 +3506,23 @@
                             </Grid>
                         </Border>
 
+                        <!-- Postęp importu poza nakładką logu (DataContext: ImportViewModel) -->
+                        <Border Grid.Row="1" Margin="24,0,24,16"
+                                Visibility="{Binding IsImporting, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding ProgressText}"
+                                           Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                           TextTrimming="CharacterEllipsis"
+                                           Margin="0,0,0,6"/>
+                                <ProgressBar Value="{Binding ProgressValue}"
+                                             Maximum="{Binding ProgressMax}"
+                                             Height="6" Background="{DynamicResource Brush.BgPanelHover}"
+                                             Foreground="{DynamicResource Brush.Accent}" BorderThickness="0"/>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Baza danych (przeniesiona z kolumny Ogólne); komendy są w SzablonViewModel, nie w ImportViewModel -->
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Padding="24,20,24,24"
                                     DataContext="{Binding DataContext, ElementName=PaneTemplate}">
                                 <StackPanel>
