@@ -633,8 +633,8 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
@@ -647,7 +647,7 @@
 
                 <!-- Zegar + dzień liturgiczny + formularze + notatka -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                            HorizontalAlignment="Left" VerticalAlignment="Center">
                     <TextBlock x:Name="TxtClock"
                                FontFamily="{StaticResource HeaderFont}"
                                FontSize="34" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextMain}"
@@ -800,38 +800,40 @@
                     </Grid>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" x:Name="TabBar" HorizontalAlignment="right">
-                    <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Padding="6,0" Click="TabShow_Click">
+                <Viewbox Grid.Column="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" x:Name="TabBar">
+                    <Button x:Name="TabShow" Style="{StaticResource TabBtnActive}" Height="56" Click="TabShow_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Show}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabTemplate_Click">
+                    <Button x:Name="TabTemplate" Style="{StaticResource TabBtn}" Height="56" Click="TabTemplate_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Settings}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabImport_Click" BorderThickness="1,0,1,1">
+                    <Button x:Name="TabImport" Style="{StaticResource TabBtn}" Height="56" Click="TabImport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Import}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabAbout_Click">
+                    <Button x:Name="TabAbout" Style="{StaticResource TabBtn}" Height="56" Click="TabAbout_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
-                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.About}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Padding="6,0" Click="TabSupport_Click" BorderThickness="1,0,1,1">
+                    <Button x:Name="TabSupport" Style="{StaticResource TabBtn}" Height="56" Click="TabSupport_Click" BorderThickness="1,0,1,1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,5,0"/>
-                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="19" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#x2615;" FontFamily="Segoe UI" FontSize="20" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBlock Text="{DynamicResource Tab.Support}" FontFamily="{StaticResource HeaderFont}" FontSize="22" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
+                </Viewbox>
             </Grid>
         </Border>
 
@@ -3322,16 +3324,20 @@
                                                    TextWrapping="Wrap"/>
                                         <StackPanel Margin="22,6,0,0"
                                                     Visibility="{Binding ShowCategorySourceSelector, Converter={StaticResource BoolToVis}}">
-                                            <RadioButton Content="{DynamicResource Import.CategorySourceSongBooks}"
+                                            <RadioButton
                                                          IsChecked="{Binding IsCategorySourceSongBooks, Mode=OneWay}"
                                                          Command="{Binding SelectCategorySourceCommand}"
                                                          CommandParameter="SongBooks"
-                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13" Margin="0,0,0,2"/>
-                                            <RadioButton Content="{DynamicResource Import.CategorySourceTopics}"
+                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13" Margin="0,0,0,2">
+                                                <TextBlock Text="{DynamicResource Import.CategorySourceSongBooks}" TextWrapping="Wrap"/>
+                                            </RadioButton>
+                                            <RadioButton
                                                          IsChecked="{Binding IsCategorySourceTopics, Mode=OneWay}"
                                                          Command="{Binding SelectCategorySourceCommand}"
                                                          CommandParameter="Topics"
-                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13"/>
+                                                         Foreground="{DynamicResource Brush.TextMain}" FontSize="13">
+                                                <TextBlock Text="{DynamicResource Import.CategorySourceTopics}" TextWrapping="Wrap"/>
+                                            </RadioButton>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
