@@ -127,7 +127,6 @@
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
     <sys:String x:Key="Btn.SaveOrder">GUARDAR LISTA</sys:String>
     <sys:String x:Key="Btn.Clone">Clonar lista</sys:String>
-    <sys:String x:Key="Btn.AddCategory">+ CATEGORÍA</sys:String>
     <sys:String x:Key="Btn.ManageGroups">Gestionar grupos</sys:String>
     <sys:String x:Key="Editor.PlayOrder">ORDEN DE REPRODUCCIÓN</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Rebuild">Reconstruir</sys:String>

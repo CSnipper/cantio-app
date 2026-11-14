@@ -45,7 +45,8 @@ public partial class DisplayViewModel : ObservableObject
     {
         get
         {
-            var w = Application.Current?.MainWindow;
+            var w = Application.Current?.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive)
+                    ?? Application.Current?.MainWindow;
             return w is { IsVisible: true } ? w : null;
         }
     }
@@ -734,26 +735,9 @@ public partial class DisplayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddNewCategoryInline()
-    {
-        foreach (var c in CategoryItems) c.IsEditing = false;
-        var item = new CategoryEditorItem
-        {
-            Id = 0,
-            Number = 0,
-            IsEditing = true
-        };
-        CategoryItems.Insert(0, item);
-        SelectedCategoryItem = item;
-    }
-
-    [RelayCommand]
     private void CancelEditCategory(CategoryEditorItem item)
     {
-        if (item.Id == 0)
-            CategoryItems.Remove(item);
-        else
-            item.IsEditing = false;
+        item.IsEditing = false;
     }
 
     public async Task SaveCategoryOrderAsync()

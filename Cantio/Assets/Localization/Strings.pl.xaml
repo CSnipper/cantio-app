@@ -127,7 +127,6 @@
     <sys:String x:Key="Btn.DeleteSetlist">USUŃ ZESTAW</sys:String>
     <sys:String x:Key="Btn.SaveOrder">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clone">Klonuj zestaw</sys:String>
-    <sys:String x:Key="Btn.AddCategory">+ KATEGORIA</sys:String>
     <sys:String x:Key="Btn.ManageGroups">Zarządzanie grupami</sys:String>
     <sys:String x:Key="Editor.PlayOrder">KOLEJNOŚĆ ODTWARZANIA</sys:String>
     <sys:String x:Key="Editor.PlayOrder.Rebuild">Odbuduj</sys:String>
