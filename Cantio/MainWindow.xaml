@@ -629,7 +629,7 @@
         </Grid.RowDefinitions>
 
         <!--  TOP BAR  -->
-        <Border Grid.Row="0" Background="#161b25" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource Brush.BgPanel}" BorderBrush="#2a3347" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -3066,14 +3066,14 @@
 
             </Grid>
 
-            <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneCats"     Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <TextBlock Text="☰ KATEGORIE — wkrótce" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#959fb9" FontFamily="{StaticResource HeaderFont}" FontSize="16"/>
             </Grid>
 
 
             <!-- USTAWIENIA -->
 
-            <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneTemplate" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -3630,7 +3630,7 @@
 
             <!-- WYGLĄD -->
 
-            <Grid x:Name="PaneImport" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneImport" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -4425,7 +4425,7 @@
             </Grid>
 
             <!-- TAB: O PROGRAMIE -->
-            <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="#0f1117">
+            <Grid x:Name="PaneAbout" Visibility="Collapsed" Background="{DynamicResource Brush.BgApp}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>

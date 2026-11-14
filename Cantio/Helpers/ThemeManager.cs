@@ -19,7 +19,7 @@ public static class ThemeManager
         var dict = new ResourceDictionary { Source = uri };
 
         var merged = Application.Current.Resources.MergedDictionaries;
-        var existing = merged.FirstOrDefault(d => d.Source?.OriginalString.Contains("Theme.") == true);
+        var existing = merged.FirstOrDefault(d => d.Source?.OriginalString.Contains("Themes/Theme.") == true);
         if (existing != null) merged.Remove(existing);
         merged.Add(dict);
     }
