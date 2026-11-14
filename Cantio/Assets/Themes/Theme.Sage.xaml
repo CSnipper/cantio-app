@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Brush.BgApp" Color="#0d1212"/>
+    <SolidColorBrush x:Key="Brush.BgPanel" Color="#141c1c"/>
+    <SolidColorBrush x:Key="Brush.BgPanelHover" Color="#1c2626"/>
+    <SolidColorBrush x:Key="Brush.BgSelected" Color="#243333"/>
+    <SolidColorBrush x:Key="Brush.Border" Color="#223030"/>
+    <SolidColorBrush x:Key="Brush.BorderStrong" Color="#5d6f6c"/>
+    <SolidColorBrush x:Key="Brush.TextMain" Color="#edf5f3"/>
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="#929c9b"/>
+    <SolidColorBrush x:Key="Brush.TextDim" Color="#7c8a88"/>
+    <SolidColorBrush x:Key="Brush.TextDisabled" Color="#516461"/>
+    <SolidColorBrush x:Key="Brush.Accent" Color="#76a28f"/>
+    <SolidColorBrush x:Key="Brush.AccentHover" Color="#8cb8a5"/>
+    <SolidColorBrush x:Key="Brush.AccentText" Color="#0d1212"/>
+    <SolidColorBrush x:Key="Brush.FocusRing" Color="#8cb8a5"/>
+    <SolidColorBrush x:Key="Brush.StatusLive" Color="#e05252"/>
+    <SolidColorBrush x:Key="Brush.StatusConnected" Color="#5bb8f0"/>
+    <SolidColorBrush x:Key="Brush.StatusWarning" Color="#f0883e"/>
+</ResourceDictionary>

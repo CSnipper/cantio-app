@@ -237,6 +237,10 @@
     <sys:String x:Key="Settings.SectionGeneral">OGÓLNE</sys:String>
     <sys:String x:Key="Settings.SectionFont">CZCIONKA</sys:String>
     <sys:String x:Key="Settings.SectionColors">KOLORY</sys:String>
+    <sys:String x:Key="Settings.Theme">Motyw interfejsu</sys:String>
+    <sys:String x:Key="Settings.Theme.Obsidian">Obsidian i mosiądz</sys:String>
+    <sys:String x:Key="Settings.Theme.Monochrome">Monochrome Pro</sys:String>
+    <sys:String x:Key="Settings.Theme.Sage">Szałwia</sys:String>
     <sys:String x:Key="Settings.SectionPreview">PODGLĄD</sys:String>
     <sys:String x:Key="Settings.Custom">Własny:</sys:String>
     <sys:String x:Key="Settings.Screen">Ekran</sys:String>

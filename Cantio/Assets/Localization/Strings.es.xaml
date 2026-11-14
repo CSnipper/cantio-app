@@ -236,6 +236,10 @@
     <sys:String x:Key="Settings.SectionGeneral">GENERAL</sys:String>
     <sys:String x:Key="Settings.SectionFont">FUENTE</sys:String>
     <sys:String x:Key="Settings.SectionColors">COLORES</sys:String>
+    <sys:String x:Key="Settings.Theme">Tema de la interfaz</sys:String>
+    <sys:String x:Key="Settings.Theme.Obsidian">Obsidiana y latón</sys:String>
+    <sys:String x:Key="Settings.Theme.Monochrome">Monochrome Pro</sys:String>
+    <sys:String x:Key="Settings.Theme.Sage">Salvia</sys:String>
     <sys:String x:Key="Settings.SectionPreview">VISTA PREVIA</sys:String>
     <sys:String x:Key="Settings.Custom">Personalizado:</sys:String>
     <sys:String x:Key="Settings.Screen">Pantalla</sys:String>
