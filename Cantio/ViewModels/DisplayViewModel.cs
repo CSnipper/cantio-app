@@ -651,6 +651,13 @@ public partial class DisplayViewModel : ObservableObject
     {
         var name = NewCategoryName.Trim();
         if (string.IsNullOrEmpty(name)) return;
+        if (await _db.FindCategoryByNameAsync(name) is not null)
+        {
+            if (CanPrompt("Dodaj kategorię"))
+                Ask(Loc("Msg.CategoryNameExists", "Kategoria o tej nazwie już istnieje."),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;   // tekst zostaje w polu NewCategoryName
+        }
         var cat = new Category
         {
             Name = name,
@@ -675,6 +682,14 @@ public partial class DisplayViewModel : ObservableObject
         if (item.IsVirtual) return;   // zapis wirtualnej pozycji założyłby kategorię-widmo
         var name = item.EditName.Trim();
         if (string.IsNullOrEmpty(name)) return;
+        var clash = await _db.FindCategoryByNameAsync(name);
+        if (clash != null && clash.Id != item.Id)
+        {
+            if (CanPrompt("Zmień nazwę kategorii"))
+                Ask(Loc("Msg.CategoryNameExists", "Kategoria o tej nazwie już istnieje."),
+                    "Cantio", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;   // wiersz zostaje w trybie edycji (IsEditing bez zmian)
+        }
         await _db.SaveCategoryAsync(new Category
         {
             Id = item.Id,

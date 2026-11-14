@@ -351,6 +351,7 @@
     <sys:String x:Key="Settings.ImportPsalmy">Importar salmos</sys:String>
     <sys:String x:Key="Msg.PsalmyImported">Se importaron {0} salmos responsoriales.</sys:String>
     <sys:String x:Key="Msg.PsalmyCategoryMissing">No se encontró la categoría "Psalmy responsoryjne". Créala primero en el editor de categorías.</sys:String>
+    <sys:String x:Key="Msg.CategoryNameExists">Ya existe una categoría con este nombre.</sys:String>
     <sys:String x:Key="Inline.FontSizeTip">Tamaño de fuente fijo para esta canción</sys:String>
     <sys:String x:Key="Inline.FontSizeHard">fijo</sys:String>
     <sys:String x:Key="Inline.FontSizeHardTip">Activado: ignora el ajuste automático y los ajustes globales, usa el tamaño escrito tal cual. Desactivado: usa los ajustes de la pestaña Apariencia.</sys:String>
