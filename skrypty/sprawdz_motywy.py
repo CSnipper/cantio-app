@@ -4,12 +4,16 @@ import re
 import sys
 from pathlib import Path
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent / "Cantio"
 DIR = ROOT / "Assets" / "Themes"
 NAMES = ["Obsidian", "Monochrome", "Sage"]
 ENTRY = re.compile(r'<SolidColorBrush\s+x:Key="([^"]+)"\s+Color="([^"]*)"')
 HEX = re.compile(r"#[0-9a-fA-F]{6}")
-LITERAL = re.compile(r"#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?(?![0-9a-fA-F])")
+# #rgb, #argb, #rrggbb, #aarrggbb; nie łapie encji (&#123;) ani ciągów 5- i 7-znakowych.
+LITERAL = re.compile(r"(?<!&)#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})(?![0-9a-fA-F])")
 
 # Pliki pomijane w kontroli kolorów (nazwa pliku -> dlaczego).
 EXCLUDED = {
@@ -26,11 +30,7 @@ ALLOWED = {
         "#4aad6f": 2,  # zielony: slajd prywatny w wierszu pieśni i znacznik zwrotki typu p
         "#7a9abf": 1,  # niebieski znacznik zwrotki typu b (kolor typu zwrotki)
         "#6db76d": 1,  # zielone potwierdzenie ✓ zapisu grupy (motyw nie ma roli sukcesu)
-        "#343f58": 1,  # tło przycisku + (dodaj do zestawu), brak odpowiadającej roli
-        "#2a3347": 1,  # ramka kontenera podglądu slajdu (podgląd to dane, bez zmian)
-        "#3a6ea8": 1,  # niebieskie tło przycisku przy najechaniu
-        "#7a2020": 1,  # ciemnoczerwone tło przycisku usuwania zestawu przy najechaniu
-        "#ffffff": 3,  # biały tekst przy najechaniu na przyciski oraz tekst zastępczy grupy
+        "#000": 2,  # kolor cienia w DropShadowEffect (typ Color, pędzla motywu nie da się tu użyć)
         "#08ffffff": 1,  # półprzezroczyste podświetlenie
         "#0dc9a84c": 1,  # półprzezroczyste podświetlenie akcentem
         "#d44a4a15": 1,  # półprzezroczyste czerwone tło belki Trwa projekcja
@@ -63,7 +63,7 @@ def check_themes():
 
 
 def check_colors():
-    errors = []
+    errors, total = [], {}
     for f in sorted(ROOT.rglob("*.xaml")):
         rel = f.relative_to(ROOT)
         if rel.parts[0] in ("bin", "obj") or DIR in f.parents or f.name in EXCLUDED:
@@ -76,6 +76,14 @@ def check_colors():
                 seen[h] = seen.get(h, 0) + 1
                 if seen[h] > allowed.get(h, 0):
                     errors.append(f"{rel.as_posix()}:{no}: {h}")
+        total[rel.as_posix()] = seen
+    for name, allowed in ALLOWED.items():
+        if name not in total:
+            errors.append(f"{name}: plik z listy ALLOWED nie istnieje lub jest wykluczony")
+            continue
+        for h, n in allowed.items():
+            if total[name].get(h, 0) < n:
+                errors.append(f"{name}: {h} występuje {total[name].get(h, 0)}x, na liście {n}x (usuń lub zmniejsz wpis w ALLOWED)")
     return errors
 
 
