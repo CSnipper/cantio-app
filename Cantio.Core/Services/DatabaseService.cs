@@ -701,31 +701,39 @@ public class DatabaseService
         await db.SaveChangesAsync();
     }
 
-    /// <summary>Id zestawów z kalendarza (SeasonKey != null) — pole `weekly` w `setlists_data`.
+    /// <summary>Id zestawów tygodniowych (<see cref="Setlist.IsWeeklyExpr"/>) — pole `weekly` w `setlists_data`.
     /// Osobno od <see cref="GetSetlistSummariesAsync"/>, żeby nie zmieniać kształtu jego krotki.</summary>
     public async Task<HashSet<int>> GetWeeklySetlistIdsAsync()
     {
         await using var db = new CantioDbContext();
-        return (await db.Setlists.AsNoTracking().Where(s => s.SeasonKey != null).Select(s => s.Id).ToListAsync()).ToHashSet();
+        return (await db.Setlists.AsNoTracking().Where(Setlist.IsWeeklyExpr).Select(s => s.Id).ToListAsync()).ToHashSet();
     }
 
-    /// <summary>Zestaw z kalendarza (SeasonKey != null) = „tygodniowy"; brak zestawu = false.</summary>
+    /// <summary>Zestaw tygodniowy (<see cref="Setlist.IsWeeklyExpr"/>); brak zestawu = false.</summary>
     public async Task<bool> IsSetlistWeeklyAsync(int setlistId)
     {
         await using var db = new CantioDbContext();
-        return await db.Setlists.AsNoTracking().AnyAsync(s => s.Id == setlistId && s.SeasonKey != null);
+        return await db.Setlists.AsNoTracking().Where(s => s.Id == setlistId).AnyAsync(Setlist.IsWeeklyExpr);
     }
 
     /// <summary>
     /// Przypięcie/odpięcie — flaga UI, nie treść zestawu, więc BEZ dotykania `UpdatedAt`.
     /// Zwraca `false`, gdy zestawu nie ma (protokół WS odsyła wtedy `reason:"not_found"`).
+    /// Ręczne przypięcie/odpięcie zawsze zeruje <see cref="Setlist.PinnedByWeek"/>.
+    /// (Bez parametru opcjonalnego — harness woła tę metodę refleksją z dwoma argumentami.)
     /// </summary>
-    public async Task<bool> SetSetlistPinnedAsync(int setlistId, bool pinned)
+    public Task<bool> SetSetlistPinnedAsync(int setlistId, bool pinned) => SetPinnedCoreAsync(setlistId, pinned, false);
+
+    /// <summary>Przypięcie przez „Przypnij tydzień" — to samo co <see cref="SetSetlistPinnedAsync"/> + <see cref="Setlist.PinnedByWeek"/>.</summary>
+    public Task<bool> SetSetlistPinnedByWeekAsync(int setlistId) => SetPinnedCoreAsync(setlistId, true, true);
+
+    private async Task<bool> SetPinnedCoreAsync(int setlistId, bool pinned, bool byWeek)
     {
         await using var db = new CantioDbContext();
         var setlist = await db.Setlists.FindAsync(setlistId);
         if (setlist == null) return false;
         setlist.IsPinned = pinned;
+        setlist.PinnedByWeek = pinned && byWeek;
         await db.SaveChangesAsync();
         return true;
     }

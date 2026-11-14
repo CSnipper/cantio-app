@@ -368,7 +368,7 @@ public partial class DisplayViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _setlistGroups = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedSetlists = [];
     [ObservableProperty] private bool _isCurrentSetlistPinned;
-    // Dwie listy kolumny PRZYPIĘTE: z kalendarza (SeasonKey != null) i stałe; odświeżane razem z PinnedSetlists.
+    // Dwie listy kolumny PRZYPIĘTE: tygodniowe (Setlist.IsWeekly) i stałe; odświeżane razem z PinnedSetlists.
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedWeekly = [];
     [ObservableProperty] private ObservableCollection<Setlist> _pinnedPermanent = [];
 
@@ -1759,14 +1759,15 @@ public partial class DisplayViewModel : ObservableObject
     /// `MainWindow` rozgłasza to Pilotom jako `setlist_pinned`. Komenda przychodząca Z Pilota tędy NIE
     /// idzie — jej broadcast składa `PilotSetlistPin` — żeby ten sam komunikat nie poleciał dwa razy.
     /// </summary>
-    public event Action<int, bool, bool>? SetlistPinChanged; // (id, pinned, weekly = SeasonKey != null)
+    public event Action<int, bool, bool>? SetlistPinChanged; // (id, pinned, weekly = Setlist.IsWeekly)
 
     /// <summary>Zapis flagi przypięcia + powiadomienie Pilotów. BEZ dotykania `UpdatedAt` zestawu.</summary>
     private async Task<bool> SetPinnedAsync(Setlist setlist, bool pinned)
     {
         // Zestawu już nie ma (np. usunięty z Pilota) — cicho, bez broadcastu o nieistniejącym zestawie
         if (!await _db.SetSetlistPinnedAsync(setlist.Id, pinned)) return false;
-        SetlistPinChanged?.Invoke(setlist.Id, pinned, setlist.SeasonKey != null);
+        setlist.PinnedByWeek = false; // ręczne przypięcie/odpięcie nigdy nie jest „z tygodnia"
+        SetlistPinChanged?.Invoke(setlist.Id, pinned, setlist.IsWeekly);
         return true;
     }
 
@@ -1806,7 +1807,7 @@ public partial class DisplayViewModel : ObservableObject
         var diocese = await PilotPinWeek.DioceseAsync(_db);
         var result = await PilotPinWeek.RunAsync(_db, today, diocese);
 
-        foreach (var id in result.ChangedIds) SetlistPinChanged?.Invoke(id, true, result.WeeklyIds.Contains(id));
+        foreach (var id in result.ChangedIds.Concat(result.AlsoBroadcastIds)) SetlistPinChanged?.Invoke(id, true, result.WeeklyIds.Contains(id));
 
         await LoadPinnedSetlistsAsync();
         await LoadSetlistGroupsAsync();
@@ -2768,8 +2769,8 @@ public partial class DisplayViewModel : ObservableObject
             s.Celebration = captions.TryGetValue(s.Id, out var c) ? c : "";
 
         PinnedSetlists = new ObservableCollection<Setlist>(list);
-        PinnedWeekly = new ObservableCollection<Setlist>(list.Where(s => s.SeasonKey != null));
-        PinnedPermanent = new ObservableCollection<Setlist>(list.Where(s => s.SeasonKey == null).OrderBy(s => s.Name, PlComparer));
+        PinnedWeekly = new ObservableCollection<Setlist>(list.Where(s => s.IsWeekly));
+        PinnedPermanent = new ObservableCollection<Setlist>(list.Where(s => !s.IsWeekly).OrderBy(s => s.Name, PlComparer));
         PinnedListRefreshed?.Invoke();
     }
 
