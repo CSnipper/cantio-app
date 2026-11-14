@@ -419,7 +419,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#18d44a4a"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
                                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
