@@ -120,9 +120,11 @@
     <sys:String x:Key="Btn.ShowText">MOSTRAR</sys:String>
     <sys:String x:Key="Btn.LoopTooltip">Bucle de diapositivas — avance automático (cualquier acción del operador lo detiene)</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">GUARDAR LISTA</sys:String>
-    <sys:String x:Key="Btn.Clear">LIMPIAR</sys:String>
+    <sys:String x:Key="Btn.Clear">VACIAR LISTA</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ MOSTRAR</sys:String>
     <sys:String x:Key="Btn.PinSetlist">FIJAR</sys:String>
+    <sys:String x:Key="Btn.PinWeek">Fijar la semana</sys:String>
+    <sys:String x:Key="Verses.KeysHint">Teclas 1–0: ir a la estrofa · más de 10: 1 o 2 + segunda tecla</sys:String>
     <sys:String x:Key="Btn.UnpinSetlist">DESFIJAR</sys:String>
     <sys:String x:Key="Btn.DeleteSetlist">ELIMINAR LISTA</sys:String>
     <sys:String x:Key="Btn.SaveOrder">GUARDAR LISTA</sys:String>

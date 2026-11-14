@@ -843,7 +843,7 @@
 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="280"/>
+                        <ColumnDefinition Width="280*" MinWidth="280"/>
                         <ColumnDefinition Width="580*" MinWidth="560"/>
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="270*" MinWidth="270"/>
@@ -874,7 +874,7 @@
                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
-                                <TextBlock Text="Klawisze 1–0: przejdź do zwrotki  ·  przy >10: 1 lub 2 + drugi klawisz"
+                                <TextBlock Text="{DynamicResource Verses.KeysHint}"
                                            Foreground="#8895bb" FontSize="14" Margin="4,10,4,0" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
@@ -1412,8 +1412,8 @@
                         <!-- Row 0: Kategorie (left) + Pieśni (right) -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="170"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="170*" MinWidth="170"/>
+                                <ColumnDefinition Width="410*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- KATEGORIE -->
@@ -1445,10 +1445,12 @@
                                              ItemContainerStyle="{StaticResource DarkListItemGold}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock MinHeight="44" Text="{Binding Name}"
-                                                           TextWrapping="Wrap"
-                                                           Padding="5,0,0,0" FontSize="18"
-                                                           VerticalAlignment="Center"/>
+                                                <Border MinHeight="44" Padding="5,6,0,6">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               TextWrapping="Wrap"
+                                                               FontSize="18"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                     </ListBox>
@@ -1664,7 +1666,7 @@
                                                         <TextBlock Text="{Binding Title}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    TextWrapping="Wrap" FontSize="22"/>
-                                                        <TextBlock FontSize="13" Foreground="#7080a0"
+                                                        <TextBlock FontSize="13" Foreground="{DynamicResource Brush.TextMuted}"
                                                                    TextTrimming="CharacterEllipsis" Margin="0,1,0,0">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
@@ -1766,7 +1768,7 @@
 
                                     <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
                                     <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
-                                            Height="48" FontSize="24"
+                                            Width="Auto" Height="48" FontSize="24"
                                             IsEnabled="{Binding CanLoop}"
                                             Command="{Binding ToggleLoopCommand}"
                                             ToolTip="{DynamicResource Btn.LoopTooltip}">
@@ -1909,10 +1911,20 @@
                                                FontFamily="{StaticResource HeaderFont}" FontWeight="Light"
                                                FontSize="20" Foreground="#c9a84c" Margin="0,0,0,6"/>
                                     <Button DockPanel.Dock="Bottom"
-                                            Content="📌 Przypnij tydzień"
-                                            Margin="0,8,0,0" Padding="6,5"
+                                            Margin="0,8,0,0" Padding="6,5" MinHeight="44" FontSize="16"
                                             Command="{Binding PinNextWeekCommand}"
-                                            Style="{StaticResource OutlineBtn}"/>
+                                            Style="{StaticResource OutlineBtn}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="📌" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{DynamicResource Btn.PinWeek}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
                                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                   HorizontalScrollBarVisibility="Disabled">
                                         <ItemsControl ItemsSource="{Binding PinnedSetlists}">
@@ -2155,15 +2167,13 @@
                                     </ListBox.InputBindings>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid AllowDrop="True"
+                                            <Grid AllowDrop="True" MinHeight="44"
                                                   MouseMove="SetlistItem_MouseMove"
                                                   Drop="SetlistItem_Drop">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="36"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="34"/>
-                                                    <ColumnDefinition Width="30"/>
-                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
@@ -2221,110 +2231,123 @@
                                                                    Foreground="#9aa3b8" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                 </Grid>
-                                                <Button Grid.Column="2" Content="✏"
-                                                        Width="30" Height="30"
-                                                        Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="16" Cursor="Hand"
-                                                        Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
-                                                        IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        Command="{Binding DataContext.OpenInlineEditorCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <TextBlock Text="✏"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           FontSize="15"
-                                                                           Foreground="{TemplateBinding Foreground}"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                </Trigger>
-                                                                <Trigger Property="IsEnabled" Value="False">
-                                                                    <Setter Property="Foreground" Value="#3a4460"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                                <!-- Edycja tekstu jednorazowego (ten sam edytor co przy dodawaniu) -->
-                                                <Button Grid.Column="2" Content="✏"
-                                                        Width="30" Height="30"
-                                                        Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="16" Cursor="Hand"
-                                                        ToolTip="{DynamicResource TextItem.Edit}"
-                                                        Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}"
-                                                        Command="{Binding DataContext.EditTextItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <TextBlock Text="✏"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           FontSize="15"
-                                                                           Foreground="{TemplateBinding Foreground}"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                                <Button Grid.Column="3"
-                                                        Width="30" Height="30"
-                                                        Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" Cursor="Hand"
-                                                        ToolTip="Pełny edytor"
-                                                        Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
-                                                        Command="{Binding DataContext.OpenFullEditorFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                            <TextBlock Text="&#xE929;"
-                                                                           FontFamily="Segoe MDL2 Assets"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           FontSize="14"
-                                                                           Foreground="{TemplateBinding Foreground}"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Foreground" Value="#c9a84c"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                                <Button Grid.Column="4" Content="×"
-                                                        Width="30" Height="30"
-                                                        Background="Transparent" BorderThickness="0"
-                                                        Foreground="#959fb9" FontSize="20" Cursor="Hand"
-                                                        Command="{Binding DataContext.RemoveFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <TextBlock Text="×"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           FontSize="18"
-                                                                           Foreground="{TemplateBinding Foreground}"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Foreground" Value="#d44a4a"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                                <!-- Ikony akcji: tylko na zaznaczonym wierszu (Collapsed, by tytuł dostał ich szerokość) -->
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <StackPanel.Style>
+                                                        <Style TargetType="StackPanel">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </StackPanel.Style>
+                                                    <Button Content="✏"
+                                                            Width="36" Height="36"
+                                                            Background="Transparent" BorderThickness="0"
+                                                            Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                            Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
+                                                            IsEnabled="{Binding DataContext.CanOpenInlineEditor, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            Command="{Binding DataContext.OpenInlineEditorCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent">
+                                                                    <TextBlock Text="✏"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="15"
+                                                                               Foreground="{TemplateBinding Foreground}"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsEnabled" Value="False">
+                                                                        <Setter Property="Foreground" Value="#3a4460"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    <!-- Edycja tekstu jednorazowego (ten sam edytor co przy dodawaniu) -->
+                                                    <Button Content="✏"
+                                                            Width="36" Height="36"
+                                                            Background="Transparent" BorderThickness="0"
+                                                            Foreground="#959fb9" FontSize="16" Cursor="Hand"
+                                                            ToolTip="{DynamicResource TextItem.Edit}"
+                                                            Visibility="{Binding IsTextItem, Converter={StaticResource BoolToVis}}"
+                                                            Command="{Binding DataContext.EditTextItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent">
+                                                                    <TextBlock Text="✏"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="15"
+                                                                               Foreground="{TemplateBinding Foreground}"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    <Button 
+                                                            Width="36" Height="36"
+                                                            Background="Transparent" BorderThickness="0"
+                                                            Foreground="#959fb9" Cursor="Hand"
+                                                            ToolTip="Pełny edytor"
+                                                            Visibility="{Binding IsSongItem, Converter={StaticResource BoolToVis}}"
+                                                            Command="{Binding DataContext.OpenFullEditorFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent">
+                                                                <TextBlock Text="&#xE929;"
+                                                                               FontFamily="Segoe MDL2 Assets"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="14"
+                                                                               Foreground="{TemplateBinding Foreground}"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Foreground" Value="#c9a84c"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    <Button Content="×"
+                                                            Width="36" Height="36"
+                                                            Background="Transparent" BorderThickness="0"
+                                                            Foreground="#959fb9" FontSize="20" Cursor="Hand"
+                                                            Command="{Binding DataContext.RemoveFromSetlistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent">
+                                                                    <TextBlock Text="×"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="18"
+                                                                               Foreground="{TemplateBinding Foreground}"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Foreground" Value="#d44a4a"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+</StackPanel>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                                                            Text="{Binding Notes}"
                                                            FontSize="10" Foreground="#7080a0"
                                                            Margin="10,0,0,4" TextWrapping="Wrap">
@@ -2705,16 +2728,21 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0" Content="{DynamicResource Btn.SaveSetlist}"
+                                        <Button Grid.Column="0"
                                                 Style="{StaticResource OutlineBtn}" Margin="0,0,7,0"
-                                                Command="{Binding SaveSetlistCommand}"/>
+                                                Padding="6,5" MinHeight="44" FontSize="14"
+                                                Command="{Binding SaveSetlistCommand}">
+                                            <TextBlock Text="{DynamicResource Btn.SaveSetlist}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                                        </Button>
                                         <Button Grid.Column="1" Margin="0,0,7,0"
+                                                Padding="6,5" MinHeight="44" FontSize="14"
                                                 Style="{StaticResource OutlineBtn}"
                                                 Command="{Binding TogglePinSetlistCommand}">
                                             <Button.Content>
-                                                <TextBlock>
+                                                <TextBlock TextWrapping="Wrap" TextAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Text" Value="{DynamicResource Btn.PinSetlist}"/>
@@ -2728,9 +2756,13 @@
                                                 </TextBlock>
                                             </Button.Content>
                                         </Button>
-                                        <Button Grid.Column="2" Content="{DynamicResource Btn.Clear}"
+                                        <Button Grid.Column="2"
                                                 Style="{StaticResource RedBtn}"
-                                                Command="{Binding ClearSetlistCommand}"/>
+                                                Padding="6,5" MinHeight="44" FontSize="14"
+                                                Command="{Binding ClearSetlistCommand}">
+                                            <TextBlock Text="{DynamicResource Btn.Clear}"
+                                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                                        </Button>
                                     </Grid>
                                 </Grid>
                             </Border>
