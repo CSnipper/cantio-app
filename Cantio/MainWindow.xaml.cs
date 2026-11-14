@@ -49,6 +49,13 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Popup „Przypnij stały": klawisze należą do pola szukania i listy, nigdy do sterowania pokazem
+        if (IsInPinPicker(e.OriginalSource as DependencyObject) || IsInPinPicker(Keyboard.FocusedElement as DependencyObject))
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
         var mods = e.KeyboardDevice.Modifiers;
 
         // SongSearch działa również gdy fokus jest na TextBox (jak Ctrl+F)
@@ -628,15 +635,8 @@ public partial class MainWindow : Window
         };
 
         // Pinezka kliknięta w oknie Cantio → ten sam komunikat do Pilotów (jeden builder, dwie ścieżki).
-        _vm.SetlistPinChanged += async (setlistId, pinned) =>
-        {
-            try
-            {
-                var weekly = await _db.IsSetlistWeeklyAsync(setlistId);
-                await _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned, weekly));
-            }
-            catch (Exception ex) { AppLog.Write("Pilot", $"Broadcast przypięcia: {ex.Message}"); }
-        };
+        _vm.SetlistPinChanged += (setlistId, pinned, weekly) =>
+            _ = _remoteControl.BroadcastJsonAsync(PilotSetlistPin.BuildPinnedJson(setlistId, pinned, weekly));
 
         // ─── „Przypnij tydzień" z Pilota ───
         // Ta sama metoda co przycisk w oknie (PilotPinWeek.RunAsync pod spodem), więc UI desktopu
@@ -1086,6 +1086,8 @@ public partial class MainWindow : Window
         {
             if (IsFocusInComboOrSlider(e.OriginalSource as DependencyObject)
                 || IsFocusInComboOrSlider(Keyboard.FocusedElement as DependencyObject)) return;
+            if (IsInPinPicker(e.OriginalSource as DependencyObject)
+                || IsInPinPicker(Keyboard.FocusedElement as DependencyObject)) return;
             // Pole tekstowe nie oznacza pisanych/nawigacyjnych klawiszy jako obsłużonych — bez tego cyfra w wyszukiwarce skacze do zwrotki
             // AltGr = Ctrl+Alt = polskie znaki (ą/ę/ó…) to pisanie; pozostałe skróty Ctrl/Alt przechodzą do HandleKey
             var mods = e.KeyboardDevice.Modifiers;
@@ -1609,6 +1611,16 @@ public partial class MainWindow : Window
             return true;
         }
         return false;
+    }
+
+    private bool IsInPinPicker(DependencyObject? d) =>
+        d is Visual && PinPickerPopup.Child is { } child && child.IsAncestorOf(d);
+
+    // Esc zamyka popup „Przypnij stały", Enter przypina jedyną pozycję po filtrze
+    private void PinPickerPopup_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape) { _vm.IsPinPickerOpen = false; e.Handled = true; }
+        else if (e.Key == Key.Enter && e.OriginalSource is TextBox) { _vm.PinPickerEnter(); e.Handled = true; }
     }
 
     // Asekuracja: Esc z fokusem w popupie zwykle obsłuży już OnPreviewKeyDown okna (zdarzenia

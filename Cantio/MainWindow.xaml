@@ -2041,7 +2041,8 @@
                                     <Popup x:Name="PinPickerPopup" Grid.Row="2"
                                            IsOpen="{Binding IsPinPickerOpen, Mode=TwoWay}"
                                            PlacementTarget="{Binding ElementName=BtnPinPermanent}"
-                                           Placement="Top" StaysOpen="False" AllowsTransparency="True">
+                                           Placement="Top" StaysOpen="False" AllowsTransparency="True"
+                                           PreviewKeyDown="PinPickerPopup_PreviewKeyDown">
                                         <Border Background="{DynamicResource Brush.BgPanelHover}" BorderBrush="{DynamicResource Brush.Border}"
                                                 BorderThickness="1" CornerRadius="4" Width="300" MaxHeight="400">
                                             <Grid Margin="8">
