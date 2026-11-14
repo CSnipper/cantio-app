@@ -999,7 +999,7 @@
                     <Grid Grid.Column="1" Background="#0f1117">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>      <!-- Row 0: Kategorie + Pieśni -->
-                            <RowDefinition Height="240"/>    <!-- Row 1: Sterowanie + podgląd 16:9 -->
+                            <RowDefinition Height="261"/>    <!-- Row 1: Sterowanie + belka (36) + podgląd 16:9 (225) -->
                         </Grid.RowDefinitions>
 
                         <!-- Song Edit Mode overlay — covers entire Col 1 -->
@@ -1924,12 +1924,16 @@
                             </Border>
 
                             <!-- Podgląd 16:9 + belka statusu -->
-                            <!-- Belka nałożona na górę podglądu: 225 px podglądu + belka nie mieszczą się w 240 px -->
-                            <Grid Grid.Column="1" Width="400" Height="225"
+                            <!-- Belka (stały wiersz 36 px, miejsce zarezerwowane) nad podglądem 400x225 -->
+                            <Grid Grid.Column="1" Width="400" Height="261"
                                   HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="36"/>
+                                    <RowDefinition Height="225"/>
+                                </Grid.RowDefinitions>
 
                                 <!-- Belka "Trwa projekcja" -->
-                                <Border Padding="2" VerticalAlignment="Top" Panel.ZIndex="1"
+                                <Border Grid.Row="0" Padding="2"
                                         Background="#d44a4a15"
                                         BorderBrush="#2a3347" BorderThickness="0,1,0,0">
                                     <Border.Style>
@@ -1952,7 +1956,7 @@
                                 </Border>
 
                                 <!-- Podgląd 16:9 -->
-                                <Border Background="{Binding Projection.BackgroundBrush}"
+                                <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
                                         BorderBrush="#2a3347" BorderThickness="0,1,0,1"
                                         ClipToBounds="True">
                                     <Border.Effect>
