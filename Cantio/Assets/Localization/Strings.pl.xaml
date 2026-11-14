@@ -467,4 +467,8 @@
     <sys:String x:Key="Editor.VerseBackgroundPick">Wybierz tło zwrotki</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundClear">Usuń tło zwrotki</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
+    <sys:String x:Key="Btn.EditCategories">Edytuj</sys:String>
+    <sys:String x:Key="CategoryEditor.Title">Edytor kategorii</sys:String>
+    <sys:String x:Key="Btn.AddShort">Dodaj</sys:String>
+    <sys:String x:Key="Btn.Close">Zamknij</sys:String>
 </ResourceDictionary>

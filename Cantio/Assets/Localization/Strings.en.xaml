@@ -466,4 +466,8 @@
     <sys:String x:Key="Editor.VerseBackgroundPick">Choose verse background</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundClear">Remove verse background</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
+    <sys:String x:Key="Btn.EditCategories">Edit</sys:String>
+    <sys:String x:Key="CategoryEditor.Title">Category editor</sys:String>
+    <sys:String x:Key="Btn.AddShort">Add</sys:String>
+    <sys:String x:Key="Btn.Close">Close</sys:String>
 </ResourceDictionary>

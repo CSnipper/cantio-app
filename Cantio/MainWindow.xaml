@@ -1429,10 +1429,10 @@
                                                    FontFamily="{StaticResource HeaderFont}"
                                                    FontSize="20" FontWeight="Light" Foreground="#c9a84c"
                                                    VerticalAlignment="Center"/>
-                                        <Button Content="{DynamicResource Btn.AddCategory}"
-                                                Style="{StaticResource GoldBtn}"
-                                                HorizontalAlignment="Right" Padding="8,4"
-                                                Command="{Binding AddNewCategoryInlineCommand}"/>
+                                        <Button Content="{DynamicResource Btn.EditCategories}"
+                                                Style="{StaticResource OutlineBtn}"
+                                                HorizontalAlignment="Right" Padding="8,4" FontSize="14"
+                                                Click="EditCategories_Click"/>
                                     </Grid>
                                 </Border>
                                 <Border Grid.Row="1" BorderBrush="#2a3347" BorderThickness="0,0,1,0">
@@ -1445,85 +1445,10 @@
                                              ItemContainerStyle="{StaticResource DarkListItemGold}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid MinHeight="50">
-                                                    <!-- Normalny widok -->
-                                                    <Grid Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="32"/>
-                                                            <ColumnDefinition Width="32"/>
-                                                            <ColumnDefinition Width="32"/>
-                                                            <ColumnDefinition Width="32"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Name}"
-                                                                   TextWrapping="Wrap"
-                                                                   Padding="5,0,0,0" FontSize="18"
-                                                                   VerticalAlignment="Center"/>
-                                                        <!-- ▲▼✎✕ tylko dla PRAWDZIWYCH kategorii;
-                                                             „Bez kategorii" to pozycja wirtualna -->
-                                                        <Button Grid.Column="1" Content="▲"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="32"
-                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
-                                                                IsEnabled="{Binding CanMoveUp}"
-                                                                Command="{Binding DataContext.MoveCategoryUpCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                        <Button Grid.Column="2" Content="▼"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="32"
-                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
-                                                                IsEnabled="{Binding CanMoveDown}"
-                                                                Command="{Binding DataContext.MoveCategoryDownCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                        <Button Grid.Column="3" Content="✎"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="32"
-                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
-                                                                Command="{Binding DataContext.StartEditCategoryCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                        <Button Grid.Column="4" Content="✕"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="32" Foreground="#d44a4a"
-                                                                Visibility="{Binding IsRealCategory, Converter={StaticResource BoolToVis}}"
-                                                                Command="{Binding DataContext.DeleteCategoryCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </Grid>
-                                                    <!-- Tryb edycji -->
-                                                    <Grid Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="36"/>
-                                                            <ColumnDefinition Width="36"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBox Grid.Column="0"
-                                                                 Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
-                                                                 Style="{StaticResource DarkTextBox}"
-                                                                 FontSize="16" Height="36" Margin="4,7" Padding="4">
-                                                            <TextBox.InputBindings>
-                                                                <KeyBinding Key="Return"
-                                                                            Command="{Binding DataContext.SaveCategoryCommand,
-                                                                                RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                            CommandParameter="{Binding}"/>
-                                                            </TextBox.InputBindings>
-                                                        </TextBox>
-                                                        <Button Grid.Column="1" Content="✓"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="36" Foreground="#6db76d"
-                                                                Command="{Binding DataContext.SaveCategoryCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                        <Button Grid.Column="2" Content="✕"
-                                                                Style="{StaticResource SmallIconBtn}"
-                                                                Width="36"
-                                                                Command="{Binding DataContext.CancelEditCategoryCommand,
-                                                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                CommandParameter="{Binding}"/>
-                                                    </Grid>
-                                                </Grid>
+                                                <TextBlock MinHeight="44" Text="{Binding Name}"
+                                                           TextWrapping="Wrap"
+                                                           Padding="5,0,0,0" FontSize="18"
+                                                           VerticalAlignment="Center"/>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                     </ListBox>

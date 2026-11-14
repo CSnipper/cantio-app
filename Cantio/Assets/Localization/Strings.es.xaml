@@ -466,4 +466,8 @@
     <sys:String x:Key="Editor.VerseBackgroundPick">Elegir fondo de la estrofa</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundClear">Quitar fondo de la estrofa</sys:String>
     <sys:String x:Key="Editor.VerseBackgroundNone">—</sys:String>
+    <sys:String x:Key="Btn.EditCategories">Editar</sys:String>
+    <sys:String x:Key="CategoryEditor.Title">Editor de categorías</sys:String>
+    <sys:String x:Key="Btn.AddShort">Añadir</sys:String>
+    <sys:String x:Key="Btn.Close">Cerrar</sys:String>
 </ResourceDictionary>
