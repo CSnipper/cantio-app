@@ -1495,6 +1495,16 @@ public partial class MainWindow : Window
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
     private void TabAbout_Click(object sender, RoutedEventArgs e) => ShowPane(PaneAbout, TabAbout);
+    private void BtnWinMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    private void BtnWinClose_Click(object sender, RoutedEventArgs e) => Close();
+
+    // WindowChrome bez paska: zmaksymalizowane okno wystaje poza obszar roboczy o grubosc ramki - cofamy marginesem.
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        RootGrid.Margin = WindowState == WindowState.Maximized ? SystemParameters.WindowResizeBorderThickness : new Thickness(0);
+    }
+
     private void TabSupport_Click(object sender, RoutedEventArgs e) =>
         System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo("https://buycoffee.to/marekwojtaszek")

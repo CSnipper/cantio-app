@@ -119,6 +119,8 @@
     <sys:String x:Key="Btn.Blank">BLANK</sys:String>
     <sys:String x:Key="Btn.ShowText">SHOW</sys:String>
     <sys:String x:Key="Btn.LoopTooltip">Slide loop — automatic cycling (any operator action stops it)</sys:String>
+    <sys:String x:Key="Btn.WinMinimizeTooltip">Minimize</sys:String>
+    <sys:String x:Key="Btn.WinCloseTooltip">Close</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">SAVE SET</sys:String>
     <sys:String x:Key="Btn.Clear">CLEAR SET</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ DISPLAY</sys:String>
