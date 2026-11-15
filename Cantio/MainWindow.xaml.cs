@@ -1393,7 +1393,6 @@ public partial class MainWindow : Window
         var topStr    = _db.GetSettingSync("window_top");
         var widthStr  = _db.GetSettingSync("window_width");
         var heightStr = _db.GetSettingSync("window_height");
-        var maxStr    = _db.GetSettingSync("window_maximized");
 
         if (double.TryParse(leftStr,   System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double left)
          && double.TryParse(topStr,    System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double top)
@@ -1430,9 +1429,9 @@ public partial class MainWindow : Window
             Top  = primary.WorkingArea.Top  + (primary.WorkingArea.Height - Height) / 2;
         }
 
-        // W trybie serwerowym okno ma zostać zminimalizowane — zapamiętane „zmaksymalizowane"
-        // wyciągnęłoby je z powrotem na projekcję.
-        if (maxStr == "True" && AppModeRules.ShouldShowMainWindow(AppMode.Current))
+        // Okno główne zawsze startuje zmaksymalizowane (bez paska nie da się go przesunąć).
+        // W trybie serwerowym zostaje jak dotąd — nie maksymalizujemy.
+        if (AppModeRules.ShouldShowMainWindow(AppMode.Current))
             WindowState = WindowState.Maximized;
     }
 
@@ -1458,6 +1457,7 @@ public partial class MainWindow : Window
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
+        ApplyMaximizedMargin();
         if (AppModeRules.ShouldShowMainWindow(AppMode.Current)) return;
 
         var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
@@ -1495,6 +1495,19 @@ public partial class MainWindow : Window
     private void TabTemplate_Click(object sender, RoutedEventArgs e) => ShowPane(PaneTemplate, TabTemplate);
     private void TabImport_Click(object sender, RoutedEventArgs e) => ShowPane(PaneImport, TabImport);
     private void TabAbout_Click(object sender, RoutedEventArgs e) => ShowPane(PaneAbout, TabAbout);
+    private void BtnWinMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    private void BtnWinClose_Click(object sender, RoutedEventArgs e) => Close();
+
+    // WindowChrome bez paska: zmaksymalizowane okno wystaje poza obszar roboczy o grubosc ramki - cofamy marginesem.
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        ApplyMaximizedMargin();
+    }
+
+    private void ApplyMaximizedMargin() =>
+        RootGrid.Margin = WindowState == WindowState.Maximized ? SystemParameters.WindowResizeBorderThickness : new Thickness(0);
+
     private void TabSupport_Click(object sender, RoutedEventArgs e) =>
         System.Diagnostics.Process.Start(
             new System.Diagnostics.ProcessStartInfo("https://buycoffee.to/marekwojtaszek")

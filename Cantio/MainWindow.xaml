@@ -11,6 +11,12 @@
         FontFamily="{StaticResource BodyFont}"
         Icon="cantio.ico">
 
+    <!-- Bez paska tytulowego: CaptionHeight=0 usuwa pasek systemowy, a okno zachowuje zachowanie zwyklego okna
+         (pasek zadan, Alt+F4, maksymalizacja w obszarze roboczym). Margines w stanie Maximized: MainWindow.OnStateChanged. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
@@ -405,6 +411,12 @@
             </Setter>
         </Style>
 
+        <!--  PRZYPIĘTE: nazwa zestawu — jak aktywna pozycja ZESTAW (hover z OutlineBtn zostaje)  -->
+        <Style x:Key="PinnedSetBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+            <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
+        </Style>
+
         <!--  RED BUTTON  -->
         <Style x:Key="RedBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
@@ -622,7 +634,7 @@
 
     </Window.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
@@ -635,6 +647,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
@@ -772,6 +785,20 @@
                     </Button>
                 </StackPanel>
                 </Viewbox>
+
+                <!-- Minimalizuj / zamknij (okno jest zawsze zmaksymalizowane, wiec bez przycisku maksymalizacji) -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <Button x:Name="BtnWinMinimize" AutomationProperties.AutomationId="BtnWinMinimize"
+                            Style="{StaticResource TabBtn}" Height="56" MinWidth="60" Padding="0" Focusable="False"
+                            ToolTip="{DynamicResource Btn.WinMinimizeTooltip}" Click="BtnWinMinimize_Click">
+                        <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
+                    </Button>
+                    <Button x:Name="BtnWinClose" AutomationProperties.AutomationId="BtnWinClose"
+                            Style="{StaticResource TabBtn}" Height="56" MinWidth="60" Padding="0" Focusable="False"
+                            ToolTip="{DynamicResource Btn.WinCloseTooltip}" Click="BtnWinClose_Click">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -939,11 +966,15 @@
                     <Grid Grid.Column="1" Background="{DynamicResource Brush.BgApp}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="160*" MinWidth="160"/>  <!-- Col 0: Kategorie + sterowanie -->
-                            <ColumnDefinition Width="354*"/>                 <!-- Col 1: Pieśni + belka (36) + podgląd 16:9 -->
+                            <ColumnDefinition Width="354*"/>                 <!-- Col 1: Pieśni -->
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>     <!-- listy kategorii i pieśni -->
+                            <RowDefinition Height="Auto"/>  <!-- belka + podgląd + sterowanie na szerokość obu kolumn -->
+                        </Grid.RowDefinitions>
 
                         <!-- Song Edit Mode overlay — covers entire Col 1 -->
-                        <Grid x:Name="SongEditOverlay" Grid.ColumnSpan="2" Panel.ZIndex="10" Background="{DynamicResource Brush.BgApp}"
+                        <Grid x:Name="SongEditOverlay" Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="10" Background="{DynamicResource Brush.BgApp}"
                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
                               IsVisibleChanged="SongEditOverlay_IsVisibleChanged">
                             <Grid.RowDefinitions>
@@ -1349,12 +1380,10 @@
                             </Border>
                         </Grid>
 
-                    <!-- Lewa kolumna: KATEGORIE (wypełnia) + sterowanie (wysokość z zawartości) -->
+                    <!-- Lewa kolumna: KATEGORIE -->
                     <Grid Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                             <!-- KATEGORIE -->
@@ -1398,173 +1427,12 @@
                                 </Border>
                             </Grid>
 
-                    <!-- Urządzenia projekcyjne nad sterowaniem (DataContext = DevicesViewModel) -->
-                    <Grid x:Name="DevicesBarHost" Grid.Row="1" Background="{DynamicResource Brush.BgPanel}"
-                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
-                        <Grid.Resources>
-                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
-                            <Style x:Key="DeviceBarBtn" TargetType="Button">
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="FontSize" Value="15"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="MinWidth" Value="40"/>
-                                <Setter Property="MinHeight" Value="40"/>
-                                <Setter Property="Padding" Value="8,4"/>
-                                <Setter Property="Margin" Value="0,0,6,6"/>
-                                <Setter Property="VerticalAlignment" Value="Top"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
-                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Grid.Resources>
-                        <DockPanel Margin="6,6,1,0">
-                            <!-- ⏻ po prawej; urządzenia zawijają się obok -->
-                            <Button DockPanel.Dock="Right" Style="{StaticResource DeviceBarBtn}" Content="⏻"
-                                    Margin="0,0,0,6"
-                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
-                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                    Command="{Binding TogglePowerAllCommand}"/>
-                            <ItemsControl ItemsSource="{Binding Devices}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Style="{StaticResource DeviceBarBtn}"
-                                                Content="{Binding BarLabel}"
-                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
-                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
-                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
-                                                Command="{Binding DataContext.ToggleDeviceCommand,
-                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </DockPanel>
                     </Grid>
 
-                            <!-- Sterowanie (lewa kolumna): POKAŻ/WYGAŚ | ◀ | ▶ | pętla -->
-                            <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,1,0" Padding="6">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- POKAŻ / WYGAŚ button -->
-                                    <Grid Grid.Row="0" Grid.ColumnSpan="2" Height="60">
-                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
-                                                    <Setter Property="BorderThickness" Value="0"/>
-                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
-                                                    <Setter Property="FontSize" Value="30"/>
-                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
-                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Button>
-                                    </Grid>
-
-                                    <!-- ◀ Poprzedni slajd -->
-                                    <Button Grid.Row="1" Grid.Column="0" Margin="0,8,4,0" Content="◀"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding PrevSlideCommand}"/>
-
-                                    <!-- ▶ Następny slajd -->
-                                    <Button Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" Content="▶"
-                                            Style="{StaticResource NavBtn}"
-                                            FontSize="30" Height="56"
-                                            Command="{Binding NextSlideCommand}"/>
-
-                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
-                                    <Button Grid.Row="2" Grid.ColumnSpan="2" Content="🔁" Margin="0,8,0,0"
-                                            Width="Auto" Height="48" FontSize="24"
-                                            IsEnabled="{Binding CanLoop}"
-                                            Command="{Binding ToggleLoopCommand}"
-                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
-                                                        <Setter Property="BorderThickness" Value="2"/>
-                                                    </DataTrigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </Grid>
-                            </Border>
-                    </Grid>
-
-                    <!-- Prawa kolumna: PIEŚNI (wypełnia) + belka (36) i podgląd 16:9 na szerokość kolumny -->
+                    <!-- Prawa kolumna: PIEŚNI -->
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                             <!-- PIEĹšNI -->
@@ -1855,41 +1723,18 @@
                                 </Border>
                             </Grid>
 
-                    <!-- Podgląd 16:9 + belka statusu -->
-                    <!-- Belka (stały wiersz 36 px) nad podglądem; podgląd: wysokość z szerokości, max 360 (MaxWidth 640 = 16:9), wyśrodkowany -->
-                    <Grid Grid.Row="1">
+                    </Grid>
+<!-- Podgląd 16:9 na szerokość obu kolumn + jeden rząd: urządzenia | sterowanie -->
+                    <Grid Grid.Row="1" Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                                <!-- Belka "Trwa projekcja" -->
-                                <Border Grid.Row="0" Padding="2"
-                                        Background="#d44a4a15"
-                                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                    <Setter Property="Visibility" Value="Hidden"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Ellipse Width="10" Height="10" Fill="{DynamicResource Brush.StatusLive}" Margin="0,4,5,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource Live.Label}"
-                                                   FontFamily="{StaticResource HeaderFont}"
-                                                   FontSize="22" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource Brush.StatusLive}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-
                                 <!-- Podgląd 16:9 -->
-                                <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
+                                <Border Grid.Row="0" Background="{Binding Projection.BackgroundBrush}"
                                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,1"
-                                        ClipToBounds="True" MaxHeight="360" MaxWidth="640"
+                                        ClipToBounds="True"
                             Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
                                      Converter={StaticResource WidthToHeight}}">
                                     <Border.Effect>
@@ -1904,7 +1749,189 @@
                                                                        RelativeSource={RelativeSource AncestorType={x:Type Viewbox}}}"/>
                                     </Viewbox>
                                 </Border>
+
+                                <!-- Ramka i znaczek NA ŻYWO jako nakładka (nie zmienia rozmiaru podglądu); widoczność jak dawna belka -->
+                                <Border Grid.Row="0" IsHitTestVisible="False"
+                                        BorderBrush="{DynamicResource Brush.StatusLive}" BorderThickness="3">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Grid.Row="0" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Margin="0,3,3,0" Padding="6,1"
+                                        Background="{DynamicResource Brush.StatusLive}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{DynamicResource Live.Badge}" FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource Brush.TextMain}"/>
+                                </Border>
+
+                        <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" Padding="6">
+                            <DockPanel>
+                                                    <!-- Urządzenia projekcyjne po lewej (DataContext = DevicesViewModel); znikają, gdy brak urządzeń -->
+                    <Grid x:Name="DevicesBarHost" DockPanel.Dock="Left" MaxWidth="200"
+                          Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}">
+                        <Grid.Resources>
+                            <!-- Wspólny wygląd przycisku urządzenia; kolory ze stanu przez konwerter -->
+                            <Style x:Key="DeviceBarBtn" TargetType="Button">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="MinWidth" Value="40"/>
+                                <Setter Property="MinHeight" Value="40"/>
+                                <Setter Property="Padding" Value="8,4"/>
+                                <Setter Property="Margin" Value="0,0,6,0"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Grid.Resources>
+                        <DockPanel>
+                            <!-- ⏻ po prawej; urządzenia zawijają się obok -->
+                            <Button DockPanel.Dock="Right" Style="{StaticResource DeviceBarBtn}" Content="⏻"
+                                    ToolTip="{DynamicResource Devices.BarPowerAll}"
+                                    Background="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                    Foreground="{Binding AggregatePowerState, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                    Command="{Binding TogglePowerAllCommand}"/>
+                            <ItemsControl ItemsSource="{Binding Devices}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource DeviceBarBtn}"
+                                                Content="{Binding BarLabel}"
+                                                Background="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=bg}"
+                                                Foreground="{Binding State, Converter={StaticResource PowerStateToButtonBrush}, ConverterParameter=fg}"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                                                Command="{Binding DataContext.ToggleDeviceCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
                     </Grid>
+
+                                <!-- Sterowanie: ◀ | POKAŻ/WYGAŚ | ▶ | pętla -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Margin="6,0,0,0" Content="◀"
+                                            Style="{StaticResource NavBtn}" Width="Auto"
+                                            FontSize="26" Height="48"
+                                            Command="{Binding PrevSlideCommand}"/>
+                                    <Grid Grid.Column="1" Margin="6,0,0,0">
+                                        <Button Command="{Binding ToggleBlankCommand}" Cursor="Hand" Height="48">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FontFamily" Value="{StaticResource HeaderFont}"/>
+                                                    <Setter Property="FontSize" Value="28"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource Brush.BgPanelHover}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Padding="6">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{DynamicResource Btn.Blank}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                                <Setter Property="Text" Value="{DynamicResource Btn.ShowText}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                    </Grid>
+                                    <Button Grid.Column="2" Margin="6,0,0,0" Content="▶"
+                                            Style="{StaticResource NavBtn}" Width="Auto"
+                                            FontSize="26" Height="48"
+                                            Command="{Binding NextSlideCommand}"/>
+                                    <!-- 🔁 Pętla slajdów (tryb przed mszą) -->
+                                    <Button Grid.Column="3" Content="🔁" Margin="6,0,0,0"
+                                            Width="Auto" Height="48" FontSize="24"
+                                            IsEnabled="{Binding CanLoop}"
+                                            Command="{Binding ToggleLoopCommand}"
+                                            ToolTip="{DynamicResource Btn.LoopTooltip}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLooping}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                                        <Setter Property="BorderThickness" Value="2"/>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </DockPanel>
+                        </Border>
                     </Grid>
                     </Grid>
 
@@ -1934,7 +1961,7 @@
                                                                 Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                     RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
-                                                                Style="{StaticResource OutlineBtn}">
+                                                                Style="{StaticResource PinnedSetBtn}">
                                                             <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
                                                                  liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
                                                             <StackPanel>
@@ -2010,7 +2037,7 @@
                                                                 Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                     RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
-                                                                Style="{StaticResource OutlineBtn}">
+                                                                Style="{StaticResource PinnedSetBtn}">
                                                             <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
                                                                  liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
                                                             <StackPanel>

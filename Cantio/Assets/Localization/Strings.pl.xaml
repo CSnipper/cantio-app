@@ -100,7 +100,7 @@
     <sys:String x:Key="About.DownloadUpdate">Pobierz aktualizację</sys:String>
 
     <!-- Status -->
-    <sys:String x:Key="Live.Label">TRWA PROJEKCJA</sys:String>
+    <sys:String x:Key="Live.Badge">NA ŻYWO</sys:String>
 
     <!-- Sekcje -->
     <sys:String x:Key="Section.Categories">KATEGORIE</sys:String>
@@ -119,6 +119,8 @@
     <sys:String x:Key="Btn.Blank">WYGAŚ</sys:String>
     <sys:String x:Key="Btn.ShowText">POKAŻ</sys:String>
     <sys:String x:Key="Btn.LoopTooltip">Pętla slajdów — automatyczne przewijanie w kółko (dowolna akcja operatora przerywa)</sys:String>
+    <sys:String x:Key="Btn.WinMinimizeTooltip">Minimalizuj</sys:String>
+    <sys:String x:Key="Btn.WinCloseTooltip">Zamknij</sys:String>
     <sys:String x:Key="Btn.SaveSetlist">ZAPISZ ZESTAW</sys:String>
     <sys:String x:Key="Btn.Clear">WYCZYŚĆ ZESTAW</sys:String>
     <sys:String x:Key="Btn.LoadToDisplay">▶ WYŚWIETLAJ</sys:String>
