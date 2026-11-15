@@ -100,7 +100,7 @@
     <sys:String x:Key="About.DownloadUpdate">Pobierz aktualizację</sys:String>
 
     <!-- Status -->
-    <sys:String x:Key="Live.Label">TRWA PROJEKCJA</sys:String>
+    <sys:String x:Key="Live.Badge">NA ŻYWO</sys:String>
 
     <!-- Sekcje -->
     <sys:String x:Key="Section.Categories">KATEGORIE</sys:String>

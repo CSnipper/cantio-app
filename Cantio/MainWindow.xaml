@@ -1718,39 +1718,15 @@
                             </Grid>
 
                     </Grid>
-<!-- Belka "Trwa projekcja" + podgląd 16:9 na szerokość obu kolumn + jeden rząd: urządzenia | sterowanie -->
+<!-- Podgląd 16:9 na szerokość obu kolumn + jeden rząd: urządzenia | sterowanie -->
                     <Grid Grid.Row="1" Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                                <!-- Belka "Trwa projekcja" -->
-                                <Border Grid.Row="0" Padding="2"
-                                        Background="#d44a4a15"
-                                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
-                                                    <Setter Property="Visibility" Value="Hidden"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Ellipse Width="10" Height="10" Fill="{DynamicResource Brush.StatusLive}" Margin="0,4,5,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource Live.Label}"
-                                                   FontFamily="{StaticResource HeaderFont}"
-                                                   FontSize="22" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource Brush.StatusLive}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-
                                 <!-- Podgląd 16:9 -->
-                                <Border Grid.Row="1" Background="{Binding Projection.BackgroundBrush}"
+                                <Border Grid.Row="0" Background="{Binding Projection.BackgroundBrush}"
                                         BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,1"
                                         ClipToBounds="True"
                             Height="{Binding ActualWidth, RelativeSource={RelativeSource Self},
@@ -1768,7 +1744,38 @@
                                     </Viewbox>
                                 </Border>
 
-                        <Border Grid.Row="2" Background="{DynamicResource Brush.BgPanel}" Padding="6">
+                                <!-- Ramka i znaczek NA ŻYWO jako nakładka (nie zmienia rozmiaru podglądu); widoczność jak dawna belka -->
+                                <Border Grid.Row="0" IsHitTestVisible="False"
+                                        BorderBrush="{DynamicResource Brush.StatusLive}" BorderThickness="3">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Grid.Row="0" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Margin="0,3,3,0" Padding="6,1"
+                                        Background="{DynamicResource Brush.StatusLive}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ScreenBlanked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{DynamicResource Live.Badge}" FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource Brush.TextMain}"/>
+                                </Border>
+
+                        <Border Grid.Row="1" Background="{DynamicResource Brush.BgPanel}" Padding="6">
                             <DockPanel>
                                                     <!-- Urządzenia projekcyjne po lewej (DataContext = DevicesViewModel); znikają, gdy brak urządzeń -->
                     <Grid x:Name="DevicesBarHost" DockPanel.Dock="Left" MaxWidth="200"

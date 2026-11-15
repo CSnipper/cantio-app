@@ -100,7 +100,7 @@
     <sys:String x:Key="About.DownloadUpdate">Download update</sys:String>
 
     <!-- Status -->
-    <sys:String x:Key="Live.Label">PROJECTION ACTIVE</sys:String>
+    <sys:String x:Key="Live.Badge">LIVE</sys:String>
 
     <!-- Sections -->
     <sys:String x:Key="Section.Categories">CATEGORIES</sys:String>

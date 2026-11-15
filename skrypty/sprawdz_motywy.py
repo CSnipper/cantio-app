@@ -33,7 +33,6 @@ ALLOWED = {
         "#000": 2,  # kolor cienia w DropShadowEffect (typ Color, pędzla motywu nie da się tu użyć)
         "#08ffffff": 1,  # półprzezroczyste podświetlenie
         "#0dc9a84c": 1,  # półprzezroczyste podświetlenie akcentem
-        "#d44a4a15": 1,  # półprzezroczyste czerwone tło belki Trwa projekcja
     },
     "Views/RemoteControlTab.xaml": {
         "#3a1e1e": 1,  # tło ostrzeżenia o braku PIN-u (odcień bez roli w motywie)
