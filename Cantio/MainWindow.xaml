@@ -411,6 +411,12 @@
             </Setter>
         </Style>
 
+        <!--  PRZYPIĘTE: nazwa zestawu — jak aktywna pozycja ZESTAW (hover z OutlineBtn zostaje)  -->
+        <Style x:Key="PinnedSetBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
+            <Setter Property="Background" Value="{DynamicResource Brush.BgSelected}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
+        </Style>
+
         <!--  RED BUTTON  -->
         <Style x:Key="RedBtn" TargetType="Button" BasedOn="{StaticResource OutlineBtn}">
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextMain}"/>
@@ -1955,7 +1961,7 @@
                                                                 Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                     RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
-                                                                Style="{StaticResource OutlineBtn}">
+                                                                Style="{StaticResource PinnedSetBtn}">
                                                             <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
                                                                  liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
                                                             <StackPanel>
@@ -2031,7 +2037,7 @@
                                                                 Command="{Binding DataContext.LoadPinnedSetlistCommand,
                                                                     RelativeSource={RelativeSource AncestorType=Window}}"
                                                                 CommandParameter="{Binding}"
-                                                                Style="{StaticResource OutlineBtn}">
+                                                                Style="{StaticResource PinnedSetBtn}">
                                                             <!-- Drugi wiersz = obchód dnia (np. „wsp. św. Dominika");
                                                                  liczony przy wyświetlaniu, NIE jest częścią nazwy zestawu -->
                                                             <StackPanel>
