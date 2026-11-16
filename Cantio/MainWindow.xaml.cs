@@ -1505,8 +1505,25 @@ public partial class MainWindow : Window
         ApplyMaximizedMargin();
     }
 
-    private void ApplyMaximizedMargin() =>
+    private void ApplyMaximizedMargin()
+    {
         RootGrid.Margin = WindowState == WindowState.Maximized ? SystemParameters.WindowResizeBorderThickness : new Thickness(0);
+        ApplyFitScale();
+    }
+
+    // Uklad jest projektowany na min. 1280x680. Mniejszy ekran (np. 1366x768 przy skali Windows 125%)
+    // dostaje calosc pomniejszona zamiast obcietego dolu i prawego brzegu.
+    private const double DesignMinWidth = 1280, DesignMinHeight = 680;
+
+    private void ApplyFitScale()
+    {
+        var m = RootGrid.Margin;
+        double w = ActualWidth - m.Left - m.Right, h = ActualHeight - m.Top - m.Bottom;
+        if (w <= 0 || h <= 0) return;
+        double s = Math.Min(1, Math.Min(w / DesignMinWidth, h / DesignMinHeight));
+        if (RootGrid.LayoutTransform is ScaleTransform st && Math.Abs(st.ScaleX - s) < 0.0001) return;
+        RootGrid.LayoutTransform = s < 1 ? new ScaleTransform(s, s) : Transform.Identity;
+    }
 
     private void TabSupport_Click(object sender, RoutedEventArgs e) =>
         System.Diagnostics.Process.Start(
@@ -1669,6 +1686,7 @@ public partial class MainWindow : Window
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
+        ApplyFitScale();
         RepositionPlayOrderPopup();
     }
 
