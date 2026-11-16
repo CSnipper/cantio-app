@@ -320,6 +320,7 @@ public partial class MainWindow : Window
             _ = _remoteControl.BroadcastJsonAsync(PilotDisplaySettings.BuildDataJson(db.GetSettings()));
         };
         _szablonVm.DioceseChanged += RefreshLitDay;
+        _szablonVm.PsalmsChanged += RefreshLitDay;   // przycisk „psalm dnia" zależy od kategorii psalmów i ich importu
         // Zmiana wydania lekcjonarza → przeładuj bieżącą pieśń (filtr zwrotek w LoadVersesAsync).
         _szablonVm.LectionaryChanged += async () => await _vm.ReloadCurrentSongAsync();
         PaneTemplate.DataContext = _szablonVm;
@@ -1198,6 +1199,17 @@ public partial class MainWindow : Window
             "boznarodzenie" or "wielkanoc" => System.Windows.Media.Color.FromRgb(0xe8, 0xc9, 0x7a),
             _ => System.Windows.Media.Color.FromRgb(0x3d, 0x8b, 0x40),
         });
+        // wołane z ticka zegara i z Loaded — wyjątek (np. wczytania zasobu psalmów) nie może wysadzić zegara
+        try
+        {
+            BtnLitPsalm.Visibility = PsalmOfDay.TitleFor(_clockDate) != null && _db.GetSettings().PsalmCategoryId > 0
+                ? Visibility.Visible : Visibility.Collapsed;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write("UI", $"Przycisk psalmu dnia: {ex.Message}");
+            BtnLitPsalm.Visibility = Visibility.Collapsed;
+        }
     }
 
     /// <summary>
@@ -1369,6 +1381,20 @@ public partial class MainWindow : Window
             new LitFormOption($"{c.Tytul} · {c.RangaLabel}", c.Tytul)));
         LitFormItems.ItemsSource = opts;
         LitPopup.IsOpen = true;
+    }
+
+    private async void BtnLitPsalm_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var title = PsalmOfDay.TitleFor(_clockDate);
+            if (title == null) return;
+            var song = await _db.FindPsalmOfDayAsync(title);
+            if (song == null) { BtnLitPsalm.Visibility = Visibility.Collapsed; return; }
+            var cmd = _vm.AddToSetlistCommand;
+            if (cmd.CanExecute(song)) cmd.Execute(song);
+        }
+        catch (Exception ex) { AppLog.Write("UI", $"Psalm dnia: {ex.Message}"); }
     }
 
     private void LitFormItem_Click(object sender, RoutedEventArgs e)

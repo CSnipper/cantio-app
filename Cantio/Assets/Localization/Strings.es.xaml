@@ -78,6 +78,8 @@
     <sys:String x:Key="Note.Title">Nota para suplentes</sys:String>
     <sys:String x:Key="Note.Tip">Nota — un mensaje breve para otros organistas</sys:String>
     <sys:String x:Key="Clock.Year">año</sys:String>
+    <sys:String x:Key="Clock.Psalm">Salmo</sys:String>
+    <sys:String x:Key="Clock.PsalmTooltip">Añadir el salmo responsorial del día al repertorio</sys:String>
     <sys:String x:Key="Sort.ByNumber">Ordenar por número</sys:String>
     <sys:String x:Key="Sort.ByAlpha">Ordenar alfabéticamente</sys:String>
     <sys:String x:Key="Settings.BlankScreen">Pantalla en negro</sys:String>

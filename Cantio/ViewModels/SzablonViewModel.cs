@@ -235,6 +235,9 @@ public partial class SzablonViewModel : ObservableObject
     /// <summary>Wywoływane po zmianie diecezji — MainWindow odświeża zegar/formularze.</summary>
     public event Action? DioceseChanged;
 
+    /// <summary>Zmieniona kategoria psalmów albo zaimportowane psalmy — MainWindow odświeża przycisk „psalm dnia".</summary>
+    public event Action? PsalmsChanged;
+
     public IReadOnlyList<string> DioceseOptions { get; } =
         new[] { "— kalendarz ogólny —" }.Concat(DiocesanCalendarService.Diecezje).ToList();
 
@@ -494,6 +497,7 @@ public partial class SzablonViewModel : ObservableObject
         await _db.SaveSettingAsync("font_auto_fit", FontAutoFit ? "true" : "false");
         await _db.SaveSettingAsync(SlideFontFit.SettingKey, SlideFontFit.ToSetting(FitScope));
         await _db.SaveSettingAsync("psalm_category_id", (SelectedPsalmCategory?.Id ?? 0).ToString());
+        PsalmsChanged?.Invoke();
         await _db.SaveSettingAsync(PsalmRefrain.SettingKey, PsalmRefrain.ToSetting(PsalmRefrainScale));
         await _db.SaveTextTagsAsync(TextTags.ToList());
         RebuildCustomTags();
@@ -727,6 +731,7 @@ public partial class SzablonViewModel : ObservableObject
         try
         {
             int count = await _db.ImportPsalmySeedAsync();
+            if (count >= 0) PsalmsChanged?.Invoke();
             if (count == -1)
                 MessageBox.Show(
                     LocalizationManager.Get("Msg.PsalmyCategoryMissing"),

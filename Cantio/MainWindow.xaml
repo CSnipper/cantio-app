@@ -681,6 +681,13 @@
                             Padding="6,1" Margin="8,0,0,0" FontSize="14"
                             VerticalAlignment="Center"
                             Click="BtnLitFormularies_Click"/>
+                    <Button x:Name="BtnLitPsalm" Content="{DynamicResource Clock.Psalm}"
+                            ToolTip="{DynamicResource Clock.PsalmTooltip}"
+                            Style="{StaticResource OutlineBtn}"
+                            Visibility="Collapsed" Focusable="False"
+                            Padding="6,1" Margin="8,0,0,0" FontSize="14"
+                            VerticalAlignment="Center"
+                            Click="BtnLitPsalm_Click"/>
                     <Popup x:Name="LitPopup" StaysOpen="False" AllowsTransparency="True"
                            PlacementTarget="{Binding ElementName=BtnLitFormularies}" Placement="Bottom">
                         <Border Background="{DynamicResource Brush.BgPanel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"

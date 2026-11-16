@@ -205,6 +205,30 @@ public class DatabaseService
             .FirstOrDefaultAsync(s => s.Title == title);
     }
 
+    /// <summary>
+    /// Pieśń-psalm o dokładnie takim tytule (ordinal, po Trim — jak import psalmów; SQLite zna
+    /// lower()/LIKE tylko dla ASCII) w kategorii z ustawienia <c>PsalmCategoryId</c>. Brak ustawienia
+    /// (0) albo brak pieśni → <c>null</c>. Zwraca encję ze zwrotkami, gotową do dodania do zestawu.
+    /// Duplikat tytułu: wygrywa najstarsza pieśń (jak <see cref="ImportPsalmySeedAsync"/>).
+    /// </summary>
+    public async Task<Song?> FindPsalmOfDayAsync(string title)
+    {
+        var categoryId = GetSettings().PsalmCategoryId;
+        if (categoryId <= 0 || string.IsNullOrWhiteSpace(title)) return null;
+        await using var db = new CantioDbContext();
+        var wanted = title.Trim();
+        var candidates = await db.Songs.AsNoTracking()
+            .Where(s => s.CategoryId == categoryId)
+            .OrderBy(s => s.Id)
+            .Select(s => new { s.Id, s.Title })
+            .ToListAsync();
+        var hit = candidates.FirstOrDefault(s => string.Equals(s.Title.Trim(), wanted, StringComparison.Ordinal));
+        if (hit == null) return null;
+        return await db.Songs.AsNoTracking()
+            .Include(s => s.Verses.OrderBy(v => v.Position))
+            .FirstOrDefaultAsync(s => s.Id == hit.Id);
+    }
+
     public async Task<List<Song>> GetAllSongsAsync()
     {
         await using var db = new CantioDbContext();
