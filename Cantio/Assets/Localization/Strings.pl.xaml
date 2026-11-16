@@ -78,6 +78,8 @@
     <sys:String x:Key="Note.Title">Notatka dla zmienników</sys:String>
     <sys:String x:Key="Note.Tip">Notatka — krótka wiadomość dla innych organistów</sys:String>
     <sys:String x:Key="Clock.Year">rok</sys:String>
+    <sys:String x:Key="Clock.Psalm">Psalm</sys:String>
+    <sys:String x:Key="Clock.PsalmTooltip">Dodaj psalm responsoryjny dnia do zestawu</sys:String>
     <sys:String x:Key="Sort.ByNumber">Sortuj według numeru</sys:String>
     <sys:String x:Key="Sort.ByAlpha">Sortuj alfabetycznie</sys:String>
     <sys:String x:Key="Settings.BlankScreen">Wygaszony ekran</sys:String>
