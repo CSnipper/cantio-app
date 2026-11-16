@@ -127,6 +127,15 @@ public partial class MainWindow : Window
         // Fokus na liście pieśni — nawigacja i Enter należą do listy, nie do zestawu
         if (IsFocusInside(SongListShow))
         {
+            // Skrót „na ekran" na podświetlonej pieśni: do zestawu i od razu na ekran (Enter tylko dodaje)
+            if (_shortcutService.IsMatch(e.Key, mods, ShortcutService.SetlistShow)
+                && SongListShow.SelectedItem is Song shown)
+            {
+                _vm.AddToSetlistAndShow(shown);
+                e.Handled = true;
+                return;
+            }
+
             switch (e.Key)
             {
                 // Natywna nawigacja ListBoksa

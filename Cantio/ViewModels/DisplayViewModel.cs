@@ -1379,6 +1379,18 @@ public partial class DisplayViewModel : ObservableObject
         return newItem;
     }
 
+    /// <summary>
+    /// Skrót „na ekran" z listy pieśni: to samo co Enter (dodaj za bieżącą pozycją) + skrót z zestawu.
+    /// Nowa pozycja zestawu zawsze startuje od pierwszej zwrotki, także gdy ta sama pieśń jest już na ekranie.
+    /// </summary>
+    public void AddToSetlistAndShow(Song song)
+    {
+        AddToSetlist(song);
+        // AddToSetlist przy pustym zaznaczeniu zestawu wczytuje sam; w trakcie projekcji tylko zaznacza
+        if (SelectedSetlistItem is { } added && !ReferenceEquals(_displayedSetlistItem, added))
+            LoadSongFromSetlist(added);
+    }
+
     [RelayCommand]
     private void RemoveFromSetlist(SetlistItem item)
     {
