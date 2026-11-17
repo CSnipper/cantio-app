@@ -90,4 +90,19 @@ public static class PilotSongSync
             items = built
         });
     }
+
+    /// <summary>
+    /// Strona <c>songs_data</c> przy BŁĘDZIE ODCZYTU z bazy: bez pola <c>total</c>.
+    /// Brak <c>total</c> = Pilot nie zna liczby pieśni, więc NIE sprząta biblioteki (pusta strona
+    /// z <c>total: 0</c> kazałaby mu skasować wszystko). Stary Pilot czyta brak jako 0 — bez pogorszenia.
+    /// </summary>
+    public static string BuildSongsReadErrorJson(int offset)
+    {
+        return JsonSerializer.Serialize(new
+        {
+            type = SongsDataType,
+            offset,
+            items = Array.Empty<object>()
+        });
+    }
 }

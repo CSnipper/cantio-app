@@ -540,11 +540,11 @@ public partial class MainWindow : Window
             // stary połknięty catch{} przy dowolnym wyjątku nie wysyłał nic, a Pilot wisiał na
             // stronie 0 → pusta biblioteka (regresja produkcyjna). Serializacja jest już odporna
             // per pieśń (PilotSongSync); ten catch broni przed wyjątkiem z ODCZYTU z DB — wtedy
-            // leci pusta strona z żądanym offsetem, żeby Pilot nie wisiał.
-            int total = 0;
+            // leci strona BEZ pola total (BuildSongsReadErrorJson), żeby Pilot nie wisiał
+            // i nie skasował pieśni na podstawie pustej strony.
             try
             {
-                (total, var items) = await db.GetSongsForSyncAsync(offset, limit);
+                var (total, items) = await db.GetSongsForSyncAsync(offset, limit);
                 // Kształt komunikatu (w tym CategoryId == NULL → 0) składa PilotSongSync
                 await _remoteControl.SendToClientAsync(ws,
                     PilotSongSync.BuildSongsDataJson(offset, total, items));
@@ -552,11 +552,11 @@ public partial class MainWindow : Window
             catch (Exception ex)
             {
                 AppLog.Write("Pilot", $"get_songs (offset={offset}, limit={limit}) nieudany — " +
-                                      $"wysyłam pustą stronę: {ex.GetType().Name}: {ex.Message}");
+                                      $"wysyłam stronę bez pola total: {ex.GetType().Name}: {ex.Message}");
                 try
                 {
                     await _remoteControl.SendToClientAsync(ws,
-                        PilotSongSync.BuildSongsDataJson(offset, total, System.Array.Empty<Song>()));
+                        PilotSongSync.BuildSongsReadErrorJson(offset));
                 }
                 catch (Exception sendEx)
                 {
