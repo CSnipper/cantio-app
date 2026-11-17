@@ -995,7 +995,7 @@ public partial class MainWindow : Window
         //
         // Snapshot niesie też TOŻSAMOŚĆ bieżącej listy (`LoadedSetlistId/Name`) — telefon musi
         // wiedzieć, który rekord bazy ma zaproponować do nadpisania przy „Zapisz". Gdy lista nie
-        // pochodzi z zapisanego zestawu, id jest 0 i builder pomija oba pola.
+        // pochodzi z zapisanego zestawu, id jest 0 i builder wysyła `setlistId: 0` (jawne odpięcie), a `name` pomija.
         (List<PilotSetlistItems.Entry> Items, int ActiveIndex, int SetlistId, string Name) SetlistSnapshotForPilot()
             => (PilotSetlistItems.From(_vm.SetlistItems),
                 _vm.SelectedSetlistItem != null ? _vm.SetlistItems.IndexOf(_vm.SelectedSetlistItem) : -1,

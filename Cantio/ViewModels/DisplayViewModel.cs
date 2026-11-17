@@ -1759,10 +1759,12 @@ public partial class DisplayViewModel : ObservableObject
     [RelayCommand]
     private void ClearSetlist()
     {
+        // Odpięcie PRZED Clear(): rozgłoszenie z CollectionChanged liczy stan synchronicznie i nie
+        // może wysłać pustej listy ze starym setlistId (Pilot przypiąłby się do skasowanego zestawu).
+        SetLoadedSetlist(0, null);
         SetlistItems.Clear();
         SetlistName = string.Empty;
         SetlistGroup = string.Empty;
-        SetLoadedSetlist(0, null);
         IsCurrentSetlistPinned = false;
     }
 
