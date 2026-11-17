@@ -94,9 +94,10 @@ public static class PilotSetlistItems
     /// została wczytana albo pod którym ostatnio zapisana. Bez niej Pilot po odebraniu broadcastu
     /// nie wie, co ma zaproponować do nadpisania przy „Zapisz".
     ///
-    /// Lista, która NIE pochodzi z zapisanego zestawu (operator zebrał pieśni ręcznie, wyczyścił
-    /// zestaw, skasowano rekord), nie niesie tych pól w ogóle — brak pola znaczy „nie ma czego
-    /// nadpisywać", i to jest to samo, co widzi stary Pilot (nieznane pola ignoruje).
+    /// `setlistId` leci ZAWSZE: lista, która NIE pochodzi z zapisanego zestawu (operator zebrał
+    /// pieśni ręcznie, wyczyścił zestaw, skasowano rekord), niesie `setlistId: 0` — to jawne
+    /// odpięcie. BRAK pola Pilot czyta jako „stary desktop, nic nie zmieniam". `name` jest
+    /// pomijane, gdy puste.
     /// </summary>
     public static string BuildSetlistJson(
         IEnumerable<Entry> items, int activeIndex, int setlistId = 0, string? name = null)
@@ -107,7 +108,7 @@ public static class PilotSetlistItems
             ["activeIndex"] = activeIndex,
             ["songs"]       = ToJsonArray(items)
         };
-        if (setlistId > 0) o["setlistId"] = setlistId;
+        o["setlistId"] = Math.Max(setlistId, 0);
         if (!string.IsNullOrWhiteSpace(name)) o["name"] = name;
         return JsonSerializer.Serialize(o);
     }
