@@ -75,7 +75,13 @@ public class OpenSongImporter : ILyricsImporter
 
         int total = files.Count;
         int current = 0;
-        var runTitles = new Dictionary<int, HashSet<string>>(); // kategoria → tytuły zaimportowane w TYM przebiegu
+
+        // Ten sam <title> w kilku plikach jednego folderu → WSZYSTKIE dostają nazwę pliku
+        // (niezależnie od kolejności; nazwy w folderze są unikalne).
+        var parsed = files.ToDictionary(f => f, ParseSongFile);
+        var titleCounts = parsed.Where(kv => kv.Value != null)
+            .GroupBy(kv => (GetCategoryForFile(kv.Key) ?? string.Empty, kv.Value!.Title))
+            .ToDictionary(g => g.Key, g => g.Count());
 
         foreach (var file in files)
         {
@@ -91,7 +97,7 @@ public class OpenSongImporter : ILyricsImporter
 
             try
             {
-                var song = ParseSongFile(file);
+                var song = parsed[file];
                 if (song == null)
                 {
                     result.Skipped++;
@@ -121,24 +127,8 @@ public class OpenSongImporter : ILyricsImporter
 
                 song.CategoryId = songCategoryId;
 
-                // Ten sam <title> w kilku plikach tego samego importu → kolejny dostaje nazwę pliku.
-                if (!runTitles.TryGetValue(songCategoryId, out var seenTitles))
-                    runTitles[songCategoryId] = seenTitles = new HashSet<string>();
-                if (!seenTitles.Add(song.Title))
-                {
-                    if (!seenTitles.Add(fileName))
-                    {
-                        result.Skipped++;
-                        progress?.Report(new ImportProgress
-                        {
-                            Total = total,
-                            Current = current,
-                            Message = $"Pominięto (już istnieje): {song.Title}"
-                        });
-                        continue;
-                    }
+                if (titleCounts[(categoryName ?? string.Empty, song.Title)] > 1)
                     song.Title = fileName;
-                }
 
                 var existing = await db.GetSongByTitleAsync(song.Title, songCategoryId);
                 if (existing != null && !options.OverwriteExisting)
