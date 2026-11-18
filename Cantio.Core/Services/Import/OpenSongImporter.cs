@@ -304,7 +304,7 @@ public class OpenSongImporter : ILyricsImporter
             if (!blocks.TryGetValue(key, out var block)) continue;
 
             var text = string.Join("\n", block.lines.Where(l => !string.IsNullOrWhiteSpace(l)));
-            if (string.IsNullOrWhiteSpace(SlideText.StripSlideBreaks(text))) continue; // sam „||” = pusty slajd
+            if (SlideText.SplitOnSlideBreaks(text).Count == 0) continue; // same „||” = nic; „|” = celowo pusty slajd
 
             verses.Add(new Verse
             {
