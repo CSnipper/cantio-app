@@ -1322,7 +1322,7 @@
                                                                 <StackPanel Orientation="Horizontal" TextElement.FontSize="16">
                                                                     <TextBlock Text="{Binding Label}" FontWeight="Bold"
                                                                                Foreground="{DynamicResource Brush.Accent}" Margin="0,0,6,0"/>
-                                                                    <TextBlock Text="{Binding Text}"
+                                                                    <TextBlock Text="{Binding Text, Converter={StaticResource StripTags}}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                MaxWidth="234"/>
                                                                 </StackPanel>
@@ -1352,7 +1352,7 @@
                                                                                FontWeight="Bold" Foreground="{DynamicResource Brush.Accent}"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="1"
-                                                                               Text="{Binding Verse.Text}"
+                                                                               Text="{Binding Verse.Text, Converter={StaticResource StripTags}}"
                                                                                FontSize="16" Foreground="{DynamicResource Brush.TextMuted}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                VerticalAlignment="Center"/>

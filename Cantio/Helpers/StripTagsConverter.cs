@@ -12,7 +12,7 @@ public partial class StripTagsConverter : IValueConverter
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         => value is string s
-            ? TagPattern().Replace(s, string.Empty)
+            ? TagPattern().Replace(Services.SlideText.StripSlideBreaks(s), string.Empty)
                           .Replace("\r\n", "\r")
                           .Replace("\n", "\r")
             : value;

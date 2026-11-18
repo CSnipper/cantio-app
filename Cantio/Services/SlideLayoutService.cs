@@ -53,8 +53,20 @@ public static class SlideLayoutService
     public static List<string> SplitVerse(string text, SlideLayoutSettings settings)
     {
         if (settings.ForceSingleSlide)
-            return [text.Trim()];
+            return [SlideText.StripSlideBreaks(text).Trim()];
 
+        // Najpierw twarde podziały „||”, potem dopasowanie każdego segmentu do slajdu.
+        var segments = SlideText.SplitOnSlideBreaks(text);
+        if (segments.Count == 0) segments.Add(string.Empty);
+
+        var result = new List<string>();
+        foreach (var seg in segments)
+            result.AddRange(SplitSegment(seg, settings));
+        return result;
+    }
+
+    private static List<string> SplitSegment(string text, SlideLayoutSettings settings)
+    {
         // 10% bufor bezpieczeństwa — off-tree TextBlock może mierzyć niżej niż renderuje (zawijanie, zaokrąglenie pikseli)
         var availableH = (settings.SlideHeight - 2 * settings.MarginV) * 0.90;
 

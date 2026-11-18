@@ -34,7 +34,7 @@ public static class SlideText
                     parts.Add(content);
             }
         }
-        return string.Join("\n", parts);
+        return StripSlideBreaks(string.Join("\n", parts));
     }
 
     /// <summary>
@@ -56,4 +56,34 @@ public static class SlideText
         text = Regex.Replace(text, @"\n{2,}", "\n");
         return text.Trim();
     }
+
+    // „||” samo w linii = wymuszony podział slajdu (standard OpenSong); nigdy nie trafia na ekran.
+    private static bool IsSlideBreak(string line) => line.Trim() == "||";
+
+    private static string[] Lines(string text) => text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+
+    /// <summary>Dzieli tekst zwrotki na segmenty po liniach „||”; puste segmenty odpadają.</summary>
+    public static List<string> SplitOnSlideBreaks(string text)
+    {
+        var result = new List<string>();
+        var cur = new List<string>();
+        void Flush()
+        {
+            var seg = string.Join("\n", cur).Trim();
+            if (seg.Length > 0) result.Add(seg);
+            cur.Clear();
+        }
+        foreach (var line in Lines(text))
+        {
+            if (IsSlideBreak(line)) Flush(); else cur.Add(line);
+        }
+        Flush();
+        return result;
+    }
+
+    /// <summary>Usuwa linie „||” (gdy podział jest wyłączony lub tekst jest pokazywany wprost).</summary>
+    public static string StripSlideBreaks(string text)
+        => text.Contains("||")
+            ? string.Join("\n", Lines(text).Where(l => !IsSlideBreak(l))).Trim()
+            : text;
 }
