@@ -57,33 +57,72 @@ public static class SlideText
         return text.Trim();
     }
 
-    // „||” samo w linii = wymuszony podział slajdu (standard OpenSong); nigdy nie trafia na ekran.
-    private static bool IsSlideBreak(string line) => line.Trim() == "||";
+    /// <summary>
+    /// Linia pusta pochodząca z „|” (OpenSong). Zero-width space nie jest białym znakiem,
+    /// więc przeżywa Trim()/IsNullOrWhiteSpace w układaniu slajdów, a na ekranie jest niewidoczna.
+    /// </summary>
+    public const string BlankLine = "​";
+
+    // Pojedyncze „|” = „|” niebędące częścią „||”.
+    private static readonly Regex _singleBar = new(@"(?<!\|)\|(?!\|)", RegexOptions.Compiled);
 
     private static string[] Lines(string text) => text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
 
-    /// <summary>Dzieli tekst zwrotki na segmenty po liniach „||”; puste segmenty odpadają.</summary>
+    /// <summary>
+    /// Zamienia znaczniki OpenSong na tekst do wyświetlenia: „||” na początku/końcu linii (po trim) lub samo
+    /// w linii = podział slajdu (null w wyniku), „||” w środku zostaje; „|” w środku linii = łamanie linii,
+    /// na końcu znika, samo w linii = pusta linia (<see cref="BlankLine"/>).
+    /// </summary>
+    private static IEnumerable<string?> Tokens(string text)
+    {
+        foreach (var raw in Lines(text))
+        {
+            var t = raw.Trim();
+            // Linie bez „|” zostają bajt w bajt (wcięcia, odstępy) — tylko linie z kreską są przepisywane.
+            if (!t.Contains('|')) { yield return raw; continue; }
+            bool endBreak = false;
+            if (t.StartsWith("||")) { yield return null; t = t[2..].Trim(); }
+            if (t.EndsWith("||")) { endBreak = true; t = t[..^2].Trim(); }
+            if (t.Length > 0 && _singleBar.IsMatch(t))
+            {
+                var parts = _singleBar.Split(t).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+                if (parts.Count == 0) yield return BlankLine;
+                else foreach (var part in parts) yield return part;
+            }
+            else if (t.Length > 0) yield return t;
+            if (endBreak) yield return null;
+        }
+    }
+
+    /// <summary>
+    /// Dzieli tekst zwrotki na segmenty po podziałach „||”; puste segmenty odpadają,
+    /// ale segment złożony wyłącznie z „|” daje pusty slajd (""). Zob. <see cref="Tokens"/>.
+    /// </summary>
     public static List<string> SplitOnSlideBreaks(string text)
     {
         var result = new List<string>();
         var cur = new List<string>();
         void Flush()
         {
-            var seg = string.Join("\n", cur).Trim();
-            if (seg.Length > 0) result.Add(seg);
+            var seg = string.Join('\n', cur).Trim();
+            if (seg.Length > 0) result.Add(seg.Replace(BlankLine, "").Trim().Length == 0 ? "" : seg);
             cur.Clear();
         }
-        foreach (var line in Lines(text))
+        foreach (var tok in Tokens(text))
         {
-            if (IsSlideBreak(line)) Flush(); else cur.Add(line);
+            if (tok is null) Flush(); else cur.Add(tok);
         }
         Flush();
         return result;
     }
 
-    /// <summary>Usuwa linie „||” (gdy podział jest wyłączony lub tekst jest pokazywany wprost).</summary>
+    /// <summary>Tekst bez podziałów „||” i znaczników „|” (gdy podział jest wyłączony lub tekst jest pokazywany wprost).</summary>
     public static string StripSlideBreaks(string text)
-        => text.Contains("||")
-            ? string.Join("\n", Lines(text).Where(l => !IsSlideBreak(l))).Trim()
-            : text;
+    {
+        var s = string.Join('\n', Tokens(text).Where(t => t is not null)).Trim();
+        return s.Replace(BlankLine, "").Trim().Length == 0 && s.Contains(BlankLine) ? "" : s; // same „|” = pusty slajd
+    }
+
+    /// <summary>Usuwa znaczniki pustych linii — dla odbiorców, którym znak niewidoczny nie jest potrzebny (Pilot, czytnik ekranu).</summary>
+    public static string StripBlankMarks(string text) => text.Replace(BlankLine, "");
 }

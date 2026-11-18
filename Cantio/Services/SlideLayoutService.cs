@@ -79,6 +79,10 @@ public static class SlideLayoutService
         return result.Count > 0 ? result : [text];
     }
 
+    // Krawędź kawałka: biały znak lub znacznik pustej linii z „|” (wewnątrz kawałka zostaje).
+    private static readonly char[] _edgeWs = [' ', (char)9, (char)13, (char)10, (char)0x200B];
+    private static bool IsBlankLine(string l) => string.IsNullOrWhiteSpace(SlideText.StripBlankMarks(l));
+
     private static void SplitRecursive(string text, SlideLayoutSettings settings, double availableH, List<string> output)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
@@ -109,8 +113,8 @@ public static class SlideLayoutService
                         if (count <= 0) break;
                         var chunk = string.Join("\n",
                             lines.Skip(start).Take(count)
-                                 .SkipWhile(string.IsNullOrWhiteSpace)
-                                 .Reverse().SkipWhile(string.IsNullOrWhiteSpace).Reverse());
+                                 .SkipWhile(IsBlankLine)
+                                 .Reverse().SkipWhile(IsBlankLine).Reverse());
                         if (!string.IsNullOrWhiteSpace(chunk))
                             SplitRecursive(chunk, settings, availableH, output);
                     }
@@ -127,8 +131,8 @@ public static class SlideLayoutService
             for (int pos = text.Length - 1; pos > 0; pos--)
             {
                 if (text[pos] != breakChar) continue;
-                var prefix = includeChar ? text[..(pos + 1)].TrimEnd() : text[..pos].TrimEnd();
-                var suffix = text[(pos + 1)..].TrimStart();
+                var prefix = (includeChar ? text[..(pos + 1)] : text[..pos]).TrimEnd(_edgeWs);
+                var suffix = text[(pos + 1)..].TrimStart(_edgeWs);
                 if (string.IsNullOrWhiteSpace(prefix) || string.IsNullOrWhiteSpace(suffix)) continue;
                 if (MeasureTextHeight(prefix, settings) <= availableH)
                 {
