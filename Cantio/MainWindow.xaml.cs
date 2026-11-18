@@ -958,12 +958,12 @@ public partial class MainWindow : Window
 
         async Task BroadcastCurrentState()
         {
-            var text    = SlideLayoutService.StripFormatTags(_vm.CurrentSlideText);
+            var text    = SlideText.StripBlankMarks(SlideLayoutService.StripFormatTags(_vm.CurrentSlideText));
             var title   = _vm.SelectedSong?.Title ?? "";
             var index   = _vm.CurrentSlideIndex;
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
-            var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
+            var slides  = _vm.SlideList.Select(s => SlideText.StripBlankMarks(SlideLayoutService.StripFormatTags(s.Text)).Trim()).ToList();
             var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
             var kind    = index >= 0 && index < _vm.SlideList.Count
                 ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;
@@ -975,12 +975,12 @@ public partial class MainWindow : Window
 
         async Task BroadcastCurrentStateToAsync(WebSocket ws)
         {
-            var text    = SlideLayoutService.StripFormatTags(_vm.CurrentSlideText);
+            var text    = SlideText.StripBlankMarks(SlideLayoutService.StripFormatTags(_vm.CurrentSlideText));
             var title   = _vm.SelectedSong?.Title ?? "";
             var index   = _vm.CurrentSlideIndex;
             var total   = _vm.SlideList.Count;
             var isBlank = _vm.ScreenBlanked;
-            var slides  = _vm.SlideList.Select(s => SlideLayoutService.StripFormatTags(s.Text).Trim()).ToList();
+            var slides  = _vm.SlideList.Select(s => SlideText.StripBlankMarks(SlideLayoutService.StripFormatTags(s.Text)).Trim()).ToList();
             var kinds   = _vm.SlideList.Select(SlideKind.FromSlide).ToList();
             var kind    = index >= 0 && index < _vm.SlideList.Count
                 ? SlideKind.FromSlide(_vm.SlideList[index]) : SlideKind.Verse;

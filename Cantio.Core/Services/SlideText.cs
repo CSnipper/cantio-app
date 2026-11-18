@@ -78,16 +78,18 @@ public static class SlideText
         foreach (var raw in Lines(text))
         {
             var t = raw.Trim();
+            // Linie bez „|” zostają bajt w bajt (wcięcia, odstępy) — tylko linie z kreską są przepisywane.
+            if (!t.Contains('|')) { yield return raw; continue; }
             bool endBreak = false;
             if (t.StartsWith("||")) { yield return null; t = t[2..].Trim(); }
             if (t.EndsWith("||")) { endBreak = true; t = t[..^2].Trim(); }
-            if (t.Length > 0 && t.Contains('|') && _singleBar.IsMatch(t))
+            if (t.Length > 0 && _singleBar.IsMatch(t))
             {
                 var parts = _singleBar.Split(t).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
                 if (parts.Count == 0) yield return BlankLine;
                 else foreach (var part in parts) yield return part;
             }
-            else if (t.Length > 0 || raw.Trim().Length == 0) yield return t;
+            else if (t.Length > 0) yield return t;
             if (endBreak) yield return null;
         }
     }
@@ -117,8 +119,10 @@ public static class SlideText
     /// <summary>Tekst bez podziałów „||” i znaczników „|” (gdy podział jest wyłączony lub tekst jest pokazywany wprost).</summary>
     public static string StripSlideBreaks(string text)
     {
-        if (!text.Contains('|')) return text;
         var s = string.Join('\n', Tokens(text).Where(t => t is not null)).Trim();
-        return s.Replace(BlankLine, "").Trim().Length == 0 ? "" : s; // same „|” = pusty slajd
+        return s.Replace(BlankLine, "").Trim().Length == 0 && s.Contains(BlankLine) ? "" : s; // same „|” = pusty slajd
     }
+
+    /// <summary>Usuwa znaczniki pustych linii — dla odbiorców, którym znak niewidoczny nie jest potrzebny (Pilot, czytnik ekranu).</summary>
+    public static string StripBlankMarks(string text) => text.Replace(BlankLine, "");
 }

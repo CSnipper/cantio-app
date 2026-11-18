@@ -28,7 +28,7 @@ public static class SlidePhrases
         var result = new List<string>();
         foreach (var line in text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
         {
-            var trimmed = line.Trim();
+            var trimmed = SlideText.StripBlankMarks(line).Trim(); // „|” z OpenSong = pusta linia, nie fraza
             if (trimmed.Length > 0) result.Add(trimmed);
         }
         return result;
