@@ -328,6 +328,8 @@ public partial class ImportViewModel : ObservableObject
 
     private void AddLog(string type, string message)
     {
+        // Postęp per plik tylko na ekranie; reszta (pominięcia, błędy, podsumowanie) także do pliku logu.
+        if (!message.StartsWith("Pieśń: ")) AppLog.Write("Import", $"{type}: {message}");
         Application.Current.Dispatcher.Invoke(() =>
             LogEntries.Add(new LogEntry(type, message)));
     }

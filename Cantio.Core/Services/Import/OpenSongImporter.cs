@@ -76,10 +76,22 @@ public class OpenSongImporter : ILyricsImporter
         int total = files.Count;
         int current = 0;
 
+        // Ten sam <title> w kilku plikach jednego folderu → WSZYSTKIE dostają nazwę pliku
+        // (niezależnie od kolejności; nazwy w folderze są unikalne).
+        // Poza wątkiem UI: ~3000 parsowań XML zamroziłoby okno przed pierwszym postępem.
+        var (parsed, titleCounts) = await Task.Run(() =>
+        {
+            var p = files.ToDictionary(f => f, ParseSongFile);
+            var c = p.Where(kv => kv.Value != null)
+                .GroupBy(kv => (GetCategoryForFile(kv.Key) ?? string.Empty, kv.Value!.Title))
+                .ToDictionary(g => g.Key, g => g.Count());
+            return (p, c);
+        });
+
         foreach (var file in files)
         {
             current++;
-            var fileName = Path.GetFileNameWithoutExtension(file);
+            var fileName = Path.GetFileName(file); // nazwy zawierają kropki — bez ucinania
 
             progress?.Report(new ImportProgress
             {
@@ -90,7 +102,7 @@ public class OpenSongImporter : ILyricsImporter
 
             try
             {
-                var song = ParseSongFile(file);
+                var song = parsed[file];
                 if (song == null)
                 {
                     result.Skipped++;
@@ -119,6 +131,9 @@ public class OpenSongImporter : ILyricsImporter
                 }
 
                 song.CategoryId = songCategoryId;
+
+                if (titleCounts[(categoryName ?? string.Empty, song.Title)] > 1)
+                    song.Title = fileName;
 
                 var existing = await db.GetSongByTitleAsync(song.Title, songCategoryId);
                 if (existing != null && !options.OverwriteExisting)
@@ -167,8 +182,8 @@ public class OpenSongImporter : ILyricsImporter
             var root = doc.Root;
             if (root == null || root.Name != "song") return null;
 
-            var title = root.Element("title")?.Value?.Trim()
-                        ?? Path.GetFileNameWithoutExtension(path);
+            var title = root.Element("title")?.Value?.Trim();
+            if (string.IsNullOrWhiteSpace(title)) title = Path.GetFileName(path);
 
             var numberStr = root.Element("hymn_number")?.Value?.Trim() ?? "0";
             int.TryParse(numberStr, out int number);
@@ -205,7 +220,9 @@ public class OpenSongImporter : ILyricsImporter
     {
         var blocks = new Dictionary<string, (string type, List<string> lines)>(StringComparer.OrdinalIgnoreCase);
 
-        string? currentKey = null;
+        // tekst przed pierwszym znacznikiem = domyślna zwrotka [V]
+        bool implicitUsed = false, seenTag = false;
+        string? currentKey = "[V]";
         string currentType = "v";
 
         foreach (var line in raw.Split('\n'))
@@ -216,15 +233,15 @@ public class OpenSongImporter : ILyricsImporter
             if (trimmed.StartsWith(";")) continue;
 
             // znacznik bloku [V1], [C], [B], [V2] itp.
-            var tagMatch = Regex.Match(trimmed, @"^\[([A-Za-z]+)(\d*)\]");
+            var tagMatch = Regex.Match(trimmed, @"^\[([^\]]+)\]");
             if (tagMatch.Success)
             {
+                seenTag = true;
                 currentKey = tagMatch.Value; // np. [V1], [C]
-                var typeChar = tagMatch.Groups[1].Value.ToUpper();
-                currentType = typeChar switch
+                currentType = char.ToUpperInvariant(tagMatch.Groups[1].Value[0]) switch
                 {
-                    "C" => "c",
-                    "B" => "b",
+                    'C' => "c",
+                    'B' => "b",
                     _ => "v"
                 };
 
@@ -234,16 +251,32 @@ public class OpenSongImporter : ILyricsImporter
                 continue;
             }
 
-            if (currentKey == null) continue;
-
             // akordy — pomiń
             if (trimmed.StartsWith(".")) continue;
 
             // pusta linia — pomiń
             if (string.IsNullOrWhiteSpace(trimmed)) continue;
 
+            if (!blocks.ContainsKey(currentKey))
+            {
+                blocks[currentKey] = (currentType, new List<string>());
+                if (currentKey == "[V]" && !seenTag) implicitUsed = true;
+            }
+
+            // „||” = nowy slajd w OpenSong; zostaje jako osobna linia (też gdy tekst idzie za nim)
+            var content = trimmed.TrimStart();
+            if (content.StartsWith("||"))
+            {
+                blocks[currentKey].lines.Add("||");
+                content = content[2..].Trim();
+            }
+            // „tekst ||” (np. numery w różańcu) → „tekst” + „||”; „||” w środku linii zostaje
+            bool endBreak = content.EndsWith("||");
+            if (endBreak) content = content[..^2].Trim();
+
             // tekst — zaczyna się od spacji w OpenSong, ale trim i tak
-            blocks[currentKey].lines.Add(trimmed.TrimStart());
+            if (content.Length > 0) blocks[currentKey].lines.Add(content);
+            if (endBreak) blocks[currentKey].lines.Add("||");
         }
 
         // określ kolejność z <presentation> lub domyślnie po kolei
@@ -259,6 +292,10 @@ public class OpenSongImporter : ILyricsImporter
             order = blocks.Keys.ToList();
         }
 
+        // tekst bez znacznika nie występuje w <presentation> — dołącz go na początku
+        if (implicitUsed && !order.Contains("[V]", StringComparer.OrdinalIgnoreCase))
+            order.Insert(0, "[V]");
+
         var verses = new List<Verse>();
         int position = 1;
 
@@ -267,7 +304,7 @@ public class OpenSongImporter : ILyricsImporter
             if (!blocks.TryGetValue(key, out var block)) continue;
 
             var text = string.Join("\n", block.lines.Where(l => !string.IsNullOrWhiteSpace(l)));
-            if (string.IsNullOrWhiteSpace(text)) continue;
+            if (string.IsNullOrWhiteSpace(SlideText.StripSlideBreaks(text))) continue; // sam „||” = pusty slajd
 
             verses.Add(new Verse
             {
@@ -289,11 +326,11 @@ public class OpenSongImporter : ILyricsImporter
 
         if (Directory.Exists(_sourcePath))
         {
-            // pobierz wszystkie pliki — OpenSong nie ma rozszerzenia lub .xml
+            // wszystkie pliki — nazwy mają kropki ("św. Michała"), więc rozszerzenia nie da się ufać;
+            // nie-pieśni odpadają w ParseSongFile (null → Pominięto). Pomijamy foldery .svn/.git (segmenty ścieżki).
             return Directory.GetFiles(_sourcePath, "*", SearchOption.AllDirectories)
-                .Where(f => !f.Contains(".svn") && !f.Contains(".git"))
-                .Where(f => string.IsNullOrEmpty(Path.GetExtension(f))
-                         || f.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                .Where(f => !Path.GetRelativePath(_sourcePath, f).Split('\\', '/')[..^1]
+                    .Any(seg => seg is ".svn" or ".git"))
                 .ToList();
         }
 
