@@ -22,7 +22,8 @@ public sealed class RemoteControlServer : IDisposable
     /// <summary>Maksymalna liczba przechowywanych tokenów sparowanych urządzeń.</summary>
     public const int MaxTokens = 20;
 
-    private readonly HashSet<string> _tokens = [];
+    // Lista, nie HashSet: kolejność = wiek tokenu, przy przekroczeniu MaxTokens wypada najstarszy.
+    private readonly List<string> _tokens = [];
     private readonly Dictionary<string, IpFailure> _ipFailures = [];
 
     private sealed class IpFailure { public int Count; public DateTime LockedUntil; public DateTime LastFail; }
@@ -111,7 +112,8 @@ public sealed class RemoteControlServer : IDisposable
         {
             _tokens.Clear();
             foreach (var t in tokens)
-                if (!string.IsNullOrWhiteSpace(t)) _tokens.Add(t);
+                if (!string.IsNullOrWhiteSpace(t) && !_tokens.Contains(t)) _tokens.Add(t);
+            while (_tokens.Count > MaxTokens) _tokens.RemoveAt(0);   // zostają najnowsze
         }
     }
 
@@ -679,7 +681,7 @@ public sealed class RemoteControlServer : IDisposable
         lock (_lock)
         {
             _tokens.Add(token);
-            while (_tokens.Count > MaxTokens) _tokens.Remove(_tokens.First());
+            while (_tokens.Count > MaxTokens) _tokens.RemoveAt(0);
         }
         TokenIssued?.Invoke(token);
         return token;
